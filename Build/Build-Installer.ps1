@@ -70,8 +70,11 @@ if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed with exit code $
 if (-not (Test-Path $setupPath -PathType Leaf)) { throw "The expected installer was not produced: $setupPath" }
 
 $installerVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($setupPath)
-if ($installerVersion.FileVersion -ne $version -or $installerVersion.ProductVersion -notlike "$version*") {
-    throw "Installer metadata does not match release version $version."
+$actualFileVersion = [string]$installerVersion.FileVersion
+$actualProductVersion = [string]$installerVersion.ProductVersion
+Write-Host "Installer metadata: FileVersion='$actualFileVersion'; ProductVersion='$actualProductVersion'"
+if ($actualFileVersion -notlike "$version*" -or $actualProductVersion -notlike "$version*") {
+    throw "Installer metadata does not match release version $version. FileVersion='$actualFileVersion'; ProductVersion='$actualProductVersion'."
 }
 
 Write-Host "Installer created at $setupPath"
