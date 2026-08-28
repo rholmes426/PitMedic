@@ -34,4 +34,3 @@ public static class ElevatedRepairPolicy
     public static bool RequiresElevation(string repairId) =>
         !string.IsNullOrWhiteSpace(repairId) && ElevatedRepairIds.Contains(repairId);
 }
-

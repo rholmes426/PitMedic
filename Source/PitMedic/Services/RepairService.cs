@@ -175,8 +175,8 @@ public sealed class RepairService : IDisposable
             if (!plan.Id.Equals("lmu-targeted-content-reacquire", StringComparison.OrdinalIgnoreCase))
             {
                 var standardRepairId = DateTimeOffset.Now.ToString("yyyyMMdd_HHmmss");
-                var repairStorage = _executeElevatedRepairsLocally ? AppPaths.ElevatedRepairs : AppPaths.Repairs;
-                backupRoot = Path.Combine(repairStorage, "Backups", standardRepairId + "_" + SanitizeName(plan.Id));
+                var standardRepairStorage = _executeElevatedRepairsLocally ? AppPaths.ElevatedRepairs : AppPaths.Repairs;
+                backupRoot = Path.Combine(standardRepairStorage, "Backups", standardRepairId + "_" + SanitizeName(plan.Id));
                 Directory.CreateDirectory(backupRoot);
                 var completion = await RunStandardRepairAsync(incident, plan, backupRoot, token);
                 if (!settings.KeepRepairBackups)
@@ -200,8 +200,8 @@ public sealed class RepairService : IDisposable
             // Recovery data belongs in PitMedic's own writable data folder rather than the Steam
             // installation. This avoids inheriting Steam/Program Files ACLs and makes rollback
             // independent of the game folder being renamed or temporarily locked.
-            var repairStorage = _executeElevatedRepairsLocally ? AppPaths.ElevatedRepairs : AppPaths.Repairs;
-            backupRoot = Path.Combine(repairStorage, "Backups", repairId);
+            var targetedRepairStorage = _executeElevatedRepairsLocally ? AppPaths.ElevatedRepairs : AppPaths.Repairs;
+            backupRoot = Path.Combine(targetedRepairStorage, "Backups", repairId);
             Directory.CreateDirectory(backupRoot);
 
             Update(incident, plan, 8, "Creating recovery point", "Creating a reversible recovery copy of the affected LMU content...", "Copying only the packages identified by the issue. Original game content remains in place during this step.", 1, 5, true, false, false, backupRoot);
