@@ -310,7 +310,6 @@ svg { display: block; }
 .proof-bar span { color: var(--muted); font-size: 12px; line-height: 1.45; }
 
 .section { max-width: 1120px; margin: 0 auto; padding: 92px 30px; }
-.section-intro { max-width: 520px; }
 .section-kicker { display: block; margin-bottom: 13px; }
 .section h2,
 .sim-section h2,
@@ -321,14 +320,13 @@ svg { display: block; }
   line-height: 1.1;
   letter-spacing: -.025em;
 }
-.section-intro p,
 .sim-copy p {
   color: var(--muted);
   font-size: 16px;
   line-height: 1.75;
 }
+.process-kicker { margin-bottom: 26px; }
 .process-grid {
-  margin-top: 50px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 38px;
@@ -460,7 +458,8 @@ footer > div a:hover { color: var(--orange); }
   }
   .proof-bar div:last-child { border-bottom: 0; }
   .section { padding: 72px 20px; }
-  .process-grid { grid-template-columns: 1fr; gap: 30px; margin-top: 38px; }
+  .process-kicker { margin-bottom: 22px; }
+  .process-grid { grid-template-columns: 1fr; gap: 30px; }
   .process-grid article { min-height: auto; }
   .sim-inner { grid-template-columns: 1fr; gap: 40px; }
   .closing { padding: 66px 20px; grid-template-columns: 1fr; gap: 24px; }
