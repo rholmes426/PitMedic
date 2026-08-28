@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PlatformTarget>x64</PlatformTarget>
+    <AssemblyName>PitMedic.RepairHelper</AssemblyName>
+    <RootNamespace>PitMedic.RepairHelper</RootNamespace>
+    <Version>0.4.3.0</Version>
+    <AssemblyVersion>0.4.3.0</AssemblyVersion>
+    <FileVersion>0.4.3.0</FileVersion>
+    <InformationalVersion>0.4.3.0</InformationalVersion>
+    <AssemblyTitle>PitMedic Elevated Repair Helper</AssemblyTitle>
+    <Product>PitMedic Elevated Repair Helper</Product>
+    <Company>PitMedic Project</Company>
+    <Authors>PitMedic Project</Authors>
+    <Copyright>Copyright (c) 2026 PitMedic contributors</Copyright>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>..\PitMedic\Assets\PitMedic.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PitMedic\PitMedic.csproj" />
+  </ItemGroup>
+</Project>

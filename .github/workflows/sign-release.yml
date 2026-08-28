@@ -29,44 +29,80 @@ jobs:
           $tagCommit = git rev-list -n 1 "${{ inputs.release_tag }}"
           $headCommit = git rev-parse HEAD
           if ($tagCommit -ne $headCommit) { throw "Checked-out commit does not match the requested tag." }
-          [xml]$project = Get-Content -Raw Source/PitMedic/PitMedic.csproj
-          $version = [string]($project.Project.PropertyGroup.Version | Select-Object -First 1)
+          [xml]$appProject = Get-Content -Raw Source/PitMedic/PitMedic.csproj
+          [xml]$helperProject = Get-Content -Raw Source/PitMedic.RepairHelper/PitMedic.RepairHelper.csproj
+          $version = [string]($appProject.Project.PropertyGroup.Version | Select-Object -First 1)
+          $helperVersion = [string]($helperProject.Project.PropertyGroup.Version | Select-Object -First 1)
           if ("${{ inputs.release_tag }}" -ne "v$version") { throw "Release tag does not match project version $version." }
+          if ($helperVersion -ne $version) { throw "Repair helper version $helperVersion does not match app version $version." }
       - name: Set up .NET 10
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - name: Build unsigned release input
+      - name: Build unsigned app and helper
         shell: pwsh
         run: ./Build/Build-UnsignedRelease.ps1
-      - name: Upload unsigned artifact for SignPath
-        id: unsigned
+      - name: Upload unsigned binaries for SignPath
+        id: unsigned-binaries
         uses: actions/upload-artifact@v4
         with:
-          name: PitMedic-${{ inputs.release_tag }}-unsigned
+          name: PitMedic-${{ inputs.release_tag }}-unsigned-binaries
           path: Artifacts/unsigned/PitMedic-*-win-x64/
           if-no-files-found: error
           retention-days: 7
-      - name: Submit signing request
+      - name: Sign app and repair helper
         uses: signpath/github-action-submit-signing-request@v2
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
           project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
           signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
-          artifact-configuration-slug: pitmedic-windows-x64
-          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          artifact-configuration-slug: pitmedic-windows-x64-binaries
+          github-artifact-id: ${{ steps.unsigned-binaries.outputs.artifact-id }}
           wait-for-completion: true
-          output-artifact-directory: Artifacts/signed
-      - name: Verify signature and timestamp
+          output-artifact-directory: Artifacts/signed-binaries
+      - name: Verify app and helper signatures
         shell: pwsh
         run: |
           $expectedVersion = "${{ inputs.release_tag }}".TrimStart("v")
-          ./Build/Verify-SignedRelease.ps1 -Path ./Artifacts/signed -ExpectedVersion $expectedVersion
+          ./Build/Verify-SignedRelease.ps1 -Path ./Artifacts/signed-binaries -ArtifactKind Binaries -ExpectedVersion $expectedVersion
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+      - name: Build installer from signed binaries
+        shell: pwsh
+        run: ./Build/Build-Installer.ps1 -PayloadPath ./Artifacts/signed-binaries -OutputRoot ./Artifacts/unsigned-installer
+      - name: Upload unsigned installer for SignPath
+        id: unsigned-installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: PitMedic-${{ inputs.release_tag }}-unsigned-installer
+          path: Artifacts/unsigned-installer/PitMedic-Setup-x64.exe
+          if-no-files-found: error
+          retention-days: 7
+      - name: Sign installer
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: pitmedic-windows-x64-installer
+          github-artifact-id: ${{ steps.unsigned-installer.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: Artifacts/signed-installer
+      - name: Verify installer signature
+        shell: pwsh
+        run: |
+          $expectedVersion = "${{ inputs.release_tag }}".TrimStart("v")
+          ./Build/Verify-SignedRelease.ps1 -Path ./Artifacts/signed-installer -ArtifactKind Installer -ExpectedVersion $expectedVersion
+      - name: Assemble verified release package
+        shell: pwsh
+        run: ./Build/Assemble-SignedRelease.ps1 -SignedBinariesPath ./Artifacts/signed-binaries -SignedInstallerPath ./Artifacts/signed-installer
       - name: Upload verified signed release
         uses: actions/upload-artifact@v4
         with:
-          name: PitMedic-${{ inputs.release_tag }}-signed
-          path: Artifacts/signed/
+          name: PitMedic-${{ inputs.release_tag }}-signed-release
+          path: Artifacts/release/
           if-no-files-found: error
           retention-days: 90

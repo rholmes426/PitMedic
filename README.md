@@ -19,6 +19,8 @@ Install the .NET 10 SDK, clone the repository, and run `Build and Run PitMedic.c
 
 Unsigned development builds are not official public releases. Official releases must pass the repository's SignPath workflow and signature verification.
 
+The release workflow produces `PitMedic-Setup-x64.exe` plus a portable ZIP. PitMedic itself runs without administrator rights. Windows asks for administrator approval only when a repair must use the separate, allowlisted `PitMedic.RepairHelper.exe` to change protected files or system components.
+
 ## Project commitments
 
 - Every feature remains free; voluntary contributions unlock nothing.
@@ -31,4 +33,4 @@ Unsigned development builds are not official public releases. Official releases 
 
 PitMedic is licensed under [GPL-3.0-or-later](LICENSE). See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), the [privacy statement](Source/PRIVACY.md), and the [code signing policy](CODE_SIGNING_POLICY.md).
 
-Free code signing is planned through SignPath.io, certificate by SignPath Foundation. Signed releases will be built from the public repository, manually approved, timestamped, verified, and accompanied by SHA-256 information.
+Free code signing is planned through SignPath.io, certificate by SignPath Foundation. Signed releases will be built from the public repository, manually approved, timestamped, verified, and accompanied by SHA-256 information. The app and repair helper are signed before the installer is built; the completed installer is then signed and verified separately.

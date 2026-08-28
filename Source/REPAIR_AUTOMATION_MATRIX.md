@@ -2,6 +2,8 @@
 
 PitMedic prioritizes narrow, repeatable and reversible repairs. Repairs expected to take more than 2 minutes require explicit approval; significant repairs require approval regardless of duration.
 
+Ordinary monitoring and user-profile repairs run without administrator rights. Repairs that touch protected simulator-install files, an installed service or anti-cheat component, Windows time synchronization, or Windows integrity tools run through the one-shot elevated helper. The helper reconstructs the repair from the stored incident, accepts only IDs in `ElevatedRepairPolicy`, reports status through a current-user-only pipe, and exits when that repair finishes.
+
 ## Le Mans Ultimate — 9 automated fix categories
 Targeted/general Steam content repair; shader/cache rebuild; DX11 configuration reset; plugin disable/reset; Easy Anti-Cheat reinstall; ReShade/local-hook quarantine; Windows time synchronization; controlled RTSS/Afterburner retest; controlled G HUB retest.
 

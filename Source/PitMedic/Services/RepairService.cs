@@ -12,18 +12,28 @@ namespace PitMedic.Services;
 public sealed class RepairService : IDisposable
 {
     private readonly object _gate = new();
-    private readonly UsageStatsService _usage;
+    private readonly UsageStatsService? _usage;
     private CancellationTokenSource? _activeCts;
     private RepairStatus? _current;
     private DateTimeOffset _startedAt;
     private int _estimatedSeconds;
+    private readonly bool _executeElevatedRepairsLocally;
+    private readonly bool _persistStatus;
+    private readonly Guid? _repairStatusId;
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
     public event Action<RepairStatus>? StatusChanged;
 
-    public RepairService(UsageStatsService usage)
+    public RepairService(
+        UsageStatsService? usage,
+        bool executeElevatedRepairsLocally = false,
+        bool persistStatus = true,
+        Guid? repairStatusId = null)
     {
         _usage = usage;
+        _executeElevatedRepairsLocally = executeElevatedRepairsLocally;
+        _persistStatus = persistStatus;
+        _repairStatusId = repairStatusId;
     }
 
     public RepairStatus? Current
@@ -42,6 +52,7 @@ public sealed class RepairService : IDisposable
             _estimatedSeconds = Math.Max(60, plan.EstimatedMinutes * 60);
             _current = new RepairStatus
             {
+                RepairId = _repairStatusId ?? Guid.NewGuid(),
                 IncidentFolder = incident.IncidentFolder,
                 Title = plan.Title,
                 Stage = "Preparing repair",
@@ -56,7 +67,10 @@ public sealed class RepairService : IDisposable
             };
         }
         Publish(Current!);
-        _ = Task.Run(() => RunAsync(incident, plan, settings, automatic, _activeCts!.Token));
+        _ = Task.Run(() =>
+            ElevatedRepairPolicy.RequiresElevation(plan.Id) && !_executeElevatedRepairsLocally
+                ? RunElevatedViaHelperAsync(incident, plan, settings, automatic, _activeCts!.Token)
+                : RunAsync(incident, plan, settings, automatic, _activeCts!.Token));
         return true;
     }
 
@@ -69,6 +83,85 @@ public sealed class RepairService : IDisposable
         }
     }
 
+    private async Task RunElevatedViaHelperAsync(
+        IncidentRecord incident,
+        RepairPlan plan,
+        AppSettings settings,
+        bool automatic,
+        CancellationToken token)
+    {
+        try
+        {
+            Update(
+                incident,
+                plan,
+                3,
+                "Administrator approval required",
+                "Windows will ask for permission to run PitMedic's narrowly scoped repair helper.",
+                $"Only the allowlisted repair '{plan.Id}' will run with administrator rights. Monitoring remains unelevated.",
+                1,
+                Math.Max(1, plan.Steps.Count),
+                true,
+                false,
+                false,
+                null);
+
+            var final = await ElevatedRepairClient.RunAsync(
+                incident,
+                plan,
+                settings,
+                automatic,
+                Current?.RepairId ?? Guid.NewGuid(),
+                status =>
+                {
+                    PersistStatus(incident, plan, status);
+                    AcceptExternalStatus(status);
+                },
+                token);
+            if (final.Success) _usage?.RecordRepairCompleted(plan, automatic);
+        }
+        catch (OperationCanceledException ex)
+        {
+            AppLog.Write($"Elevated repair cancelled: {ex.Message}");
+            Update(
+                incident,
+                plan,
+                100,
+                "Repair cancelled",
+                ex.Message,
+                "No additional elevated repair action will be started.",
+                Math.Max(1, plan.Steps.Count),
+                Math.Max(1, plan.Steps.Count),
+                false,
+                true,
+                false,
+                null);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"Elevated repair failed: {ex}");
+            Update(
+                incident,
+                plan,
+                100,
+                "Repair needs attention",
+                $"The elevated repair helper could not complete: {ex.Message}",
+                "PitMedic preserved the incident evidence. Reinstall PitMedic if the helper is missing or damaged.",
+                Math.Max(1, plan.Steps.Count),
+                Math.Max(1, plan.Steps.Count),
+                false,
+                true,
+                false,
+                null);
+        }
+    }
+
+    private void AcceptExternalStatus(RepairStatus status)
+    {
+        lock (_gate) _current = status;
+        Publish(status);
+    }
+
     private async Task RunAsync(IncidentRecord incident, RepairPlan plan, AppSettings settings, bool automatic, CancellationToken token)
     {
         string? backupRoot = null;
@@ -76,20 +169,21 @@ public sealed class RepairService : IDisposable
         IDisposable? steamUiSuppression = null;
         try
         {
-            if (!IsAdministrator())
-                throw new InvalidOperationException("PitMedic is not running with administrator permissions. Restart PitMedic and try the repair again.");
+            if (ElevatedRepairPolicy.RequiresElevation(plan.Id) && !IsAdministrator())
+                throw new InvalidOperationException("The allowlisted repair helper is not running with administrator permissions.");
 
             if (!plan.Id.Equals("lmu-targeted-content-reacquire", StringComparison.OrdinalIgnoreCase))
             {
                 var standardRepairId = DateTimeOffset.Now.ToString("yyyyMMdd_HHmmss");
-                backupRoot = Path.Combine(AppPaths.Repairs, "Backups", standardRepairId + "_" + SanitizeName(plan.Id));
+                var standardRepairStorage = _executeElevatedRepairsLocally ? AppPaths.ElevatedRepairs : AppPaths.Repairs;
+                backupRoot = Path.Combine(standardRepairStorage, "Backups", standardRepairId + "_" + SanitizeName(plan.Id));
                 Directory.CreateDirectory(backupRoot);
                 var completion = await RunStandardRepairAsync(incident, plan, backupRoot, token);
                 if (!settings.KeepRepairBackups)
                 {
                     try { Directory.Delete(backupRoot, true); backupRoot = null; } catch { }
                 }
-                _usage.RecordRepairCompleted(plan, automatic);
+                _usage?.RecordRepairCompleted(plan, automatic);
                 Update(incident, plan, 100, "Repair complete", completion, "The repair actions completed successfully. PitMedic retained the issue evidence and repair history for review.",
                     Math.Max(1, plan.Steps.Count), Math.Max(1, plan.Steps.Count), false, true, true, backupRoot);
                 return;
@@ -106,7 +200,8 @@ public sealed class RepairService : IDisposable
             // Recovery data belongs in PitMedic's own writable data folder rather than the Steam
             // installation. This avoids inheriting Steam/Program Files ACLs and makes rollback
             // independent of the game folder being renamed or temporarily locked.
-            backupRoot = Path.Combine(AppPaths.Repairs, "Backups", repairId);
+            var targetedRepairStorage = _executeElevatedRepairsLocally ? AppPaths.ElevatedRepairs : AppPaths.Repairs;
+            backupRoot = Path.Combine(targetedRepairStorage, "Backups", repairId);
             Directory.CreateDirectory(backupRoot);
 
             Update(incident, plan, 8, "Creating recovery point", "Creating a reversible recovery copy of the affected LMU content...", "Copying only the packages identified by the issue. Original game content remains in place during this step.", 1, 5, true, false, false, backupRoot);
@@ -182,7 +277,7 @@ public sealed class RepairService : IDisposable
                     {
                         try { Directory.Delete(backupRoot, true); backupRoot = null; } catch { }
                     }
-                    _usage.RecordRepairCompleted(plan, automatic);
+                    _usage?.RecordRepairCompleted(plan, automatic);
                     Update(incident, plan, 100, "Repair complete", "Repair completed. The affected LMU content has been restored and is ready to test.", "The issue has been marked resolved. PitMedic will keep the evidence and repair record for history.", 5, 5, false, true, true, backupRoot);
                     return;
                 }
@@ -1431,7 +1526,7 @@ public sealed class RepairService : IDisposable
             BackupFolder = backupFolder
         };
         lock (_gate) _current = state;
-        PersistStatus(incident, plan, state);
+        if (_persistStatus) PersistStatus(incident, plan, state);
         Publish(state);
     }
 

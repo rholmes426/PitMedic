@@ -20,16 +20,26 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - name: Restore
-        run: dotnet restore Source/PitMedic/PitMedic.csproj
-      - name: Compile Release
+        run: dotnet restore Source/PitMedic.RepairHelper/PitMedic.RepairHelper.csproj
+      - name: Compile PitMedic Release
         run: dotnet build Source/PitMedic/PitMedic.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
+      - name: Compile elevated repair helper Release
+        run: dotnet build Source/PitMedic.RepairHelper/PitMedic.RepairHelper.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
       - name: Build unsigned release input
         shell: pwsh
         run: ./Build/Build-UnsignedRelease.ps1
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+      - name: Build unsigned installer for packaging validation
+        shell: pwsh
+        run: ./Build/Build-Installer.ps1 -PayloadPath ./Artifacts/unsigned
       - name: Upload validation artifact
         uses: actions/upload-artifact@v4
         with:
           name: PitMedic-unsigned-validation-${{ github.sha }}
-          path: Artifacts/unsigned/
+          path: |
+            Artifacts/unsigned/
+            Artifacts/installer/
           if-no-files-found: error
           retention-days: 14

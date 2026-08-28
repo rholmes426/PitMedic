@@ -4,6 +4,7 @@ cd /d "%~dp0"
 title PitMedic Development Build
 
 set "PROJECT=%~dp0Source\PitMedic\PitMedic.csproj"
+set "HELPER_PROJECT=%~dp0Source\PitMedic.RepairHelper\PitMedic.RepairHelper.csproj"
 set "OUTPUT=%~dp0Output"
 
 cls
@@ -84,7 +85,11 @@ set DOTNET_NOLOGO=1
 dotnet publish "%PROJECT%" -c Release -r win-x64 --self-contained true -p:PublishReadyToRun=false -o "%OUTPUT%"
 if errorlevel 1 goto :build_failed
 
+dotnet publish "%HELPER_PROJECT%" -c Release -r win-x64 --self-contained true -p:PublishReadyToRun=false -o "%OUTPUT%"
+if errorlevel 1 goto :build_failed
+
 if not exist "%OUTPUT%\PitMedic.exe" goto :build_failed
+if not exist "%OUTPUT%\PitMedic.RepairHelper.exe" goto :build_failed
 
 echo.
 echo ============================================================
@@ -93,9 +98,10 @@ echo ============================================================
 echo.
 echo Output:
 echo   %OUTPUT%\PitMedic.exe
+echo   %OUTPUT%\PitMedic.RepairHelper.exe
 echo.
-echo PitMedic is starting now. Windows will show a UAC prompt because the
- echo current development build intentionally runs elevated for repair access.
+echo PitMedic is starting now without administrator rights.
+echo Windows will ask for approval only when an allowlisted system repair needs it.
 echo.
 start "" "%OUTPUT%\PitMedic.exe"
 exit /b 0
