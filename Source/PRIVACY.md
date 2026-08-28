@@ -16,7 +16,7 @@ These files remain on the computer unless the user deliberately opens, copies, e
 
 ## Information transmitted
 
-PitMedic v0.4.3.0 does not transmit diagnostics, usage statistics, donor identity, advertising identifiers, or analytics to the PitMedic project.
+PitMedic v0.4.4.0 does not transmit diagnostics, usage statistics, donor identity, advertising identifiers, or analytics to the PitMedic project.
 
 Some user-approved repairs can ask Windows or Steam to perform actions such as validating installed game files. Those third-party applications operate under their own privacy policies.
 

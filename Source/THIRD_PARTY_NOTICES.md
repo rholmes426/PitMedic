@@ -24,4 +24,4 @@ PitMedic does not bundle Steam. Steam is invoked through its registered Windows 
 
 PitMedic identifies supported simulators by name solely to describe compatibility. Simulator names and trademarks remain the property of their respective owners. PitMedic is not affiliated with or endorsed by those publishers or by Valve.
 
-PitMedic v0.4.3.0 does not include simulator logos, icons, or publisher artwork.
+PitMedic v0.4.4.0 does not include simulator logos, icons, or publisher artwork.

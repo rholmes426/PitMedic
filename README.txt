@@ -1,4 +1,4 @@
-PITMEDIC v0.4.3.0 - FULL DEVELOPMENT PACKAGE
+PITMEDIC v0.4.4.0 - FULL DEVELOPMENT PACKAGE
 ==============================================
 
 PitMedic is a Windows sim-racing diagnostics and automated repair utility.
@@ -8,16 +8,17 @@ THIS PACKAGE IS COMPLETE
 This ZIP contains the full source tree, PitMedic assets, repair knowledge base,
 documentation, and Windows build/run command file. It is not a patch package.
 
-WHAT CHANGED IN v0.4.3.0
+WHAT CHANGED IN v0.4.4.0
 ------------------------
-- Open-sourced the complete PitMedic project under GPL-3.0-or-later.
-- Added contributor, security, privacy, and code-signing policies.
-- Added a Windows release builder, CI validation, and a protected SignPath
-  Foundation workflow for free public Authenticode signing.
-- Added strict verification for publisher identity, signature validity,
-  timestamp presence, version metadata, and SHA-256 release information.
-- Kept unsigned development builds separate from official signed releases.
-- Preserved all v0.4.2.1 functionality and user-interface behavior.
+- Replaced always-on administrator execution with a one-shot elevated repair
+  helper restricted to a compiled allowlist of protected repairs.
+- Added request, evidence, caller, path, and repair-policy validation before an
+  elevated repair can run.
+- Added an Inno Setup installer for the application and repair helper.
+- Added a two-stage release pipeline that signs the executables before building
+  and signing the installer.
+- Kept normal monitoring and unprotected repairs running without elevation.
+- Preserved all v0.4.3.0 functionality and user-interface behavior.
 
 BUILD + RUN
 -----------

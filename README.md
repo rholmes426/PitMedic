@@ -2,7 +2,7 @@
 
 PitMedic is a free, ad-free, open-source Windows simulator reliability monitor and repair assistant. It watches supported racing simulators, captures useful evidence when something goes wrong, explains the finding in plain language, and offers safe, reversible repairs when a known automatic fix is available.
 
-Current development version: **0.4.3.0**
+Current development version: **0.4.4.0**
 
 ## Supported simulators
 

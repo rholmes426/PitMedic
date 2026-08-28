@@ -1,6 +1,6 @@
 # PitMedic dependency inventory
 
-This inventory records the packages resolved by the v0.4.3.0 .NET 10 project. It is a release-preparation aid and does not replace the license text or notices supplied by each project.
+This inventory records the packages resolved by the v0.4.4.0 .NET 10 project. It is a release-preparation aid and does not replace the license text or notices supplied by each project.
 
 ## Direct packages
 

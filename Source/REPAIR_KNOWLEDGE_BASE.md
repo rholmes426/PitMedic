@@ -1,4 +1,4 @@
-# PitMedic Repair Knowledge Base — v0.4.3.0
+# PitMedic Repair Knowledge Base — v0.4.4.0
 
 This document summarizes the repair research represented in the executable knowledge base. Official vendor guidance is preferred. Community reports are used only when the remediation is narrow/reversible or as corroborating evidence.
 

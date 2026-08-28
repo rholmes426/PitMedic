@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: Existing protected tag for this release, for example v0.4.3.0
+        description: Existing protected tag for this release, for example v0.4.4.0
         required: true
         type: string
 
