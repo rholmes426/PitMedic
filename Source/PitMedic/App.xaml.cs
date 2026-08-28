@@ -26,7 +26,7 @@ public partial class App : System.Windows.Application
         if (!_settings.Current.LaunchMinimized && !startupLaunch)
             _mainWindow.Show();
         _monitoring.Start();
-        AppLog.Write("PitMedic v0.4.3.0 started on .NET 10 with elevated monitoring and repair permissions.");
+        AppLog.Write("PitMedic v0.4.3.0 started on .NET 10. Monitoring runs unelevated; allowlisted system repairs use the one-shot repair helper.");
     }
 
     private void ExitApplication()

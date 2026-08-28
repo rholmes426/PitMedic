@@ -5,11 +5,16 @@ namespace PitMedic.Services;
 public static class AppPaths
 {
     private static string LocalAppData => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+    private static string CommonAppData => Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
     public static string Root { get; } = Path.Combine(LocalAppData, "PitMedic");
+    public static string ElevatedRoot { get; } = Path.Combine(CommonAppData, "PitMedic");
+    public static string ElevatedRepairs { get; } = Path.Combine(ElevatedRoot, "RepairBackups");
+    public static string ElevatedAppLog { get; } = Path.Combine(ElevatedRoot, "repair-helper.log");
     private static string LegacyRoot { get; } = Path.Combine(LocalAppData, "SimWatch");
 
     public static string Incidents { get; } = Path.Combine(Root, "Incidents");
     public static string Repairs { get; } = Path.Combine(Root, "Repairs");
+    public static string RepairRequests { get; } = Path.Combine(Root, "RepairRequests");
     public static string SettingsFile { get; } = Path.Combine(Root, "settings.json");
     public static string StatsFile { get; } = Path.Combine(Root, "stats.json");
     public static string SensorReport { get; } = Path.Combine(Root, "sensor-report.txt");
@@ -20,6 +25,7 @@ public static class AppPaths
         Directory.CreateDirectory(Root);
         Directory.CreateDirectory(Incidents);
         Directory.CreateDirectory(Repairs);
+        Directory.CreateDirectory(RepairRequests);
         ImportLegacyDataIfNeeded();
     }
 

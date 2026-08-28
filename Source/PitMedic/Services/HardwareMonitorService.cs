@@ -10,6 +10,7 @@ public sealed class HardwareMonitorService : IDisposable
     private readonly Computer _computer;
     private readonly UpdateVisitor _visitor = new();
     private readonly object _gate = new();
+    private readonly bool _opened;
 
     public HardwareMonitorService()
     {
@@ -21,13 +22,26 @@ public sealed class HardwareMonitorService : IDisposable
             IsMotherboardEnabled = true,
             IsControllerEnabled = true
         };
-        _computer.Open();
+        try
+        {
+            _computer.Open();
+            _opened = true;
+        }
+        catch (Exception ex)
+        {
+            // Hardware sensors are useful context, but they are not a reason to run the whole
+            // application as administrator. Monitoring continues without sensor values when
+            // the installed driver or the current Windows policy denies access.
+            AppLog.Write($"Hardware sensor access unavailable: {ex.GetType().Name}: {ex.Message}");
+        }
     }
 
     public TelemetrySample Read(AppSettings settings)
     {
         lock (_gate)
         {
+            if (!_opened) return new TelemetrySample { Timestamp = DateTimeOffset.Now };
+
             try
             {
                 _computer.Accept(_visitor);
@@ -73,15 +87,23 @@ public sealed class HardwareMonitorService : IDisposable
             sb.AppendLine($"LibreHardwareMonitor: 0.9.6");
             sb.AppendLine($"PawnIO: {ReadPawnIoVersion() ?? "Not detected"}");
             sb.AppendLine();
+            if (!_opened)
+            {
+                sb.AppendLine("Sensor access is unavailable in this Windows session.");
+                sb.AppendLine("PitMedic continues simulator monitoring without hardware telemetry.");
+            }
             try
             {
-                _computer.Accept(_visitor);
-                foreach (var hardware in Flatten(_computer.Hardware))
+                if (_opened)
                 {
-                    sb.AppendLine($"[{hardware.HardwareType}] {hardware.Name}");
-                    foreach (var sensor in hardware.Sensors.OrderBy(s => s.SensorType).ThenBy(s => s.Name))
-                        sb.AppendLine($"  {sensor.SensorType,-14} {sensor.Name,-38} = {(sensor.Value.HasValue ? sensor.Value.Value.ToString("0.###") : "N/A")}");
-                    sb.AppendLine();
+                    _computer.Accept(_visitor);
+                    foreach (var hardware in Flatten(_computer.Hardware))
+                    {
+                        sb.AppendLine($"[{hardware.HardwareType}] {hardware.Name}");
+                        foreach (var sensor in hardware.Sensors.OrderBy(s => s.SensorType).ThenBy(s => s.Name))
+                            sb.AppendLine($"  {sensor.SensorType,-14} {sensor.Name,-38} = {(sensor.Value.HasValue ? sensor.Value.Value.ToString("0.###") : "N/A")}");
+                        sb.AppendLine();
+                    }
                 }
             }
             catch (Exception ex)
@@ -189,7 +211,10 @@ public sealed class HardwareMonitorService : IDisposable
 
     public void Dispose()
     {
-        lock (_gate) _computer.Close();
+        lock (_gate)
+        {
+            if (_opened) _computer.Close();
+        }
     }
 
     private sealed class UpdateVisitor : IVisitor

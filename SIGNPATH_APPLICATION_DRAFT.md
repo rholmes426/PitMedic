@@ -22,13 +22,13 @@ Replace the bracketed URLs after the public repository and preview release exist
 
 PitMedic is a free, ad-free Windows simulator reliability monitor and repair assistant. It monitors supported sim-racing titles, records local evidence when a software failure occurs, explains findings in plain language, and offers safe, reversible repairs for known problems. Repairs are user-visible, bounded by duration and approval rules, and use recovery copies where applicable.
 
-## Signed artifact
+## Signed artifacts
 
-PitMedic is a .NET 10 WPF Windows x64 application. The initial artifact configuration should preserve the self-contained publish directory and Authenticode-sign only the PitMedic-owned `PitMedic.exe`. Third-party assemblies must remain under their upstream identities and must not be signed as PitMedic.
+PitMedic is a .NET 10 WPF Windows x64 application with a separate one-shot elevated repair helper and an Inno Setup installer. The binary artifact configuration preserves the self-contained publish directory and Authenticode-signs only the PitMedic-owned `PitMedic.exe` and `PitMedic.RepairHelper.exe`. A second artifact configuration signs only the completed `PitMedic-Setup-x64.exe` installer. Third-party assemblies remain under their upstream identities and are not signed as PitMedic.
 
 ## Build provenance
 
-The checked-in `.github/workflows/sign-release.yml` workflow checks out an explicit protected release tag, verifies that the tag and project version agree, builds the application on a GitHub-hosted Windows runner, uploads that exact workflow artifact, submits it to SignPath, and verifies the returned publisher, version, signature, timestamp, and SHA-256 value. Every production signing request requires manual approval.
+The checked-in `.github/workflows/sign-release.yml` workflow checks out an explicit protected release tag, verifies that the tag and both project versions agree, and builds the application and helper on a GitHub-hosted Windows runner. It submits that exact binary artifact to SignPath and verifies both returned signatures. Only then does it build the installer from the signed payload, submit the installer to SignPath, and verify the returned publisher, version, signature, timestamp, and SHA-256 value. Every production signing request requires manual approval.
 
 ## Network and privacy behavior
 
@@ -36,7 +36,9 @@ PitMedic does not transmit diagnostics, usage statistics, analytics, advertising
 
 ## Elevation explanation
 
-The current preview requests administrator rights because it reads hardware sensors and can perform user-approved repairs involving protected files or system settings. Repair actions are documented in the public source and repair matrix. Before the first general public signed release, PitMedic plans to move elevated operations into a narrowly scoped signed repair helper so ordinary monitoring can run without administrator rights.
+Ordinary monitoring now runs without administrator rights. Hardware telemetry degrades gracefully when Windows does not expose a sensor to the current user. A separate helper requests elevation only for a compiled allowlist of repairs involving protected simulator files, installed services or anti-cheat, Windows time synchronization, or Windows integrity tools.
+
+The helper accepts only a one-shot request from the installed PitMedic process. It validates the parent process, request identifier, incident location, and evidence-derived repair plan; it rejects arbitrary commands and non-allowlisted repair IDs. Live status returns through a current-user-only named pipe, elevated backups/logs are isolated under `%ProgramData%\PitMedic`, and the helper exits when the repair finishes.
 
 ## Maintainer and signing roles
 

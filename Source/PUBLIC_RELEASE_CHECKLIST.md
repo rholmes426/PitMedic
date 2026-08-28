@@ -11,7 +11,10 @@
 - Contribution, security, and public code-signing policies are included.
 - Product, file, and assembly versions are consistently set to 0.4.3.0.
 - A Windows CI build and separate protected SignPath release workflow are included.
-- Signed-release validation checks the publisher, signature, timestamp, and SHA-256 value.
+- The ordinary monitoring application runs without administrator rights.
+- A one-shot repair helper elevates only evidence-derived repairs in its compiled allowlist.
+- The Inno Setup installer installs the application and helper in Program Files and keeps elevated repair storage under ProgramData.
+- Signed-release validation checks the app, helper, and installer publisher, signature, timestamp, version, and SHA-256 value.
 
 ## User/account steps required for free signing
 
@@ -20,14 +23,14 @@
 - Publish at least one clearly labeled unsigned preview release so SignPath can evaluate the running project; do not call it an official signed release.
 - Apply to SignPath Foundation with the public repository and project description.
 - After approval, configure the four repository secret/variables listed in `CODE_SIGNING.md`.
-- Configure the `pitmedic-windows-x64` artifact policy to sign only PitMedic-owned binaries.
+- Configure `pitmedic-windows-x64-binaries` to sign only `PitMedic.exe` and `PitMedic.RepairHelper.exe`.
+- Configure `pitmedic-windows-x64-installer` to sign only `PitMedic-Setup-x64.exe`.
 - Protect release tags and the `production-signing` GitHub environment; require manual approval.
 - Run the signing workflow against the exact protected release tag and retain the verified output.
 
 ## Required before the first public signed download
 
 - Complete the license-text and source-link archive for every direct and transitive dependency, including the PawnIO prerequisite arrangement.
-- Replace always-on administrator execution with a narrowly scoped, signed repair helper that elevates only when required.
 - Test install, upgrade, uninstall, monitoring, every repair path, and recovery on clean supported Windows 10 and Windows 11 systems.
 - Scan each release with Microsoft Defender and verify the installer and updater hashes.
 - Complete a formal trademark clearance review for the PitMedic name.
