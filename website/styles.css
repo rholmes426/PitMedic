@@ -81,21 +81,35 @@ svg { display: block; }
   letter-spacing: .02em;
 }
 .eyebrow span { width: 15px; height: 1px; background: var(--orange); }
-.hero h1,
 .section h2,
 .sim-section h2,
 .closing h2 {
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 700;
 }
-.hero h1 {
-  margin: 20px 0 22px;
-  color: var(--navy);
-  font-size: clamp(44px, 5vw, 62px);
-  line-height: 1.04;
-  letter-spacing: -.035em;
+.hero-logo {
+  margin: 22px 0 25px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  line-height: 1;
 }
-.hero h1 em { color: var(--orange); font-style: normal; font-weight: 600; }
+.hero-logo img {
+  width: clamp(72px, 7.5vw, 88px);
+  height: clamp(72px, 7.5vw, 88px);
+  object-fit: contain;
+}
+.hero-logo span {
+  display: flex;
+  align-items: baseline;
+  color: var(--navy);
+  font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+  font-size: clamp(46px, 5.2vw, 66px);
+  font-weight: 700;
+  letter-spacing: -.055em;
+}
+.hero-logo strong { font: inherit; color: var(--navy); }
+.hero-logo em { font: inherit; color: var(--orange); font-style: normal; }
 .hero-copy > p {
   max-width: 500px;
   margin: 0;
@@ -426,7 +440,9 @@ footer > div a:hover { color: var(--orange); }
   .brand img { width: 31px; height: 31px; }
   .header-cta { font-size: 12px; }
   .hero { padding: 56px 20px 68px; gap: 42px; }
-  .hero h1 { font-size: 42px; }
+  .hero-logo { gap: 12px; }
+  .hero-logo img { width: 66px; height: 66px; }
+  .hero-logo span { font-size: 45px; }
   .hero-copy > p { font-size: 15px; }
   .hero-actions { align-items: flex-start; flex-direction: column; gap: 17px; }
   .product-stage { width: 100%; }
