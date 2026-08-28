@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PitMedic — Sim Racing Reliability &amp; Repair</title>
+    <meta name="description" content="Free, ad-free, open-source Windows reliability monitoring and safe repair guidance for sim racing." />
+    <link rel="icon" href="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <header class="site-header">
+        <a class="brand" href="#top" aria-label="PitMedic home">
+          <img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="" />
+          <span>PitMedic</span>
+        </a>
+        <nav aria-label="Primary navigation">
+          <a href="#how-it-works">How it works</a>
+          <a href="#simulators">Simulators</a>
+          <a href="#trust">Our promise</a>
+        </nav>
+        <a class="header-cta" href="https://github.com/rholmes426/PitMedic" target="_blank" rel="noreferrer">
+          View on GitHub
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg>
+        </a>
+      </header>
+
+      <section class="hero" id="top">
+        <div class="hero-copy">
+          <div class="eyebrow"><span></span> Free · Ad-free · Open source</div>
+          <h1>Your sim stopped.<br /><em>PitMedic starts there.</em></h1>
+          <p>
+            A Windows reliability monitor and repair assistant for sim racing.
+            PitMedic captures useful evidence, explains what happened in plain
+            language, and offers safe repairs when a known fix is available.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="https://github.com/rholmes426/PitMedic" target="_blank" rel="noreferrer">
+              Explore the project
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg>
+            </a>
+            <a class="button button-secondary" href="#how-it-works">See how it works</a>
+          </div>
+          <p class="version-note">Current development version <strong>0.4.3.0</strong> · Windows 10/11</p>
+        </div>
+
+        <div class="product-stage" aria-label="PitMedic monitoring overview">
+          <div class="stage-grid" aria-hidden="true"></div>
+          <div class="app-window">
+            <div class="app-topbar">
+              <div class="app-brand">
+                <img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="" />
+                <div><strong>PitMedic</strong><small>SIM RELIABILITY</small></div>
+              </div>
+              <div class="live-pill"><span></span> MONITORING</div>
+            </div>
+            <div class="app-body">
+              <aside>
+                <span class="side-label">SIMULATORS</span>
+                <div class="sim-item active"><i>LM</i><span>Le Mans Ultimate<small>Ready</small></span></div>
+                <div class="sim-item"><i>iR</i><span>iRacing<small>Ready</small></span></div>
+                <div class="sim-item"><i>AC</i><span>ACC<small>Ready</small></span></div>
+                <div class="sim-more">+ 3 more monitored</div>
+              </aside>
+              <div class="dashboard">
+                <div class="dash-head">
+                  <div><small>SYSTEM STATUS</small><h2>Ready for the next session.</h2></div>
+                  <div class="status-ok"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></div>
+                </div>
+                <div class="metric-row">
+                  <div><small>CPU</small><strong>42°</strong><span class="line blue"></span></div>
+                  <div><small>GPU</small><strong>48°</strong><span class="line orange"></span></div>
+                  <div><small>MEMORY</small><strong>38%</strong><span class="line navy"></span></div>
+                </div>
+                <div class="activity-card">
+                  <div class="activity-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></div>
+                  <div><strong>No findings need attention</strong><span>PitMedic is watching quietly in the background.</span></div>
+                  <time>NOW</time>
+                </div>
+                <div class="trace" aria-hidden="true">
+                  <span class="trace-label">LIVE THERMAL TRACE</span>
+                  <svg viewBox="0 0 620 100" preserveAspectRatio="none">
+                    <path class="trace-grid" d="M0 25h620M0 50h620M0 75h620" />
+                    <path class="cpu-trace" d="M0 70 C45 65 55 72 95 61 S150 51 185 58 245 65 280 48 340 55 375 42 425 50 470 36 520 42 560 28 620 34" />
+                    <path class="gpu-trace" d="M0 81 C50 78 80 82 120 74 S180 70 220 75 280 63 320 69 365 60 415 65 465 55 510 60 560 48 620 52" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="floating-note">
+            <span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></span>
+            <div><strong>All clear</strong><small>6 simulators monitored</small></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="proof-bar" aria-label="PitMedic commitments">
+        <div><strong>Local-first</strong><span>Your diagnostic data stays on your PC</span></div>
+        <div><strong>Safe repairs</strong><span>Backed up, explained, and reversible</span></div>
+        <div><strong>Always free</strong><span>No ads, paid tiers, or locked features</span></div>
+      </section>
+
+      <section class="section process" id="how-it-works">
+        <div class="section-intro">
+          <span class="section-kicker">How PitMedic helps</span>
+          <h2>Less troubleshooting.<br />More racing.</h2>
+          <p>PitMedic turns a frustrating failure into a clear, guided path forward.</p>
+        </div>
+        <div class="process-grid">
+          <article><div class="step-icon monitor-icon"><i></i><i></i><i></i></div><h3>Monitor</h3><p>Watches supported simulators, relevant logs, and system health while you race.</p></article>
+          <article><div class="step-icon explain-icon"><i></i><i></i><i></i></div><h3>Explain</h3><p>Connects the evidence and tells you what happened in language that makes sense.</p></article>
+          <article><div class="step-icon repair-icon"><i></i><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></div><h3>Repair</h3><p>Offers a safe, reversible repair when PitMedic recognizes a known solution.</p></article>
+        </div>
+      </section>
+
+      <section class="sim-section" id="simulators">
+        <div class="section sim-inner">
+          <div class="sim-copy">
+            <span class="section-kicker light">Built for sim racing</span>
+            <h2>One quiet set of eyes across your whole garage.</h2>
+            <p>PitMedic is being built around the simulators people actually race, with title-specific monitoring and repair knowledge.</p>
+          </div>
+          <div class="sim-list">
+            <div class="sim-row"><strong>Le Mans Ultimate</strong><i><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></i></div>
+            <div class="sim-row"><strong>iRacing</strong><i><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></i></div>
+            <div class="sim-row"><strong>Assetto Corsa EVO</strong><i><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></i></div>
+            <div class="sim-row"><strong>RaceRoom Racing Experience</strong><i><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></i></div>
+            <div class="sim-row"><strong>Assetto Corsa Competizione</strong><i><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></i></div>
+            <div class="sim-row"><strong>Automobilista 2</strong><i><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></i></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section trust" id="trust">
+        <div class="trust-card">
+          <div>
+            <span class="section-kicker">The PitMedic promise</span>
+            <h2>Useful software should earn your trust.</h2>
+          </div>
+          <div class="promise-list">
+            <p><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg><span><strong>Free means free.</strong> Voluntary contributions never unlock features.</span></p>
+            <p><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg><span><strong>Your data stays local.</strong> Nothing is uploaded without a clear preview and your approval.</span></p>
+            <p><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg><span><strong>Repairs put you in control.</strong> Changes are backed up, explained, and designed to be recoverable.</span></p>
+            <p><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg><span><strong>The source is public.</strong> Anyone can inspect how PitMedic works under GPL-3.0.</span></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="closing">
+        <img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="PitMedic logo" />
+        <span class="section-kicker light">Open development</span>
+        <h2>Help build a calmer way<br />to solve sim problems.</h2>
+        <p>Follow development, inspect the code, or contribute your experience on GitHub.</p>
+        <a class="button button-white" href="https://github.com/rholmes426/PitMedic" target="_blank" rel="noreferrer">
+          Visit the GitHub project
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg>
+        </a>
+      </section>
+
+      <footer>
+        <a class="brand" href="#top" aria-label="PitMedic home">
+          <img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="" />
+          <span>PitMedic</span>
+        </a>
+        <p>Free, ad-free, open-source sim reliability software.</p>
+        <div>
+          <a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a>
+          <a href="https://github.com/rholmes426/PitMedic/blob/main/SECURITY.md">Security</a>
+          <a href="https://github.com/rholmes426/PitMedic/blob/main/LICENSE">License</a>
+          <a href="https://github.com/rholmes426/PitMedic">GitHub</a>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>
