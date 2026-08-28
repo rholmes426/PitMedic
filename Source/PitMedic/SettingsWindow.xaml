@@ -1,0 +1,124 @@
+<Window x:Class="PitMedic.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PitMedic Settings" Icon="Assets/PitMedic.ico" Width="860" Height="790" MinWidth="760" MinHeight="620"
+        Background="{DynamicResource BgBrush}" Foreground="{DynamicResource TextBrush}" FontSize="14"
+        WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Margin" Value="0,6,18,6"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="24,18">
+            <StackPanel>
+                <TextBlock Text="Settings" FontFamily="Segoe UI Variable Display" FontSize="27" FontWeight="SemiBold"/>
+                <TextBlock Text="Choose what PitMedic monitors and how it behaves." Foreground="{DynamicResource MutedBrush}" FontSize="13" Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="24,20,24,24">
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="SIMULATORS" Style="{StaticResource SectionHeader}"/>
+                        <WrapPanel>
+                            <CheckBox x:Name="MonitorLmu" Content="Le Mans Ultimate"/>
+                            <CheckBox x:Name="MonitorIRacing" Content="iRacing"/>
+                            <CheckBox x:Name="MonitorAce" Content="Assetto Corsa EVO"/>
+                            <CheckBox x:Name="MonitorRaceRoom" Content="RaceRoom"/>
+                            <CheckBox x:Name="MonitorAcc" Content="Assetto Corsa Competizione"/>
+                            <CheckBox x:Name="MonitorAms2" Content="Automobilista 2"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="HARDWARE TELEMETRY" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="Uncheck anything you do not want sampled or stored in issue reports." Foreground="{DynamicResource MutedBrush}" FontSize="13" Margin="0,0,0,8"/>
+                        <TextBlock Text="CPU" FontWeight="SemiBold" Margin="0,6,0,2"/>
+                        <WrapPanel>
+                            <CheckBox x:Name="CpuTemp" Content="Temperature"/>
+                            <CheckBox x:Name="CpuLoad" Content="Load"/>
+                            <CheckBox x:Name="CpuClock" Content="Clock"/>
+                            <CheckBox x:Name="CpuPower" Content="Package power"/>
+                        </WrapPanel>
+                        <TextBlock Text="GPU" FontWeight="SemiBold" Margin="0,12,0,2"/>
+                        <WrapPanel>
+                            <CheckBox x:Name="GpuTemp" Content="Core temperature"/>
+                            <CheckBox x:Name="GpuHotspot" Content="Hotspot"/>
+                            <CheckBox x:Name="GpuMemTemp" Content="VRAM temperature"/>
+                            <CheckBox x:Name="GpuLoad" Content="Load"/>
+                            <CheckBox x:Name="GpuClock" Content="Clock"/>
+                            <CheckBox x:Name="GpuPower" Content="Power"/>
+                            <CheckBox x:Name="GpuFan" Content="Fan speed"/>
+                            <CheckBox x:Name="GpuMemory" Content="VRAM usage"/>
+                        </WrapPanel>
+                        <TextBlock Text="System" FontWeight="SemiBold" Margin="0,12,0,2"/>
+                        <WrapPanel><CheckBox x:Name="SystemMemory" Content="System memory"/></WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="APP BEHAVIOR" Style="{StaticResource SectionHeader}"/>
+                        <WrapPanel>
+                            <CheckBox x:Name="StartWithWindows" Content="Start PitMedic with Windows"/>
+                            <CheckBox x:Name="MinimizeToTray" Content="Close button minimizes to tray"/>
+                            <CheckBox x:Name="LaunchMinimized" Content="Launch minimized to tray"/>
+                            <CheckBox x:Name="UseFahrenheit" Content="Display temperatures in °F"/>
+                            <CheckBox x:Name="CaptureEveryExit" Content="Preserve ambiguous exits (diagnostic)" ToolTip="Normally off. Preserves exits whose status cannot be determined, but clean exit-code-0 sessions are never treated as issues."/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="REPAIR BEHAVIOR" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="PitMedic can perform known safe repairs after a diagnosis. Repairs expected to take more than 2 minutes always require your approval." Foreground="{DynamicResource MutedBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                        <WrapPanel>
+                            <CheckBox x:Name="AutoRunSafeRepairs" Content="Automatically run safe repairs expected under 2 minutes"/>
+                            <CheckBox x:Name="AlwaysAskBeforeRepair" Content="Always ask before any repair"/>
+                            <CheckBox x:Name="KeepRepairBackups" Content="Keep recovery backups after successful repairs"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="SENSOR DIAGNOSTICS" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="Generate a hardware sensor report if a reading is unavailable." TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" FontSize="13" Margin="0,0,0,12"/>
+                        <Button Content="Generate sensor report" HorizontalAlignment="Left" Click="SensorReport_Click"/>
+                        <TextBlock x:Name="SensorReportStatus" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" FontSize="12" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="24,14">
+            <Grid>
+                <Button Content="Restore defaults" HorizontalAlignment="Left" Click="Defaults_Click"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Cancel" Margin="0,0,10,0" Click="Cancel_Click"/>
+                    <Button Style="{StaticResource PrimaryButtonStyle}" Content="Save settings" Click="Save_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

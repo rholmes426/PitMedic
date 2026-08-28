@@ -1,0 +1,58 @@
+# PitMedic v0.4.3.0
+
+PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.4.3.0
+
+- Open-sourced PitMedic under GPL-3.0-or-later.
+- Added contribution, security, privacy, and public code-signing policies.
+- Added reproducible Windows release-build automation with fixed product and file version metadata.
+- Added GitHub Actions validation and a manual, protected SignPath release workflow.
+- Added post-signing checks that reject an invalid, unexpected, or untimestamped Authenticode signature and generate a SHA-256 release manifest.
+- Kept development builds clearly separated from official signed releases.
+- Preserved all v0.4.2.1 interface, telemetry, finding-review, repair, history, Settings, and tray behavior.
+
+## Supported simulators
+- Le Mans Ultimate
+- iRacing
+- Assetto Corsa EVO
+- RaceRoom Racing Experience
+- Assetto Corsa Competizione
+- Automobilista 2
+
+## v0.4.2.1
+
+- Added a Home destination above Le Mans Ultimate and made it the default startup page.
+- Added a live system overview with CPU/GPU temperature, GPU power, memory usage, Windows/runtime details, simulator readiness, and the latest finding.
+- Changed every finding action to open a user-friendly Finding Review window before any repair or evidence-folder action.
+- Added plain-language explanations, evidence context, repair outcome, actual repair activity, timestamps, next steps, and recovery-copy access to Finding Review.
+- Added a `RUN AUTOMATIC REPAIR` action for unresolved findings with an available repair; the existing safety, approval, duration, and backup rules are still enforced.
+- Updated Findings History to use the same Review finding workflow.
+- Improved the development build error with the exact .NET 10 SDK installation command and download page.
+
+## v0.4.2.0
+
+- Rebuilt the main interface around a persistent left simulator list and a dedicated page for the selected simulator.
+- Removed the numeric prefixes and all simulator artwork from the navigation and Settings window.
+- Replaced the three large status blocks with a compact Session Story showing the latest relevant event, captured evidence, repair readiness, and review action.
+- Added per-simulator page state for running, monitoring, issue detected, repair available, and resolved findings.
+- Filtered the findings card, evidence summary, and footer to the selected simulator while keeping complete history available through All Findings.
+- Preserved the live CPU, GPU, GPU Power, load, memory, VRAM, trace, hover, repair, tray, and settings functionality.
+- Added `PROJECT_POLICY.md` for the free/ad-free voluntary-support strategy.
+- Added `PRIVACY.md` documenting local storage and the absence of diagnostic, analytics, donor, or advertising transmission in this release.
+- Added `DEPENDENCY_INVENTORY.md` and `PUBLIC_RELEASE_CHECKLIST.md` so licensing, signing, privilege separation, clean-machine testing, and website disclosures remain tracked before public launch.
+- Removed simulator logos, icons, and publisher artwork from the distributable source package.
+
+## v0.4.1.0
+- Migrated the application target from .NET 8 to .NET 10 LTS.
+- Updated System.Diagnostics.EventLog from 8.0.0 to 10.0.11.
+- Updated the Windows development build command to require and verify a .NET 10 SDK.
+- Added an SDK policy that keeps builds on the latest installed .NET 10 feature band even when newer major SDKs are installed.
+- Preserved the existing monitoring, diagnostic, repair, telemetry, and user-interface behavior.
+
+## v0.4.0.12
+- Rebalanced the GPU Power trace with additional vertical headroom so normal wattage no longer rides near the top of the chart.
+
+- Added GPU Power to the telemetry trace with an independent wattage scale.
+- Trace hover now reports Time, CPU, GPU, and GPU Power.
+- GPU hotspot remains background-only for diagnostics.

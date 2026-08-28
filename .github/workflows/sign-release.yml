@@ -1,0 +1,72 @@
+name: Sign release with SignPath
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing protected tag for this release, for example v0.4.3.0
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build-sign-verify:
+    if: startsWith(inputs.release_tag, 'v')
+    runs-on: windows-latest
+    environment: production-signing
+    steps:
+      - name: Check out requested release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag }}
+          fetch-depth: 0
+      - name: Require exact tagged commit
+        shell: pwsh
+        run: |
+          $tagCommit = git rev-list -n 1 "${{ inputs.release_tag }}"
+          $headCommit = git rev-parse HEAD
+          if ($tagCommit -ne $headCommit) { throw "Checked-out commit does not match the requested tag." }
+          [xml]$project = Get-Content -Raw Source/PitMedic/PitMedic.csproj
+          $version = [string]($project.Project.PropertyGroup.Version | Select-Object -First 1)
+          if ("${{ inputs.release_tag }}" -ne "v$version") { throw "Release tag does not match project version $version." }
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build unsigned release input
+        shell: pwsh
+        run: ./Build/Build-UnsignedRelease.ps1
+      - name: Upload unsigned artifact for SignPath
+        id: unsigned
+        uses: actions/upload-artifact@v4
+        with:
+          name: PitMedic-${{ inputs.release_tag }}-unsigned
+          path: Artifacts/unsigned/PitMedic-*-win-x64/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Submit signing request
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: pitmedic-windows-x64
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: Artifacts/signed
+      - name: Verify signature and timestamp
+        shell: pwsh
+        run: |
+          $expectedVersion = "${{ inputs.release_tag }}".TrimStart("v")
+          ./Build/Verify-SignedRelease.ps1 -Path ./Artifacts/signed -ExpectedVersion $expectedVersion
+      - name: Upload verified signed release
+        uses: actions/upload-artifact@v4
+        with:
+          name: PitMedic-${{ inputs.release_tag }}-signed
+          path: Artifacts/signed/
+          if-no-files-found: error
+          retention-days: 90

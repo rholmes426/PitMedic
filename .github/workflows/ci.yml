@@ -1,0 +1,35 @@
+name: Build validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore
+        run: dotnet restore Source/PitMedic/PitMedic.csproj
+      - name: Compile Release
+        run: dotnet build Source/PitMedic/PitMedic.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
+      - name: Build unsigned release input
+        shell: pwsh
+        run: ./Build/Build-UnsignedRelease.ps1
+      - name: Upload validation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PitMedic-unsigned-validation-${{ github.sha }}
+          path: Artifacts/unsigned/
+          if-no-files-found: error
+          retention-days: 14

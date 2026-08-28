@@ -1,0 +1,318 @@
+<Window x:Class="PitMedic.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="PitMedic" Icon="Assets/PitMedic.ico" Width="1440" Height="900" MinWidth="1180" MinHeight="720"
+        Background="{DynamicResource BgBrush}" Foreground="{DynamicResource TextBrush}" FontSize="14"
+        FontFamily="Segoe UI Variable Text" WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="False">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" CornerRadius="14" GlassFrameThickness="0"/>
+    </shell:WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="SidebarBrush" Color="#0D2B49"/>
+        <SolidColorBrush x:Key="SidebarBorderBrush" Color="#244A69"/>
+        <SolidColorBrush x:Key="SidebarMutedBrush" Color="#A9BCCF"/>
+        <SolidColorBrush x:Key="SidebarButtonBrush" Color="#1C4774"/>
+        <SolidColorBrush x:Key="SidebarButtonHoverBrush" Color="#245A8F"/>
+
+        <Style x:Key="SimulatorNavStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource TitleTextBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{StaticResource SidebarBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="18,13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="NavBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="11"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="NavBorder" Property="Background" Value="#173B60"/></Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+                                <Setter TargetName="NavBorder" Property="Background" Value="{DynamicResource PanelBrush}"/>
+                                <Setter TargetName="NavBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="NavBorder" Property="BorderThickness" Value="4,0,0,0"/>
+                                <Setter TargetName="NavBorder" Property="Padding" Value="15,13,18,13"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SidebarActionButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource TitleTextBrush}"/>
+            <Setter Property="Background" Value="{StaticResource SidebarButtonBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource SidebarButtonBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="SidebarActionBorder" CornerRadius="9" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="SidebarActionBorder" Property="Background" Value="{StaticResource SidebarButtonHoverBrush}"/>
+                                <Setter TargetName="SidebarActionBorder" Property="BorderBrush" Value="{StaticResource SidebarButtonHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True"><Setter TargetName="SidebarActionBorder" Property="Opacity" Value="0.8"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="{DynamicResource BgBrush}">
+        <Grid.RowDefinitions><RowDefinition Height="72"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="{DynamicResource TitleBarBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="0,0,0,4" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid Margin="28,0,12,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="PITMEDIC" Foreground="{DynamicResource TitleTextBrush}" FontFamily="Segoe UI Variable Display" FontWeight="Bold" FontSize="21" VerticalAlignment="Center"/>
+                    <TextBlock Text="SIM RELIABILITY" Foreground="{DynamicResource TitleMutedBrush}" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center" Margin="15,2,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource TitleBarButtonStyle}" Width="44" Height="38" Margin="0,0,8,0" Click="Settings_Click" ToolTip="PitMedic settings" shell:WindowChrome.IsHitTestVisibleInChrome="True"><TextBlock Text="⚙" Foreground="{DynamicResource TitleTextBrush}" FontFamily="Segoe UI Symbol" FontSize="23"/></Button>
+                    <Button Style="{StaticResource TitleBarButtonStyle}" Width="38" Height="34" Click="Minimize_Click" ToolTip="Minimize"><TextBlock Text="—" Foreground="{DynamicResource TitleTextBrush}" FontSize="14"/></Button>
+                    <Button x:Name="MaximizeButton" Style="{StaticResource TitleBarButtonStyle}" Width="38" Height="34" Click="Maximize_Click" ToolTip="Maximize"><TextBlock x:Name="MaximizeGlyph" Text="□" Foreground="{DynamicResource TitleTextBrush}" FontSize="14"/></Button>
+                    <Button Style="{StaticResource TitleBarButtonStyle}" Width="38" Height="34" Click="Close_Click" ToolTip="Minimize to tray"><TextBlock Text="×" Foreground="{DynamicResource TitleTextBrush}" FontSize="18"/></Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="286"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="{StaticResource SidebarBrush}">
+                <Grid Margin="18,28,18,20">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0">
+                        <TextBlock Text="OVERVIEW" Foreground="{StaticResource SidebarMutedBrush}" FontSize="11.5" FontWeight="Bold" Margin="12,0,0,12"/>
+                        <RadioButton x:Name="HomeNav" Style="{StaticResource SimulatorNavStyle}" GroupName="Simulators" Margin="0,0,0,22">
+                            <Grid MinHeight="44">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Home" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" FontWeight="SemiBold" FontSize="15"/>
+                                    <TextBlock Text="System overview" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" Opacity="0.72" FontSize="12.5" Margin="0,4,0,0"/>
+                                </StackPanel>
+                                <Ellipse x:Name="HomeDot" Grid.Column="1" Width="9" Height="9" Fill="{DynamicResource GoodBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                            </Grid>
+                        </RadioButton>
+                        <TextBlock Text="MONITORED SIMULATORS" Foreground="{StaticResource SidebarMutedBrush}" FontSize="11.5" FontWeight="Bold" Margin="12,0,0,18"/>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <RadioButton x:Name="LmuNav" Style="{StaticResource SimulatorNavStyle}" GroupName="Simulators" Tag="LeMansUltimate" Margin="0,0,0,8">
+                                <Grid MinHeight="48"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="Le Mans Ultimate" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" FontWeight="SemiBold" FontSize="15"/><TextBlock x:Name="LmuStatus" Text="Not running" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" Opacity="0.72" FontSize="12.5" Margin="0,4,0,0"/></StackPanel><Ellipse x:Name="LmuDot" Grid.Column="1" Width="9" Height="9" Fill="{StaticResource SidebarMutedBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/></Grid>
+                            </RadioButton>
+                            <RadioButton x:Name="IRacingNav" Style="{StaticResource SimulatorNavStyle}" GroupName="Simulators" Tag="IRacing" Margin="0,0,0,8">
+                                <Grid MinHeight="48"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="iRacing" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" FontWeight="SemiBold" FontSize="15"/><TextBlock x:Name="IRacingStatus" Text="Not running" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" Opacity="0.72" FontSize="12.5" Margin="0,4,0,0"/></StackPanel><Ellipse x:Name="IRacingDot" Grid.Column="1" Width="9" Height="9" Fill="{StaticResource SidebarMutedBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/></Grid>
+                            </RadioButton>
+                            <RadioButton x:Name="AceNav" Style="{StaticResource SimulatorNavStyle}" GroupName="Simulators" Tag="AssettoCorsaEvo" Margin="0,0,0,8">
+                                <Grid MinHeight="48"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="Assetto Corsa EVO" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" FontWeight="SemiBold" FontSize="15"/><TextBlock x:Name="AceStatus" Text="Not running" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" Opacity="0.72" FontSize="12.5" Margin="0,4,0,0"/></StackPanel><Ellipse x:Name="AceDot" Grid.Column="1" Width="9" Height="9" Fill="{StaticResource SidebarMutedBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/></Grid>
+                            </RadioButton>
+                            <RadioButton x:Name="RaceRoomNav" Style="{StaticResource SimulatorNavStyle}" GroupName="Simulators" Tag="RaceRoom" Margin="0,0,0,8">
+                                <Grid MinHeight="48"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="RaceRoom" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" FontWeight="SemiBold" FontSize="15"/><TextBlock x:Name="RaceRoomStatus" Text="Not running" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" Opacity="0.72" FontSize="12.5" Margin="0,4,0,0"/></StackPanel><Ellipse x:Name="RaceRoomDot" Grid.Column="1" Width="9" Height="9" Fill="{StaticResource SidebarMutedBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/></Grid>
+                            </RadioButton>
+                            <RadioButton x:Name="AccNav" Style="{StaticResource SimulatorNavStyle}" GroupName="Simulators" Tag="AssettoCorsaCompetizione" Margin="0,0,0,8">
+                                <Grid MinHeight="58"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="Assetto Corsa Competizione" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" FontWeight="SemiBold" FontSize="15"/><TextBlock x:Name="AccStatus" Text="Not running" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" Opacity="0.72" FontSize="12.5" Margin="0,4,0,0"/></StackPanel><Ellipse x:Name="AccDot" Grid.Column="1" Width="9" Height="9" Fill="{StaticResource SidebarMutedBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/></Grid>
+                            </RadioButton>
+                            <RadioButton x:Name="Ams2Nav" Style="{StaticResource SimulatorNavStyle}" GroupName="Simulators" Tag="Automobilista2">
+                                <Grid MinHeight="48"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="Automobilista 2" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" FontWeight="SemiBold" FontSize="15"/><TextBlock x:Name="Ams2Status" Text="Not running" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" Opacity="0.72" FontSize="12.5" Margin="0,4,0,0"/></StackPanel><Ellipse x:Name="Ams2Dot" Grid.Column="1" Width="9" Height="9" Fill="{StaticResource SidebarMutedBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/></Grid>
+                            </RadioButton>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <StackPanel Grid.Row="2">
+                        <Border BorderBrush="{StaticResource SidebarBorderBrush}" BorderThickness="0,1,0,0" Margin="12,18,12,20"/>
+                        <TextBlock Text="PITMEDIC" Foreground="{StaticResource SidebarMutedBrush}" FontSize="11.5" FontWeight="Bold" Margin="12,0,0,12"/>
+                        <Button Style="{StaticResource SidebarActionButtonStyle}" Click="OpenIncidents_Click" Margin="0,0,0,8"><Grid><TextBlock Text="ALL FINDINGS" Foreground="{DynamicResource TitleTextBrush}" FontWeight="SemiBold"/><TextBlock x:Name="AllFindingsCountText" Text="0" Foreground="{DynamicResource TitleMutedBrush}" HorizontalAlignment="Right"/></Grid></Button>
+                        <Button Style="{StaticResource SidebarActionButtonStyle}" Click="Settings_Click"><TextBlock Text="SETTINGS" Foreground="{DynamicResource TitleTextBrush}" FontWeight="SemiBold"/></Button>
+                        <TextBlock x:Name="RecorderStatus" Text="Monitoring" Foreground="{StaticResource SidebarMutedBrush}" FontSize="12" Margin="12,12,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+
+                <Border x:Name="RepairBanner" Grid.Row="0" Visibility="Collapsed" Margin="30,18,30,0" Background="{DynamicResource GoodSoftBrush}" BorderBrush="{DynamicResource GoodBorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><Border x:Name="RepairBannerIconBorder" Width="38" Height="38" CornerRadius="9" Background="{DynamicResource GoodSoftBrush}" Margin="0,0,12,0"><TextBlock x:Name="RepairBannerIcon" Text="…" Foreground="{DynamicResource GoodTextBrush}" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" VerticalAlignment="Center"><TextBlock x:Name="RepairBannerTitle" Text="Repair in progress" FontWeight="SemiBold"/><TextBlock x:Name="RepairBannerMessage" Text="PitMedic is working..." Foreground="{DynamicResource MutedBrush}" FontSize="12.5" Margin="0,3,0,0"/></StackPanel><StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="16,0"><ProgressBar x:Name="RepairProgressBar" Height="6" Minimum="0" Maximum="100"/><TextBlock x:Name="RepairProgressText" Text="" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" HorizontalAlignment="Right" Margin="0,4,0,0"/></StackPanel><Button x:Name="RepairDismissButton" Grid.Column="3" Content="×" Width="32" Height="32" Padding="0" BorderThickness="0" Background="Transparent" Click="RepairBannerDismiss_Click" ToolTip="Dismiss"/></Grid>
+                </Border>
+
+                <ScrollViewer x:Name="HomePage" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="32,28,32,30">
+                        <Grid Margin="0,0,0,24">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="HOME" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                                <TextBlock Text="System overview" FontFamily="Segoe UI Variable Display" FontWeight="Bold" FontSize="36" Margin="0,6,0,2"/>
+                                <TextBlock Text="Live hardware health, simulator readiness, and recent PitMedic activity." Foreground="{DynamicResource MutedBrush}" FontSize="15"/>
+                            </StackPanel>
+                            <Border x:Name="HomeStatusBorder" Grid.Column="1" Background="{DynamicResource GoodSoftBrush}" BorderBrush="{DynamicResource GoodBorderBrush}" BorderThickness="1" CornerRadius="24" Padding="17,10" VerticalAlignment="Top" Margin="24,10,0,0">
+                                <StackPanel Orientation="Horizontal"><Ellipse x:Name="HomeStatusDot" Width="10" Height="10" Fill="{DynamicResource GoodBrush}" VerticalAlignment="Center" Margin="0,0,9,0"/><TextBlock x:Name="HomeStatusText" Text="PROTECTION ACTIVE" Foreground="{DynamicResource GoodTextBrush}" FontWeight="Bold" VerticalAlignment="Center"/></StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,22">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource CardStyle}"><StackPanel><TextBlock Text="CPU TEMPERATURE" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/><TextBlock x:Name="HomeCpuTemp" Text="--°" FontFamily="Segoe UI Variable Display" FontSize="30" FontWeight="SemiBold" Margin="0,5,0,0"/><TextBlock x:Name="HomeCpuDetail" Text="Waiting for sensors" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,3,0,0"/></StackPanel></Border>
+                            <Border Grid.Column="2" Style="{StaticResource CardStyle}"><StackPanel><TextBlock Text="GPU TEMPERATURE" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/><TextBlock x:Name="HomeGpuTemp" Text="--°" FontFamily="Segoe UI Variable Display" FontSize="30" FontWeight="SemiBold" Margin="0,5,0,0"/><TextBlock x:Name="HomeGpuDetail" Text="Waiting for sensors" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,3,0,0"/></StackPanel></Border>
+                            <Border Grid.Column="4" Style="{StaticResource CardStyle}"><StackPanel><TextBlock Text="SYSTEM MEMORY" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/><TextBlock x:Name="HomeMemoryValue" Text="--%" FontFamily="Segoe UI Variable Display" FontSize="30" FontWeight="SemiBold" Margin="0,5,0,0"/><TextBlock Text="Current utilization" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,3,0,0"/></StackPanel></Border>
+                            <Border Grid.Column="6" Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="18"><StackPanel><TextBlock Text="GPU POWER" Foreground="{DynamicResource TextBrush}" FontSize="11.5" FontWeight="Bold"/><TextBlock x:Name="HomeGpuPower" Text="-- W" FontFamily="Segoe UI Variable Display" FontSize="30" FontWeight="SemiBold" Margin="0,5,0,0"/><TextBlock Text="Live board power" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,3,0,0"/></StackPanel></Border>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,22">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="20"/><ColumnDefinition Width="1.05*"/></Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="SYSTEM DETAILS" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                                    <Grid Margin="0,13,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Operating system" Foreground="{DynamicResource MutedBrush}"/><TextBlock x:Name="HomeOsText" Grid.Column="1" FontWeight="SemiBold"/></Grid>
+                                    <Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="System type" Foreground="{DynamicResource MutedBrush}"/><TextBlock x:Name="HomeArchitectureText" Grid.Column="1" FontWeight="SemiBold"/></Grid>
+                                    <Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Processor threads" Foreground="{DynamicResource MutedBrush}"/><TextBlock x:Name="HomeProcessorText" Grid.Column="1" FontWeight="SemiBold"/></Grid>
+                                    <Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="PitMedic runtime" Foreground="{DynamicResource MutedBrush}"/><TextBlock x:Name="HomeRuntimeText" Grid.Column="1" FontWeight="SemiBold"/></Grid>
+                                    <Grid Margin="0,10,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Diagnostics" Foreground="{DynamicResource MutedBrush}"/><TextBlock Text="Local to this PC" Grid.Column="1" FontWeight="SemiBold"/></Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                                <StackPanel>
+                                    <Grid><TextBlock Text="LATEST FINDING" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/><TextBlock x:Name="HomeLatestFindingTime" Text="" Foreground="{DynamicResource MutedBrush}" FontSize="12" HorizontalAlignment="Right"/></Grid>
+                                    <Border x:Name="HomeLatestFindingIconBorder" Width="42" Height="42" CornerRadius="21" Background="{DynamicResource GoodSoftBrush}" HorizontalAlignment="Left" Margin="0,14,0,0"><TextBlock x:Name="HomeLatestFindingIcon" Text="✓" Foreground="{DynamicResource GoodTextBrush}" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                                    <TextBlock x:Name="HomeLatestFindingTitle" Text="No findings yet" FontFamily="Segoe UI Variable Display" FontWeight="SemiBold" FontSize="19" Margin="0,11,0,0"/>
+                                    <TextBlock x:Name="HomeLatestFindingSummary" Text="PitMedic will summarize the most recent simulator finding here." Foreground="{DynamicResource MutedBrush}" FontSize="13" LineHeight="18" Margin="0,5,0,0"/>
+                                    <Button x:Name="HomeReviewFindingButton" Content="REVIEW FINDING" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Left" Margin="0,15,0,0" Click="HomeReviewFinding_Click" Visibility="Collapsed"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,22">
+                            <StackPanel>
+                                <Grid><TextBlock Text="SIMULATOR READINESS" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/><TextBlock x:Name="HomeMonitoringSummary" Text="6 simulators configured" Foreground="{DynamicResource MutedBrush}" FontSize="12" HorizontalAlignment="Right"/></Grid>
+                                <Grid Margin="0,13,0,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <Grid Margin="0,5"><TextBlock Text="Le Mans Ultimate" FontWeight="SemiBold"/><TextBlock x:Name="HomeLmuStatus" Text="Ready" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"/></Grid>
+                                        <Grid Margin="0,5"><TextBlock Text="iRacing" FontWeight="SemiBold"/><TextBlock x:Name="HomeIRacingStatus" Text="Ready" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"/></Grid>
+                                        <Grid Margin="0,5"><TextBlock Text="Assetto Corsa EVO" FontWeight="SemiBold"/><TextBlock x:Name="HomeAceStatus" Text="Ready" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"/></Grid>
+                                    </StackPanel>
+                                    <Border Grid.Column="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1,0,0,0" Margin="8,0"/>
+                                    <StackPanel Grid.Column="2">
+                                        <Grid Margin="0,5"><TextBlock Text="RaceRoom" FontWeight="SemiBold"/><TextBlock x:Name="HomeRaceRoomStatus" Text="Ready" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"/></Grid>
+                                        <Grid Margin="0,5"><TextBlock Text="Assetto Corsa Competizione" FontWeight="SemiBold"/><TextBlock x:Name="HomeAccStatus" Text="Ready" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"/></Grid>
+                                        <Grid Margin="0,5"><TextBlock Text="Automobilista 2" FontWeight="SemiBold"/><TextBlock x:Name="HomeAms2Status" Text="Ready" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"/></Grid>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource TitleBarBrush}" CornerRadius="12" Padding="20">
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="PITMEDIC IS WATCHING THE WHOLE RIG" Foreground="{DynamicResource TitleMutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                                    <TextBlock Text="Monitoring stays local, repairs remain reviewable, and every finding keeps its evidence." Foreground="{DynamicResource TitleTextBrush}" FontSize="14" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <Button Content="ALL FINDINGS" Style="{StaticResource SidebarActionButtonStyle}" Margin="0,0,9,0" Click="OpenIncidents_Click"/>
+                                    <Button Content="SETTINGS" Style="{StaticResource SidebarActionButtonStyle}" Click="Settings_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <ScrollViewer x:Name="SimulatorPage" Grid.Row="1" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <Grid Margin="32,28,32,30">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,26">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="SIMULATOR" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/><TextBlock x:Name="SelectedSimulatorTitle" Text="Le Mans Ultimate" FontFamily="Segoe UI Variable Display" FontWeight="Bold" FontSize="36" Margin="0,6,0,2"/><TextBlock Text="Live session monitoring, diagnostics, and repair readiness." Foreground="{DynamicResource MutedBrush}" FontSize="15"/></StackPanel>
+                            <Border x:Name="SelectedHeaderStatusBorder" Grid.Column="1" Background="{DynamicResource InfoSoftBrush}" BorderBrush="{DynamicResource InfoBorderBrush}" BorderThickness="1" CornerRadius="24" Padding="17,10" VerticalAlignment="Top" Margin="24,10,0,0"><StackPanel Orientation="Horizontal"><Ellipse x:Name="SelectedHeaderStatusDot" Width="10" Height="10" Fill="{DynamicResource TelemetryBrush}" VerticalAlignment="Center" Margin="0,0,9,0"/><TextBlock x:Name="SelectedHeaderStatusText" Text="MONITORING ACTIVE" FontWeight="Bold" VerticalAlignment="Center"/></StackPanel></Border>
+                        </Grid>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/><ColumnDefinition Width="310"/></Grid.ColumnDefinitions>
+
+                            <Grid Grid.Column="0">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+
+                                <Border Grid.Row="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1" Padding="0,15" Margin="0,0,0,26">
+                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><WrapPanel VerticalAlignment="Center"><Ellipse x:Name="SessionStoryDot" Width="9" Height="9" Fill="{DynamicResource TelemetryBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/><TextBlock x:Name="SessionStoryTime" Text="LIVE" FontWeight="Bold" VerticalAlignment="Center"/><TextBlock Text="  •  " Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/><TextBlock x:Name="SessionStoryEvent" Text="Monitoring active" VerticalAlignment="Center"/><TextBlock x:Name="SessionStorySeparatorOne" Text="  •  " Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/><TextBlock x:Name="SessionStoryEvidence" Text="Waiting for the next session" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/><TextBlock x:Name="SessionStorySeparatorTwo" Text="  •  " Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Visibility="Collapsed"/><TextBlock x:Name="SessionStoryRepair" Text="Safe repair found" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Visibility="Collapsed"/></WrapPanel><Button x:Name="SessionStoryAction" Grid.Column="1" Content="Review finding  →" Click="SessionStoryAction_Click" Padding="10,5" Margin="16,0,0,0" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource AccentHoverBrush}" Visibility="Collapsed"/></Grid>
+                                </Border>
+
+                                <Grid Grid.Row="1">
+                                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="220"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                    <Grid><TextBlock Text="LIVE TELEMETRY" FontSize="11.5" FontWeight="Bold"/><StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><TextBlock Text="TRACE" Foreground="{DynamicResource MutedBrush}" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,7,0"/><TextBlock x:Name="ThermalWindowLabel" Text="1 MIN" Foreground="{DynamicResource MutedBrush}" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/></StackPanel></Grid>
+
+                                    <Grid Grid.Row="1" Margin="0,15,0,14"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Grid.Column="0" Background="{DynamicResource Panel2Brush}" CornerRadius="10" Padding="18,15"><StackPanel><TextBlock Text="CPU" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/><TextBlock x:Name="CpuTemp" Text="--°" FontFamily="Segoe UI Variable Display" FontSize="29" FontWeight="SemiBold" Margin="0,3,0,0"/><TextBlock x:Name="CpuSub" Text="—" Foreground="{DynamicResource MutedBrush}" FontSize="12"/></StackPanel></Border><Border Grid.Column="2" Background="{DynamicResource Panel2Brush}" CornerRadius="10" Padding="18,15"><StackPanel><TextBlock Text="GPU" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/><TextBlock x:Name="GpuTemp" Text="--°" FontFamily="Segoe UI Variable Display" FontSize="29" FontWeight="SemiBold" Margin="0,3,0,0"/><TextBlock x:Name="GpuSub" Text="—" Foreground="{DynamicResource MutedBrush}" FontSize="12"/></StackPanel></Border><Border Grid.Column="4" Background="{DynamicResource AccentSoftBrush}" CornerRadius="10" Padding="18,15"><StackPanel><TextBlock Text="GPU POWER" Foreground="{DynamicResource TextBrush}" FontSize="11.5" FontWeight="Bold"/><TextBlock x:Name="GpuPowerValue" Text="-- W" FontFamily="Segoe UI Variable Display" FontSize="29" FontWeight="SemiBold" Margin="0,3,0,0"/><TextBlock x:Name="GpuPowerSub" Text="—" Foreground="{DynamicResource MutedBrush}" FontSize="12"/></StackPanel></Border></Grid>
+
+                                    <Grid Grid.Row="2" Background="{DynamicResource Panel2Brush}" ClipToBounds="True"><Canvas x:Name="ThermalCanvas" Margin="10" SizeChanged="ThermalCanvas_SizeChanged" MouseMove="ThermalCanvas_MouseMove" MouseLeave="ThermalCanvas_MouseLeave"><Polyline x:Name="CpuLine" Stroke="{DynamicResource CpuBrush}" StrokeThickness="2.5"/><Polyline x:Name="GpuLine" Stroke="{DynamicResource TelemetryBrush}" StrokeThickness="2.5"/><Polyline x:Name="GpuPowerLine" Stroke="{DynamicResource AccentBrush}" StrokeThickness="2.5"/><Line x:Name="HoverLine" Visibility="Collapsed" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1" StrokeDashArray="3,3"/><Ellipse x:Name="HoverCpuDot" Visibility="Collapsed" Width="8" Height="8" Fill="{DynamicResource CpuBrush}"/><Ellipse x:Name="HoverGpuDot" Visibility="Collapsed" Width="8" Height="8" Fill="{DynamicResource TelemetryBrush}"/><Ellipse x:Name="HoverPowerDot" Visibility="Collapsed" Width="8" Height="8" Fill="{DynamicResource AccentBrush}"/><Border x:Name="ThermalTooltip" Visibility="Collapsed" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7" Padding="9"><StackPanel><TextBlock x:Name="ThermalTooltipTime" FontSize="11" Foreground="{DynamicResource MutedBrush}"/><TextBlock x:Name="ThermalTooltipCpu" FontSize="11.5"/><TextBlock x:Name="ThermalTooltipGpu" FontSize="11.5"/><TextBlock x:Name="ThermalTooltipPower" FontSize="11.5"/></StackPanel></Border></Canvas><StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,11,0"><TextBlock Text="CPU " Foreground="{DynamicResource CpuBrush}" FontSize="11" FontWeight="Bold"/><TextBlock x:Name="GraphCpuValue" Text="--°" FontSize="11" Margin="0,0,12,0"/><TextBlock Text="GPU " Foreground="{DynamicResource TelemetryBrush}" FontSize="11" FontWeight="Bold"/><TextBlock x:Name="GraphGpuValue" Text="--°" FontSize="11" Margin="0,0,12,0"/><TextBlock Text="POWER " Foreground="{DynamicResource AccentBrush}" FontSize="11" FontWeight="Bold"/><TextBlock x:Name="GraphPowerValue" Text="-- W" FontSize="11"/></StackPanel></Grid>
+
+                                    <Grid Grid.Row="3" Margin="0,14,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><StackPanel Grid.Column="0"><Grid><TextBlock Text="CPU LOAD" FontSize="11" Foreground="{DynamicResource MutedBrush}"/><TextBlock x:Name="CpuLoadLabel" Text="--%" HorizontalAlignment="Right" FontSize="11.5"/></Grid><ProgressBar x:Name="CpuLoadBar" Height="5" Margin="0,6,0,0" Minimum="0" Maximum="100" Value="0" Foreground="{DynamicResource CpuBrush}" BorderThickness="0"/></StackPanel><StackPanel Grid.Column="2"><Grid><TextBlock Text="GPU LOAD" FontSize="11" Foreground="{DynamicResource MutedBrush}"/><TextBlock x:Name="GpuLoadLabel" Text="--%" HorizontalAlignment="Right" FontSize="11.5"/></Grid><ProgressBar x:Name="GpuLoadBar" Height="5" Margin="0,6,0,0" Minimum="0" Maximum="100" Value="0" Foreground="{DynamicResource TelemetryBrush}" BorderThickness="0"/></StackPanel><StackPanel Grid.Column="4"><Grid><TextBlock Text="MEMORY" FontSize="11" Foreground="{DynamicResource MutedBrush}"/><TextBlock x:Name="RamLoadLabel" Text="--%" HorizontalAlignment="Right" FontSize="11.5"/></Grid><ProgressBar x:Name="RamLoadBar" Height="5" Margin="0,6,0,0" Minimum="0" Maximum="100" Value="0" Foreground="{DynamicResource AccentBrush}" BorderThickness="0"/></StackPanel><StackPanel Grid.Column="6"><Grid><TextBlock Text="VRAM" FontSize="11" Foreground="{DynamicResource MutedBrush}"/><TextBlock x:Name="VramLoadLabel" Text="--%" HorizontalAlignment="Right" FontSize="11.5"/></Grid><ProgressBar x:Name="VramLoadBar" Height="5" Margin="0,6,0,0" Minimum="0" Maximum="100" Value="0" Foreground="{DynamicResource HotspotBrush}" BorderThickness="0" ToolTip="VRAM usage unavailable"/></StackPanel></Grid>
+                                </Grid>
+
+                                <Border Grid.Row="2" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Margin="0,28,0,0" Padding="0,18,0,0"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Ellipse x:Name="SelectedFooterDot" Width="9" Height="9" Fill="{DynamicResource TelemetryBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/><StackPanel Grid.Column="1"><TextBlock x:Name="SelectedFooterLabel" Text="READY" Foreground="{DynamicResource MutedBrush}" FontSize="11" FontWeight="Bold"/><TextBlock x:Name="SelectedFooterTitle" Text="Le Mans Ultimate monitoring is ready" FontWeight="SemiBold" Margin="0,4,0,0"/><TextBlock x:Name="SelectedFooterDetail" Text="PitMedic will preserve evidence when a finding is detected." Foreground="{DynamicResource MutedBrush}" FontSize="12.5" Margin="0,3,0,0"/></StackPanel></Grid></Border>
+                            </Grid>
+
+                            <Grid Grid.Column="2">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <Grid><TextBlock x:Name="SelectedFindingsHeading" Text="LMU FINDINGS" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center"/><Button Content="VIEW HISTORY" Click="OpenIncidents_Click" HorizontalAlignment="Right" Padding="0" BorderThickness="0" Background="Transparent" FontSize="11.5"/></Grid>
+
+                                <Border x:Name="SelectedFindingCard" Grid.Row="1" Visibility="Collapsed" Background="{DynamicResource WarnSoftBrush}" BorderBrush="{DynamicResource WarnBorderBrush}" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,18,0,0"><StackPanel><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="42" Height="42" CornerRadius="21" Background="{DynamicResource PanelBrush}" Margin="0,0,12,0"><TextBlock x:Name="SelectedFindingIcon" Text="!" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" VerticalAlignment="Center"><TextBlock x:Name="SelectedFindingTitle" Text="Finding detected" FontFamily="Segoe UI Variable Display" FontWeight="SemiBold" FontSize="17"/><TextBlock x:Name="SelectedFindingSummary" Text="PitMedic captured evidence for this session." Foreground="{DynamicResource MutedBrush}" FontSize="12.5" Margin="0,4,0,0"/></StackPanel></Grid><TextBlock x:Name="SelectedFindingRepairMeta" Text="FINDING CAPTURED" FontWeight="Bold" FontSize="11.5" Margin="0,18,0,10"/><Button x:Name="SelectedFindingAction" Content="REVIEW FINDING" Style="{StaticResource PrimaryButtonStyle}" Click="SelectedFindingAction_Click"/></StackPanel></Border>
+
+                                <Border x:Name="SelectedFindingEmpty" Grid.Row="1" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="20" Margin="0,18,0,0"><StackPanel><Border Width="42" Height="42" CornerRadius="21" Background="{DynamicResource GoodSoftBrush}" HorizontalAlignment="Left"><TextBlock Text="✓" Foreground="{DynamicResource GoodTextBrush}" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="No active findings" FontFamily="Segoe UI Variable Display" FontWeight="SemiBold" FontSize="17" Margin="0,13,0,0"/><TextBlock x:Name="SelectedFindingEmptyDetail" Text="PitMedic is monitoring this simulator and will capture anything that needs attention." Foreground="{DynamicResource MutedBrush}" FontSize="12.5" Margin="0,5,0,0"/></StackPanel></Border>
+
+                                <StackPanel x:Name="CapturedEvidencePanel" Grid.Row="2" Visibility="Collapsed" Margin="0,24,0,0">
+                                    <TextBlock Text="CAPTURED EVIDENCE" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold" Margin="0,0,0,9"/>
+                                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,13">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <StackPanel Margin="0,0,12,0"><TextBlock x:Name="EvidenceTitleOne" Text="Finding captured" FontWeight="SemiBold"/><TextBlock x:Name="EvidenceDetailOne" Text="Evidence saved with the finding" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,4,0,0"/></StackPanel>
+                                            <TextBlock x:Name="EvidenceTimeOne" Grid.Column="1" Text="" Foreground="{DynamicResource MutedBrush}" FontSize="12" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,13">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <StackPanel Margin="0,0,12,0"><TextBlock x:Name="EvidenceTitleTwo" Text="Session ended unexpectedly" FontWeight="SemiBold"/><TextBlock x:Name="EvidenceDetailTwo" Text="Process ended outside a normal exit" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,4,0,0"/></StackPanel>
+                                            <TextBlock x:Name="EvidenceTimeTwo" Grid.Column="1" Text="" Foreground="{DynamicResource MutedBrush}" FontSize="12" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,13">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <StackPanel Margin="0,0,12,0"><TextBlock Text="Telemetry preserved" FontWeight="SemiBold"/><TextBlock Text="Trace attached to the finding" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,4,0,0"/></StackPanel>
+                                            <TextBlock Grid.Column="1" Text="Saved" Foreground="{DynamicResource MutedBrush}" FontSize="12" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+
+                                <Button Grid.Row="3" Content="OPEN ALL FINDINGS" Click="OpenIncidents_Click" Margin="0,24,0,0"/>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

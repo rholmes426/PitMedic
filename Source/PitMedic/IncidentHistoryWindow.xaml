@@ -1,0 +1,133 @@
+<Window x:Class="PitMedic.IncidentHistoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PitMedic Issue History" Icon="Assets/PitMedic.ico" Width="980" Height="720" MinWidth="780" MinHeight="560"
+        Background="{DynamicResource BgBrush}" Foreground="{DynamicResource TextBrush}" FontSize="14"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize">
+    <Window.Resources>
+        <Style x:Key="HistoryStatusBorder" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource Panel2Brush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="9,5"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding HistoryStatus}" Value="Resolved">
+                    <Setter Property="Background" Value="{DynamicResource GoodSoftBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource GoodBorderBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding HistoryStatus}" Value="Repair available">
+                    <Setter Property="Background" Value="{DynamicResource WarnSoftBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource WarnBorderBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding HistoryStatus}" Value="Dismissed">
+                    <Setter Property="Background" Value="{DynamicResource Panel2Brush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="HistoryStatusText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource InfoTextBrush}"/>
+            <Setter Property="FontSize" Value="9.5"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding HistoryStatus}" Value="Resolved"><Setter Property="Foreground" Value="{DynamicResource GoodTextBrush}"/></DataTrigger>
+                <DataTrigger Binding="{Binding HistoryStatus}" Value="Repair available"><Setter Property="Foreground" Value="{DynamicResource WarnTextBrush}"/></DataTrigger>
+                <DataTrigger Binding="{Binding HistoryStatus}" Value="Dismissed"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/></DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="GameRail" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Game}" Value="iRacing"><Setter Property="Background" Value="{DynamicResource TelemetryBrush}"/></DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions><RowDefinition Height="4"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"/>
+
+        <Border Grid.Row="1" Background="{DynamicResource TitleBarBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="24,20">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="Assets/PitMedic.png" Width="32" Height="32" Margin="0,0,12,0"/>
+                        <StackPanel>
+                            <TextBlock Text="ISSUE HISTORY" Foreground="{DynamicResource TitleMutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                            <TextBlock Text="Simulator reliability history" Foreground="{DynamicResource TitleTextBrush}" FontFamily="Segoe UI Variable Display" FontSize="25" FontWeight="SemiBold" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock Text="Detected issues, repairs, and dismissed alerts." Foreground="{DynamicResource TitleMutedBrush}" FontSize="13" Margin="44,7,0,0"/>
+                </StackPanel>
+                <Border Grid.Column="1" Background="{DynamicResource Panel2Brush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="11,6" VerticalAlignment="Center">
+                    <TextBlock x:Name="CountText" Text="0 ISSUES" Foreground="{DynamicResource InfoTextBrush}" FontSize="11.5" FontWeight="Bold"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="24,20,24,16">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="HISTORY" Foreground="{DynamicResource TextBrush}" FontSize="12" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <Border Background="{DynamicResource Panel2Brush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7" Padding="7,3" Margin="9,0,0,0">
+                        <TextBlock Text="DOUBLE-CLICK TO REVIEW" Foreground="{DynamicResource MutedBrush}" FontSize="11" FontWeight="Bold"/>
+                    </Border>
+                </StackPanel>
+                <TextBlock Text="Newest first" HorizontalAlignment="Right" Foreground="{DynamicResource MutedBrush}" FontSize="12" VerticalAlignment="Center"/>
+            </Grid>
+            <Border Grid.Row="1" Background="{DynamicResource InsetBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Margin="0,10,0,0" Padding="8" ClipToBounds="True">
+                <ListBox x:Name="HistoryList" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource TextBrush}"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         MouseDoubleClick="HistoryList_MouseDoubleClick">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,4">
+                                <Grid MinHeight="70">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="4"/>
+                                        <ColumnDefinition Width="112"/>
+                                        <ColumnDefinition Width="132"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="126"/>
+                                        <ColumnDefinition Width="112"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Style="{StaticResource GameRail}" CornerRadius="2" Margin="0,8,10,8"/>
+                                    <StackPanel Grid.Column="1" Margin="10,10,10,8">
+                                        <TextBlock Text="{Binding Timestamp, StringFormat={}{0:MMM d, yyyy}}" FontWeight="SemiBold" FontSize="12.5"/>
+                                        <TextBlock Text="{Binding Timestamp, StringFormat={}{0:h:mm:ss tt}}" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding Game}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Top" Margin="0,11,12,8" TextWrapping="Wrap"/>
+                                    <StackPanel Grid.Column="3" Margin="0,9,18,8" MinWidth="0">
+                                        <TextBlock Text="{Binding Category}" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource TextBrush}" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding Summary}" Foreground="{DynamicResource MutedBrush}" FontSize="12" TextWrapping="Wrap" LineHeight="15" MaxHeight="34" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="4" Style="{StaticResource HistoryStatusBorder}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="4,10,8,0" MinWidth="104">
+                                        <TextBlock Text="{Binding HistoryStatus}" Style="{StaticResource HistoryStatusText}" TextWrapping="Wrap"/>
+                                    </Border>
+                                    <Button Grid.Column="5" Content="Review finding" Padding="10,6" FontSize="12" VerticalAlignment="Top" Margin="0,9,0,0" Click="Details_Click"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="3" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="24,14" Background="{DynamicResource PanelBrush}">
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="7" Height="7" Fill="{DynamicResource GoodBrush}" Margin="0,0,8,0"/>
+                    <TextBlock Text="Dismissed dashboard alerts remain here; evidence is retained for troubleshooting history." Foreground="{DynamicResource MutedBrush}" FontSize="12" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button Content="Refresh" Margin="0,0,8,0" Click="Refresh_Click"/>
+                    <Button Content="Close" Click="Close_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

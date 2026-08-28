@@ -1,0 +1,27 @@
+# Build output
+Output/
+Artifacts/
+**/bin/
+**/obj/
+
+# IDE and user state
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Logs, diagnostics, and local configuration
+*.log
+*.dmp
+*.etl
+*.evtx
+appsettings.local.json
+signing.local.json
+
+# Signing material must never be committed
+*.pfx
+*.p12
+*.cer
+*.snk
+*.key
+*.pem

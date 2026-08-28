@@ -1,0 +1,188 @@
+<Window x:Class="PitMedic.IncidentDetailsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PitMedic Finding Review" Icon="Assets/PitMedic.ico"
+        Width="860" Height="790" MinWidth="720" MinHeight="620"
+        Background="{DynamicResource BgBrush}" Foreground="{DynamicResource TextBrush}" FontSize="14"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="4"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"/>
+
+        <Border Grid.Row="1" Background="{DynamicResource TitleBarBrush}" Padding="28,22" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="PITMEDIC  /  FINDING REVIEW" Foreground="{DynamicResource TitleMutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                    <TextBlock x:Name="TitleText" Text="Simulator" Foreground="{DynamicResource TitleTextBrush}" FontFamily="Segoe UI Variable Display" FontSize="28" FontWeight="SemiBold" Margin="0,5,0,0"/>
+                    <TextBlock x:Name="TimeText" Foreground="{DynamicResource TitleMutedBrush}" FontSize="13" Margin="0,5,0,0"/>
+                </StackPanel>
+                <Border x:Name="StatePill" Grid.Column="1" Background="{DynamicResource GoodSoftBrush}" BorderBrush="{DynamicResource GoodBorderBrush}" BorderThickness="1" CornerRadius="11" Padding="12,7" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse x:Name="StateDot" Width="7" Height="7" Fill="{DynamicResource GoodBrush}" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                        <TextBlock x:Name="StateText" Text="RESOLVED" Foreground="{DynamicResource GoodTextBrush}" FontSize="11.5" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="28,24,28,12">
+            <StackPanel>
+                <Border x:Name="OutcomeCard" Background="{DynamicResource GoodSoftBrush}" BorderBrush="{DynamicResource GoodBorderBrush}" BorderThickness="1" CornerRadius="13" Padding="22" Margin="0,0,0,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="OutcomeIconBorder" Width="38" Height="38" CornerRadius="19" Background="{DynamicResource PanelBrush}" VerticalAlignment="Top" HorizontalAlignment="Left">
+                            <TextBlock x:Name="OutcomeIcon" Text="✓" Foreground="{DynamicResource GoodTextBrush}" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock x:Name="OutcomeHeadlineText" Text="PitMedic completed the repair" FontFamily="Segoe UI Variable Display" FontSize="21" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="OutcomeSummaryText" Foreground="{DynamicResource MutedBrush}" FontSize="13.5" LineHeight="20" Margin="0,7,0,0"/>
+                            <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12,9" Margin="0,13,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="NEXT  " Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Top"/>
+                                    <TextBlock x:Name="NextStepText" FontSize="13" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock x:Name="RepairTimingText" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="WHAT HAPPENED" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                        <TextBlock x:Name="CategoryText" FontFamily="Segoe UI Variable Display" FontSize="20" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                        <TextBlock x:Name="PlainLanguageText" Foreground="{DynamicResource TextBrush}" FontSize="14" TextWrapping="Wrap" LineHeight="21" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border x:Name="RepairWorkCard" Style="{StaticResource CardStyle}" Margin="0,0,0,14">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <TextBlock x:Name="RepairWorkHeading" Text="WHAT PITMEDIC DID" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                            <TextBlock x:Name="RepairWorkStatus" Grid.Column="1" Text="COMPLETED" Foreground="{DynamicResource GoodTextBrush}" FontSize="11.5" FontWeight="Bold"/>
+                        </Grid>
+
+                        <Border x:Name="NoChangesPanel" Visibility="Collapsed" Background="{DynamicResource InfoSoftBrush}" BorderBrush="{DynamicResource InfoBorderBrush}" BorderThickness="1" CornerRadius="9" Padding="14" Margin="0,12,0,0">
+                            <StackPanel>
+                                <TextBlock Text="No changes have been made yet." FontWeight="SemiBold"/>
+                                <TextBlock Text="PitMedic only captured diagnostic evidence. The proposed repair below will not begin until you approve it." Foreground="{DynamicResource MutedBrush}" FontSize="12.5" LineHeight="18" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <ItemsControl x:Name="RepairActivityList" Margin="0,10,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="28"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="20" Height="20" CornerRadius="10" Background="{DynamicResource GoodSoftBrush}" VerticalAlignment="Top" Margin="0,1,0,0">
+                                            <TextBlock Text="✓" Foreground="{DynamicResource GoodTextBrush}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="13.5"/>
+                                            <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource MutedBrush}" FontSize="12.5" TextWrapping="Wrap" LineHeight="17" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="2" Text="{Binding Timestamp, StringFormat={}{0:h:mm:ss tt}}" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" VerticalAlignment="Top" Margin="8,2,0,0"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <StackPanel x:Name="ProposedRepairPanel" Visibility="Collapsed" Margin="0,14,0,0">
+                            <TextBlock Text="PROPOSED AUTOMATIC REPAIR" Foreground="{DynamicResource WarnTextBrush}" FontSize="11.5" FontWeight="Bold"/>
+                            <TextBlock x:Name="ProposedRepairSummary" Foreground="{DynamicResource MutedBrush}" FontSize="13" LineHeight="18" Margin="0,6,0,4"/>
+                            <ItemsControl x:Name="ProposedActionsList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,4">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="22"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Text="•" Foreground="{DynamicResource AccentBrush}" FontSize="16" FontWeight="Bold"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding}" FontSize="13" TextWrapping="Wrap"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Button x:Name="RunAutomaticRepairButton" Content="RUN AUTOMATIC REPAIR" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Left" Padding="18,9" Margin="0,13,0,0" Click="RunAutomaticRepair_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border x:Name="RecoveryCard" Visibility="Collapsed" Style="{StaticResource CardStyle}" Margin="0,0,0,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,0,18,0">
+                            <TextBlock Text="RECOVERY COPY" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                            <TextBlock Text="PitMedic protected the affected data before making changes." FontWeight="SemiBold" Margin="0,7,0,0"/>
+                            <TextBlock x:Name="RecoveryDetailText" Foreground="{DynamicResource MutedBrush}" FontSize="12.5" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="Open recovery copy" VerticalAlignment="Center" Click="RecoveryFolder_Click"/>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="HOW PITMEDIC KNOWS" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                        <TextBlock Text="These observations were captured from this simulator session. They support the finding but are not presented as absolute proof of one root cause." Foreground="{DynamicResource MutedBrush}" FontSize="12.5" LineHeight="18" Margin="0,6,0,5"/>
+                        <ItemsControl x:Name="EvidenceList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,4">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="22"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <Ellipse Width="6" Height="6" Fill="{DynamicResource TelemetryBrush}" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,7,0,0"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding}" Foreground="{DynamicResource TextBrush}" FontSize="13" TextWrapping="Wrap" LineHeight="18"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Expander x:Name="ReferencesCard" Header="Repair references" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="15" Margin="0,0,0,14">
+                    <StackPanel Margin="0,10,0,0">
+                        <TextBlock Text="PitMedic uses official support guidance first and treats community reports as supporting evidence, not proof." Foreground="{DynamicResource MutedBrush}" FontSize="12.5" TextWrapping="Wrap" Margin="0,0,0,5"/>
+                        <ItemsControl x:Name="ReferencesList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,9">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <StackPanel Margin="0,0,14,0">
+                                                <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding Note}" Foreground="{DynamicResource MutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                            <Button Grid.Column="1" Content="Open source" Padding="10,6" FontSize="12" Click="Reference_Click"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Expander>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="3" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="28,14">
+            <Grid>
+                <Button Content="Open evidence folder" HorizontalAlignment="Left" Click="EvidenceFolder_Click"/>
+                <Button Content="Close" HorizontalAlignment="Right" Click="Close_Click"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,19 @@
+PitMedic v0.4.3.0 validation
+============================
+
+Validated in the packaging environment:
+- The package is based on the saved v0.4.2.1 full development package.
+- Project, assembly, file, and informational versions are set to 0.4.3.0.
+- All prior v0.4.2.1 application source, XAML, repair knowledge, assets, and documentation remain present.
+- The complete GPL-3.0 license is included and the project declares GPL-3.0-or-later.
+- Public contribution, security, privacy, and code-signing policies are present.
+- No certificate, private key, API token, or signing identifier is stored in the package.
+- GitHub CI builds the Windows target from the checked-in source.
+- The release workflow checks out an explicit tag, confirms the tagged commit, and submits the workflow-produced artifact to SignPath.
+- Release signing requires the protected production-signing environment and manual SignPath approval.
+- Signature validation requires a valid SignPath Foundation publisher certificate and timestamp before creating the SHA-256 release manifest.
+- Unsigned development artifacts remain visibly separate from official signed releases.
+- Source inspection found no remaining v0.4.2.1 runtime version strings outside historical release notes.
+
+Environment limitation:
+The .NET 10 SDK and Windows Authenticode APIs are unavailable in this Linux packaging environment, so v0.4.3.0 requires its first full compile in the included Windows GitHub Actions workflow. The predecessor v0.4.2.1 source completed .NET 10 Release compilation before these documentation, metadata, and release-automation changes.
