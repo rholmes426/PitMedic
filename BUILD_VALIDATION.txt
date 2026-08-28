@@ -1,9 +1,9 @@
-PitMedic v0.4.3.0 validation
+PitMedic v0.4.4.0 validation
 ============================
 
 Validated in the packaging environment:
 - The package is based on the saved v0.4.2.1 full development package.
-- Project, assembly, file, and informational versions are set to 0.4.3.0.
+- Project, assembly, file, and informational versions are set to 0.4.4.0.
 - All prior v0.4.2.1 application source, XAML, repair knowledge, assets, and documentation remain present.
 - The complete GPL-3.0 license is included and the project declares GPL-3.0-or-later.
 - Public contribution, security, privacy, and code-signing policies are present.

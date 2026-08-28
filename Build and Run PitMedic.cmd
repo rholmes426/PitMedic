@@ -75,7 +75,7 @@ mkdir "%OUTPUT%" >nul 2>nul
 echo Using .NET 10 SDK:
 echo   %DOTNET10%
 echo.
-echo Building PitMedic v0.4.3.0...
+echo Building PitMedic v0.4.4.0...
 echo This can take a minute the first time because .NET may restore packages.
 echo.
 

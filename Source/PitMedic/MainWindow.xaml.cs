@@ -167,7 +167,7 @@ public partial class MainWindow : Window
         HomeOsText.Text = RuntimeInformation.OSDescription.Replace("Microsoft ", string.Empty, StringComparison.OrdinalIgnoreCase);
         HomeArchitectureText.Text = $"{RuntimeInformation.OSArchitecture} · {(Environment.Is64BitOperatingSystem ? "64-bit" : "32-bit")}";
         HomeProcessorText.Text = $"{Environment.ProcessorCount} logical processors";
-        HomeRuntimeText.Text = $"PitMedic 0.4.3.0 · .NET {Environment.Version.Major}";
+        HomeRuntimeText.Text = $"PitMedic 0.4.4.0 · .NET {Environment.Version.Major}";
         HomeNav.IsChecked = true;
         RefreshHomePage();
     }

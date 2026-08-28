@@ -1,6 +1,6 @@
 # PitMedic voluntary-support public-release checklist
 
-## Completed in v0.4.3.0
+## Completed in v0.4.4.0
 
 - PitMedic is licensed as free and open-source software under GPL-3.0-or-later.
 - The application remains completely free and ad-free.
@@ -9,7 +9,7 @@
 - Simulator names are presented only as compatibility references.
 - Local-first privacy behavior is documented.
 - Contribution, security, and public code-signing policies are included.
-- Product, file, and assembly versions are consistently set to 0.4.3.0.
+- Product, file, and assembly versions are consistently set to 0.4.4.0.
 - A Windows CI build and separate protected SignPath release workflow are included.
 - The ordinary monitoring application runs without administrator rights.
 - A one-shot repair helper elevates only evidence-derived repairs in its compiled allowlist.
@@ -40,6 +40,7 @@
 
 ## Ongoing release rules
 
+- Every downloadable test build receives a new version number; a version is never reused after a tester can download it.
 - Contributions never unlock features or preferential support.
 - Safety, restore, history, and access to the user's own diagnostics remain free.
 - Diagnostics stay local unless a future user explicitly previews and approves an upload.

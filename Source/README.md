@@ -1,6 +1,14 @@
-# PitMedic v0.4.3.0
+# PitMedic v0.4.4.0
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.4.4.0
+
+- Replaced always-on administrator execution with a one-shot elevated repair helper restricted to an explicit repair allowlist.
+- Added caller, evidence, request-path, incident, and repair-policy validation before protected repairs can run.
+- Added an Inno Setup installer and a two-stage workflow that signs the app/helper before building and signing the installer.
+- Kept normal monitoring and unprotected repairs running without administrator rights.
+- Preserved all v0.4.3.0 interface, telemetry, finding-review, repair, history, Settings, tray, build, and signing behavior.
 
 ## v0.4.3.0
 
@@ -9,8 +17,6 @@ PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assis
 - Added reproducible Windows release-build automation with fixed product and file version metadata.
 - Added GitHub Actions validation and a manual, protected SignPath release workflow.
 - Added post-signing checks that reject an invalid, unexpected, or untimestamped Authenticode signature and generate a SHA-256 release manifest.
-- Replaced always-on administrator execution with a one-shot elevated repair helper restricted to an explicit repair allowlist.
-- Added an Inno Setup installer and a two-stage workflow that signs the app/helper before building and signing the installer.
 - Kept development builds clearly separated from official signed releases.
 - Preserved all v0.4.2.1 interface, telemetry, finding-review, repair, history, Settings, and tray behavior.
 
