@@ -6,7 +6,7 @@ Replace the bracketed URLs after the public repository and preview release exist
 
 **Name:** PitMedic
 
-**Repository:** `[PUBLIC GITHUB REPOSITORY URL]`
+**Repository:** https://github.com/rholmes426/PitMedic
 
 **Project website:** https://pitmedic.com
 
@@ -14,9 +14,9 @@ Replace the bracketed URLs after the public repository and preview release exist
 
 **License:** GPL-3.0-or-later
 
-**Code-signing policy:** `[PUBLIC REPOSITORY URL]/blob/main/CODE_SIGNING_POLICY.md`
+**Code-signing policy:** https://github.com/rholmes426/PitMedic/blob/main/CODE_SIGNING_POLICY.md
 
-**Privacy statement:** `[PUBLIC REPOSITORY URL]/blob/main/Source/PRIVACY.md`
+**Privacy statement:** https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md
 
 ## Description
 

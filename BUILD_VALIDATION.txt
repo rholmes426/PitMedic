@@ -15,5 +15,8 @@ Validated in the packaging environment:
 - Unsigned development artifacts remain visibly separate from official signed releases.
 - Source inspection found no remaining v0.4.2.1 runtime version strings outside historical release notes.
 
-Environment limitation:
-The .NET 10 SDK and Windows Authenticode APIs are unavailable in this Linux packaging environment, so v0.4.3.0 requires its first full compile in the included Windows GitHub Actions workflow. The predecessor v0.4.2.1 source completed .NET 10 Release compilation before these documentation, metadata, and release-automation changes.
+Windows CI result:
+GitHub Actions build-validation run #1 completed successfully on a Windows runner for commit 06f3f9439d179bf9a99bb2ebd3dfd09f22d092b2. Dependency restore, .NET 10 Release compilation, the self-contained win-x64 release build, version checks, unsigned-build manifest creation, and validation-artifact upload all passed. The uploaded artifact reported SHA-256 digest f729e79392d3012f2f3c79054d5bc93287fbd5b354d5b97af179bd6abcb0bab1.
+
+Authenticode limitation:
+The unsigned validation artifact is not an official release. Publisher, signature, and timestamp verification will remain intentionally blocked until SignPath Foundation approves the project and returns the first signed artifact.

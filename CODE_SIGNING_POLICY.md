@@ -8,8 +8,8 @@ PitMedic does not transfer diagnostics, usage statistics, advertising identifier
 
 ## Team roles
 
-- Committers and reviewers: maintainers with write access to the official PitMedic repository.
-- Approvers: owners of the official PitMedic repository who are also authorized as release approvers in SignPath.
+- Committers and reviewers: [PitMedic repository maintainers](https://github.com/rholmes426/PitMedic/graphs/contributors).
+- Approvers: [rholmes426](https://github.com/rholmes426) and any future repository owners who are also authorized as release approvers in SignPath.
 - Outside contributions require review by a maintainer before merge.
 - Every production signing request requires manual approval.
 
