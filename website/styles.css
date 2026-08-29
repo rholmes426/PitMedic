@@ -46,6 +46,24 @@ svg { display: block; }
 .brand img { width: 34px; height: 34px; object-fit: contain; }
 .site-header nav { display: flex; gap: 28px; color: #5d6265; font-size: 13px; }
 .site-header nav a:hover { color: var(--orange); }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.header-support {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 8px 13px;
+  border: 1px solid var(--orange);
+  border-radius: 2px;
+  background: var(--orange);
+  color: var(--surface);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.header-support:hover { background: #9f4f2e; border-color: #9f4f2e; }
 .header-cta {
   display: inline-flex;
   align-items: center;
@@ -453,7 +471,9 @@ footer > div a:hover { color: var(--orange); }
   .site-header { height: 66px; padding: 0 20px; }
   .brand { font-size: 19px; }
   .brand img { width: 31px; height: 31px; }
-  .header-cta { font-size: 12px; }
+  .header-actions { gap: 0; }
+  .header-cta { display: none; }
+  .header-support { min-height: 34px; padding: 7px 11px; font-size: 12px; }
   .hero { padding: 56px 20px 68px; gap: 42px; }
   .hero-logo { gap: 12px; }
   .hero-logo img { width: 66px; height: 66px; }
