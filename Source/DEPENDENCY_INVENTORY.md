@@ -1,6 +1,6 @@
 # PitMedic dependency inventory
 
-This inventory records the packages resolved by the v0.4.4.0 .NET 10 project. It is a release-preparation aid and does not replace the license text or notices supplied by each project.
+This inventory records the packages resolved by the v0.5.0.0 .NET 10 projects. It is a release-preparation aid and does not replace the license text or notices supplied by each project.
 
 ## Direct packages
 
@@ -27,7 +27,7 @@ This inventory records the packages resolved by the v0.4.4.0 .NET 10 project. It
 
 ## External prerequisite
 
-LibreHardwareMonitor may use PawnIO for supported low-level sensors. PitMedic does not compile PawnIO into its application assembly; the Windows prerequisite flow treats it as a separately installed component.
+LibreHardwareMonitor may use PawnIO for supported low-level sensors when PawnIO is already installed. PitMedic does not bundle or install PawnIO.
 
 ## Public-release requirement
 

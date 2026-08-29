@@ -17,6 +17,7 @@ AppPublisher=PitMedic Project
 AppPublisherURL=https://pitmedic.com/
 AppSupportURL=https://github.com/rholmes426/PitMedic/issues
 AppUpdatesURL=https://pitmedic.com/
+AppMutex=PitMedic-E805E797-5FEF-4D91-8B72-0E20C53D2E09
 DefaultDirName={autopf}\PitMedic
 DefaultGroupName=PitMedic
 DisableProgramGroupPage=yes
@@ -44,6 +45,10 @@ VersionInfoCopyright=Copyright (c) 2026 PitMedic contributors
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[Messages]
+SetupAppRunningError=PitMedic is still running. Right-click the PitMedic tray icon, choose Exit, and then click Retry.
+UninstallAppRunningError=PitMedic is still running. Right-click the PitMedic tray icon, choose Exit, and then click Retry.
+
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional shortcuts:"; Flags: unchecked
 
@@ -60,3 +65,92 @@ Name: "{autodesktop}\PitMedic"; Filename: "{app}\PitMedic.exe"; WorkingDir: "{ap
 
 [Run]
 Filename: "{app}\PitMedic.exe"; Description: "Launch PitMedic"; WorkingDir: "{app}"; Flags: nowait postinstall skipifsilent runasoriginaluser
+
+[UninstallDelete]
+Type: files; Name: "{commonappdata}\PitMedic\sensor.json"
+Type: files; Name: "{commonappdata}\PitMedic\sensor-*.tmp"
+
+[Code]
+const
+  SensorServiceName = 'PitMedicSensor';
+
+procedure StopSensorService();
+var
+  ExitCode: Integer;
+begin
+  Exec(ExpandConstant('{sys}\sc.exe'), 'stop ' + SensorServiceName,
+    '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
+  Sleep(1500);
+end;
+
+procedure InstallSensorService();
+var
+  ExitCode: Integer;
+  SensorExecutable: String;
+  Parameters: String;
+begin
+  SensorExecutable := ExpandConstant('{app}\PitMedic.SensorHelper.exe');
+
+  Parameters := 'create ' + SensorServiceName +
+    ' binPath= "\"' + SensorExecutable + '\""' +
+    ' start= auto DisplayName= "PitMedic Sensor Service"';
+  Exec(ExpandConstant('{sys}\sc.exe'), Parameters,
+    '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
+
+  Parameters := 'config ' + SensorServiceName +
+    ' binPath= "\"' + SensorExecutable + '\""' +
+    ' start= auto DisplayName= "PitMedic Sensor Service"';
+  if not Exec(ExpandConstant('{sys}\sc.exe'), Parameters,
+    '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then
+  begin
+    MsgBox('PitMedic was installed, but its read-only CPU sensor service could not be configured. The app will still work, although CPU temperature may be unavailable.',
+      mbError, MB_OK);
+    Exit;
+  end;
+
+  Exec(ExpandConstant('{sys}\sc.exe'),
+    'description ' + SensorServiceName + ' "Provides read-only CPU telemetry to the locally installed PitMedic app."',
+    '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
+  Exec(ExpandConstant('{sys}\sc.exe'),
+    'failure ' + SensorServiceName + ' reset= 86400 actions= restart/5000',
+    '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
+
+  if not Exec(ExpandConstant('{sys}\sc.exe'), 'start ' + SensorServiceName,
+    '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then
+  begin
+    MsgBox('PitMedic was installed, but its read-only CPU sensor service did not start. Restart Windows or reinstall PitMedic if CPU temperature remains unavailable.',
+      mbError, MB_OK);
+  end;
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  StopSensorService();
+  Result := '';
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+    InstallSensorService();
+end;
+
+function InitializeUninstall(): Boolean;
+var
+  ExitCode: Integer;
+begin
+  Result := True;
+  if FileExists(ExpandConstant('{app}\PitMedic.exe')) then
+    Exec(ExpandConstant('{app}\PitMedic.exe'), '--shutdown-for-maintenance',
+      ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, ExitCode);
+  StopSensorService();
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  ExitCode: Integer;
+begin
+  if CurUninstallStep = usUninstall then
+    Exec(ExpandConstant('{sys}\sc.exe'), 'delete ' + SensorServiceName,
+      '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
+end;

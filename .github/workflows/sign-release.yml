@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: Existing protected tag for this release, for example v0.4.4.0
+        description: Existing protected tag for this release, for example v0.5.0.0
         required: true
         type: string
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -31,15 +31,18 @@ jobs:
           if ($tagCommit -ne $headCommit) { throw "Checked-out commit does not match the requested tag." }
           [xml]$appProject = Get-Content -Raw Source/PitMedic/PitMedic.csproj
           [xml]$helperProject = Get-Content -Raw Source/PitMedic.RepairHelper/PitMedic.RepairHelper.csproj
+          [xml]$sensorHelperProject = Get-Content -Raw Source/PitMedic.SensorHelper/PitMedic.SensorHelper.csproj
           $version = [string]($appProject.Project.PropertyGroup.Version | Select-Object -First 1)
           $helperVersion = [string]($helperProject.Project.PropertyGroup.Version | Select-Object -First 1)
+          $sensorHelperVersion = [string]($sensorHelperProject.Project.PropertyGroup.Version | Select-Object -First 1)
           if ("${{ inputs.release_tag }}" -ne "v$version") { throw "Release tag does not match project version $version." }
           if ($helperVersion -ne $version) { throw "Repair helper version $helperVersion does not match app version $version." }
+          if ($sensorHelperVersion -ne $version) { throw "Sensor helper version $sensorHelperVersion does not match app version $version." }
       - name: Set up .NET 10
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - name: Build unsigned app and helper
+      - name: Build unsigned app and helpers
         shell: pwsh
         run: ./Build/Build-UnsignedRelease.ps1
       - name: Upload unsigned binaries for SignPath
@@ -50,7 +53,7 @@ jobs:
           path: Artifacts/unsigned/PitMedic-*-win-x64/
           if-no-files-found: error
           retention-days: 7
-      - name: Sign app and repair helper
+      - name: Sign app and scoped helpers
         uses: signpath/github-action-submit-signing-request@v2
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
@@ -106,3 +109,35 @@ jobs:
           path: Artifacts/release/
           if-no-files-found: error
           retention-days: 90
+      - name: Promote verified files to the public GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $releaseTag = "${{ inputs.release_tag }}"
+          $version = $releaseTag.TrimStart("v")
+          $previewAssets = @(
+            "PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe",
+            "PitMedic-$version-win-x64-UNSIGNED-PREVIEW.zip",
+            "SHA256SUMS-UNSIGNED-PREVIEW.txt",
+            "RELEASE-NOTES-UNSIGNED-PREVIEW.txt"
+          )
+          foreach ($asset in $previewAssets) {
+            gh release delete-asset $releaseTag $asset --repo "${{ github.repository }}" --yes 2>$null
+          }
+
+          $files = (Get-ChildItem ./Artifacts/release -File).FullName
+          gh release upload $releaseTag $files --repo "${{ github.repository }}" --clobber
+
+          @"
+          PitMedic $version is the verified signed Windows release.
+
+          The installer and PitMedic-owned executables were built from this tag, signed through SignPath Foundation, timestamped, and independently verified by the release workflow. SHA-256 checksums and signature manifests are included.
+
+          PitMedic remains free and open source. Voluntary support unlocks nothing.
+          "@ | Set-Content -Encoding UTF8 ./Artifacts/signed-release-notes.txt
+          gh release edit $releaseTag `
+            --repo "${{ github.repository }}" `
+            --title "PitMedic $version" `
+            --notes-file ./Artifacts/signed-release-notes.txt `
+            --prerelease=false

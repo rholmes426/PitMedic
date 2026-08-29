@@ -1,6 +1,31 @@
-# PitMedic v0.4.4.0
+# PitMedic v0.5.0.0
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.5.0.0
+
+- Added a simple About page with version information, developer contact details, the public source link, and an optional PayPal support link.
+- Kept every PitMedic feature free; contributions unlock nothing and payment details are handled only by PayPal in the user's browser.
+- Replaced the per-launch elevated sensor helper with an installer-managed, commandless read-only Windows service.
+- The installer starts the sensor service during its one setup approval; routine PitMedic launches remain unelevated and no longer require a sensor UAC prompt.
+- Limited the service output to current CPU temperature, load, clock, power, timestamp, and local error state in a users-read-only ProgramData file.
+- Kept protected repairs isolated in the separate one-shot repair helper and preserved all v0.4.4.2 monitoring, acknowledgement, history, and clean-uninstall behavior.
+
+## v0.4.4.2
+
+- Restored CPU temperature readings on systems that require protected sensor access without elevating the main PitMedic interface.
+- Added a separate read-only sensor helper that validates its PitMedic parent, emits only CPU telemetry through a current-user-only pipe, accepts no commands, and exits with the parent app.
+- Removed the redundant Home-page banner; All Findings and Settings remain in the persistent left navigation.
+- Updated development, release, installer, signature-verification, and CI preparation for the third signed executable.
+- Preserved the v0.4.4.1 acknowledgement, history, single-instance, and clean-uninstall changes.
+
+## v0.4.4.1
+
+- Added an `Acknowledge & Clear` action to Finding Review for findings the user chooses not to repair.
+- Removed acknowledged findings from active dashboard and simulator status views while retaining them as `Acknowledged` in All Findings.
+- Added single-instance detection and a maintenance shutdown request so the uninstaller automatically closes an idle tray instance before removing files.
+- Kept the application mutex as a fallback when a repair is active or automatic shutdown cannot complete.
+- Preserved all v0.4.4.0 monitoring, scoped elevation, repair, history, and installer behavior.
 
 ## v0.4.4.0
 

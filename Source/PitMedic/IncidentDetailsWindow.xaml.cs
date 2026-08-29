@@ -10,12 +10,14 @@ public partial class IncidentDetailsWindow : Window
 {
     private readonly IncidentDetailsData _details;
     private readonly Action? _runAutomaticRepair;
+    private readonly Func<bool>? _acknowledgeFinding;
 
-    public IncidentDetailsWindow(IncidentDetailsData details, Action? runAutomaticRepair = null)
+    public IncidentDetailsWindow(IncidentDetailsData details, Action? runAutomaticRepair = null, Func<bool>? acknowledgeFinding = null)
     {
         InitializeComponent();
         _details = details;
         _runAutomaticRepair = runAutomaticRepair;
+        _acknowledgeFinding = acknowledgeFinding;
         var incident = details.Incident;
 
         TitleText.Text = incident.Game;
@@ -35,6 +37,7 @@ public partial class IncidentDetailsWindow : Window
 
         ReferencesList.ItemsSource = details.References;
         ReferencesCard.Visibility = details.References.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        AcknowledgeFindingButton.Visibility = acknowledgeFinding is null ? Visibility.Collapsed : Visibility.Visible;
 
         if (!string.IsNullOrWhiteSpace(details.BackupFolder) && Directory.Exists(details.BackupFolder))
         {
@@ -194,6 +197,30 @@ public partial class IncidentDetailsWindow : Window
     private void EvidenceFolder_Click(object sender, RoutedEventArgs e)
     {
         try { Process.Start(new ProcessStartInfo("explorer.exe", _details.Incident.IncidentFolder) { UseShellExecute = true }); } catch { }
+    }
+
+    private void AcknowledgeFinding_Click(object sender, RoutedEventArgs e)
+    {
+        if (_acknowledgeFinding is null) return;
+        var result = MessageBox.Show(this,
+            "Clear this finding from the active dashboard without running a repair?\n\nThe finding and its evidence will remain available in All Findings as Acknowledged.",
+            "Acknowledge finding",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question,
+            MessageBoxResult.No);
+        if (result != MessageBoxResult.Yes) return;
+
+        if (_acknowledgeFinding())
+        {
+            DialogResult = true;
+            return;
+        }
+
+        MessageBox.Show(this,
+            "PitMedic could not acknowledge this finding. Its active status has not changed.",
+            "Could not acknowledge finding",
+            MessageBoxButton.OK,
+            MessageBoxImage.Warning);
     }
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();

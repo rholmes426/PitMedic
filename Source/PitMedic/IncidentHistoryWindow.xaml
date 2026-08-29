@@ -20,7 +20,7 @@
                     <Setter Property="Background" Value="{DynamicResource WarnSoftBrush}"/>
                     <Setter Property="BorderBrush" Value="{DynamicResource WarnBorderBrush}"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding HistoryStatus}" Value="Dismissed">
+                <DataTrigger Binding="{Binding HistoryStatus}" Value="Acknowledged">
                     <Setter Property="Background" Value="{DynamicResource Panel2Brush}"/>
                     <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                 </DataTrigger>
@@ -34,7 +34,7 @@
             <Style.Triggers>
                 <DataTrigger Binding="{Binding HistoryStatus}" Value="Resolved"><Setter Property="Foreground" Value="{DynamicResource GoodTextBrush}"/></DataTrigger>
                 <DataTrigger Binding="{Binding HistoryStatus}" Value="Repair available"><Setter Property="Foreground" Value="{DynamicResource WarnTextBrush}"/></DataTrigger>
-                <DataTrigger Binding="{Binding HistoryStatus}" Value="Dismissed"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/></DataTrigger>
+                <DataTrigger Binding="{Binding HistoryStatus}" Value="Acknowledged"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/></DataTrigger>
             </Style.Triggers>
         </Style>
         <Style x:Key="GameRail" TargetType="Border">
@@ -60,7 +60,7 @@
                             <TextBlock Text="Simulator reliability history" Foreground="{DynamicResource TitleTextBrush}" FontFamily="Segoe UI Variable Display" FontSize="25" FontWeight="SemiBold" Margin="0,2,0,0"/>
                         </StackPanel>
                     </StackPanel>
-                    <TextBlock Text="Detected issues, repairs, and dismissed alerts." Foreground="{DynamicResource TitleMutedBrush}" FontSize="13" Margin="44,7,0,0"/>
+                    <TextBlock Text="Detected issues, repairs, and acknowledged findings." Foreground="{DynamicResource TitleMutedBrush}" FontSize="13" Margin="44,7,0,0"/>
                 </StackPanel>
                 <Border Grid.Column="1" Background="{DynamicResource Panel2Brush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="11,6" VerticalAlignment="Center">
                     <TextBlock x:Name="CountText" Text="0 ISSUES" Foreground="{DynamicResource InfoTextBrush}" FontSize="11.5" FontWeight="Bold"/>
@@ -121,7 +121,7 @@
             <Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Ellipse Width="7" Height="7" Fill="{DynamicResource GoodBrush}" Margin="0,0,8,0"/>
-                    <TextBlock Text="Dismissed dashboard alerts remain here; evidence is retained for troubleshooting history." Foreground="{DynamicResource MutedBrush}" FontSize="12" VerticalAlignment="Center"/>
+                    <TextBlock Text="Acknowledged findings remain here; evidence is retained for troubleshooting history." Foreground="{DynamicResource MutedBrush}" FontSize="12" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button Content="Refresh" Margin="0,0,8,0" Click="Refresh_Click"/>

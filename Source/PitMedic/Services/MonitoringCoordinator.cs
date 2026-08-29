@@ -76,7 +76,7 @@ public sealed class MonitoringCoordinator : IDisposable
         var incident = _incidents.LoadRecord(folder);
         return incident is null ? null : IncidentDetailsService.Build(incident);
     }
-    public bool DismissIncident(string folder) => _incidents.Ignore(folder);
+    public bool AcknowledgeIncident(string folder) => _incidents.Acknowledge(folder);
 
     public void CancelRepair() => _repairs.Cancel();
 

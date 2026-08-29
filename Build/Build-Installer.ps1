@@ -28,8 +28,12 @@ $helperExecutable = Join-Path $payloadDirectory "PitMedic.RepairHelper.exe"
 if (-not (Test-Path $helperExecutable -PathType Leaf)) {
     throw "PitMedic.RepairHelper.exe must be beside PitMedic.exe before the installer can be built."
 }
+$sensorHelperExecutable = Join-Path $payloadDirectory "PitMedic.SensorHelper.exe"
+if (-not (Test-Path $sensorHelperExecutable -PathType Leaf)) {
+    throw "PitMedic.SensorHelper.exe must be beside PitMedic.exe before the installer can be built."
+}
 
-foreach ($releaseExecutable in @($appExecutable.FullName, $helperExecutable)) {
+foreach ($releaseExecutable in @($appExecutable.FullName, $helperExecutable, $sensorHelperExecutable)) {
     $fileVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($releaseExecutable)
     if ($fileVersion.FileVersion -ne $version -or $fileVersion.ProductVersion -notlike "$version*") {
         throw "$(Split-Path -Leaf $releaseExecutable) metadata does not match release version $version."

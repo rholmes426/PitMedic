@@ -20,11 +20,15 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - name: Restore
-        run: dotnet restore Source/PitMedic.RepairHelper/PitMedic.RepairHelper.csproj
+        run: |
+          dotnet restore Source/PitMedic.RepairHelper/PitMedic.RepairHelper.csproj
+          dotnet restore Source/PitMedic.SensorHelper/PitMedic.SensorHelper.csproj
       - name: Compile PitMedic Release
         run: dotnet build Source/PitMedic/PitMedic.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
       - name: Compile elevated repair helper Release
         run: dotnet build Source/PitMedic.RepairHelper/PitMedic.RepairHelper.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
+      - name: Compile read-only sensor service Release
+        run: dotnet build Source/PitMedic.SensorHelper/PitMedic.SensorHelper.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
       - name: Build unsigned release input
         shell: pwsh
         run: ./Build/Build-UnsignedRelease.ps1

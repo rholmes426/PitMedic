@@ -14,7 +14,7 @@ Recipients may obtain the corresponding LibreHardwareMonitor source, including t
 
 ## PawnIO
 
-LibreHardwareMonitor 0.9.6 uses PawnIO for low-level hardware sensor access on supported systems. The PitMedic installer checks for and, when necessary, installs the PawnIO prerequisite used by LibreHardwareMonitor.
+LibreHardwareMonitor 0.9.6 can use PawnIO for low-level hardware sensor access on supported systems when PawnIO is already installed. PitMedic does not bundle or install PawnIO.
 
 Project source and license information: https://github.com/namazso/PawnIO
 
@@ -24,4 +24,4 @@ PitMedic does not bundle Steam. Steam is invoked through its registered Windows 
 
 PitMedic identifies supported simulators by name solely to describe compatibility. Simulator names and trademarks remain the property of their respective owners. PitMedic is not affiliated with or endorsed by those publishers or by Valve.
 
-PitMedic v0.4.4.0 does not include simulator logos, icons, or publisher artwork.
+PitMedic v0.5.0.0 does not include simulator logos, icons, or publisher artwork.

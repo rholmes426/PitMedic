@@ -30,6 +30,9 @@ $payloadDirectory = $appExecutable.Directory.FullName
 if (-not (Test-Path (Join-Path $payloadDirectory "PitMedic.RepairHelper.exe") -PathType Leaf)) {
     throw "Signed PitMedic.RepairHelper.exe was not found beside PitMedic.exe."
 }
+if (-not (Test-Path (Join-Path $payloadDirectory "PitMedic.SensorHelper.exe") -PathType Leaf)) {
+    throw "Signed PitMedic.SensorHelper.exe was not found beside PitMedic.exe."
+}
 
 $installerRoot = (Resolve-Path $SignedInstallerPath).Path
 $installer = Get-ChildItem -Path $installerRoot -Filter "PitMedic-Setup-x64.exe" -Recurse -File | Select-Object -First 1

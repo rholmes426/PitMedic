@@ -16,7 +16,9 @@ These files remain on the computer unless the user deliberately opens, copies, e
 
 ## Information transmitted
 
-PitMedic v0.4.4.0 does not transmit diagnostics, usage statistics, donor identity, advertising identifiers, or analytics to the PitMedic project.
+PitMedic v0.5.0.0 does not transmit diagnostics, usage statistics, donor identity, advertising identifiers, or analytics to the PitMedic project. The installed read-only sensor service writes current CPU telemetry only to `%ProgramData%\PitMedic\sensor.json` on the same computer. Ordinary users can read but not change this service-owned file, and PitMedic ignores stale samples.
+
+Choosing **Support PitMedic** opens the project's hosted PayPal page in the user's default browser. PitMedic does not receive or process payment details, and no donor identity or contribution information is written into the app.
 
 Some user-approved repairs can ask Windows or Steam to perform actions such as validating installed game files. Those third-party applications operate under their own privacy policies.
 

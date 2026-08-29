@@ -20,10 +20,12 @@ The initial repository owner may hold all three roles while PitMedic has a one-p
 - Signed artifacts are built from the public repository by the checked-in GitHub Actions workflow.
 - Production signatures are requested only from protected release tags.
 - PitMedic-owned binaries use consistent product and version metadata.
-- The ordinary application runs unelevated; only the compiled repair-helper allowlist may request administrator rights.
+- The ordinary application runs unelevated. The installer registers the signed read-only sensor executable as a LocalSystem Windows service in the protected PitMedic installation directory; users approve this once during setup rather than at every launch.
+- The sensor service accepts no commands or network connections. It writes only current CPU temperature, load, clock, power, timestamp, and error state to a users-read-only file under `%ProgramData%\PitMedic`.
+- The compiled repair-helper allowlist requests administrator rights only when a selected repair must change a protected resource.
 - The signed repair helper accepts no arbitrary command, executable, or destination path and exits after one validated repair.
 - Third-party binaries are not re-signed as PitMedic.
-- `PitMedic.exe` and `PitMedic.RepairHelper.exe` are signed and verified before the installer is built.
+- `PitMedic.exe`, `PitMedic.SensorHelper.exe`, and `PitMedic.RepairHelper.exe` are signed and verified before the installer is built.
 - The final installer is signed and independently verified after it is built from the signed payload.
 - Every signed executable must have a valid timestamped Authenticode signature.
 - Release checksums are generated only after signature verification.

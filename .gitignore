@@ -1,6 +1,7 @@
 # Build output
 Output/
 Artifacts/
+PrivateBuild/
 **/bin/
 **/obj/
 

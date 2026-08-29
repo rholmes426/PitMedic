@@ -14,7 +14,7 @@ $ErrorActionPreference = "Stop"
 $resolvedPath = (Resolve-Path $Path).Path
 $searchRoot = if (Test-Path $resolvedPath -PathType Container) { $resolvedPath } else { Split-Path -Parent $resolvedPath }
 $expectedNames = if ($ArtifactKind -eq "Binaries") {
-    @("PitMedic.exe", "PitMedic.RepairHelper.exe")
+    @("PitMedic.exe", "PitMedic.RepairHelper.exe", "PitMedic.SensorHelper.exe")
 } else {
     @("PitMedic-Setup-x64.exe")
 }

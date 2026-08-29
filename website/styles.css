@@ -407,6 +407,23 @@ svg { display: block; }
   color: var(--navy);
   white-space: nowrap;
 }
+.about-actions {
+  display: flex;
+  max-width: 260px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.about-actions > span {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.developer-email {
+  color: var(--navy-2);
+  font-size: 12px;
+  border-bottom: 1px solid var(--line);
+}
 
 footer {
   min-height: 105px;
@@ -429,7 +446,7 @@ footer > div a:hover { color: var(--orange); }
   .product-stage { width: min(760px, 100%); min-height: auto; margin: 0 auto; }
   .sim-inner { gap: 46px; }
   .closing { grid-template-columns: 120px 1fr; }
-  .closing .button { grid-column: 2; justify-self: start; }
+  .closing .about-actions { grid-column: 2; justify-self: start; }
 }
 
 @media (max-width: 720px) {
@@ -463,7 +480,7 @@ footer > div a:hover { color: var(--orange); }
   .process-grid article { min-height: auto; }
   .sim-inner { grid-template-columns: 1fr; gap: 40px; }
   .closing { padding: 66px 20px; grid-template-columns: 1fr; gap: 24px; }
-  .closing .button { grid-column: auto; }
+  .closing .about-actions { grid-column: auto; }
   .about-mark { display: flex; align-items: center; gap: 14px; }
   .about-mark img { width: 40px; height: 40px; margin: 0; }
   footer { grid-template-columns: 1fr; justify-items: start; gap: 15px; padding: 26px 20px; }

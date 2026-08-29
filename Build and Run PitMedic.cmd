@@ -5,6 +5,7 @@ title PitMedic Development Build
 
 set "PROJECT=%~dp0Source\PitMedic\PitMedic.csproj"
 set "HELPER_PROJECT=%~dp0Source\PitMedic.RepairHelper\PitMedic.RepairHelper.csproj"
+set "SENSOR_HELPER_PROJECT=%~dp0Source\PitMedic.SensorHelper\PitMedic.SensorHelper.csproj"
 set "OUTPUT=%~dp0Output"
 
 cls
@@ -75,7 +76,7 @@ mkdir "%OUTPUT%" >nul 2>nul
 echo Using .NET 10 SDK:
 echo   %DOTNET10%
 echo.
-echo Building PitMedic v0.4.4.0...
+echo Building PitMedic v0.5.0.0...
 echo This can take a minute the first time because .NET may restore packages.
 echo.
 
@@ -88,8 +89,12 @@ if errorlevel 1 goto :build_failed
 dotnet publish "%HELPER_PROJECT%" -c Release -r win-x64 --self-contained true -p:PublishReadyToRun=false -o "%OUTPUT%"
 if errorlevel 1 goto :build_failed
 
+dotnet publish "%SENSOR_HELPER_PROJECT%" -c Release -r win-x64 --self-contained true -p:PublishReadyToRun=false -o "%OUTPUT%"
+if errorlevel 1 goto :build_failed
+
 if not exist "%OUTPUT%\PitMedic.exe" goto :build_failed
 if not exist "%OUTPUT%\PitMedic.RepairHelper.exe" goto :build_failed
+if not exist "%OUTPUT%\PitMedic.SensorHelper.exe" goto :build_failed
 
 echo.
 echo ============================================================
@@ -99,6 +104,7 @@ echo.
 echo Output:
 echo   %OUTPUT%\PitMedic.exe
 echo   %OUTPUT%\PitMedic.RepairHelper.exe
+echo   %OUTPUT%\PitMedic.SensorHelper.exe
 echo.
 echo PitMedic is starting now without administrator rights.
 echo Windows will ask for approval only when an allowlisted system repair needs it.

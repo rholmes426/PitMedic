@@ -9,7 +9,7 @@ PitMedic is free and open-source software licensed under GPL-3.0-or-later. Anyon
 - No sale of user data.
 - No payment processing, donor account, or donor identity tracking inside the application.
 - Every monitoring, diagnostic, repair, restore, and history feature remains available regardless of whether a user contributes.
-- Optional financial support may be accepted through a separate hosted page on pitmedic.com.
+- Optional financial support may be accepted through the project's hosted PayPal page, opened only in the user's browser.
 - Contributions are voluntary, do not unlock benefits, and do not provide preferential support.
 - Public wording should use “Support PitMedic” or “voluntary contribution” and must not imply that contributions are tax-deductible.
 

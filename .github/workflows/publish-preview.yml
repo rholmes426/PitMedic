@@ -1,0 +1,110 @@
+name: Publish PitMedic unsigned preview
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Source/**"
+      - "Build/**"
+      - "Installer/**"
+      - "Build and Run PitMedic.cmd"
+      - ".github/workflows/publish-preview.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-preview:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read release version
+        id: version
+        shell: pwsh
+        run: |
+          [xml]$project = Get-Content -Raw Source/PitMedic/PitMedic.csproj
+          $version = [string]($project.Project.PropertyGroup.Version | Select-Object -First 1)
+          if ([string]::IsNullOrWhiteSpace($version)) { throw "Could not read the PitMedic version." }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=v$version" >> $env:GITHUB_OUTPUT
+
+      - name: Refuse to replace an existing release version
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "${{ steps.version.outputs.tag }}" --repo "${{ github.repository }}" *> $null
+          if ($LASTEXITCODE -eq 0) {
+            throw "Release ${{ steps.version.outputs.tag }} already exists. Bump the PitMedic version instead of replacing a downloadable build."
+          }
+          exit 0
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build unsigned Windows release
+        shell: pwsh
+        run: ./Build/Build-UnsignedRelease.ps1
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build unsigned installer
+        shell: pwsh
+        run: ./Build/Build-Installer.ps1 -PayloadPath ./Artifacts/unsigned
+
+      - name: Assemble clearly labeled preview files
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.version }}"
+          $preview = New-Item -ItemType Directory -Force -Path ./Artifacts/preview
+          Copy-Item ./Artifacts/installer/PitMedic-Setup-x64.exe "$($preview.FullName)/PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe"
+
+          $payload = Get-ChildItem ./Artifacts/unsigned -Directory -Filter "PitMedic-$version-win-x64" | Select-Object -First 1
+          if (-not $payload) { throw "The portable release payload was not found." }
+          Compress-Archive -Path "$($payload.FullName)/*" -DestinationPath "$($preview.FullName)/PitMedic-$version-win-x64-UNSIGNED-PREVIEW.zip" -CompressionLevel Optimal
+
+          $publicFiles = Get-ChildItem $preview.FullName -File
+          $checksums = foreach ($file in $publicFiles) {
+            "$((Get-FileHash -Algorithm SHA256 $file.FullName).Hash.ToLowerInvariant())  $($file.Name)"
+          }
+          $checksums | Set-Content -Encoding ASCII "$($preview.FullName)/SHA256SUMS-UNSIGNED-PREVIEW.txt"
+
+          @'
+          This is the public v0.5.0.0 test preview.
+
+          It is intentionally unsigned while the PitMedic SignPath application is pending. Windows may show an Unknown publisher or SmartScreen warning. The package must not be described as an official signed release.
+
+          Changes include the About/Support page, finding acknowledgement, clean uninstall shutdown, scoped protected repairs, and the installer-managed read-only CPU sensor service.
+
+          PitMedic remains free and open source. Voluntary support unlocks nothing.
+          '@ | Set-Content -Encoding UTF8 ./Artifacts/preview/RELEASE-NOTES-UNSIGNED-PREVIEW.txt
+
+      - name: Publish GitHub prerelease
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $files = (Get-ChildItem ./Artifacts/preview -File).FullName
+          gh release create "${{ steps.version.outputs.tag }}" `
+            --repo "${{ github.repository }}" `
+            --target "${{ github.sha }}" `
+            --title "PitMedic ${{ steps.version.outputs.version }} unsigned preview" `
+            --notes-file ./Artifacts/preview/RELEASE-NOTES-UNSIGNED-PREVIEW.txt `
+            --prerelease `
+            $files
+
+      - name: Retain preview as a workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PitMedic-${{ steps.version.outputs.version }}-unsigned-preview
+          path: Artifacts/preview/
+          if-no-files-found: error
+          retention-days: 30

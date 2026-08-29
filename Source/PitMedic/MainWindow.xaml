@@ -145,7 +145,8 @@
                         <Border BorderBrush="{StaticResource SidebarBorderBrush}" BorderThickness="0,1,0,0" Margin="12,18,12,20"/>
                         <TextBlock Text="PITMEDIC" Foreground="{StaticResource SidebarMutedBrush}" FontSize="11.5" FontWeight="Bold" Margin="12,0,0,12"/>
                         <Button Style="{StaticResource SidebarActionButtonStyle}" Click="OpenIncidents_Click" Margin="0,0,0,8"><Grid><TextBlock Text="ALL FINDINGS" Foreground="{DynamicResource TitleTextBrush}" FontWeight="SemiBold"/><TextBlock x:Name="AllFindingsCountText" Text="0" Foreground="{DynamicResource TitleMutedBrush}" HorizontalAlignment="Right"/></Grid></Button>
-                        <Button Style="{StaticResource SidebarActionButtonStyle}" Click="Settings_Click"><TextBlock Text="SETTINGS" Foreground="{DynamicResource TitleTextBrush}" FontWeight="SemiBold"/></Button>
+                        <Button Style="{StaticResource SidebarActionButtonStyle}" Click="Settings_Click" Margin="0,0,0,8"><TextBlock Text="SETTINGS" Foreground="{DynamicResource TitleTextBrush}" FontWeight="SemiBold"/></Button>
+                        <Button Style="{StaticResource SidebarActionButtonStyle}" Click="About_Click"><TextBlock Text="ABOUT" Foreground="{DynamicResource TitleTextBrush}" FontWeight="SemiBold"/></Button>
                         <TextBlock x:Name="RecorderStatus" Text="Monitoring" Foreground="{StaticResource SidebarMutedBrush}" FontSize="12" Margin="12,12,0,0"/>
                     </StackPanel>
                 </Grid>
@@ -225,18 +226,6 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Background="{DynamicResource TitleBarBrush}" CornerRadius="12" Padding="20">
-                            <Grid>
-                                <StackPanel>
-                                    <TextBlock Text="PITMEDIC IS WATCHING THE WHOLE RIG" Foreground="{DynamicResource TitleMutedBrush}" FontSize="11.5" FontWeight="Bold"/>
-                                    <TextBlock Text="Monitoring stays local, repairs remain reviewable, and every finding keeps its evidence." Foreground="{DynamicResource TitleTextBrush}" FontSize="14" FontWeight="SemiBold" Margin="0,6,0,0"/>
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                    <Button Content="ALL FINDINGS" Style="{StaticResource SidebarActionButtonStyle}" Margin="0,0,9,0" Click="OpenIncidents_Click"/>
-                                    <Button Content="SETTINGS" Style="{StaticResource SidebarActionButtonStyle}" Click="Settings_Click"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
                     </StackPanel>
                 </ScrollViewer>
 
@@ -311,6 +300,46 @@
                             </Grid>
                         </Grid>
                     </Grid>
+                </ScrollViewer>
+
+                <ScrollViewer x:Name="AboutPage" Grid.Row="1" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="48,40,48,42" MaxWidth="760" HorizontalAlignment="Left">
+                        <TextBlock Text="ABOUT" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,18,0,28">
+                            <Image Source="Assets/PitMedic.png" Width="84" Height="84" Stretch="Uniform" Margin="0,0,20,0"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="PitMedic" FontFamily="Segoe UI Variable Display" FontWeight="Bold" FontSize="38"/>
+                                <TextBlock Text="A personal open-source project for the sim-racing community." Foreground="{DynamicResource MutedBrush}" FontSize="15" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,18">
+                            <StackPanel>
+                                <TextBlock Text="VERSION" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                                <TextBlock x:Name="AboutVersionText" Text="PitMedic" FontFamily="Segoe UI Variable Display" FontWeight="SemiBold" FontSize="23" Margin="0,8,0,0"/>
+                                <TextBlock Text="Windows 10/11 · 64-bit · .NET 10" Foreground="{DynamicResource MutedBrush}" FontSize="13" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,18">
+                            <StackPanel>
+                                <TextBlock Text="DEVELOPER" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                                <TextBlock Text="Bobby Holmes" FontFamily="Segoe UI Variable Display" FontWeight="SemiBold" FontSize="21" Margin="0,8,0,0"/>
+                                <Button Content="bobbyholmes@gmail.com" HorizontalAlignment="Left" Padding="0" Margin="0,5,0,0" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource AccentHoverBrush}" Cursor="Hand" Click="DeveloperEmail_Click"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="22">
+                            <StackPanel>
+                                <TextBlock Text="SUPPORT PITMEDIC" Foreground="{DynamicResource TextBrush}" FontSize="11.5" FontWeight="Bold"/>
+                                <TextBlock Text="PitMedic is free, open source, and has no paid features." FontFamily="Segoe UI Variable Display" FontWeight="SemiBold" FontSize="21" Margin="0,8,0,0"/>
+                                <TextBlock Text="If it has been useful and you want to help with hosting, signing, and development costs, you can make a voluntary contribution through PayPal. Supporting PitMedic does not unlock anything." Foreground="{DynamicResource MutedBrush}" FontSize="13.5" LineHeight="20" TextWrapping="Wrap" MaxWidth="650" HorizontalAlignment="Left" Margin="0,7,0,0"/>
+                                <Button Content="SUPPORT PITMEDIC" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Left" Margin="0,18,0,0" Click="SupportPitMedic_Click"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Content="VIEW SOURCE ON GITHUB" HorizontalAlignment="Left" Margin="0,22,0,0" Click="ProjectWebsite_Click"/>
+                    </StackPanel>
                 </ScrollViewer>
             </Grid>
         </Grid>

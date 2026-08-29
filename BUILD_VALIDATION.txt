@@ -1,22 +1,47 @@
-PitMedic v0.4.4.0 validation
-============================
+PitMedic v0.5.0.0 preview validation
+====================================
 
-Validated in the packaging environment:
-- The package is based on the saved v0.4.2.1 full development package.
-- Project, assembly, file, and informational versions are set to 0.4.4.0.
-- All prior v0.4.2.1 application source, XAML, repair knowledge, assets, and documentation remain present.
-- The complete GPL-3.0 license is included and the project declares GPL-3.0-or-later.
-- Public contribution, security, privacy, and code-signing policies are present.
+Validated in the private packaging environment:
+- Project, assembly, file, informational, UI, and build-script versions are set to 0.5.0.0.
+- The main PitMedic manifest remains asInvoker; the app interface does not run as administrator.
+- Protected CPU access is isolated in the installer-managed PitMedic.SensorHelper.exe Windows service.
+- The service executable has an asInvoker manifest and can be started as LocalSystem only through the service registration created by the elevated installer.
+- The service accepts no commands or network connections and writes only CPU temperature, load, clock, power, timestamp, and error state to ProgramData.
+- The installer grants ordinary users read-only access to the service output and stops/removes the service during uninstall.
+- Service values only fill missing local CPU readings; locally available GPU and memory telemetry remain unelevated.
+- Added an About page with the runtime version, Bobby Holmes developer contact, GitHub source link, and browser-only PayPal support link.
+- The support disclosure says PitMedic remains free and contributions unlock nothing.
+- The redundant Home-page banner was removed; its All Findings and Settings actions remain in the persistent left navigation.
+- Acknowledge & Clear persists an acknowledgement marker without deleting finding evidence.
+- Acknowledged findings are excluded from active dashboard, simulator, readiness, and latest-finding views.
+- All Findings retains acknowledged records and labels them Acknowledged.
+- PitMedic exposes a maintenance-only shutdown command used by its uninstaller.
+- The uninstaller requests a clean PitMedic shutdown before checking the application mutex and removing files.
+- The complete GPL-3.0 license and existing public project policies remain present.
 - No certificate, private key, API token, or signing identifier is stored in the package.
-- GitHub CI builds the Windows target from the checked-in source.
-- The release workflow checks out an explicit tag, confirms the tagged commit, and submits the workflow-produced artifact to SignPath.
-- Release signing requires the protected production-signing environment and manual SignPath approval.
-- Signature validation requires a valid SignPath Foundation publisher certificate and timestamp before creating the SHA-256 release manifest.
-- Unsigned development artifacts remain visibly separate from official signed releases.
-- Source inspection found no remaining v0.4.2.1 runtime version strings outside historical release notes.
+- The main app, read-only sensor service, and elevated repair helper compile successfully in Release configuration with .NET SDK 10.0.400.
+- Self-contained Windows x64 publishing completed successfully for all three executables.
+- Published PE resources must confirm PitMedic.exe and PitMedic.SensorHelper.exe are asInvoker while PitMedic.RepairHelper.exe requires administrator approval.
+- Published file-version resources must report 0.5.0.0 for all three executables.
 
-Windows CI result:
-GitHub Actions build-validation run #1 completed successfully on a Windows runner for commit 06f3f9439d179bf9a99bb2ebd3dfd09f22d092b2. Dependency restore, .NET 10 Release compilation, the self-contained win-x64 release build, version checks, unsigned-build manifest creation, and validation-artifact upload all passed. The uploaded artifact reported SHA-256 digest f729e79392d3012f2f3c79054d5bc93287fbd5b354d5b97af179bd6abcb0bab1.
+Windows behavior validation required for this private build:
+- Install PitMedic and confirm setup requests administrator approval once.
+- Start PitMedic normally and confirm About displays 0.5.0.0 without another UAC prompt.
+- Confirm Task Manager shows PitMedic.exe unelevated and the PitMedic Sensor Service running as LocalSystem.
+- Confirm CPU temperature appears, the service output is read-only to the signed-in user, and stale samples are ignored.
+- Confirm Support PitMedic opens https://paypal.me/PitMedicApp in the default browser.
+- Confirm Acknowledge & Clear removes a finding from active views and retains it in All Findings.
+- Confirm normal tray exit remains unchanged.
+- Confirm a second launch reports that PitMedic is already running.
+
+Cross-build note:
+- The Linux-hosted Windows build completed with zero compiler errors.
+- A separate direct helper build emitted Windows PE reference-image warnings that are specific to cross-building WPF on Linux; the final self-contained win-x64 publish completed cleanly.
+
+Installer validation required for this milestone:
+- Compile the Inno Setup installer and verify it creates, starts, upgrades, stops, and removes the PitMedicSensor service.
+- Verify that uninstall automatically closes an idle tray instance.
+- If a repair is active, PitMedic should remain open and the uninstaller should ask the user to finish the repair or exit manually.
 
 Authenticode limitation:
-The unsigned validation artifact is not an official release. Publisher, signature, and timestamp verification will remain intentionally blocked until SignPath Foundation approves the project and returns the first signed artifact.
+This private development package is unsigned and is not an official public release. Publisher, signature, and timestamp verification remain blocked until the signing provider approves the project.

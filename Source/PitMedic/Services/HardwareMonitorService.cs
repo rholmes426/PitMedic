@@ -9,6 +9,7 @@ public sealed class HardwareMonitorService : IDisposable
 {
     private readonly Computer _computer;
     private readonly UpdateVisitor _visitor = new();
+    private readonly ProtectedSensorClient _protectedSensors = new();
     private readonly object _gate = new();
     private readonly bool _opened;
 
@@ -40,7 +41,11 @@ public sealed class HardwareMonitorService : IDisposable
     {
         lock (_gate)
         {
-            if (!_opened) return new TelemetrySample { Timestamp = DateTimeOffset.Now };
+            if (!_opened)
+            {
+                if (settings.MonitorCpuTemperature) _protectedSensors.EnsureStarted();
+                return MergeProtectedCpu(new TelemetrySample { Timestamp = DateTimeOffset.Now });
+            }
 
             try
             {
@@ -50,7 +55,7 @@ public sealed class HardwareMonitorService : IDisposable
                 var gpu = all.Where(IsGpu).ToList();
                 var memory = all.Where(h => h.HardwareType == HardwareType.Memory).ToList();
 
-                return new TelemetrySample
+                var sample = new TelemetrySample
                 {
                     Timestamp = DateTimeOffset.Now,
                     CpuTempC = settings.MonitorCpuTemperature ? BestCpuTemp(cpu, all) : null,
@@ -68,11 +73,17 @@ public sealed class HardwareMonitorService : IDisposable
                     GpuMemoryTotalMb = settings.MonitorGpuMemory ? ReadGpuMemory(gpu, false) : null,
                     MemoryLoadPct = settings.MonitorSystemMemory ? (Named(memory, SensorType.Load, "Memory") ?? Max(memory, SensorType.Load)) : null
                 };
+
+                if (settings.MonitorCpuTemperature && !sample.CpuTempC.HasValue)
+                    _protectedSensors.EnsureStarted();
+
+                return MergeProtectedCpu(sample);
             }
             catch (Exception ex)
             {
                 AppLog.Write($"Hardware read failed: {ex.GetType().Name}: {ex.Message}");
-                return new TelemetrySample { Timestamp = DateTimeOffset.Now };
+                if (settings.MonitorCpuTemperature) _protectedSensors.EnsureStarted();
+                return MergeProtectedCpu(new TelemetrySample { Timestamp = DateTimeOffset.Now });
             }
         }
     }
@@ -86,6 +97,7 @@ public sealed class HardwareMonitorService : IDisposable
             sb.AppendLine($"Generated: {DateTimeOffset.Now:O}");
             sb.AppendLine($"LibreHardwareMonitor: 0.9.6");
             sb.AppendLine($"PawnIO: {ReadPawnIoVersion() ?? "Not detected"}");
+            sb.AppendLine($"Read-only installed sensor service: {_protectedSensors.GetDiagnosticStatus()}");
             sb.AppendLine();
             if (!_opened)
             {
@@ -193,6 +205,18 @@ public sealed class HardwareMonitorService : IDisposable
         return null;
     }
 
+    private TelemetrySample MergeProtectedCpu(TelemetrySample sample)
+    {
+        if (!_protectedSensors.TryGetRecent(out var protectedSample)) return sample;
+        return sample with
+        {
+            CpuTempC = sample.CpuTempC ?? protectedSample.CpuTempC,
+            CpuLoadPct = sample.CpuLoadPct ?? protectedSample.CpuLoadPct,
+            CpuClockMhz = sample.CpuClockMhz ?? protectedSample.CpuClockMhz,
+            CpuPowerW = sample.CpuPowerW ?? protectedSample.CpuPowerW
+        };
+    }
+
     private static string? ReadPawnIoVersion()
     {
         foreach (var view in new[] { RegistryView.Registry64, RegistryView.Registry32 })
@@ -215,6 +239,7 @@ public sealed class HardwareMonitorService : IDisposable
         {
             if (_opened) _computer.Close();
         }
+        _protectedSensors.Dispose();
     }
 
     private sealed class UpdateVisitor : IVisitor

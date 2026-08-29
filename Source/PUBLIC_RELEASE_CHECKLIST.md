@@ -9,12 +9,13 @@
 - Simulator names are presented only as compatibility references.
 - Local-first privacy behavior is documented.
 - Contribution, security, and public code-signing policies are included.
-- Product, file, and assembly versions are consistently set to 0.4.4.0.
+- Product, file, and assembly versions are kept consistent across the app and scoped helpers.
 - A Windows CI build and separate protected SignPath release workflow are included.
 - The ordinary monitoring application runs without administrator rights.
+- The installer creates a commandless read-only CPU sensor service during its one setup approval so protected sensor access does not prompt on every app launch.
 - A one-shot repair helper elevates only evidence-derived repairs in its compiled allowlist.
 - The Inno Setup installer installs the application and helper in Program Files and keeps elevated repair storage under ProgramData.
-- Signed-release validation checks the app, helper, and installer publisher, signature, timestamp, version, and SHA-256 value.
+- Signed-release validation checks the app, both scoped helpers, and installer publisher, signature, timestamp, version, and SHA-256 value.
 
 ## User/account steps required for free signing
 
@@ -23,7 +24,7 @@
 - Publish at least one clearly labeled unsigned preview release so SignPath can evaluate the running project; do not call it an official signed release.
 - Apply to SignPath Foundation with the public repository and project description.
 - After approval, configure the four repository secret/variables listed in `CODE_SIGNING.md`.
-- Configure `pitmedic-windows-x64-binaries` to sign only `PitMedic.exe` and `PitMedic.RepairHelper.exe`.
+- Configure `pitmedic-windows-x64-binaries` to sign only `PitMedic.exe`, `PitMedic.SensorHelper.exe`, and `PitMedic.RepairHelper.exe`.
 - Configure `pitmedic-windows-x64-installer` to sign only `PitMedic-Setup-x64.exe`.
 - Protect release tags and the `production-signing` GitHub environment; require manual approval.
 - Run the signing workflow against the exact protected release tag and retain the verified output.
@@ -36,7 +37,7 @@
 - Complete a formal trademark clearance review for the PitMedic name.
 - Publish a website privacy policy, compatibility disclaimer, contribution disclosure, support policy, and code-signing policy.
 - Use a hosted contribution processor so the application and website never handle card data directly.
-- Add the “Support PitMedic” link only after the real contribution page and disclosures are live.
+- The hosted PayPal contribution page and plain-language disclosure are live before enabling the “Support PitMedic” link.
 
 ## Ongoing release rules
 

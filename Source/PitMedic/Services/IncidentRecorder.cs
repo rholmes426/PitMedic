@@ -176,7 +176,7 @@ public sealed class IncidentRecorder
         var list = new List<IncidentSummary>();
         foreach (var folder in Directory.EnumerateDirectories(AppPaths.Incidents).OrderByDescending(x => x).Take(count * 4))
         {
-            if (File.Exists(Path.Combine(folder, ".ignored"))) continue;
+            if (IsAcknowledged(folder)) continue;
             var json = Path.Combine(folder, "incident.json");
             try
             {
@@ -229,7 +229,7 @@ public sealed class IncidentRecorder
                     var info = new DirectoryInfo(folder);
                     list.Add(new IncidentSummary(info.CreationTime, "System", "Manual diagnostic snapshot", 100, folder,
                         Summary: "Manual diagnostic snapshot captured by an earlier PitMedic version.",
-                        IsDismissed: File.Exists(Path.Combine(folder, ".ignored"))));
+                        IsDismissed: IsAcknowledged(folder)));
                 }
             }
             catch { }
@@ -238,30 +238,35 @@ public sealed class IncidentRecorder
         return list;
     }
 
-    public bool Ignore(string folder)
+    public bool Acknowledge(string folder)
     {
         try
         {
             var full = Path.GetFullPath(folder);
             var incidentsRoot = Path.GetFullPath(AppPaths.Incidents) + Path.DirectorySeparatorChar;
-            if (!full.StartsWith(incidentsRoot, StringComparison.OrdinalIgnoreCase)) return false;
-            File.WriteAllText(Path.Combine(full, ".ignored"), $"Dismissed from Recent Issues: {DateTimeOffset.Now:O}\r\nEvidence retained on disk.\r\n");
-            AppLog.Write($"Issue dismissed from recent list: {full}");
+            if (!full.StartsWith(incidentsRoot, StringComparison.OrdinalIgnoreCase) || !Directory.Exists(full)) return false;
+            File.WriteAllText(Path.Combine(full, ".acknowledged"),
+                $"Acknowledged: {DateTimeOffset.Now:O}\r\nNo repair was requested.\r\nEvidence retained on disk.\r\n");
+            AppLog.Write($"Finding acknowledged and cleared from active views: {full}");
             return true;
         }
         catch (Exception ex)
         {
-            AppLog.Write($"Could not dismiss issue: {ex.Message}");
+            AppLog.Write($"Could not acknowledge finding: {ex.Message}");
             return false;
         }
     }
+
+    private static bool IsAcknowledged(string folder)
+        => File.Exists(Path.Combine(folder, ".acknowledged"))
+            || File.Exists(Path.Combine(folder, ".ignored"));
 
     private static IncidentSummary ToSummary(IncidentRecord record, RepairPlan? plan)
     {
         var (resolved, resolutionText) = ReadResolution(record.IncidentFolder);
         return new IncidentSummary(record.IncidentTime, record.Game, record.Classification.Category, record.Classification.Confidence,
             record.IncidentFolder, plan is not null && !resolved, plan?.Title ?? string.Empty, plan?.EstimatedMinutes ?? 0, resolved, resolutionText,
-            record.Classification.Summary, File.Exists(Path.Combine(record.IncidentFolder, ".ignored")), plan?.RequiresApproval ?? false);
+            record.Classification.Summary, IsAcknowledged(record.IncidentFolder), plan?.RequiresApproval ?? false);
     }
 
     private static (bool Resolved, string Text) ReadResolution(string folder)

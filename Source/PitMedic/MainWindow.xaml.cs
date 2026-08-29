@@ -167,16 +167,18 @@ public partial class MainWindow : Window
         HomeOsText.Text = RuntimeInformation.OSDescription.Replace("Microsoft ", string.Empty, StringComparison.OrdinalIgnoreCase);
         HomeArchitectureText.Text = $"{RuntimeInformation.OSArchitecture} · {(Environment.Is64BitOperatingSystem ? "64-bit" : "32-bit")}";
         HomeProcessorText.Text = $"{Environment.ProcessorCount} logical processors";
-        HomeRuntimeText.Text = $"PitMedic 0.4.4.0 · .NET {Environment.Version.Major}";
+        HomeRuntimeText.Text = $"PitMedic {AppInfo.Version} · .NET {Environment.Version.Major}";
+        AboutVersionText.Text = $"PitMedic {AppInfo.Version}";
         HomeNav.IsChecked = true;
         RefreshHomePage();
     }
 
     private void HomeNav_Checked(object sender, RoutedEventArgs e)
     {
-        if (HomePage is null || SimulatorPage is null) return;
+        if (HomePage is null || SimulatorPage is null || AboutPage is null) return;
         HomePage.Visibility = Visibility.Visible;
         SimulatorPage.Visibility = Visibility.Collapsed;
+        AboutPage.Visibility = Visibility.Collapsed;
         RefreshHomePage();
     }
 
@@ -190,6 +192,7 @@ public partial class MainWindow : Window
         _selectedGame = game;
         HomePage.Visibility = Visibility.Collapsed;
         SimulatorPage.Visibility = Visibility.Visible;
+        AboutPage.Visibility = Visibility.Collapsed;
         RefreshSelectedSimulatorPage();
     }
 
@@ -388,8 +391,7 @@ public partial class MainWindow : Window
             SetHomeStatus("PROTECTION ACTIVE", "GoodSoftBrush", "GoodBorderBrush", "GoodBrush", "GoodTextBrush");
         }
 
-        _homeLatestIncident = _incidents.Where(x => !x.IsDismissed).OrderByDescending(x => x.Timestamp).FirstOrDefault()
-            ?? _incidents.OrderByDescending(x => x.Timestamp).FirstOrDefault();
+        _homeLatestIncident = _incidents.Where(x => !x.IsDismissed).OrderByDescending(x => x.Timestamp).FirstOrDefault();
         if (_homeLatestIncident is null)
         {
             HomeLatestFindingTime.Text = string.Empty;
@@ -666,20 +668,21 @@ public partial class MainWindow : Window
         Action? runRepair = incident.RepairAvailable && !incident.IsResolved
             ? () => ShowRepairPrompt(incident)
             : null;
-        var dialog = new IncidentDetailsWindow(details, runRepair) { Owner = this };
+        Func<bool>? acknowledgeFinding = !incident.IsResolved && !incident.IsDismissed
+            ? () => AcknowledgeIncident(incident)
+            : null;
+        var dialog = new IncidentDetailsWindow(details, runRepair, acknowledgeFinding) { Owner = this };
         dialog.ShowDialog();
     }
 
-    private void DismissIncident_Click(object sender, RoutedEventArgs e)
+    private bool AcknowledgeIncident(IncidentSummary incident)
     {
-        if (sender is not Button button || button.DataContext is not IncidentSummary incident) return;
-        if (_monitoring.DismissIncident(incident.Folder))
-        {
-            _incidents.Remove(incident);
-            if (TryGetGame(incident.Game, out var game)) _liveFaultGames.Remove(game);
-            RefreshSimulatorViews();
-            RecorderStatus.Text = "Finding dismissed";
-        }
+        if (!_monitoring.AcknowledgeIncident(incident.Folder)) return false;
+        _incidents.Remove(incident);
+        if (TryGetGame(incident.Game, out var game)) _liveFaultGames.Remove(game);
+        RefreshSimulatorViews();
+        RecorderStatus.Text = "Finding acknowledged";
+        return true;
     }
 
     private void RepairBannerDismiss_Click(object sender, RoutedEventArgs e)
@@ -825,6 +828,37 @@ public partial class MainWindow : Window
     }
 
     private void Settings_Click(object sender, RoutedEventArgs e) => OpenSettingsDialog();
+
+    private void About_Click(object sender, RoutedEventArgs e)
+    {
+        HomeNav.IsChecked = false;
+        foreach (var button in _navButtons.Values) button.IsChecked = false;
+        HomePage.Visibility = Visibility.Collapsed;
+        SimulatorPage.Visibility = Visibility.Collapsed;
+        AboutPage.Visibility = Visibility.Visible;
+    }
+
+    private void DeveloperEmail_Click(object sender, RoutedEventArgs e) =>
+        OpenExternalUrl($"mailto:{AppInfo.DeveloperEmail}");
+
+    private void SupportPitMedic_Click(object sender, RoutedEventArgs e) =>
+        OpenExternalUrl(AppInfo.SupportUrl);
+
+    private void ProjectWebsite_Click(object sender, RoutedEventArgs e) =>
+        OpenExternalUrl(AppInfo.ProjectUrl);
+
+    private static void OpenExternalUrl(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"Could not open external link: {ex.GetType().Name}: {ex.Message}");
+            MessageBox.Show("Windows could not open that link in your browser.", "PitMedic", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
 
     private void ThermalCanvas_MouseMove(object sender, MouseEventArgs e)
     {

@@ -65,7 +65,11 @@ public partial class IncidentHistoryWindow : Window
                     Refresh();
                 }
                 : null;
-            new IncidentDetailsWindow(details, runRepair) { Owner = this }.ShowDialog();
+            Func<bool>? acknowledgeFinding = !incident.IsResolved && !incident.IsDismissed
+                ? () => _monitoring.AcknowledgeIncident(incident.Folder)
+                : null;
+            new IncidentDetailsWindow(details, runRepair, acknowledgeFinding) { Owner = this }.ShowDialog();
+            Refresh();
             return;
         }
 

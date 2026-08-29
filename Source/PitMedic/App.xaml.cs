@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Windows;
 using PitMedic.Services;
 
@@ -5,14 +6,47 @@ namespace PitMedic;
 
 public partial class App : System.Windows.Application
 {
+    private const string InstanceMutexName = "PitMedic-E805E797-5FEF-4D91-8B72-0E20C53D2E09";
+    private const string MaintenanceShutdownEventName = "PitMedic-MaintenanceShutdown-E805E797-5FEF-4D91-8B72-0E20C53D2E09";
     private TrayIconService? _tray;
     private MonitoringCoordinator? _monitoring;
     private MainWindow? _mainWindow;
     private SettingsService? _settings;
+    private Mutex? _instanceMutex;
+    private bool _ownsInstanceMutex;
+    private EventWaitHandle? _maintenanceShutdownEvent;
+    private RegisteredWaitHandle? _maintenanceShutdownRegistration;
 
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        if (e.Args.Any(a => a.Equals("--shutdown-for-maintenance", StringComparison.OrdinalIgnoreCase)))
+        {
+            RequestMaintenanceShutdown();
+            Shutdown();
+            return;
+        }
+
+        _instanceMutex = new Mutex(true, InstanceMutexName, out var createdNew);
+        if (!createdNew)
+        {
+            MessageBox.Show("PitMedic is already running. Open it from the notification area near the Windows clock.",
+                "PitMedic is already running", MessageBoxButton.OK, MessageBoxImage.Information);
+            _instanceMutex.Dispose();
+            _instanceMutex = null;
+            Shutdown();
+            return;
+        }
+        _ownsInstanceMutex = true;
+
+        _maintenanceShutdownEvent = new EventWaitHandle(false, EventResetMode.AutoReset, MaintenanceShutdownEventName);
+        _maintenanceShutdownRegistration = ThreadPool.RegisterWaitForSingleObject(
+            _maintenanceShutdownEvent,
+            (_, _) => Dispatcher.BeginInvoke(new Action(ExitApplication)),
+            null,
+            Timeout.Infinite,
+            executeOnlyOnce: false);
 
         AppPaths.EnsureCreated();
         _settings = new SettingsService();
@@ -26,7 +60,40 @@ public partial class App : System.Windows.Application
         if (!_settings.Current.LaunchMinimized && !startupLaunch)
             _mainWindow.Show();
         _monitoring.Start();
-        AppLog.Write("PitMedic v0.4.4.0 started on .NET 10. Monitoring runs unelevated; allowlisted system repairs use the one-shot repair helper.");
+        AppLog.Write("PitMedic v0.5.0.0 started on .NET 10. Monitoring runs unelevated; protected CPU telemetry uses the installed read-only service and allowlisted protected repairs use the one-shot repair helper.");
+    }
+
+    private static void RequestMaintenanceShutdown()
+    {
+        try
+        {
+            using var shutdownEvent = EventWaitHandle.OpenExisting(MaintenanceShutdownEventName);
+            shutdownEvent.Set();
+        }
+        catch (WaitHandleCannotBeOpenedException)
+        {
+            return;
+        }
+
+        try
+        {
+            using var runningInstance = Mutex.OpenExisting(InstanceMutexName);
+            try
+            {
+                if (runningInstance.WaitOne(TimeSpan.FromSeconds(15)))
+                    runningInstance.ReleaseMutex();
+                else
+                    Environment.ExitCode = 2;
+            }
+            catch (AbandonedMutexException)
+            {
+                // The monitored process ended without releasing the mutex; maintenance may continue.
+            }
+        }
+        catch (WaitHandleCannotBeOpenedException)
+        {
+            // The app exited between signaling the event and opening the mutex.
+        }
     }
 
     private void ExitApplication()
@@ -49,6 +116,17 @@ public partial class App : System.Windows.Application
     {
         _tray?.Dispose();
         _monitoring?.Dispose();
+        _maintenanceShutdownRegistration?.Unregister(null);
+        _maintenanceShutdownRegistration = null;
+        _maintenanceShutdownEvent?.Dispose();
+        _maintenanceShutdownEvent = null;
+        if (_ownsInstanceMutex)
+        {
+            try { _instanceMutex?.ReleaseMutex(); } catch { }
+            _ownsInstanceMutex = false;
+        }
+        _instanceMutex?.Dispose();
+        _instanceMutex = null;
         AppLog.Write("PitMedic exited.");
         base.OnExit(e);
     }

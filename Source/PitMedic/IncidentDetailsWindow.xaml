@@ -180,8 +180,12 @@
 
         <Border Grid.Row="3" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="28,14">
             <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <Button Content="Open evidence folder" HorizontalAlignment="Left" Click="EvidenceFolder_Click"/>
-                <Button Content="Close" HorizontalAlignment="Right" Click="Close_Click"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="AcknowledgeFindingButton" Content="ACKNOWLEDGE &amp; CLEAR" Margin="0,0,8,0" Click="AcknowledgeFinding_Click" Visibility="Collapsed"/>
+                    <Button Content="Close" Click="Close_Click"/>
+                </StackPanel>
             </Grid>
         </Border>
     </Grid>

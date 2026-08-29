@@ -37,5 +37,5 @@ public sealed record IncidentSummary(
 {
     public string ActionLabel => IsResolved ? "Details" : RepairAvailable ? "Repair" : "Open";
     public string StatusLabel => IsResolved ? (string.IsNullOrWhiteSpace(ResolutionText) ? "RESOLVED" : ResolutionText.ToUpperInvariant()) : string.Empty;
-    public string HistoryStatus => IsResolved ? "Resolved" : IsDismissed ? "Dismissed" : RepairAvailable ? "Repair available" : "Captured";
+    public string HistoryStatus => IsResolved ? "Resolved" : IsDismissed ? "Acknowledged" : RepairAvailable ? "Repair available" : "Captured";
 }
