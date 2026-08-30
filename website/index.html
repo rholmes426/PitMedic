@@ -61,41 +61,51 @@
           <p class="version-note">Current test preview <strong>0.6.0.1</strong> · Unsigned · Windows 10/11</p>
         </div>
 
-        <div class="product-stage" aria-label="PitMedic monitoring overview">
+        <div class="product-stage" aria-label="PitMedic System Overview preview">
           <div class="app-window">
             <div class="app-topbar">
               <div class="app-brand">
                 <img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="" />
                 <div><strong>PitMedic</strong><small>SIM RELIABILITY</small></div>
               </div>
-              <div class="live-pill"><span></span> MONITORING</div>
+              <div class="live-pill"><span></span> MONITORING ACTIVE</div>
             </div>
             <div class="app-body">
               <aside>
-                <span class="side-label">SIMULATORS</span>
-                <div class="sim-item active"><i>LM</i><span>Le Mans Ultimate<small>Ready</small></span></div>
-                <div class="sim-item"><i>iR</i><span>iRacing<small>Ready</small></span></div>
-                <div class="sim-item"><i>AC</i><span>ACC<small>Ready</small></span></div>
+                <span class="side-label">OVERVIEW</span>
+                <div class="sim-item active"><i>⌂</i><span>Home<small>System overview</small></span></div>
+                <span class="side-label" style="margin-top:16px">MONITORED SIMS</span>
+                <div class="sim-item"><i>LM</i><span>Le Mans Ultimate<small>Not running</small></span></div>
+                <div class="sim-item"><i>iR</i><span>iRacing<small>Not running</small></span></div>
+                <div class="sim-item"><i>AC</i><span>ACC<small>Not running</small></span></div>
                 <div class="sim-more">+ 3 more monitored</div>
               </aside>
               <div class="dashboard">
                 <div class="dash-head">
-                  <div><small>SYSTEM STATUS</small><h2>Ready for the next session.</h2></div>
+                  <div><small>HOME</small><h2>System Overview</h2></div>
                   <div class="status-ok"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></div>
                 </div>
-                <div class="metric-row">
+                <div class="metric-row" style="grid-template-columns:repeat(4,1fr);margin-top:15px">
                   <div><small>CPU</small><strong>42°</strong><span class="line blue"></span></div>
                   <div><small>GPU</small><strong>48°</strong><span class="line orange"></span></div>
-                  <div><small>MEMORY</small><strong>38%</strong><span class="line navy"></span></div>
+                  <div><small>GPU POWER</small><strong>64 W</strong><span class="line orange"></span></div>
+                  <div><small>RAM</small><strong>38%</strong><span class="line navy"></span></div>
                 </div>
-                <div class="activity-card">
+                <span class="trace-label" style="position:static;display:block;margin-top:15px">SYSTEM TOOLS</span>
+                <div class="metric-row" style="grid-template-columns:repeat(4,1fr);margin-top:7px">
+                  <div><small>POWER MODE</small><strong style="font-size:10px">Balanced</strong></div>
+                  <div><small>STARTUP APPS</small><strong style="font-size:10px">6 enabled</strong></div>
+                  <div><small>STORAGE</small><strong style="font-size:10px">312 GB free</strong></div>
+                  <div><small>GAME MODE</small><strong style="font-size:10px;color:#4e936d">On</strong></div>
+                </div>
+                <div class="activity-card" style="margin-top:8px">
                   <div class="activity-icon"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></div>
-                  <div><strong>No findings need attention</strong><span>PitMedic is watching quietly in the background.</span></div>
-                  <time>NOW</time>
+                  <div><strong>No recent findings</strong><span>Task Manager · Graphics · Windows Update · Background Load</span></div>
+                  <time>READY</time>
                 </div>
-                <div class="trace" aria-hidden="true">
-                  <span class="trace-label">LIVE THERMAL TRACE</span>
-                  <svg viewBox="0 0 620 100" preserveAspectRatio="none">
+                <div class="trace" aria-hidden="true" style="height:72px;margin-top:10px">
+                  <span class="trace-label">SYSTEM TELEMETRY</span>
+                  <svg viewBox="0 0 620 100" preserveAspectRatio="none" style="height:58px">
                     <path class="trace-grid" d="M0 25h620M0 50h620M0 75h620" />
                     <path class="cpu-trace" d="M0 70 C45 65 55 72 95 61 S150 51 185 58 245 65 280 48 340 55 375 42 425 50 470 36 520 42 560 28 620 34" />
                     <path class="gpu-trace" d="M0 81 C50 78 80 82 120 74 S180 70 220 75 280 63 320 69 365 60 415 65 465 55 510 60 560 48 620 52" />
@@ -131,7 +141,6 @@
         <div><strong>Free and open</strong><span>No ads, subscriptions, or locked features</span></div>
       </section>
 
-
       <section class="section process" id="how-it-works">
         <span class="section-kicker process-kicker">How it works</span>
         <div class="process-grid">
@@ -140,8 +149,6 @@
           <article><div class="step-icon repair-icon"><i></i><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-9" /></svg></div><h3>Repair</h3><p>Completes many known fixes automatically with one click, creating a backup and a clear record of every change.</p></article>
         </div>
       </section>
-
-
 
       <section class="closing" id="about">
         <div class="about-mark">

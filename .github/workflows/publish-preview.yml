@@ -82,9 +82,9 @@ jobs:
 
           It is intentionally unsigned while the PitMedic SignPath application is pending. Windows may show an Unknown publisher or SmartScreen warning. The package must not be described as an official signed release.
 
-          v0.6.0.1 fixes the opt-in anonymous usage heartbeat so accepted installations appear in the private aggregate dashboard, allows quiet retries after failed sends, preserves precise iRacing live diagnostic signatures across the elevated repair handoff, improves repair-validation mismatch logging, and silently reuses the existing PitMedic installation folder during upgrades/reinstalls.
+          v0.6.0.2 refreshes the Home experience with useful Windows system tools, removes the old Simulator Readiness card, and introduces PitMedic's contained update flow: future updates can download inside the app, verify the published SHA-256 fingerprint, hand off to the installer, and relaunch PitMedic automatically after installation.
 
-          The broader v0.6 line also includes simulator-specific monitored time and clean streaks; verified live mileage for iRacing, Assetto Corsa Competizione, RaceRoom, and Automobilista 2; persistent distance cards; Metric/Imperial display controls; lighter background sampling and UI work; 48-hour recent-finding views; improved tray behavior; privacy-safe project contact details; and a smoother v0.5 upgrade path.
+          The v0.6 line also includes simulator-specific monitored time and clean streaks; verified live mileage for iRacing, Assetto Corsa Competizione, RaceRoom, and Automobilista 2; persistent distance cards; Metric/Imperial display controls; lightweight background monitoring; privacy-safe anonymous usage counting; 48-hour recent-finding views; safer elevated repair validation; and improved upgrade behavior.
 
           PitMedic remains free and open source. Voluntary support unlocks nothing.
           "@ | Set-Content -Encoding UTF8 ./Artifacts/preview/RELEASE-NOTES-UNSIGNED-PREVIEW.txt
@@ -102,6 +102,42 @@ jobs:
             --notes-file ./Artifacts/preview/RELEASE-NOTES-UNSIGNED-PREVIEW.txt `
             --prerelease `
             $files
+
+      - name: Publish verified update manifest and website version
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.version }}"
+          $tag = "v$version"
+          $installer = Resolve-Path ./Artifacts/preview/PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe
+          $sha256 = (Get-FileHash -Algorithm SHA256 $installer).Hash.ToLowerInvariant()
+          $downloadUrl = "https://github.com/${{ github.repository }}/releases/download/$tag/PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe"
+          $releaseUrl = "https://github.com/${{ github.repository }}/releases/tag/$tag"
+
+          $manifest = [ordered]@{
+            schemaVersion = 1
+            latestVersion = $version
+            title = "PitMedic $version unsigned test preview"
+            downloadUrl = $downloadUrl
+            releaseUrl = $releaseUrl
+            sha256 = $sha256
+          } | ConvertTo-Json
+          $manifest | Set-Content -Encoding UTF8 website/update.json
+
+          Get-ChildItem website -Recurse -Filter *.html | ForEach-Object {
+            $html = Get-Content -Raw $_.FullName
+            $html = [regex]::Replace($html, 'https://github\.com/rholmes426/PitMedic/releases/download/v[0-9.]+/PitMedic-Setup-x64-UNSIGNED-PREVIEW\.exe', $downloadUrl)
+            $html = [regex]::Replace($html, '"softwareVersion":"[0-9.]+"', '"softwareVersion":"' + $version + '"')
+            $html = [regex]::Replace($html, 'Current test preview <strong>[0-9.]+</strong>', 'Current test preview <strong>' + $version + '</strong>')
+            $html | Set-Content -Encoding UTF8 $_.FullName
+          }
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add website/update.json website/*.html website/simulators/*/index.html
+          if (-not (git diff --cached --quiet)) {
+            git commit -m "Publish PitMedic $version website metadata"
+            git push origin HEAD:main
+          }
 
       - name: Retain preview as a workflow artifact
         uses: actions/upload-artifact@v4

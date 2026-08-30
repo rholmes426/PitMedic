@@ -3,6 +3,8 @@ import { rollUpExpiredTokens, validatePayload } from "./usage";
 const ACTIVE_PATH = "/v1/active";
 const HEALTH_PATH = "/health";
 const MAX_BODY_BYTES = 2_048;
+const INSTALL_ALERT_TO = "bobbyholmes@gmail.com";
+const INSTALL_ALERT_FROM = "notifications@pitmedic.com";
 
 export default {
   async fetch(request, env): Promise<Response> {
@@ -42,26 +44,52 @@ export default {
       const month = day.slice(0, 7);
       const payload = validation.value;
 
-      await env.DB.batch([
-        env.DB.prepare(
-          "INSERT OR IGNORE INTO daily_active (day, token, app_version, channel, install_type) VALUES (?, ?, ?, ?, ?)",
-        ).bind(
+      // Keep the same privacy-preserving de-duplication model. The result of the
+      // monthly INSERT tells us whether this anonymous installation is newly
+      // counted this month; the rotating token itself is never included in email.
+      await env.DB.prepare(
+        "INSERT OR IGNORE INTO daily_active (day, token, app_version, channel, install_type) VALUES (?, ?, ?, ?, ?)",
+      )
+        .bind(
           day,
           payload.dailyToken,
           payload.appVersion,
           payload.channel,
           payload.installType,
-        ),
-        env.DB.prepare(
-          "INSERT OR IGNORE INTO monthly_active (month, token, app_version, channel, install_type) VALUES (?, ?, ?, ?, ?)",
-        ).bind(
+        )
+        .run();
+
+      const monthlyInsert = await env.DB.prepare(
+        "INSERT OR IGNORE INTO monthly_active (month, token, app_version, channel, install_type) VALUES (?, ?, ?, ?, ?)",
+      )
+        .bind(
           month,
           payload.monthlyToken,
           payload.appVersion,
           payload.channel,
           payload.installType,
-        ),
-      ]);
+        )
+        .run();
+
+      if ((monthlyInsert.meta.changes ?? 0) > 0) {
+        const total = await env.DB.prepare(
+          "SELECT COUNT(*) AS total FROM monthly_active WHERE month = ?",
+        )
+          .bind(month)
+          .first<{ total: number }>();
+
+        // Alert delivery is deliberately best-effort. A mail-service outage must
+        // never make a valid anonymous heartbeat fail or cause extra client data
+        // to be collected.
+        await sendInstallAlert(env, {
+          appVersion: payload.appVersion,
+          channel: payload.channel,
+          installType: payload.installType,
+          month,
+          monthlyTotal: Number(total?.total ?? 0),
+          detectedAt: now,
+        });
+      }
 
       return jsonResponse({ accepted: true }, 202);
     } catch (error) {
@@ -86,6 +114,51 @@ export default {
     ctx.waitUntil(rollUpExpiredTokens(env.DB));
   },
 } satisfies ExportedHandler<Env>;
+
+async function sendInstallAlert(
+  env: Env,
+  alert: {
+    appVersion: string;
+    channel: string;
+    installType: string;
+    month: string;
+    monthlyTotal: number;
+    detectedAt: Date;
+  },
+): Promise<void> {
+  try {
+    const binding = env.INSTALL_ALERT_EMAIL;
+    if (!binding) return;
+
+    const detected = alert.detectedAt.toISOString();
+    const subject = `PitMedic install detected · v${alert.appVersion}`;
+    const text = [
+      "A new anonymous PitMedic installation was counted on the Usage Dashboard.",
+      "",
+      `Version: ${alert.appVersion}`,
+      `Channel: ${alert.channel}`,
+      `Install type: ${alert.installType}`,
+      `Detected: ${detected}`,
+      `Monthly active installations (${alert.month}): ${alert.monthlyTotal}`,
+      "",
+      "No rotating token, IP address, hardware information, simulator activity, findings, or diagnostics are included in this email.",
+    ].join("\n");
+
+    await binding.send({
+      from: INSTALL_ALERT_FROM,
+      to: INSTALL_ALERT_TO,
+      subject,
+      text,
+    });
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "install_alert_email_failed",
+        errorType: error instanceof Error ? error.name : "UnknownError",
+      }),
+    );
+  }
+}
 
 class PayloadTooLargeError extends Error {
   constructor() {

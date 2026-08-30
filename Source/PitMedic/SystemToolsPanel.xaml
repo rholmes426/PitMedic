@@ -1,0 +1,161 @@
+<UserControl x:Class="PitMedic.SystemToolsPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent"
+             FontFamily="Segoe UI Variable Text"
+             FontSize="14">
+    <UserControl.Resources>
+        <Style x:Key="ToolCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="18"/>
+            <Setter Property="Margin" Value="0,0,12,12"/>
+            <Setter Property="MinHeight" Value="158"/>
+        </Style>
+        <Style x:Key="ToolTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        </Style>
+        <Style x:Key="ToolStatusStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentHoverBrush}"/>
+        </Style>
+        <Style x:Key="ToolDetailStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="LineHeight" Value="17"/>
+            <Setter Property="Margin" Value="0,9,0,0"/>
+        </Style>
+        <Style x:Key="ToolGlyphStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
+            <Setter Property="FontSize" Value="27"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Margin" Value="0,0,13,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel>
+        <Grid Margin="0,0,0,11">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="SYSTEM TOOLS" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+            <TextBlock x:Name="LastRefreshText" Grid.Column="1" Text="Windows performance shortcuts" Foreground="{DynamicResource MutedBrush}" FontSize="12"/>
+        </Grid>
+
+        <UniformGrid Columns="4">
+            <Border Style="{StaticResource ToolCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <TextBlock Text="⚡" Style="{StaticResource ToolGlyphStyle}" Foreground="{DynamicResource GoodTextBrush}"/>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Power Mode" Style="{StaticResource ToolTitleStyle}"/>
+                        <TextBlock x:Name="PowerModeStatus" Text="Checking current plan…" Style="{StaticResource ToolStatusStyle}"/>
+                        <TextBlock Text="Review Windows power settings and choose a performance-focused mode when appropriate." Style="{StaticResource ToolDetailStyle}"/>
+                        <Button Content="Change" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="12,5" Click="PowerMode_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource ToolCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <TextBlock Text="↗" Style="{StaticResource ToolGlyphStyle}" Foreground="{DynamicResource AccentHoverBrush}"/>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Startup Apps" Style="{StaticResource ToolTitleStyle}"/>
+                        <TextBlock x:Name="StartupAppsStatus" Text="Checking startup entries…" Style="{StaticResource ToolStatusStyle}"/>
+                        <TextBlock Text="Reduce unnecessary background apps that can consume CPU and memory before a race." Style="{StaticResource ToolDetailStyle}"/>
+                        <Button Content="Manage" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="12,5" Click="StartupApps_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource ToolCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <TextBlock Text="▰" Style="{StaticResource ToolGlyphStyle}" Foreground="{DynamicResource InfoTextBrush}"/>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Storage" Style="{StaticResource ToolTitleStyle}"/>
+                        <TextBlock x:Name="StorageStatus" Text="Checking free space…" Style="{StaticResource ToolStatusStyle}"/>
+                        <TextBlock Text="Keep enough free space for simulator updates, caches, replays, and Windows temporary files." Style="{StaticResource ToolDetailStyle}"/>
+                        <Button Content="Clean up" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="12,5" Click="Storage_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource ToolCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <TextBlock Text="⌁" Style="{StaticResource ToolGlyphStyle}" Foreground="{DynamicResource GoodTextBrush}"/>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Game Mode" Style="{StaticResource ToolTitleStyle}"/>
+                        <TextBlock x:Name="GameModeStatus" Text="Checking Windows setting…" Style="{StaticResource ToolStatusStyle}"/>
+                        <TextBlock Text="Open Windows Game Mode controls without applying hidden registry or service tweaks." Style="{StaticResource ToolDetailStyle}"/>
+                        <Button Content="Manage" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="12,5" Click="GameMode_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource ToolCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <TextBlock Text="▦" Style="{StaticResource ToolGlyphStyle}" Foreground="{DynamicResource InfoTextBrush}"/>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Task Manager" Style="{StaticResource ToolTitleStyle}"/>
+                        <TextBlock Text="Inspect running processes" Style="{StaticResource ToolStatusStyle}"/>
+                        <TextBlock Text="Quickly identify apps using unexpected CPU, memory, disk, or GPU resources." Style="{StaticResource ToolDetailStyle}"/>
+                        <Button Content="Open" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="12,5" Click="TaskManager_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource ToolCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <TextBlock Text="▣" Style="{StaticResource ToolGlyphStyle}" Foreground="{DynamicResource AccentBrush}"/>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Graphics Settings" Style="{StaticResource ToolTitleStyle}"/>
+                        <TextBlock Text="Manage GPU preferences" Style="{StaticResource ToolStatusStyle}"/>
+                        <TextBlock Text="Open Windows per-app graphics settings for simulator GPU and performance preferences." Style="{StaticResource ToolDetailStyle}"/>
+                        <Button Content="Open" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="12,5" Click="GraphicsSettings_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource ToolCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <TextBlock Text="↻" Style="{StaticResource ToolGlyphStyle}" Foreground="{DynamicResource AccentHoverBrush}"/>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Windows Update" Style="{StaticResource ToolTitleStyle}"/>
+                        <TextBlock x:Name="WindowsUpdateStatus" Text="Checking restart state…" Style="{StaticResource ToolStatusStyle}"/>
+                        <TextBlock Text="Check Windows Update and identify when a pending restart may be affecting reliability." Style="{StaticResource ToolDetailStyle}"/>
+                        <Button Content="Check" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="12,5" Click="WindowsUpdate_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource ToolCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <TextBlock Text="∿" Style="{StaticResource ToolGlyphStyle}" Foreground="{DynamicResource AccentBrush}"/>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Background Load" Style="{StaticResource ToolTitleStyle}"/>
+                        <TextBlock x:Name="BackgroundLoadStatus" Text="Measuring system load…" Style="{StaticResource ToolStatusStyle}"/>
+                        <TextBlock x:Name="BackgroundLoadDetail" Text="PitMedic checks current CPU and memory pressure without changing system settings." Style="{StaticResource ToolDetailStyle}"/>
+                        <Button Content="View details" HorizontalAlignment="Left" Margin="0,12,0,0" Padding="12,5" Click="BackgroundLoad_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </UniformGrid>
+    </StackPanel>
+</UserControl>
