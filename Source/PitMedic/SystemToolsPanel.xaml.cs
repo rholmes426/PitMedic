@@ -157,8 +157,8 @@ public partial class SystemToolsPanel : UserControl
     {
         try
         {
-            var windows = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
-            var root = Path.GetPathRoot(windows);
+            var systemFolder = Environment.GetFolderPath(Environment.SpecialFolder.System);
+            var root = Path.GetPathRoot(systemFolder);
             if (string.IsNullOrWhiteSpace(root)) return "Storage status unavailable";
 
             var drive = new DriveInfo(root);
