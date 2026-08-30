@@ -7,6 +7,7 @@ namespace PitMedic;
 public partial class MainWindow
 {
     private SystemToolsPanel? _systemToolsPanel;
+    private bool _inAppUpdateHooked;
 
     static MainWindow()
     {
@@ -29,7 +30,7 @@ public partial class MainWindow
         if (sender is MainWindow window)
         {
             window.InstallSystemToolsPanel();
-            window.RenameUpdateAction();
+            window.ConfigureInAppUpdateUi();
         }
     }
 
@@ -52,6 +53,26 @@ public partial class MainWindow
     {
         var window = new UpdateInstallWindow(update) { Owner = this };
         window.ShowDialog();
+    }
+
+    private void ConfigureInAppUpdateUi()
+    {
+        RenameUpdateAction();
+        if (_availableUpdate is not null)
+            ApplyContainedUpdateCopy(_availableUpdate);
+
+        if (_inAppUpdateHooked) return;
+        _inAppUpdateHooked = true;
+        _updates.UpdateAvailable += update => Dispatcher.BeginInvoke(() => ApplyContainedUpdateCopy(update));
+    }
+
+    private void ApplyContainedUpdateCopy(PitMedic.Services.AvailableUpdate update)
+    {
+        if (_availableUpdate is null || !string.Equals(_availableUpdate.Version, update.Version, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        UpdateBannerMessage.Text = $"PitMedic {update.Version} is ready. Install it inside PitMedic when you are ready; the package will be downloaded and verified before installation.";
+        RenameUpdateAction();
     }
 
     private void RenameUpdateAction()
