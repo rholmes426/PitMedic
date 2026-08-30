@@ -147,7 +147,7 @@ internal static class Program
 
                 File.WriteAllText(temporaryPath, JsonSerializer.Serialize(message));
                 File.Move(temporaryPath, sensorPath, overwrite: true);
-                token.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+                token.WaitHandle.WaitOne(TimeSpan.FromSeconds(2));
             }
         }
         finally

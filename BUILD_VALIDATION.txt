@@ -1,16 +1,22 @@
-PitMedic v0.5.0.0 preview validation
+PitMedic v0.6.0.0 release-candidate validation
 ====================================
 
 Validated in the private packaging environment:
-- Project, assembly, file, informational, UI, and build-script versions are set to 0.5.0.0.
+- Project, assembly, file, informational, UI, and build-script versions are set to 0.6.0.0.
 - The main PitMedic manifest remains asInvoker; the app interface does not run as administrator.
 - Protected CPU access is isolated in the installer-managed PitMedic.SensorHelper.exe Windows service.
 - The service executable has an asInvoker manifest and can be started as LocalSystem only through the service registration created by the elevated installer.
 - The service accepts no commands or network connections and writes only CPU temperature, load, clock, power, timestamp, and error state to ProgramData.
 - The installer grants ordinary users read-only access to the service output and stops/removes the service during uninstall.
 - Service values only fill missing local CPU readings; locally available GPU and memory telemetry remain unelevated.
-- Added an About page with the runtime version, Bobby Holmes developer contact, GitHub source link, and browser-only PayPal support link.
+- Added an upper-right Support PitMedic button and retained the About-page PayPal support link.
 - The support disclosure says PitMedic remains free and contributions unlock nothing.
+- Anonymous app-usage counting is off until the user explicitly opts in.
+- The one-time consent dialog and Settings both preview the complete six-field payload.
+- A successful heartbeat is attempted at most once per UTC day and contains no diagnostic, hardware, simulator, repair, file-path, or permanent-identifier data.
+- Disabling anonymous usage deletes the local random secret and sending history; re-enabling creates an unlinkable secret.
+- The Cloudflare Worker rejects unknown fields, deduplicates rotating tokens, and rolls closed periods into aggregate counts before deleting raw tokens.
+- The update checker reads only the public `update.json` file once per day, validates GitHub release URLs, and never downloads or installs an update automatically.
 - The redundant Home-page banner was removed; its All Findings and Settings actions remain in the persistent left navigation.
 - Acknowledge & Clear persists an acknowledgement marker without deleting finding evidence.
 - Acknowledged findings are excluded from active dashboard, simulator, readiness, and latest-finding views.
@@ -22,14 +28,19 @@ Validated in the private packaging environment:
 - The main app, read-only sensor service, and elevated repair helper compile successfully in Release configuration with .NET SDK 10.0.400.
 - Self-contained Windows x64 publishing completed successfully for all three executables.
 - Published PE resources must confirm PitMedic.exe and PitMedic.SensorHelper.exe are asInvoker while PitMedic.RepairHelper.exe requires administrator approval.
-- Published file-version resources must report 0.5.0.0 for all three executables.
+- Published file-version resources must report 0.6.0.0 for all three executables.
 
 Windows behavior validation required for this private build:
 - Install PitMedic and confirm setup requests administrator approval once.
-- Start PitMedic normally and confirm About displays 0.5.0.0 without another UAC prompt.
+- Start PitMedic normally and confirm About displays 0.6.0.0 without another UAC prompt.
 - Confirm Task Manager shows PitMedic.exe unelevated and the PitMedic Sensor Service running as LocalSystem.
 - Confirm CPU temperature appears, the service output is read-only to the signed-in user, and stale samples are ignored.
 - Confirm Support PitMedic opens https://paypal.me/PitMedicApp in the default browser.
+- Confirm the Support PitMedic title-bar button remains visible and usable on every app page.
+- Confirm declining anonymous usage sends nothing and is remembered without prompting again.
+- Confirm opting in sends one accepted count, shows the last-send day, and does not resend on a second launch that UTC day.
+- Confirm turning sharing off deletes `anonymous-usage.key` and `anonymous-usage-state.json` from the local PitMedic folder.
+- Confirm `Check now` reports the current version, a newer manifest shows the update banner, dismissing it hides that version, and the Download button opens the validated GitHub release URL.
 - Confirm Acknowledge & Clear removes a finding from active views and retains it in All Findings.
 - Confirm normal tray exit remains unchanged.
 - Confirm a second launch reports that PitMedic is already running.

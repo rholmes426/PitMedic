@@ -4,7 +4,7 @@ Official PitMedic Windows releases use free code signing provided by SignPath.io
 
 ## Privacy
 
-PitMedic does not transfer diagnostics, usage statistics, advertising identifiers, or analytics to the PitMedic project. Information stays on the user's computer unless the user deliberately opens, copies, exports, or shares it. See [the complete privacy statement](Source/PRIVACY.md).
+PitMedic never transfers diagnostics, findings, repairs, hardware data, or simulator activity to the project. Users may explicitly opt in to a once-daily anonymous active-installation count containing only the documented six-field payload; it is off by default and uses no permanent identifier. See [the complete privacy statement](Source/PRIVACY.md).
 
 ## Team roles
 

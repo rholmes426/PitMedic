@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 using PitMedic.Models;
 using PitMedic.Services;
 
@@ -9,12 +10,16 @@ public partial class SettingsWindow : Window
 {
     private readonly MonitoringCoordinator _monitoring;
     private readonly SettingsService _settings;
+    private readonly AnonymousUsageService _anonymousUsage;
+    private readonly UpdateService _updates;
 
-    public SettingsWindow(MonitoringCoordinator monitoring)
+    public SettingsWindow(MonitoringCoordinator monitoring, AnonymousUsageService anonymousUsage, UpdateService updates)
     {
         InitializeComponent();
         _monitoring = monitoring;
         _settings = monitoring.Settings;
+        _anonymousUsage = anonymousUsage;
+        _updates = updates;
         LoadSettings(_settings.Current);
     }
 
@@ -41,12 +46,13 @@ public partial class SettingsWindow : Window
         SystemMemory.IsChecked = s.MonitorSystemMemory;
         CaptureEveryExit.IsChecked = s.CaptureEveryGameExit;
         StartWithWindows.IsChecked = s.StartWithWindows;
-        MinimizeToTray.IsChecked = s.MinimizeToTrayOnClose;
-        LaunchMinimized.IsChecked = s.LaunchMinimized;
-        UseFahrenheit.IsChecked = s.UseFahrenheit;
+        MeasurementUnits.SelectedIndex = s.UseFahrenheit ? 1 : 0;
+        CheckForUpdates.IsChecked = s.CheckForUpdates;
         AutoRunSafeRepairs.IsChecked = s.AutoRunSafeRepairs;
         AlwaysAskBeforeRepair.IsChecked = s.AlwaysAskBeforeRepair;
         KeepRepairBackups.IsChecked = s.KeepRepairBackups;
+        ShareAnonymousUsage.IsChecked = s.ShareAnonymousUsage == true;
+        AnonymousUsageStatus.Text = _anonymousUsage.GetStatusText();
     }
 
     private AppSettings ReadSettings()
@@ -77,12 +83,13 @@ public partial class SettingsWindow : Window
             ThermalTraceMinutes = _settings.Current.ThermalTraceMinutes,
             CaptureEveryGameExit = CaptureEveryExit.IsChecked == true,
             StartWithWindows = StartWithWindows.IsChecked == true,
-            MinimizeToTrayOnClose = MinimizeToTray.IsChecked == true,
-            LaunchMinimized = LaunchMinimized.IsChecked == true,
-            UseFahrenheit = UseFahrenheit.IsChecked == true,
+            LaunchMinimized = false,
+            UseFahrenheit = (MeasurementUnits.SelectedItem as ComboBoxItem)?.Tag?.ToString() == "Imperial",
+            CheckForUpdates = CheckForUpdates.IsChecked == true,
             AutoRunSafeRepairs = AutoRunSafeRepairs.IsChecked == true,
             AlwaysAskBeforeRepair = AlwaysAskBeforeRepair.IsChecked == true,
-            KeepRepairBackups = KeepRepairBackups.IsChecked == true
+            KeepRepairBackups = KeepRepairBackups.IsChecked == true,
+            ShareAnonymousUsage = ShareAnonymousUsage.IsChecked == true
         };
     }
 
@@ -108,6 +115,27 @@ public partial class SettingsWindow : Window
         catch (Exception ex)
         {
             SensorReportStatus.Text = $"Could not create sensor report: {ex.Message}";
+        }
+    }
+
+    private void AnonymousUsagePreview_Click(object sender, RoutedEventArgs e) =>
+        AnonymousUsagePreviewWindow.ShowFor(this, _anonymousUsage);
+
+    private void Privacy_Click(object sender, RoutedEventArgs e) =>
+        Process.Start(new ProcessStartInfo(AppInfo.PrivacyUrl) { UseShellExecute = true });
+
+    private async void CheckForUpdatesNow_Click(object sender, RoutedEventArgs e)
+    {
+        CheckForUpdatesNow.IsEnabled = false;
+        UpdateCheckStatus.Text = "Checking for updates…";
+        try
+        {
+            var result = await _updates.CheckAsync(force: true, CancellationToken.None);
+            UpdateCheckStatus.Text = result.Message;
+        }
+        finally
+        {
+            CheckForUpdatesNow.IsEnabled = true;
         }
     }
 

@@ -2,6 +2,7 @@
 Output/
 Artifacts/
 PrivateBuild/
+.build-tools/
 **/bin/
 **/obj/
 
@@ -18,6 +19,11 @@ PrivateBuild/
 *.evtx
 appsettings.local.json
 signing.local.json
+node_modules/
+worker-configuration.d.ts
+.wrangler/
+.dev.vars
+.dev.vars.*
 
 # Signing material must never be committed
 *.pfx

@@ -17,7 +17,6 @@ AppPublisher=PitMedic Project
 AppPublisherURL=https://pitmedic.com/
 AppSupportURL=https://github.com/rholmes426/PitMedic/issues
 AppUpdatesURL=https://pitmedic.com/
-AppMutex=PitMedic-E805E797-5FEF-4D91-8B72-0E20C53D2E09
 DefaultDirName={autopf}\PitMedic
 DefaultGroupName=PitMedic
 DisableProgramGroupPage=yes
@@ -64,15 +63,62 @@ Name: "{autoprograms}\PitMedic"; Filename: "{app}\PitMedic.exe"; WorkingDir: "{a
 Name: "{autodesktop}\PitMedic"; Filename: "{app}\PitMedic.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\PitMedic.exe"; Description: "Launch PitMedic"; WorkingDir: "{app}"; Flags: nowait postinstall skipifsilent runasoriginaluser
+Filename: "{app}\PitMedic.exe"; Description: "Launch PitMedic"; WorkingDir: "{app}"; Flags: nowait skipifsilent runasoriginaluser
 
 [UninstallDelete]
 Type: files; Name: "{commonappdata}\PitMedic\sensor.json"
 Type: files; Name: "{commonappdata}\PitMedic\sensor-*.tmp"
+Type: files; Name: "{localappdata}\PitMedic\anonymous-usage.key"
+Type: files; Name: "{localappdata}\PitMedic\anonymous-usage-state.json"
+Type: files; Name: "{localappdata}\PitMedic\update-check-state.json"
 
 [Code]
 const
   SensorServiceName = 'PitMedicSensor';
+  PitMedicMutexName = 'PitMedic-E805E797-5FEF-4D91-8B72-0E20C53D2E09';
+
+function ExistingPitMedicPath(): String;
+var
+  InstallLocation: String;
+begin
+  Result := '';
+  if RegQueryStringValue(HKLM64,
+      'Software\Microsoft\Windows\CurrentVersion\Uninstall\{E805E797-5FEF-4D91-8B72-0E20C53D2E09}_is1',
+      'InstallLocation', InstallLocation) then
+    Result := AddBackslash(InstallLocation) + 'PitMedic.exe'
+  else if FileExists(ExpandConstant('{autopf}\PitMedic\PitMedic.exe')) then
+    Result := ExpandConstant('{autopf}\PitMedic\PitMedic.exe');
+end;
+
+function InitializeSetup(): Boolean;
+var
+  ExistingExe: String;
+  ExitCode: Integer;
+  WaitedMs: Integer;
+begin
+  Result := True;
+  if not CheckForMutexes(PitMedicMutexName) then
+    exit;
+
+  ExistingExe := ExistingPitMedicPath();
+  if (ExistingExe <> '') and FileExists(ExistingExe) then
+    Exec(ExistingExe, '--shutdown-for-maintenance', ExtractFileDir(ExistingExe),
+      SW_HIDE, ewWaitUntilTerminated, ExitCode);
+
+  WaitedMs := 0;
+  while CheckForMutexes(PitMedicMutexName) and (WaitedMs < 15000) do
+  begin
+    Sleep(250);
+    WaitedMs := WaitedMs + 250;
+  end;
+
+  if CheckForMutexes(PitMedicMutexName) then
+  begin
+    MsgBox('PitMedic could not close automatically. A repair may still be active. Use Exit from the PitMedic tray icon, then run this installer again.',
+      mbError, MB_OK);
+    Result := False;
+  end;
+end;
 
 procedure StopSensorService();
 var
@@ -81,6 +127,18 @@ begin
   Exec(ExpandConstant('{sys}\sc.exe'), 'stop ' + SensorServiceName,
     '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
   Sleep(1500);
+end;
+
+procedure RemoveLegacyStartupTasks();
+var
+  ExitCode: Integer;
+begin
+  { v0.5 and earlier used Task Scheduler. The app now uses the lightweight
+    per-user Run key, so retire both historic task names once during upgrade. }
+  Exec(ExpandConstant('{sys}\schtasks.exe'), '/Delete /TN "PitMedic" /F',
+    '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
+  Exec(ExpandConstant('{sys}\schtasks.exe'), '/Delete /TN "SimWatch" /F',
+    '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
 end;
 
 procedure InstallSensorService();
@@ -126,6 +184,7 @@ end;
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   StopSensorService();
+  RemoveLegacyStartupTasks();
   Result := '';
 end;
 

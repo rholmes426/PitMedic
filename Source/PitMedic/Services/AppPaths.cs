@@ -17,6 +17,9 @@ public static class AppPaths
     public static string RepairRequests { get; } = Path.Combine(Root, "RepairRequests");
     public static string SettingsFile { get; } = Path.Combine(Root, "settings.json");
     public static string StatsFile { get; } = Path.Combine(Root, "stats.json");
+    public static string AnonymousUsageKeyFile { get; } = Path.Combine(Root, "anonymous-usage.key");
+    public static string AnonymousUsageStateFile { get; } = Path.Combine(Root, "anonymous-usage-state.json");
+    public static string UpdateCheckStateFile { get; } = Path.Combine(Root, "update-check-state.json");
     public static string SensorReport { get; } = Path.Combine(Root, "sensor-report.txt");
     public static string AppLog { get; } = Path.Combine(Root, "pitmedic.log");
 

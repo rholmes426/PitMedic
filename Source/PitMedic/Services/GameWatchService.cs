@@ -15,6 +15,7 @@ public sealed class GameWatchService : IDisposable
     private DateTimeOffset _lastHelperServiceFault;
 
     public event Action<GameKind, bool>? GameStatusChanged;
+    public event Action<GameKind, DateTimeOffset, bool>? SessionCompleted;
     public event Action<LiveFaultEvidence>? LiveFaultDetected;
 
     public GameWatchService(TelemetryBuffer buffer, IncidentRecorder recorder, SettingsService settings)
@@ -200,20 +201,26 @@ public sealed class GameWatchService : IDisposable
             _iracingGlobalMonitor.StartSession(ended);
         AppLog.Write($"{tracked.Game.DisplayName} exited: PID {pid}, exitCode={(exitCode.HasValue ? $"0x{unchecked((uint)exitCode.Value):X8}" : "unknown")}");
 
+        var cleanSession = false;
         try
         {
             PollLiveFaults(tracked);
             var settings = _settings.Current;
             LiveFaultEvidence[] liveFaults;
             lock (tracked.FaultGate) liveFaults = tracked.LiveFaults.ToArray();
-            await _recorder.RecordAsync(tracked.Game, pid, tracked.Started, ended, exitCode,
+            var incident = await _recorder.RecordAsync(tracked.Game, pid, tracked.Started, ended, exitCode,
                 _buffer.Snapshot(settings.BufferMinutes), settings.CaptureEveryGameExit, liveFaults);
+            cleanSession = incident is null;
         }
         catch (Exception ex)
         {
             AppLog.Write($"Issue recording failed for {tracked.Game.DisplayName}: {ex}");
         }
-        finally { tracked.Process.Dispose(); }
+        finally
+        {
+            SessionCompleted?.Invoke(tracked.Game.Kind, ended, cleanSession);
+            tracked.Process.Dispose();
+        }
     }
 
     private static DateTimeOffset SafeStart(Process process)

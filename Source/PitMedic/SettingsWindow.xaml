@@ -80,11 +80,24 @@
                         <TextBlock Text="APP BEHAVIOR" Style="{StaticResource SectionHeader}"/>
                         <WrapPanel>
                             <CheckBox x:Name="StartWithWindows" Content="Start PitMedic with Windows"/>
-                            <CheckBox x:Name="MinimizeToTray" Content="Close button minimizes to tray"/>
-                            <CheckBox x:Name="LaunchMinimized" Content="Launch minimized to tray"/>
-                            <CheckBox x:Name="UseFahrenheit" Content="Display temperatures in °F"/>
+                            <CheckBox x:Name="CheckForUpdates" Content="Check once daily for PitMedic updates"/>
                             <CheckBox x:Name="CaptureEveryExit" Content="Preserve ambiguous exits (diagnostic)" ToolTip="Normally off. Preserves exits whose status cannot be determined, but clean exit-code-0 sessions are never treated as issues."/>
                         </WrapPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <TextBlock Text="Measurement units" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <ComboBox x:Name="MeasurementUnits" Width="150" SelectedIndex="0">
+                                <ComboBoxItem Content="Metric (°C, km)" Tag="Metric"/>
+                                <ComboBoxItem Content="Imperial (°F, mi)" Tag="Imperial"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <TextBlock Text="Minimize and Close keep PitMedic monitoring in the notification area. Use Exit from the tray icon to stop PitMedic."
+                                   Foreground="{DynamicResource MutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,7,0,0"/>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Button x:Name="CheckForUpdatesNow" Content="Check now" Click="CheckForUpdatesNow_Click" Margin="0,0,10,0"/>
+                            <TextBlock x:Name="UpdateCheckStatus" Grid.Column="1" Text="Update checks only read a small public version file; PitMedic never downloads or installs updates automatically."
+                                       Foreground="{DynamicResource MutedBrush}" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        </Grid>
                     </StackPanel>
                 </Border>
 
@@ -97,6 +110,20 @@
                             <CheckBox x:Name="AlwaysAskBeforeRepair" Content="Always ask before any repair"/>
                             <CheckBox x:Name="KeepRepairBackups" Content="Keep recovery backups after successful repairs"/>
                         </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="PRIVACY &amp; ANONYMOUS USAGE" Style="{StaticResource SectionHeader}"/>
+                        <CheckBox x:Name="ShareAnonymousUsage" Content="Share a once-daily anonymous usage count"/>
+                        <TextBlock Text="Off by default. Shares only the app version, release channel, installer/portable type, and rotating anonymous tokens. It never shares diagnostics, findings, repairs, simulator activity, hardware details, file paths, or a permanent identifier. Turning this off deletes the local anonymous key and sending history."
+                                   Foreground="{DynamicResource MutedBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,2,0,10"/>
+                        <TextBlock x:Name="AnonymousUsageStatus" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,0,0,12"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Preview exact data" Click="AnonymousUsagePreview_Click" Margin="0,0,10,0"/>
+                            <Button Content="Read privacy policy" Click="Privacy_Click"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 

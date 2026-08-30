@@ -12,10 +12,13 @@ public partial class App : System.Windows.Application
     private MonitoringCoordinator? _monitoring;
     private MainWindow? _mainWindow;
     private SettingsService? _settings;
+    private AnonymousUsageService? _anonymousUsage;
+    private UpdateService? _updates;
     private Mutex? _instanceMutex;
     private bool _ownsInstanceMutex;
     private EventWaitHandle? _maintenanceShutdownEvent;
     private RegisteredWaitHandle? _maintenanceShutdownRegistration;
+    private bool _anonymousUsagePromptScheduled;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -53,14 +56,40 @@ public partial class App : System.Windows.Application
         _settings.RefreshStartupRegistration();
 
         _monitoring = new MonitoringCoordinator(_settings);
-        _mainWindow = new MainWindow(_monitoring);
+        _anonymousUsage = new AnonymousUsageService(_settings);
+        _updates = new UpdateService(_settings);
+        _mainWindow = new MainWindow(_monitoring, _anonymousUsage, _updates);
+        _mainWindow.ContentRendered += MainWindow_ContentRendered;
         _tray = new TrayIconService(_mainWindow, ExitApplication);
 
         var startupLaunch = e.Args.Any(a => a.Equals("--startup", StringComparison.OrdinalIgnoreCase));
-        if (!_settings.Current.LaunchMinimized && !startupLaunch)
+        // Normal launches, including the installer's post-install launch, are always visible.
+        // Only the explicit Windows-startup path begins quietly in the notification area.
+        if (!startupLaunch)
             _mainWindow.Show();
         _monitoring.Start();
-        AppLog.Write("PitMedic v0.5.0.0 started on .NET 10. Monitoring runs unelevated; protected CPU telemetry uses the installed read-only service and allowlisted protected repairs use the one-shot repair helper.");
+        _anonymousUsage.Start();
+        _updates.Start();
+        AppLog.Write("PitMedic v0.6.0.0 started on .NET 10. Monitoring runs unelevated; protected CPU telemetry uses the installed read-only service and allowlisted protected repairs use the one-shot repair helper.");
+    }
+
+    private void MainWindow_ContentRendered(object? sender, EventArgs e)
+    {
+        if (_anonymousUsagePromptScheduled || _settings?.Current.ShareAnonymousUsage is not null
+            || _mainWindow is null || _anonymousUsage is null) return;
+
+        _anonymousUsagePromptScheduled = true;
+        var settingsService = _settings!;
+        var anonymousUsage = _anonymousUsage!;
+        var mainWindow = _mainWindow!;
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (settingsService.Current.ShareAnonymousUsage is not null) return;
+            var prompt = new AnonymousUsageConsentWindow(anonymousUsage) { Owner = mainWindow };
+            var settings = settingsService.Current;
+            settings.ShareAnonymousUsage = prompt.ShowDialog() == true;
+            settingsService.Save(settings);
+        }));
     }
 
     private static void RequestMaintenanceShutdown()
@@ -116,6 +145,8 @@ public partial class App : System.Windows.Application
     {
         _tray?.Dispose();
         _monitoring?.Dispose();
+        _anonymousUsage?.Dispose();
+        _updates?.Dispose();
         _maintenanceShutdownRegistration?.Unregister(null);
         _maintenanceShutdownRegistration = null;
         _maintenanceShutdownEvent?.Dispose();

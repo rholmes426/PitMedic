@@ -1,6 +1,22 @@
-# PitMedic v0.5.0.0
+# PitMedic v0.6.0.0
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.6.0.0
+
+- Added an explicit one-time choice for anonymous app-usage counting; sharing is off unless the user opts in.
+- Limited the heartbeat to one request per UTC day containing only version, release channel, installer/portable type, and rotating daily/monthly anonymous tokens.
+- Added an exact-data preview and a Settings toggle that deletes the local anonymous key and sending history when disabled.
+- Added the separately deployed Cloudflare Worker/D1 service, strict payload allowlist, deduplication tests, and automatic deletion of raw rotating tokens after their counting period closes.
+- Added a quiet once-daily update check, dismissible in-app update banner, direct download/release-note actions, and a Settings control; PitMedic never downloads or installs an update automatically.
+- Documented website analytics and optional app usage separately so diagnostics, findings, repairs, hardware data, simulator activity, and permanent identifiers remain excluded.
+- Preserved the prominent Support PitMedic links and all v0.5.0.0 monitoring, repair, sensor-service, acknowledgement, and clean-uninstall behavior.
+
+## v0.5.0.1
+
+- Added a persistent Support PitMedic button to the upper-right application title bar.
+- Kept the existing About-page support explanation and PayPal link unchanged.
+- Preserved the complete v0.5.0.0 monitoring, repair, installer-service, acknowledgement, and clean-uninstall behavior.
 
 ## v0.5.0.0
 

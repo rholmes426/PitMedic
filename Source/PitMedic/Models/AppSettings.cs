@@ -23,17 +23,20 @@ public sealed class AppSettings
     public bool MonitorGpuMemory { get; set; } = true;
     public bool MonitorSystemMemory { get; set; } = true;
 
-    public int SamplingSeconds { get; set; } = 1;
+    public int SamplingSeconds { get; set; } = 2;
     public int BufferMinutes { get; set; } = 10;
     public int ThermalTraceMinutes { get; set; } = 10;
     public bool CaptureEveryGameExit { get; set; } = false;
     public bool StartWithWindows { get; set; } = true;
-    public bool MinimizeToTrayOnClose { get; set; } = true;
     public bool LaunchMinimized { get; set; } = false;
     public bool UseFahrenheit { get; set; } = false;
+    public bool CheckForUpdates { get; set; } = true;
 
     public bool AutoRunSafeRepairs { get; set; } = true;
     public bool AlwaysAskBeforeRepair { get; set; } = false;
     public bool KeepRepairBackups { get; set; } = true;
+
+    // null means the one-time consent choice has not been shown yet.
+    public bool? ShareAnonymousUsage { get; set; }
 
 }

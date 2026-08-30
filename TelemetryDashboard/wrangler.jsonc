@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "pitmedic-usage-dashboard",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-29",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "pitmedic-usage",
+      "database_id": "082c12df-0c51-4976-ba17-0277da2694d2",
+      "migrations_dir": "../TelemetryWorker/migrations",
+    },
+  ],
+}

@@ -45,4 +45,7 @@
 - Contributions never unlock features or preferential support.
 - Safety, restore, history, and access to the user's own diagnostics remain free.
 - Diagnostics stay local unless a future user explicitly previews and approves an upload.
-- Any future analytics or cloud feature requires prior documentation, consent design, and privacy review.
+- Website analytics remain cookie-free and are documented in the public privacy policy.
+- Anonymous app-usage counting remains voluntary, off until the user makes a choice, limited to the documented six-field heartbeat, and independently disableable from update checks.
+- Raw rotating usage tokens are rolled into anonymous counts and deleted after their day or month closes; only aggregate totals persist.
+- Any future expansion of analytics or cloud features requires prior documentation, consent design, and privacy review.

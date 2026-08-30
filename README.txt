@@ -1,4 +1,4 @@
-PITMEDIC v0.5.0.0 - FULL DEVELOPMENT PACKAGE
+PITMEDIC v0.6.0.0 - FULL DEVELOPMENT PACKAGE
 ==============================================
 
 PitMedic is a Windows sim-racing diagnostics and automated repair utility.
@@ -8,16 +8,20 @@ THIS PACKAGE IS COMPLETE
 This ZIP contains the full source tree, PitMedic assets, repair knowledge base,
 documentation, and Windows build/run command file. It is not a patch package.
 
-WHAT CHANGED IN v0.5.0.0
+WHAT CHANGED IN v0.6.0.0
 ------------------------
-- Added an About page with version details, developer contact information,
-  source link, and an optional Support PitMedic link through PayPal.
-- Replaced per-launch sensor elevation with an installer-managed, commandless
-  read-only Windows service. Normal PitMedic launches remain unelevated.
-- The service writes only current CPU telemetry to a users-read-only file on
-  the local PC. It accepts no commands and has no network behavior.
-- Preserved the v0.4.4.2 Home cleanup, CPU telemetry restoration, finding
-  acknowledgement, history, clean-uninstall, and scoped repair changes.
+- Added an explicit one-time choice for once-daily anonymous app-usage counting.
+  It is off unless the user opts in.
+- Added an exact-data preview and a Settings switch. Turning sharing off deletes
+  the local anonymous key and sending history.
+- Limited the six-field request to version, release channel, installer/portable
+  type, protocol, and rotating daily/monthly anonymous tokens. Diagnostics,
+  findings, repairs, hardware data, and simulator activity are never sent.
+- Added and tested the separate Cloudflare Worker/D1 aggregation service.
+- Added a once-daily update check and a dismissible in-app Download banner. The
+  app never downloads or installs updates without the user choosing the button.
+- Preserved the prominent Support PitMedic buttons and v0.5.0.0 monitoring,
+  repair, installer-service, acknowledgement, and clean-uninstall behavior.
 
 BUILD + RUN
 -----------
@@ -38,7 +42,8 @@ VALIDATION NOTE
 ---------------
 This private package was not uploaded to GitHub or compiled by the public Windows
 CI workflow. Run the included build command on Windows to compile and launch the
-self-contained development build, then test finding acknowledgement and normal
-tray behavior. The portable build does not register the sensor service; use the
-v0.5.0.0 installer for the intended one-time setup approval and protected CPU
-temperature behavior. Confirm PitMedic.exe remains unelevated after installation.
+self-contained development build, then test the anonymous-usage consent and
+Settings flows plus normal monitoring and tray behavior. The portable build does
+not register the sensor service; use the public v0.5.0.0 installer for the current
+one-time setup approval and protected CPU-temperature behavior until the v0.6.0.0
+installer is compiled. Confirm PitMedic.exe remains unelevated after installation.

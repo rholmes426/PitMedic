@@ -5,16 +5,26 @@ namespace PitMedic.Services;
 
 public sealed class UsageStatsService
 {
+    private sealed class PersistedGameStats
+    {
+        public double MonitoredSeconds { get; set; }
+        public int CleanStreak { get; set; }
+        public double MilesMonitored { get; set; }
+        public bool MileageAvailable { get; set; }
+    }
+
     private sealed class PersistedStats
     {
         public DateTimeOffset MonitoringSince { get; set; } = DateTimeOffset.Now;
         public long SessionsMonitored { get; set; }
         public int AutomaticRepairsResolved { get; set; }
         public int EstimatedMinutesSaved { get; set; }
+        public Dictionary<string, PersistedGameStats> Games { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     }
 
     private readonly object _gate = new();
     private readonly JsonSerializerOptions _json = new() { WriteIndented = true };
+    private readonly Dictionary<GameKind, DateTimeOffset> _activeSessions = new();
     private PersistedStats _stats;
 
     public UsageStatsService()
@@ -26,7 +36,79 @@ public sealed class UsageStatsService
     {
         lock (_gate)
         {
+            if (_activeSessions.ContainsKey(game)) return;
+            _activeSessions[game] = DateTimeOffset.Now;
             _stats.SessionsMonitored++;
+            GetGameStats(game);
+            Save();
+        }
+    }
+
+    public void RecordSessionEnded(GameKind game, DateTimeOffset ended, bool clean)
+    {
+        lock (_gate)
+        {
+            if (!_activeSessions.Remove(game, out var started)) return;
+            var gameStats = GetGameStats(game);
+            gameStats.MonitoredSeconds += Math.Max(0, (ended - started).TotalSeconds);
+            gameStats.CleanStreak = clean ? gameStats.CleanStreak + 1 : 0;
+            Save();
+        }
+    }
+
+    public void RecordFinding(GameKind game)
+    {
+        lock (_gate)
+        {
+            GetGameStats(game).CleanStreak = 0;
+            Save();
+        }
+    }
+
+    // Simulator-specific telemetry adapters can call this only after they have measured actual
+    // on-track distance. Until then, the UI deliberately shows time and clean streak instead of
+    // presenting an estimated mileage value as fact.
+    public void RecordMiles(GameKind game, double miles, bool persist = true)
+    {
+        if (!double.IsFinite(miles) || miles < 0) return;
+        lock (_gate)
+        {
+            var gameStats = GetGameStats(game);
+            gameStats.MileageAvailable = true;
+            gameStats.MilesMonitored += miles;
+            if (persist) Save();
+        }
+    }
+
+    public void Flush()
+    {
+        lock (_gate) Save();
+    }
+
+    public SimulatorActivitySnapshot SimulatorSnapshot(GameKind game)
+    {
+        lock (_gate)
+        {
+            var gameStats = GetGameStats(game);
+            var seconds = gameStats.MonitoredSeconds;
+            if (_activeSessions.TryGetValue(game, out var started))
+                seconds += Math.Max(0, (DateTimeOffset.Now - started).TotalSeconds);
+            return new SimulatorActivitySnapshot(
+                game,
+                TimeSpan.FromSeconds(seconds),
+                gameStats.CleanStreak,
+                gameStats.MileageAvailable ? gameStats.MilesMonitored : null);
+        }
+    }
+
+    public void StopMonitoring()
+    {
+        lock (_gate)
+        {
+            var stopped = DateTimeOffset.Now;
+            foreach (var (game, started) in _activeSessions)
+                GetGameStats(game).MonitoredSeconds += Math.Max(0, (stopped - started).TotalSeconds);
+            _activeSessions.Clear();
             Save();
         }
     }
@@ -133,6 +215,17 @@ public sealed class UsageStatsService
             AppLog.Write($"Could not load usage stats: {ex.Message}");
         }
         return new PersistedStats();
+    }
+
+    private PersistedGameStats GetGameStats(GameKind game)
+    {
+        var key = game.ToString();
+        if (!_stats.Games.TryGetValue(key, out var gameStats))
+        {
+            gameStats = new PersistedGameStats();
+            _stats.Games[key] = gameStats;
+        }
+        return gameStats;
     }
 
     private void Save()

@@ -12,6 +12,10 @@ public sealed class HardwareMonitorService : IDisposable
     private readonly ProtectedSensorClient _protectedSensors = new();
     private readonly object _gate = new();
     private readonly bool _opened;
+    private IReadOnlyList<IHardware> _allHardware = Array.Empty<IHardware>();
+    private IReadOnlyList<IHardware> _cpuHardware = Array.Empty<IHardware>();
+    private IReadOnlyList<IHardware> _gpuHardware = Array.Empty<IHardware>();
+    private IReadOnlyList<IHardware> _memoryHardware = Array.Empty<IHardware>();
 
     public HardwareMonitorService()
     {
@@ -27,6 +31,7 @@ public sealed class HardwareMonitorService : IDisposable
         {
             _computer.Open();
             _opened = true;
+            CacheHardwareTopology();
         }
         catch (Exception ex)
         {
@@ -50,10 +55,10 @@ public sealed class HardwareMonitorService : IDisposable
             try
             {
                 _computer.Accept(_visitor);
-                var all = Flatten(_computer.Hardware).ToList();
-                var cpu = all.Where(h => h.HardwareType == HardwareType.Cpu).ToList();
-                var gpu = all.Where(IsGpu).ToList();
-                var memory = all.Where(h => h.HardwareType == HardwareType.Memory).ToList();
+                var all = _allHardware;
+                var cpu = _cpuHardware;
+                var gpu = _gpuHardware;
+                var memory = _memoryHardware;
 
                 var sample = new TelemetrySample
                 {
@@ -109,7 +114,7 @@ public sealed class HardwareMonitorService : IDisposable
                 if (_opened)
                 {
                     _computer.Accept(_visitor);
-                    foreach (var hardware in Flatten(_computer.Hardware))
+                    foreach (var hardware in _allHardware)
                     {
                         sb.AppendLine($"[{hardware.HardwareType}] {hardware.Name}");
                         foreach (var sensor in hardware.Sensors.OrderBy(s => s.SensorType).ThenBy(s => s.Name))
@@ -136,6 +141,14 @@ public sealed class HardwareMonitorService : IDisposable
             foreach (var sub in Flatten(item.SubHardware))
                 yield return sub;
         }
+    }
+
+    private void CacheHardwareTopology()
+    {
+        _allHardware = Flatten(_computer.Hardware).ToArray();
+        _cpuHardware = _allHardware.Where(h => h.HardwareType == HardwareType.Cpu).ToArray();
+        _gpuHardware = _allHardware.Where(IsGpu).ToArray();
+        _memoryHardware = _allHardware.Where(h => h.HardwareType == HardwareType.Memory).ToArray();
     }
 
     private static bool IsGpu(IHardware h) => h.HardwareType is HardwareType.GpuNvidia or HardwareType.GpuAmd or HardwareType.GpuIntel;

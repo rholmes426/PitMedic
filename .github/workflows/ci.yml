@@ -10,6 +10,48 @@ permissions:
   contents: read
 
 jobs:
+  telemetry-worker:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: TelemetryWorker
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: TelemetryWorker/package-lock.json
+      - name: Install exact Worker dependencies
+        run: npm ci
+      - name: Type-check and test privacy boundaries
+        run: npm run check
+      - name: Validate the production Worker bundle
+        run: npm run deploy:dry-run
+
+  telemetry-dashboard:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: TelemetryDashboard
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: TelemetryDashboard/package-lock.json
+      - name: Install exact dashboard dependencies
+        run: npm ci
+      - name: Type-check and test read-only privacy boundaries
+        run: npm run check
+      - name: Validate the private dashboard Worker bundle
+        run: npm run deploy:dry-run
+
   build:
     runs-on: windows-latest
     steps:

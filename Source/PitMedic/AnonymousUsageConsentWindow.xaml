@@ -1,0 +1,44 @@
+<Window x:Class="PitMedic.AnonymousUsageConsentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Help improve PitMedic" Icon="Assets/PitMedic.ico"
+        Width="610" Height="520" ResizeMode="NoResize"
+        Background="{DynamicResource BgBrush}" Foreground="{DynamicResource TextBrush}"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+    <Grid Margin="28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <TextBlock Text="Help improve PitMedic" FontFamily="Segoe UI Variable Display" FontSize="28" FontWeight="SemiBold"/>
+            <TextBlock Text="Share one small anonymous usage count at most once per day?"
+                       Foreground="{DynamicResource MutedBrush}" FontSize="15" Margin="0,7,0,0"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,22,0,20">
+            <StackPanel>
+                <TextBlock Text="WHAT PITMEDIC SHARES" FontSize="12" FontWeight="Bold" Margin="0,0,0,10"/>
+                <TextBlock Text="• App version and release channel&#x0a;• Installer or portable build&#x0a;• Anonymous tokens that automatically change daily and monthly"
+                           LineHeight="24"/>
+                <TextBlock Text="WHAT PITMEDIC NEVER SHARES" FontSize="12" FontWeight="Bold" Margin="0,20,0,10"/>
+                <TextBlock Text="No name, email, computer name, hardware ID, file path, diagnostic, finding, repair, simulator activity, session length, or permanent identifier."
+                           Foreground="{DynamicResource MutedBrush}" LineHeight="21"/>
+                <TextBlock Text="This is off unless you choose Share. You can turn it off in Settings at any time; PitMedic will then delete its local anonymous key and sending history."
+                           Foreground="{DynamicResource MutedBrush}" Margin="0,16,0,0" LineHeight="21"/>
+                <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                    <Button Content="Preview exact data" Click="Preview_Click" Margin="0,0,10,0"/>
+                    <Button Content="Read privacy policy" Click="Privacy_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="2">
+            <Button Content="No thanks" HorizontalAlignment="Left" Click="NoThanks_Click"/>
+            <Button Content="Share anonymous usage" Style="{StaticResource PrimaryButtonStyle}"
+                    HorizontalAlignment="Right" Click="Share_Click"/>
+        </Grid>
+    </Grid>
+</Window>

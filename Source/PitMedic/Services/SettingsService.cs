@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Win32;
 using PitMedic.Models;
@@ -63,7 +62,7 @@ public sealed class SettingsService
 
     private static void Normalize(AppSettings settings)
     {
-        settings.SamplingSeconds = settings.SamplingSeconds is 1 or 2 or 5 ? settings.SamplingSeconds : 1;
+        settings.SamplingSeconds = settings.SamplingSeconds is 1 or 2 or 5 ? settings.SamplingSeconds : 2;
         settings.BufferMinutes = settings.BufferMinutes is 5 or 10 or 15 or 30 ? settings.BufferMinutes : 10;
         settings.ThermalTraceMinutes = settings.ThermalTraceMinutes is 5 or 10 or 15 or 20 or 30 or 45 or 60 ? settings.ThermalTraceMinutes : 10;
     }
@@ -78,27 +77,21 @@ public sealed class SettingsService
     {
         try
         {
-            // Elevated applications use a per-user scheduled task at highest privilege.
+            // PitMedic runs unelevated, so the standard per-user Run key is sufficient and
+            // avoids spawning Task Scheduler processes during every application start.
             using (var key = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run"))
             {
                 key?.DeleteValue("SimWatch", false);
-                key?.DeleteValue("PitMedic", false);
+                if (!enabled)
+                {
+                    key?.DeleteValue("PitMedic", false);
+                    return;
+                }
+
+                var exe = Environment.ProcessPath;
+                if (!string.IsNullOrWhiteSpace(exe))
+                    key?.SetValue("PitMedic", $"\"{exe}\" --startup", RegistryValueKind.String);
             }
-
-            // Retire the legacy startup task created by builds before the PitMedic rename.
-            RunTaskScheduler("/Delete", "/TN", "SimWatch", "/F");
-
-            if (!enabled)
-            {
-                RunTaskScheduler("/Delete", "/TN", "PitMedic", "/F");
-                return;
-            }
-
-            var exe = Environment.ProcessPath;
-            if (string.IsNullOrWhiteSpace(exe)) return;
-            var user = $"{Environment.UserDomainName}\\{Environment.UserName}";
-            RunTaskScheduler("/Create", "/TN", "PitMedic", "/TR", $"\"{exe}\" --startup", "/SC", "ONLOGON",
-                "/RL", "HIGHEST", "/RU", user, "/IT", "/F");
         }
         catch (Exception ex)
         {
@@ -106,22 +99,4 @@ public sealed class SettingsService
         }
     }
 
-    private static void RunTaskScheduler(params string[] args)
-    {
-        var psi = new ProcessStartInfo("schtasks.exe")
-        {
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true
-        };
-        foreach (var arg in args) psi.ArgumentList.Add(arg);
-        using var process = Process.Start(psi);
-        if (process is null) return;
-        process.WaitForExit(10000);
-        var output = process.StandardOutput.ReadToEnd();
-        var error = process.StandardError.ReadToEnd();
-        if (process.ExitCode != 0 && !args.Contains("/Delete", StringComparer.OrdinalIgnoreCase))
-            AppLog.Write($"schtasks returned {process.ExitCode}: {output} {error}");
-    }
 }

@@ -12,6 +12,8 @@ public sealed class MonitoringCoordinator : IDisposable
     private readonly GameWatchService _games;
     private readonly SettingsService _settings;
     private readonly UsageStatsService _usage = new();
+    private readonly SimulatorDistanceTelemetryService _distanceTelemetry = new();
+    private DateTimeOffset _lastUsageFlush = DateTimeOffset.UtcNow;
     private Task? _loop;
 
     public event Action<TelemetrySample>? TelemetryUpdated;
@@ -29,10 +31,22 @@ public sealed class MonitoringCoordinator : IDisposable
         _games.GameStatusChanged += (g, running) =>
         {
             if (running) _usage.RecordSessionStarted(g);
+            else
+            {
+                _distanceTelemetry.Stop(g);
+                _usage.Flush();
+            }
             GameStatusChanged?.Invoke(g, running);
         };
+        _games.SessionCompleted += (g, ended, clean) => _usage.RecordSessionEnded(g, ended, clean);
         _games.LiveFaultDetected += fault => LiveFaultDetected?.Invoke(fault);
-        _incidents.IncidentCreated += i => IncidentCreated?.Invoke(i);
+        _incidents.IncidentCreated += i =>
+        {
+            var game = GameDefinition.Supported.FirstOrDefault(g =>
+                g.DisplayName.Equals(i.Game, StringComparison.OrdinalIgnoreCase));
+            if (game is not null) _usage.RecordFinding(game.Kind);
+            IncidentCreated?.Invoke(i);
+        };
         _repairs.StatusChanged += s => RepairStatusChanged?.Invoke(s);
         _settings.SettingsChanged += s => SettingsChanged?.Invoke(s);
     }
@@ -57,6 +71,13 @@ public sealed class MonitoringCoordinator : IDisposable
                 _buffer.Add(sample);
                 TelemetryUpdated?.Invoke(sample);
                 _games.Scan();
+                foreach (var (game, miles) in _distanceTelemetry.Poll(_games.IsRunning))
+                    _usage.RecordMiles(game, miles, persist: false);
+                if (DateTimeOffset.UtcNow - _lastUsageFlush >= TimeSpan.FromMinutes(1))
+                {
+                    _usage.Flush();
+                    _lastUsageFlush = DateTimeOffset.UtcNow;
+                }
                 await Task.Delay(TimeSpan.FromSeconds(settings.SamplingSeconds), _cts.Token);
             }
         }
@@ -90,6 +111,7 @@ public sealed class MonitoringCoordinator : IDisposable
     }
 
     public CapabilitiesSnapshot CapabilitiesStats() => _usage.Snapshot();
+    public SimulatorActivitySnapshot SimulatorActivity(GameKind game) => _usage.SimulatorSnapshot(game);
 
     public Task<IncidentSummary> CaptureSnapshotAsync()
     {
@@ -103,6 +125,8 @@ public sealed class MonitoringCoordinator : IDisposable
     {
         _cts.Cancel();
         try { _loop?.Wait(TimeSpan.FromSeconds(2)); } catch { }
+        _distanceTelemetry.Dispose();
+        _usage.StopMonitoring();
         _repairs.Dispose();
         _games.Dispose();
         _hardware.Dispose();

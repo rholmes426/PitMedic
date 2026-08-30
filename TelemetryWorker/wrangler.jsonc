@@ -1,0 +1,26 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "pitmedic-usage",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-08-29",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"workers_dev": true,
+	"observability": {
+		"enabled": true
+	},
+	"triggers": {
+		"crons": [
+			"17 3 * * *"
+		]
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "pitmedic-usage",
+			"migrations_dir": "migrations",
+			"database_id": "082c12df-0c51-4976-ba17-0277da2694d2"
+		}
+	]
+}

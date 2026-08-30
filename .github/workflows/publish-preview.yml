@@ -77,15 +77,15 @@ jobs:
           }
           $checksums | Set-Content -Encoding ASCII "$($preview.FullName)/SHA256SUMS-UNSIGNED-PREVIEW.txt"
 
-          @'
-          This is the public v0.5.0.0 test preview.
+          @"
+          This is the public PitMedic $version test preview.
 
           It is intentionally unsigned while the PitMedic SignPath application is pending. Windows may show an Unknown publisher or SmartScreen warning. The package must not be described as an official signed release.
 
-          Changes include the About/Support page, finding acknowledgement, clean uninstall shutdown, scoped protected repairs, and the installer-managed read-only CPU sensor service.
+          Changes include simulator-specific monitored time and clean streaks; verified live mileage for iRacing, Assetto Corsa Competizione, RaceRoom, and Automobilista 2; persistent distance cards; Metric/Imperial display controls; lighter background sampling and UI work; 48-hour recent-finding views; improved tray behavior; privacy-safe project contact details; and a smoother v0.5 upgrade path.
 
           PitMedic remains free and open source. Voluntary support unlocks nothing.
-          '@ | Set-Content -Encoding UTF8 ./Artifacts/preview/RELEASE-NOTES-UNSIGNED-PREVIEW.txt
+          "@ | Set-Content -Encoding UTF8 ./Artifacts/preview/RELEASE-NOTES-UNSIGNED-PREVIEW.txt
 
       - name: Publish GitHub prerelease
         shell: pwsh

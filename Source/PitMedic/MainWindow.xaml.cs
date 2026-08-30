@@ -11,7 +11,10 @@ namespace PitMedic;
 
 public partial class MainWindow : Window
 {
+    private static readonly TimeSpan LatestFindingWindow = TimeSpan.FromHours(48);
     private readonly MonitoringCoordinator _monitoring;
+    private readonly AnonymousUsageService _anonymousUsage;
+    private readonly UpdateService _updates;
     private readonly ObservableCollection<IncidentSummary> _incidents = new();
     private readonly Queue<TelemetrySample> _chart = new();
     private readonly Dictionary<GameKind, bool> _gameRunning = Enum.GetValues<GameKind>().ToDictionary(game => game, _ => false);
@@ -27,11 +30,15 @@ public partial class MainWindow : Window
     private GameKind _selectedGame = GameKind.LeMansUltimate;
     private IncidentSummary? _selectedPrimaryIncident;
     private IncidentSummary? _homeLatestIncident;
+    private AvailableUpdate? _availableUpdate;
+    private TelemetrySample? _latestTelemetry;
 
-    public MainWindow(MonitoringCoordinator monitoring)
+    public MainWindow(MonitoringCoordinator monitoring, AnonymousUsageService anonymousUsage, UpdateService updates)
     {
         InitializeComponent();
         _monitoring = monitoring;
+        _anonymousUsage = anonymousUsage;
+        _updates = updates;
         _settings = monitoring.Settings.Current;
         ConfigureSimulatorNavigation();
         RefreshIncidents();
@@ -42,6 +49,7 @@ public partial class MainWindow : Window
         _monitoring.IncidentCreated += incident => Dispatcher.BeginInvoke(() => AddIncident(incident));
         _monitoring.RepairStatusChanged += status => Dispatcher.BeginInvoke(() => UpdateRepair(status));
         _monitoring.SettingsChanged += settings => Dispatcher.BeginInvoke(() => ApplySettings(settings));
+        _updates.UpdateAvailable += update => Dispatcher.BeginInvoke(() => ShowAvailableUpdate(update));
 
         if (_monitoring.CurrentRepair is RepairStatus current) UpdateRepair(current);
 
@@ -51,22 +59,18 @@ public partial class MainWindow : Window
         Closing += (_, e) =>
         {
             if (_allowClose) return;
-            if (_monitoring.CurrentRepair?.IsActive == true)
-            {
-                e.Cancel = true;
-                Hide();
-                return;
-            }
-            if (_settings.MinimizeToTrayOnClose)
-            {
-                e.Cancel = true;
-                Hide();
-            }
-            else
-            {
-                _allowClose = true;
-                System.Windows.Application.Current.Shutdown();
-            }
+            e.Cancel = true;
+            Hide();
+        };
+        StateChanged += (_, _) =>
+        {
+            UpdateMaximizeGlyph();
+            if (!_allowClose && WindowState == WindowState.Minimized) Hide();
+        };
+        IsVisibleChanged += (_, _) =>
+        {
+            if (IsVisible && _latestTelemetry is not null)
+                UpdateTelemetry(_latestTelemetry, record: false);
         };
     }
 
@@ -81,11 +85,25 @@ public partial class MainWindow : Window
         _settings = settings;
         RecorderStatus.Text = $"Monitoring · {settings.SamplingSeconds}s";
         RefreshSimulatorViews();
+        if (_latestTelemetry is not null && IsVisible)
+            UpdateTelemetry(_latestTelemetry, record: false);
         DrawChart();
     }
 
-    private void UpdateTelemetry(TelemetrySample s)
+    private void UpdateTelemetry(TelemetrySample s, bool record = true)
     {
+        _latestTelemetry = s;
+        if (record)
+        {
+            _chart.Enqueue(s);
+            var thermalCutoff = s.Timestamp.AddMinutes(-60);
+            while (_chart.Count > 0 && _chart.Peek().Timestamp < thermalCutoff) _chart.Dequeue();
+        }
+
+        // Keep capturing evidence while hidden, but do not continuously rebuild WPF controls
+        // and chart geometry that the user cannot see.
+        if (!IsVisible) return;
+
         CpuTemp.Text = Temp(s.CpuTempC);
         CpuSub.Text = s.CpuTempC.HasValue
             ? SubLine(s.CpuLoadPct, s.CpuClockMhz)
@@ -122,10 +140,8 @@ public partial class MainWindow : Window
         HomeGpuDetail.Text = s.GpuLoadPct.HasValue ? $"{s.GpuLoadPct.Value:0}% load" : "Sensor active";
         HomeMemoryValue.Text = s.MemoryLoadPct.HasValue ? $"{s.MemoryLoadPct.Value:0}%" : "--%";
         HomeGpuPower.Text = Power(s.GpuPowerW);
+        RefreshSelectedActivity();
 
-        _chart.Enqueue(s);
-        var thermalCutoff = s.Timestamp.AddMinutes(-60);
-        while (_chart.Count > 0 && _chart.Peek().Timestamp < thermalCutoff) _chart.Dequeue();
         DrawChart();
     }
 
@@ -164,7 +180,7 @@ public partial class MainWindow : Window
             button.Checked += SimulatorNav_Checked;
 
         HomeNav.Checked += HomeNav_Checked;
-        HomeOsText.Text = RuntimeInformation.OSDescription.Replace("Microsoft ", string.Empty, StringComparison.OrdinalIgnoreCase);
+        HomeOsText.Text = WindowsVersionInfo.GetDisplayName();
         HomeArchitectureText.Text = $"{RuntimeInformation.OSArchitecture} · {(Environment.Is64BitOperatingSystem ? "64-bit" : "32-bit")}";
         HomeProcessorText.Text = $"{Environment.ProcessorCount} logical processors";
         HomeRuntimeText.Text = $"PitMedic {AppInfo.Version} · .NET {Environment.Version.Major}";
@@ -363,7 +379,7 @@ public partial class MainWindow : Window
         var supported = GameDefinition.Supported.Select(x => x.Kind).ToArray();
         var monitored = supported.Count(IsMonitored);
         var running = supported.Count(game => _gameRunning.TryGetValue(game, out var value) && value);
-        var activeFindings = _incidents.Count(i => !i.IsDismissed && !i.IsResolved);
+        var activeFindings = _incidents.Count(i => !i.IsDismissed && !i.IsResolved && IsRecentFinding(i));
 
         HomeMonitoringSummary.Text = $"{monitored} monitored · {running} running";
         SetHomeReadiness(HomeLmuStatus, GameKind.LeMansUltimate);
@@ -391,12 +407,12 @@ public partial class MainWindow : Window
             SetHomeStatus("PROTECTION ACTIVE", "GoodSoftBrush", "GoodBorderBrush", "GoodBrush", "GoodTextBrush");
         }
 
-        _homeLatestIncident = _incidents.Where(x => !x.IsDismissed).OrderByDescending(x => x.Timestamp).FirstOrDefault();
+        _homeLatestIncident = _incidents.Where(x => !x.IsDismissed && IsRecentFinding(x)).OrderByDescending(x => x.Timestamp).FirstOrDefault();
         if (_homeLatestIncident is null)
         {
             HomeLatestFindingTime.Text = string.Empty;
-            HomeLatestFindingTitle.Text = "No findings yet";
-            HomeLatestFindingSummary.Text = "PitMedic will summarize the most recent simulator finding here.";
+            HomeLatestFindingTitle.Text = "No recent findings";
+            HomeLatestFindingSummary.Text = "Nothing needing attention was captured in the past 48 hours.";
             HomeLatestFindingIcon.Text = "✓";
             HomeLatestFindingIconBorder.SetResourceReference(Border.BackgroundProperty, "GoodSoftBrush");
             HomeLatestFindingIcon.SetResourceReference(TextBlock.ForegroundProperty, "GoodTextBrush");
@@ -456,12 +472,14 @@ public partial class MainWindow : Window
         _selectedPrimaryIncident = active ?? latest;
 
         SelectedSimulatorTitle.Text = name;
-        SelectedFindingsHeading.Text = $"{FindingsPrefix(_selectedGame)} FINDINGS";
-        SelectedFindingEmptyDetail.Text = $"PitMedic is monitoring {name} and will capture anything that needs attention.";
+        SelectedFindingsHeading.Text = $"{FindingsPrefix(_selectedGame)} · LAST 48 HOURS";
 
         var hasIssue = active is not null || _liveFaultGames.Contains(_selectedGame);
         var running = _gameRunning.TryGetValue(_selectedGame, out var isRunning) && isRunning;
         var monitored = IsMonitored(_selectedGame);
+        SelectedFindingEmptyDetail.Text = monitored
+            ? $"No findings were captured for {name} in the past 48 hours."
+            : $"Enable {name} in Settings to begin monitoring.";
         if (hasIssue)
             SetHeaderStatus("ISSUE DETECTED", "WarnSoftBrush", "WarnBorderBrush", "AccentBrush", "WarnTextBrush");
         else if (running)
@@ -472,8 +490,39 @@ public partial class MainWindow : Window
             SetHeaderStatus("MONITORING ACTIVE", "InfoSoftBrush", "InfoBorderBrush", "TelemetryBrush", "InfoTextBrush");
 
         RefreshSessionStory(active ?? latest, running, monitored);
+        RefreshSelectedActivity();
         RefreshSelectedFinding(active, latest);
         RefreshSelectedFooter(active ?? latest, running, monitored);
+    }
+
+    private void RefreshSelectedActivity()
+    {
+        if (ActivityTimeValue is null) return;
+        var activity = _monitoring.SimulatorActivity(_selectedGame);
+        ActivityTimeValue.Text = FormatMonitoredTime(activity.TimeMonitored);
+        ActivityCleanStreakValue.Text = activity.CleanStreak == 1
+            ? "1 session"
+            : $"{activity.CleanStreak:N0} sessions";
+
+        var hasMileage = SimulatorDistanceTelemetryService.SupportsMileage(_selectedGame);
+        ActivityMilesCard.Visibility = hasMileage ? Visibility.Visible : Visibility.Collapsed;
+        ActivityMilesColumn.Width = hasMileage ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+        ActivityMilesSpacer.Width = hasMileage ? new GridLength(12) : new GridLength(0);
+        if (hasMileage)
+        {
+            var miles = activity.MilesMonitored.GetValueOrDefault();
+            ActivityDistanceLabel.Text = "DISTANCE MONITORED";
+            ActivityMilesValue.Text = _settings.UseFahrenheit
+                ? $"{miles:N1} mi"
+                : $"{miles * 1.609344d:N1} km";
+        }
+    }
+
+    private static string FormatMonitoredTime(TimeSpan duration)
+    {
+        if (duration.TotalHours >= 1)
+            return $"{(int)duration.TotalHours:N0}h {duration.Minutes:00}m";
+        return $"{Math.Max(0, (int)duration.TotalMinutes):N0}m";
     }
 
     private void SetHeaderStatus(string text, string background, string border, string dot, string foreground)
@@ -501,7 +550,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        SessionStoryTime.Text = incident.Timestamp.ToString("h:mm tt");
+        SessionStoryTime.Text = incident.Timestamp.ToString("MMM d, yyyy · h:mm tt");
         SessionStoryEvent.Text = incident.IsResolved ? "Last finding resolved" : "Session ended unexpectedly";
         SessionStoryEvidence.Text = "Evidence captured";
         SessionStorySeparatorTwo.Visibility = Visibility.Visible;
@@ -569,10 +618,13 @@ public partial class MainWindow : Window
     }
 
     private IEnumerable<IncidentSummary> IncidentsFor(GameKind game)
-        => _incidents.Where(i => !i.IsDismissed && IncidentMatches(i, game)).OrderByDescending(i => i.Timestamp);
+        => _incidents.Where(i => !i.IsDismissed && IsRecentFinding(i) && IncidentMatches(i, game)).OrderByDescending(i => i.Timestamp);
 
     private IncidentSummary? ActiveIncidentFor(GameKind game)
         => IncidentsFor(game).FirstOrDefault(i => !i.IsResolved);
+
+    private static bool IsRecentFinding(IncidentSummary incident)
+        => incident.Timestamp >= DateTimeOffset.Now.Subtract(LatestFindingWindow);
 
     private static bool IncidentMatches(IncidentSummary incident, GameKind game)
     {
@@ -697,6 +749,7 @@ public partial class MainWindow : Window
         var height = Math.Max(1, ThermalCanvas.ActualHeight);
         var (windowStart, windowEnd, windowMinutes) = GetThermalWindow();
         var data = _chart.Where(s => s.Timestamp >= windowStart && s.Timestamp <= windowEnd).ToArray();
+        data = Downsample(data, Math.Max(2, (int)Math.Ceiling(width)));
 
         ThermalWindowLabel.Text = $"{Math.Ceiling(windowMinutes):0} MIN";
         CpuLine.Points.Clear();
@@ -712,6 +765,16 @@ public partial class MainWindow : Window
             if (sample.GpuTempC is float gpu) GpuLine.Points.Add(new System.Windows.Point(x, ToY(gpu, height)));
             if (sample.GpuPowerW is float power) GpuPowerLine.Points.Add(new System.Windows.Point(x, ToPowerY(power, height, powerScaleMax)));
         }
+    }
+
+    private static TelemetrySample[] Downsample(TelemetrySample[] data, int maximumPoints)
+    {
+        if (data.Length <= maximumPoints) return data;
+        var result = new TelemetrySample[maximumPoints];
+        var scale = (data.Length - 1d) / (maximumPoints - 1d);
+        for (var i = 0; i < maximumPoints; i++)
+            result[i] = data[(int)Math.Round(i * scale)];
+        return result;
     }
 
 
@@ -823,8 +886,32 @@ public partial class MainWindow : Window
         Show();
         if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
         Activate();
-        var window = new SettingsWindow(_monitoring) { Owner = this };
+        var window = new SettingsWindow(_monitoring, _anonymousUsage, _updates) { Owner = this };
         window.ShowDialog();
+    }
+
+    private void ShowAvailableUpdate(AvailableUpdate update)
+    {
+        _availableUpdate = update;
+        UpdateBannerTitle.Text = update.Title;
+        UpdateBannerMessage.Text = $"PitMedic {update.Version} is ready. Download it when you are ready; PitMedic will never install an update without you.";
+        UpdateBanner.Visibility = Visibility.Visible;
+    }
+
+    private void DownloadUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        if (_availableUpdate is not null) OpenExternalUrl(_availableUpdate.DownloadUri.AbsoluteUri);
+    }
+
+    private void UpdateDetails_Click(object sender, RoutedEventArgs e)
+    {
+        if (_availableUpdate is not null) OpenExternalUrl(_availableUpdate.ReleaseUri.AbsoluteUri);
+    }
+
+    private void UpdateBannerDismiss_Click(object sender, RoutedEventArgs e)
+    {
+        if (_availableUpdate is not null) _updates.Dismiss(_availableUpdate.Version);
+        UpdateBanner.Visibility = Visibility.Collapsed;
     }
 
     private void Settings_Click(object sender, RoutedEventArgs e) => OpenSettingsDialog();
@@ -838,8 +925,8 @@ public partial class MainWindow : Window
         AboutPage.Visibility = Visibility.Visible;
     }
 
-    private void DeveloperEmail_Click(object sender, RoutedEventArgs e) =>
-        OpenExternalUrl($"mailto:{AppInfo.DeveloperEmail}");
+    private void ContactEmail_Click(object sender, RoutedEventArgs e) =>
+        OpenExternalUrl($"mailto:{AppInfo.ContactEmail}");
 
     private void SupportPitMedic_Click(object sender, RoutedEventArgs e) =>
         OpenExternalUrl(AppInfo.SupportUrl);

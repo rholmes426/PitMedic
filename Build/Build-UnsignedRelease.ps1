@@ -2,6 +2,8 @@
 param(
     [string]$Configuration = "Release",
     [string]$Runtime = "win-x64",
+    [ValidateSet("preview", "stable")]
+    [string]$ReleaseChannel = "preview",
     [string]$OutputRoot
 )
 
@@ -51,6 +53,7 @@ $env:DOTNET_NOLOGO = "1"
     --output $publishPath `
     -p:PublishReadyToRun=false `
     -p:ContinuousIntegrationBuild=true `
+    -p:ReleaseChannel=$ReleaseChannel `
     -p:DebugSymbols=false `
     -p:DebugType=None
 
@@ -99,6 +102,7 @@ $manifest = [ordered]@{
     product = "PitMedic"
     version = $version
     runtime = $Runtime
+    releaseChannel = $ReleaseChannel
     commit = if ($env:GITHUB_SHA) { $env:GITHUB_SHA } else { "local-unverified" }
     createdUtc = [DateTime]::UtcNow.ToString("o")
     executables = @(

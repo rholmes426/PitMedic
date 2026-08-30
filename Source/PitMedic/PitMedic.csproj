@@ -10,10 +10,11 @@
     <Platforms>AnyCPU;x64</Platforms>
     <AssemblyName>PitMedic</AssemblyName>
     <RootNamespace>PitMedic</RootNamespace>
-    <Version>0.5.0.0</Version>
-    <AssemblyVersion>0.5.0.0</AssemblyVersion>
-    <FileVersion>0.5.0.0</FileVersion>
-    <InformationalVersion>0.5.0.0</InformationalVersion>
+    <Version>0.6.0.0</Version>
+    <AssemblyVersion>0.6.0.0</AssemblyVersion>
+    <FileVersion>0.6.0.0</FileVersion>
+    <InformationalVersion>0.6.0.0</InformationalVersion>
+    <ReleaseChannel Condition="'$(ReleaseChannel)' == ''">preview</ReleaseChannel>
     <AssemblyTitle>PitMedic</AssemblyTitle>
     <Product>PitMedic Sim Racing Diagnostics &amp; Repair</Product>
     <Description>Background simulator monitoring, diagnostics, and guided repair for Le Mans Ultimate, iRacing, Assetto Corsa EVO, RaceRoom Racing Experience, Assetto Corsa Competizione, and Automobilista 2.</Description>
@@ -26,6 +27,7 @@
     <ApplicationIcon>Assets\PitMedic.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <AssemblyMetadata Include="PitMedicReleaseChannel" Value="$(ReleaseChannel)" />
     <Resource Include="Assets\PitMedic.ico" />
     <Resource Include="Assets\PitMedic.png" />
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />

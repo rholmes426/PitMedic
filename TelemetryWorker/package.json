@@ -1,0 +1,22 @@
+{
+  "name": "pitmedic-usage-telemetry",
+  "version": "0.6.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "wrangler types && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit && tsc -p test/tsconfig.json --noEmit && vitest run",
+    "deploy": "wrangler deploy",
+    "deploy:dry-run": "wrangler deploy --dry-run",
+    "migrate:local": "wrangler d1 migrations apply pitmedic-usage --local",
+    "migrate:remote": "wrangler d1 migrations apply pitmedic-usage --remote",
+    "test": "vitest run",
+    "types": "wrangler types"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.0.0",
+    "@types/node": "^24.5.0",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.0",
+    "wrangler": "^4.127.1"
+  }
+}

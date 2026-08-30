@@ -44,7 +44,7 @@ jobs:
           dotnet-version: 10.0.x
       - name: Build unsigned app and helpers
         shell: pwsh
-        run: ./Build/Build-UnsignedRelease.ps1
+        run: ./Build/Build-UnsignedRelease.ps1 -ReleaseChannel stable
       - name: Upload unsigned binaries for SignPath
         id: unsigned-binaries
         uses: actions/upload-artifact@v4
