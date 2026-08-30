@@ -1,6 +1,11 @@
-# PitMedic v0.6.0.3
+# PitMedic v0.6.0.4
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.6.0.4
+
+- Made the in-app updater window responsive so Cancel and Install now remain visible at practical display sizes and scaling levels.
+- Explicitly requests Windows administrator approval before PitMedic closes and records the installer handoff in the local diagnostic log.
 
 ## v0.6.0.3
 

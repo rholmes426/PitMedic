@@ -233,14 +233,19 @@ public partial class UpdateInstallWindow : Window
             Progress.IsIndeterminate = true;
             ProgressText.Text = "";
 
-            Process.Start(new ProcessStartInfo
+            AppLog.Write($"Starting verified PitMedic {_update.Version} installer with Windows administrator approval.");
+            var installerProcess = Process.Start(new ProcessStartInfo
             {
                 FileName = _installerPath,
                 Arguments = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /RESTARTPITMEDIC=1",
                 WorkingDirectory = Path.GetDirectoryName(_installerPath)!,
-                UseShellExecute = true
+                UseShellExecute = true,
+                Verb = "runas"
             });
+            if (installerProcess is null)
+                throw new InvalidOperationException("Windows did not return an installer process.");
 
+            AppLog.Write($"Verified PitMedic {_update.Version} installer started; closing the current app instance.");
             Application.Current.Shutdown();
         }
         catch (Exception ex)

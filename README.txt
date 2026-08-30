@@ -1,4 +1,4 @@
-PITMEDIC v0.6.0.3 - FULL DEVELOPMENT PACKAGE
+PITMEDIC v0.6.0.4 - FULL DEVELOPMENT PACKAGE
 ==============================================
 
 PitMedic is a Windows sim-racing diagnostics and automated repair utility.
@@ -9,18 +9,12 @@ This repository contains the full source tree, PitMedic assets, repair knowledge
 base, documentation, website, telemetry services, and Windows build/run command
 file. It is not a patch-only package.
 
-WHAT CHANGED IN v0.6.0.3
+WHAT CHANGED IN v0.6.0.4
 ------------------------
-- Reduced System Tools to Power Mode, Startup Apps, Storage, and Graphics
-  Settings, removing Game Mode, Task Manager, Windows Update, and Background Load.
-- Removed the Windows Update check that could misclassify ordinary pending file
-  replacements as a required Windows restart.
-- Idle pages now say Waiting for simulator. Monitoring active appears only while
-  a supported simulator is actually running.
-- Hardened the installed CPU sensor service with delayed startup, hardware-access
-  retries, transient sample-write recovery, and multiple service restart attempts.
-- The anonymous usage backend now updates an existing installation to its current
-  app version without increasing the count or sending another install alert.
+- The in-app updater now keeps Cancel and Install now visible on smaller displays
+  and at increased Windows display scaling.
+- Install now explicitly requests Windows administrator approval before PitMedic
+  closes and records the verified installer handoff in the local diagnostic log.
 
 THE v0.6 LINE ALSO INCLUDES
 ---------------------------
@@ -51,7 +45,7 @@ x64 build to:
 
 PUBLIC PREVIEW
 --------------
-The public v0.6.0.3 test preview is intentionally unsigned while the PitMedic
+The public v0.6.0.4 test preview is intentionally unsigned while the PitMedic
 SignPath application is pending. Windows may display Unknown publisher or a
 SmartScreen warning. Release assets include a clearly labeled unsigned installer,
 portable ZIP, SHA-256 checksums, and release notes.

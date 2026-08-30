@@ -82,9 +82,9 @@ jobs:
 
           It is intentionally unsigned while the PitMedic SignPath application is pending. Windows may show an Unknown publisher or SmartScreen warning. The package must not be described as an official signed release.
 
-          v0.6.0.3 streamlines System Tools to Power Mode, Startup Apps, Storage, and Graphics Settings; removes the unreliable Windows restart-pending classification; and makes Monitoring active appear only during a detected simulator session.
+          v0.6.0.4 keeps the updater's Cancel and Install now actions visible on smaller displays and at increased Windows display scaling. Install now explicitly requests administrator approval before PitMedic closes and records the verified installer handoff in the local diagnostic log.
 
-          The installed CPU sensor service now uses delayed startup, retries hardware initialization, tolerates transient sample-file contention, and has multiple recovery attempts. Anonymous usage records now move to an installation's current app version after an upgrade without increasing the count or sending a duplicate install alert.
+          v0.6.0.3 streamlined System Tools, corrected idle monitoring labels, improved CPU sensor-service recovery, and kept anonymous usage version labels current without double-counting installations.
 
           The v0.6 line also includes simulator-specific monitored time and clean streaks; verified live mileage for iRacing, Assetto Corsa Competizione, RaceRoom, and Automobilista 2; persistent distance cards; Metric/Imperial display controls; lightweight background monitoring; privacy-safe anonymous usage counting; 48-hour recent-finding views; safer elevated repair validation; and improved upgrade behavior.
 
