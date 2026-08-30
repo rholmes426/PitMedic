@@ -67,6 +67,7 @@ Name: "{autodesktop}\PitMedic"; Filename: "{app}\PitMedic.exe"; WorkingDir: "{ap
 
 [Run]
 Filename: "{app}\PitMedic.exe"; Description: "Launch PitMedic"; WorkingDir: "{app}"; Flags: nowait skipifsilent runasoriginaluser
+Filename: "{app}\PitMedic.exe"; WorkingDir: "{app}"; Flags: nowait skipifnotsilent runasoriginaluser; Check: RestartPitMedicRequested
 
 [UninstallDelete]
 Type: files; Name: "{commonappdata}\PitMedic\sensor.json"
@@ -79,6 +80,21 @@ Type: files; Name: "{localappdata}\PitMedic\update-check-state.json"
 const
   SensorServiceName = 'PitMedicSensor';
   PitMedicMutexName = 'PitMedic-E805E797-5FEF-4D91-8B72-0E20C53D2E09';
+
+function RestartPitMedicRequested(): Boolean;
+var
+  Index: Integer;
+begin
+  Result := False;
+  for Index := 1 to ParamCount do
+  begin
+    if CompareText(ParamStr(Index), '/RESTARTPITMEDIC=1') = 0 then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+end;
 
 function ExistingPitMedicPath(): String;
 var
