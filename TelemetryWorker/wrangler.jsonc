@@ -15,6 +15,12 @@
 			"17 3 * * *"
 		]
 	},
+	"send_email": [
+		{
+			"name": "INSTALL_ALERT_EMAIL",
+			"destination_address": "bobbyholmes@gmail.com"
+		}
+	],
 	"d1_databases": [
 		{
 			"binding": "DB",
