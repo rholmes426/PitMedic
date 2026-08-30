@@ -72,7 +72,7 @@ public partial class SystemToolsPanel : UserControl
         }
         catch (Exception ex)
         {
-            AppLog.Write($"System tools status refresh failed: {ex.GetType().Name}: {ex.Message}");
+            Debug.WriteLine($"System tools status refresh failed: {ex.GetType().Name}: {ex.Message}");
             LastRefreshText.Text = "Some Windows status checks are unavailable";
         }
         finally
@@ -106,7 +106,6 @@ public partial class SystemToolsPanel : UserControl
         }
         catch
         {
-            // Fall back to a neutral status when powercfg is unavailable.
         }
 
         return "Windows managed";
@@ -138,7 +137,6 @@ public partial class SystemToolsPanel : UserControl
         }
         catch
         {
-            // Startup Apps still opens even when one registry view is unavailable.
         }
     }
 
@@ -152,7 +150,6 @@ public partial class SystemToolsPanel : UserControl
         }
         catch
         {
-            // A protected startup folder should not block the rest of the panel.
         }
     }
 
@@ -184,7 +181,6 @@ public partial class SystemToolsPanel : UserControl
         }
         catch
         {
-            // Missing keys simply mean Windows owns the default.
         }
 
         return "Windows default";
@@ -250,7 +246,7 @@ public partial class SystemToolsPanel : UserControl
         }
         catch (Exception ex)
         {
-            AppLog.Write($"Could not open {friendlyName}: {ex.GetType().Name}: {ex.Message}");
+            Debug.WriteLine($"Could not open {friendlyName}: {ex.GetType().Name}: {ex.Message}");
             MessageBox.Show(Window.GetWindow(this),
                 $"Windows could not open {friendlyName}.",
                 "PitMedic",
