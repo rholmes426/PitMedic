@@ -82,7 +82,9 @@ jobs:
 
           It is intentionally unsigned while the PitMedic SignPath application is pending. Windows may show an Unknown publisher or SmartScreen warning. The package must not be described as an official signed release.
 
-          Changes include simulator-specific monitored time and clean streaks; verified live mileage for iRacing, Assetto Corsa Competizione, RaceRoom, and Automobilista 2; persistent distance cards; Metric/Imperial display controls; lighter background sampling and UI work; 48-hour recent-finding views; improved tray behavior; privacy-safe project contact details; and a smoother v0.5 upgrade path.
+          v0.6.0.1 fixes the opt-in anonymous usage heartbeat so accepted installations appear in the private aggregate dashboard, allows quiet retries after failed sends, preserves precise iRacing live diagnostic signatures across the elevated repair handoff, improves repair-validation mismatch logging, and silently reuses the existing PitMedic installation folder during upgrades/reinstalls.
+
+          The broader v0.6 line also includes simulator-specific monitored time and clean streaks; verified live mileage for iRacing, Assetto Corsa Competizione, RaceRoom, and Automobilista 2; persistent distance cards; Metric/Imperial display controls; lighter background sampling and UI work; 48-hour recent-finding views; improved tray behavior; privacy-safe project contact details; and a smoother v0.5 upgrade path.
 
           PitMedic remains free and open source. Voluntary support unlocks nothing.
           "@ | Set-Content -Encoding UTF8 ./Artifacts/preview/RELEASE-NOTES-UNSIGNED-PREVIEW.txt

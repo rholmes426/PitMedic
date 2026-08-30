@@ -70,7 +70,7 @@ public partial class App : System.Windows.Application
         _monitoring.Start();
         _anonymousUsage.Start();
         _updates.Start();
-        AppLog.Write("PitMedic v0.6.0.0 started on .NET 10. Monitoring runs unelevated; protected CPU telemetry uses the installed read-only service and allowlisted protected repairs use the one-shot repair helper.");
+        AppLog.Write($"PitMedic v{AppInfo.Version} started on .NET 10. Monitoring runs unelevated; protected CPU telemetry uses the installed read-only service and allowlisted protected repairs use the one-shot repair helper.");
     }
 
     private void MainWindow_ContentRendered(object? sender, EventArgs e)

@@ -10,10 +10,12 @@ namespace PitMedic.Services;
 public sealed class AnonymousUsageService : IDisposable
 {
     private const int ProtocolVersion = 1;
+    private static readonly TimeSpan FailedAttemptRetryDelay = TimeSpan.FromHours(1);
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true
     };
     private readonly SettingsService _settings;
     private readonly HttpClient _httpClient;
@@ -49,7 +51,7 @@ public sealed class AnonymousUsageService : IDisposable
         return state?.LastSuccessfulUtcDay is { Length: > 0 } day
             ? $"On — last anonymous count sent {day} UTC."
             : state?.LastAttemptUtcDay is { Length: > 0 } attemptDay
-                ? $"On — PitMedic attempted today's count on {attemptDay} UTC and will wait until tomorrow."
+                ? $"On — PitMedic attempted today's count on {attemptDay} UTC and will retry later if it was not accepted."
                 : "On — the first anonymous count will be sent when the service is reachable.";
     }
 
@@ -80,11 +82,18 @@ public sealed class AnonymousUsageService : IDisposable
 
             var utcNow = DateTimeOffset.UtcNow;
             var utcDay = utcNow.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
-            if (string.Equals(LoadState()?.LastAttemptUtcDay, utcDay, StringComparison.Ordinal)) return;
+            var state = LoadState();
+            if (string.Equals(state?.LastSuccessfulUtcDay, utcDay, StringComparison.Ordinal)) return;
 
-            // Record the attempt first so repeated launches or settings saves cannot create
-            // repeated network traffic during an outage.
-            SaveState(new UsageState(utcDay, null));
+            if (state?.LastAttemptUtc is { Length: > 0 } lastAttemptText
+                && DateTimeOffset.TryParse(lastAttemptText, System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.RoundtripKind, out var lastAttempt)
+                && utcNow - lastAttempt < FailedAttemptRetryDelay)
+                return;
+
+            // Store only local send timing. A failed request may retry after a quiet one-hour delay;
+            // a successful request remains capped at one accepted count per UTC day.
+            SaveState(new UsageState(utcDay, utcNow.ToString("o", System.Globalization.CultureInfo.InvariantCulture), null));
 
             var secret = LoadOrCreateSecret();
             var payload = new UsagePayload(
@@ -95,11 +104,13 @@ public sealed class AnonymousUsageService : IDisposable
                 AppInfo.ReleaseChannel,
                 DetectInstallType());
 
-            using var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            // The Worker uses a strict six-field camelCase allowlist. Use the exact same serializer
+            // settings as the user-visible data preview so previewed and transmitted fields cannot drift.
+            using var content = new StringContent(JsonSerializer.Serialize(payload, JsonOptions), Encoding.UTF8, "application/json");
             using var response = await _httpClient.PostAsync(_endpoint, content, cancellationToken).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
-                AppLog.Write($"Anonymous usage count was not accepted (HTTP {(int)response.StatusCode}).");
+                AppLog.Write($"Anonymous usage count was not accepted (HTTP {(int)response.StatusCode}); PitMedic will retry later.");
                 return;
             }
 
@@ -109,12 +120,15 @@ public sealed class AnonymousUsageService : IDisposable
                 return;
             }
 
-            SaveState(new UsageState(utcDay, utcDay));
+            SaveState(new UsageState(
+                utcDay,
+                utcNow.ToString("o", System.Globalization.CultureInfo.InvariantCulture),
+                utcDay));
             AppLog.Write("Anonymous usage count sent successfully.");
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            AppLog.Write("Anonymous usage count timed out; PitMedic will try again on a future launch.");
+            AppLog.Write("Anonymous usage count timed out; PitMedic will try again later.");
         }
         catch (OperationCanceledException)
         {
@@ -123,7 +137,7 @@ public sealed class AnonymousUsageService : IDisposable
         catch (Exception ex)
         {
             // Do not log request content, tokens, URLs, or local environment details.
-            AppLog.Write($"Anonymous usage count failed ({ex.GetType().Name}); PitMedic will try again on a future launch.");
+            AppLog.Write($"Anonymous usage count failed ({ex.GetType().Name}); PitMedic will try again later.");
         }
         finally
         {
@@ -186,7 +200,7 @@ public sealed class AnonymousUsageService : IDisposable
         try
         {
             if (!File.Exists(AppPaths.AnonymousUsageStateFile)) return null;
-            return JsonSerializer.Deserialize<UsageState>(File.ReadAllText(AppPaths.AnonymousUsageStateFile));
+            return JsonSerializer.Deserialize<UsageState>(File.ReadAllText(AppPaths.AnonymousUsageStateFile), JsonOptions);
         }
         catch
         {
@@ -236,5 +250,8 @@ public sealed class AnonymousUsageService : IDisposable
         string Channel,
         string InstallType);
 
-    private sealed record UsageState(string LastAttemptUtcDay, string? LastSuccessfulUtcDay);
+    private sealed record UsageState(
+        string? LastAttemptUtcDay,
+        string? LastAttemptUtc,
+        string? LastSuccessfulUtcDay);
 }

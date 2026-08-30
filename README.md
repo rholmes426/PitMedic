@@ -2,10 +2,10 @@
 
 PitMedic is a free, ad-free, open-source Windows simulator reliability monitor and repair assistant. It watches supported racing simulators, captures useful evidence when something goes wrong, explains the finding in plain language, and offers safe, reversible repairs when a known automatic fix is available.
 
-Current public test preview: **0.6.0.0** (intentionally unsigned while SignPath approval is pending)
+Current public test preview: **0.6.0.1** (intentionally unsigned while SignPath approval is pending)
 
-- [Download the v0.6.0.0 unsigned Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.0/PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe)
-- [View the v0.6.0.0 prerelease and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.0)
+- [Download the v0.6.0.1 unsigned Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.1/PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe)
+- [View the v0.6.0.1 prerelease and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.1)
 
 Because this preview is unsigned, Windows may show an **Unknown publisher** or SmartScreen warning. It is a public test preview, not a signed production release.
 
@@ -27,7 +27,10 @@ Because this preview is unsigned, Windows may show an **Unknown publisher** or S
 - 48-hour recent-finding views and improved tray behavior.
 - Project contact details use `robert@pitmedic.com` rather than personal developer details.
 - A smoother upgrade path from v0.5, including automatic shutdown for maintenance and cleanup of legacy startup tasks.
+- Upgrades and reinstalls silently reuse the existing PitMedic installation directory instead of showing an unnecessary folder-exists confirmation.
 - Optional once-daily anonymous active-installation counting remains off until the user explicitly opts in.
+- v0.6.0.1 fixes the anonymous usage heartbeat so the transmitted six-field payload exactly matches the user-visible preview and strict service allowlist, and failed sends can retry later instead of being suppressed for the rest of the UTC day.
+- v0.6.0.1 preserves iRacing live diagnostic signatures so elevated automatic repairs can independently reconstruct the same narrow repair plan selected by the normal app. Legacy v0.6.0.0 findings prefer specific saved evidence before falling back to a broader category, and any genuine mismatch records both repair IDs before stopping safely.
 - A quiet once-daily update check reads only the public PitMedic update manifest and never downloads or installs an update automatically.
 
 ## Build on Windows

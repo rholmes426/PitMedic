@@ -53,11 +53,18 @@ internal static class Program
             // The request and incident live in the current user's profile. Treat both as
             // untrusted input: reconstruct the plan from captured diagnostic evidence rather
             // than accepting a serialized repair plan supplied by the unelevated process.
-            var plan = RepairPlanner.TryCreateFromIncident(incident with { RecommendedRepair = null })
+            // iRacing live findings preserve the detector signature so the elevated helper can
+            // deterministically reconstruct the same narrow plan selected by the normal app.
+            var validationIncident = PrepareIncidentForValidation(incident);
+            var plan = RepairPlanner.TryCreateFromIncident(validationIncident)
                 ?? throw new InvalidOperationException("The incident no longer has a repair plan.");
 
             if (!plan.Id.Equals(request.RepairId, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException("The requested repair does not match the incident's current repair plan.");
+            {
+                AppLog.Write($"Elevated repair validation mismatch: requested={request.RepairId}, reconstructed={plan.Id}, incident={incident.Id}.");
+                throw new InvalidOperationException(
+                    $"The saved diagnosis no longer matches the requested repair. No changes were made. Requested '{request.RepairId}', reconstructed '{plan.Id}'.");
+            }
             if (!ElevatedRepairPolicy.RequiresElevation(plan.Id))
                 throw new InvalidOperationException($"Repair '{plan.Id}' is not in the elevated helper allowlist.");
 
@@ -94,7 +101,7 @@ internal static class Program
                     Title = "Elevated repair",
                     Stage = "Repair needs attention",
                     Message = ex.Message,
-                    Detail = "The helper stopped without running any operation outside its allowlist.",
+                    Detail = "The helper stopped before running any operation that was not independently validated and allowlisted.",
                     Percent = 100,
                     StartedAt = DateTimeOffset.Now,
                     IsActive = false,
@@ -110,6 +117,77 @@ internal static class Program
             statusPipe?.Dispose();
         }
     }
+
+    private static IncidentRecord PrepareIncidentForValidation(IncidentRecord incident)
+    {
+        var untrustedPlanRemoved = incident with { RecommendedRepair = null };
+        if (!incident.Game.Equals("iRacing", StringComparison.OrdinalIgnoreCase))
+            return untrustedPlanRemoved;
+
+        var signature = TryReadDiagnosticSignature(incident.Classification.Evidence);
+        if (!string.IsNullOrWhiteSpace(signature))
+        {
+            var normalized = NormalizeIRacingSignature(signature);
+            if (normalized is not null)
+            {
+                var (category, evidence) = normalized.Value;
+                return untrustedPlanRemoved with
+                {
+                    Classification = untrustedPlanRemoved.Classification with
+                    {
+                        Category = category,
+                        Evidence = evidence
+                    }
+                };
+            }
+        }
+
+        // v0.6.0.0 did not persist the detector signature. For those findings, prefer
+        // specific saved evidence when it can independently reconstruct a plan; only fall
+        // back to the broader category when the evidence itself is not sufficient.
+        var evidenceFirst = untrustedPlanRemoved with
+        {
+            Classification = untrustedPlanRemoved.Classification with { Category = string.Empty }
+        };
+        return RepairPlanner.TryCreateFromIncident(evidenceFirst) is not null
+            ? evidenceFirst
+            : untrustedPlanRemoved;
+    }
+
+    private static string? TryReadDiagnosticSignature(IEnumerable<string> evidence)
+    {
+        foreach (var item in evidence)
+        {
+            var marker = item.IndexOf(LiveFaultEvidence.EvidenceSignaturePrefix, StringComparison.Ordinal);
+            if (marker < 0) continue;
+            var start = marker + LiveFaultEvidence.EvidenceSignaturePrefix.Length;
+            var end = item.IndexOf(']', start);
+            var value = (end >= 0 ? item[start..end] : item[start..]).Trim();
+            if (!string.IsNullOrWhiteSpace(value)) return value;
+        }
+        return null;
+    }
+
+    private static (string Category, IReadOnlyList<string> Evidence)? NormalizeIRacingSignature(string signature) =>
+        signature.ToLowerInvariant() switch
+        {
+            "helper-service" => ("helper service", Array.Empty<string>()),
+            "waiting-service" => ("updater waiting", Array.Empty<string>()),
+            "ui-welcome" => (string.Empty, new[] { "Welcome to iRacing" }),
+            "ui-render-failure" => ("ui startup", Array.Empty<string>()),
+            "eac-error-73" or "eac-failure" or "eac-error-10011" => ("anti-cheat", Array.Empty<string>()),
+            "verification-failure" => ("update verification", Array.Empty<string>()),
+            "content-file-locked" => (string.Empty, new[] { "Content File Locked" }),
+            "track-loading-error" => ("track content", Array.Empty<string>()),
+            "car-loading-error" => ("car content", Array.Empty<string>()),
+            "loading-error-49" => ("track content steam", Array.Empty<string>()),
+            "already-running" => ("already-running", Array.Empty<string>()),
+            "loading-error-3" => (string.Empty, new[] { "Loading Error 3" }),
+            "createprocessasuser" or "compatibility-mode" => ("compatibility-mode", Array.Empty<string>()),
+            "digital-signature" => ("digital signature", Array.Empty<string>()),
+            "renderer-config" => ("renderer configuration", Array.Empty<string>()),
+            _ => null
+        };
 
     private static string ParseAndValidateRequestDirectory(string[] args)
     {

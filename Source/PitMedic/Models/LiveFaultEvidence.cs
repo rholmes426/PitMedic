@@ -8,11 +8,13 @@ public sealed record LiveFaultEvidence(
     string SourceFile,
     GameKind? Game = null)
 {
+    public const string EvidenceSignaturePrefix = "PitMedic diagnostic signature: ";
+
     public string ToEvidenceText()
     {
         var game = Game.HasValue
             ? GameDefinition.Supported.FirstOrDefault(g => g.Kind == Game.Value)?.DisplayName ?? Game.Value.ToString()
             : "Simulator";
-        return $"Live {game} error detected at {Timestamp:h:mm:ss tt}: {Category} — {Message}";
+        return $"Live {game} error detected at {Timestamp:h:mm:ss tt}: {Category} — {Message} [{EvidenceSignaturePrefix}{SignatureId}]";
     }
 }
