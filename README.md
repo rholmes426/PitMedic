@@ -2,7 +2,12 @@
 
 PitMedic is a free, ad-free, open-source Windows simulator reliability monitor and repair assistant. It watches supported racing simulators, captures useful evidence when something goes wrong, explains the finding in plain language, and offers safe, reversible repairs when a known automatic fix is available.
 
-Next release candidate: **0.6.0.0** (private until launch validation and signing are complete)
+Current public test preview: **0.6.0.0** (intentionally unsigned while SignPath approval is pending)
+
+- [Download the v0.6.0.0 unsigned Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.0/PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe)
+- [View the v0.6.0.0 prerelease and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.0)
+
+Because this preview is unsigned, Windows may show an **Unknown publisher** or SmartScreen warning. It is a public test preview, not a signed production release.
 
 ## Supported simulators
 
@@ -13,11 +18,23 @@ Next release candidate: **0.6.0.0** (private until launch validation and signing
 - Assetto Corsa Competizione
 - Automobilista 2
 
+## v0.6 highlights
+
+- Simulator-specific monitored time and clean streaks.
+- Verified live distance telemetry for iRacing, Assetto Corsa Competizione, RaceRoom, and Automobilista 2.
+- Persistent simulator activity cards with Metric/Imperial display controls.
+- Lighter background sampling and UI work while PitMedic is hidden.
+- 48-hour recent-finding views and improved tray behavior.
+- Project contact details use `robert@pitmedic.com` rather than personal developer details.
+- A smoother upgrade path from v0.5, including automatic shutdown for maintenance and cleanup of legacy startup tasks.
+- Optional once-daily anonymous active-installation counting remains off until the user explicitly opts in.
+- A quiet once-daily update check reads only the public PitMedic update manifest and never downloads or installs an update automatically.
+
 ## Build on Windows
 
 Install the .NET 10 SDK, clone the repository, and run `Build and Run PitMedic.cmd`. The development builder creates an unsigned, self-contained Windows x64 build in `Output` and starts it.
 
-Unsigned development builds are not official public releases. Official releases must pass the repository's SignPath workflow and signature verification.
+Local development builds are not release artifacts. The public v0.6 preview is intentionally unsigned and clearly labeled. Once PitMedic signing is approved, signed releases must pass the repository's SignPath workflow and signature verification.
 
 The release workflow produces `PitMedic-Setup-x64.exe` plus a portable ZIP. PitMedic itself runs without administrator rights. The installer registers a narrowly scoped, read-only CPU sensor service during its one setup approval so normal app launches do not need administrator approval. Protected repairs use the separate, one-shot `PitMedic.RepairHelper.exe` only when a protected change is selected.
 
