@@ -71,6 +71,21 @@ describe("active installation endpoint", () => {
     expect(monthly?.count).toBe(1);
   });
 
+  it("updates an existing anonymous installation to its current app version", async () => {
+    expect((await post(payload({ appVersion: "0.6.0.1" }))).status).toBe(202);
+    expect((await post(payload({ appVersion: "0.6.0.2" }))).status).toBe(202);
+
+    const daily = await env.DB.prepare(
+      "SELECT COUNT(*) AS count, app_version FROM daily_active",
+    ).first<{ count: number; app_version: string }>();
+    const monthly = await env.DB.prepare(
+      "SELECT COUNT(*) AS count, app_version FROM monthly_active",
+    ).first<{ count: number; app_version: string }>();
+
+    expect(daily).toEqual({ count: 1, app_version: "0.6.0.2" });
+    expect(monthly).toEqual({ count: 1, app_version: "0.6.0.2" });
+  });
+
   it("does not accept browser-originated or extra data", async () => {
     const response = await worker.fetch(
       new IncomingRequest("https://usage.example/v1/active", {

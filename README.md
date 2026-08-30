@@ -2,10 +2,10 @@
 
 PitMedic is a free, ad-free, open-source Windows simulator reliability monitor and repair assistant. It watches supported racing simulators, captures useful evidence when something goes wrong, explains the finding in plain language, and offers safe, reversible repairs when a known automatic fix is available.
 
-Current public test preview: **0.6.0.1** (intentionally unsigned while SignPath approval is pending)
+Current public test preview: **0.6.0.3** (intentionally unsigned while SignPath approval is pending)
 
-- [Download the v0.6.0.1 unsigned Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.1/PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe)
-- [View the v0.6.0.1 prerelease and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.1)
+- [Download the v0.6.0.3 unsigned Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.3/PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe)
+- [View the v0.6.0.3 prerelease and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.3)
 
 Because this preview is unsigned, Windows may show an **Unknown publisher** or SmartScreen warning. It is a public test preview, not a signed production release.
 
@@ -20,6 +20,7 @@ Because this preview is unsigned, Windows may show an **Unknown publisher** or S
 
 ## v0.6 highlights
 
+- v0.6.0.3 streamlines System Tools to Power Mode, Startup Apps, Storage, and Graphics Settings; makes active-monitoring labels reflect real simulator activity; improves CPU sensor-service startup and recovery; and keeps the anonymous usage dashboard's version label current after an in-month upgrade without double-counting the installation.
 - Simulator-specific monitored time and clean streaks.
 - Verified live distance telemetry for iRacing, Assetto Corsa Competizione, RaceRoom, and Automobilista 2.
 - Persistent simulator activity cards with Metric/Imperial display controls.

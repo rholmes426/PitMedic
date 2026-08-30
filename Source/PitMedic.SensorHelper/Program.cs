@@ -89,27 +89,20 @@ internal static class Program
 
         Computer? computer = null;
         string? startupError = null;
-        try
-        {
-            computer = new Computer
-            {
-                IsCpuEnabled = true,
-                IsMotherboardEnabled = true
-            };
-            computer.Open();
-        }
-        catch (Exception ex)
-        {
-            computer?.Close();
-            computer = null;
-            startupError = $"{ex.GetType().Name}: {ex.Message}";
-        }
+        var nextOpenAttempt = DateTimeOffset.MinValue;
 
         try
         {
             var visitor = new UpdateVisitor();
             while (!token.IsCancellationRequested)
             {
+                var now = DateTimeOffset.UtcNow;
+                if (computer is null && now >= nextOpenAttempt)
+                {
+                    computer = TryOpenComputer(out startupError);
+                    nextOpenAttempt = now.AddSeconds(30);
+                }
+
                 SensorMessage message;
                 try
                 {
@@ -145,17 +138,61 @@ internal static class Program
                     };
                 }
 
-                File.WriteAllText(temporaryPath, JsonSerializer.Serialize(message));
-                File.Move(temporaryPath, sensorPath, overwrite: true);
+                TryPublishSensorMessage(temporaryPath, sensorPath, message);
                 token.WaitHandle.WaitOne(TimeSpan.FromSeconds(2));
             }
         }
         finally
         {
-            computer?.Close();
+            TryCloseComputer(computer);
             TryDelete(temporaryPath);
             TryDelete(sensorPath);
         }
+    }
+
+    private static Computer? TryOpenComputer(out string? error)
+    {
+        var computer = new Computer
+        {
+            IsCpuEnabled = true,
+            IsMotherboardEnabled = true
+        };
+
+        try
+        {
+            computer.Open();
+            error = null;
+            return computer;
+        }
+        catch (Exception ex)
+        {
+            TryCloseComputer(computer);
+            error = $"{ex.GetType().Name}: {ex.Message}";
+            return null;
+        }
+    }
+
+    private static void TryPublishSensorMessage(string temporaryPath, string sensorPath, SensorMessage message)
+    {
+        try
+        {
+            File.WriteAllText(temporaryPath, JsonSerializer.Serialize(message));
+            File.Move(temporaryPath, sensorPath, overwrite: true);
+        }
+        catch (IOException)
+        {
+            TryDelete(temporaryPath);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            TryDelete(temporaryPath);
+        }
+    }
+
+    private static void TryCloseComputer(Computer? computer)
+    {
+        try { computer?.Close(); }
+        catch { }
     }
 
     private static void ReportStatus(uint currentState, uint waitHint = 0, uint win32ExitCode = 0)

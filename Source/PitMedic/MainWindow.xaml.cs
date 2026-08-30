@@ -402,9 +402,13 @@ public partial class MainWindow : Window
         {
             SetHomeStatus("MONITORING OFF", "Panel2Brush", "BorderBrush", "MutedBrush", "MutedBrush");
         }
+        else if (running == 0)
+        {
+            SetHomeStatus("WAITING FOR SIMULATOR", "Panel2Brush", "BorderBrush", "MutedBrush", "MutedBrush");
+        }
         else
         {
-            SetHomeStatus("PROTECTION ACTIVE", "GoodSoftBrush", "GoodBorderBrush", "GoodBrush", "GoodTextBrush");
+            SetHomeStatus("MONITORING ACTIVE", "GoodSoftBrush", "GoodBorderBrush", "GoodBrush", "GoodTextBrush");
         }
 
         _homeLatestIncident = _incidents.Where(x => !x.IsDismissed && IsRecentFinding(x)).OrderByDescending(x => x.Timestamp).FirstOrDefault();
@@ -487,7 +491,7 @@ public partial class MainWindow : Window
         else if (!monitored)
             SetHeaderStatus("MONITORING OFF", "Panel2Brush", "BorderBrush", "MutedBrush", "MutedBrush");
         else
-            SetHeaderStatus("MONITORING ACTIVE", "InfoSoftBrush", "InfoBorderBrush", "TelemetryBrush", "InfoTextBrush");
+            SetHeaderStatus("WAITING FOR SIMULATOR", "Panel2Brush", "BorderBrush", "MutedBrush", "MutedBrush");
 
         RefreshSessionStory(active ?? latest, running, monitored);
         RefreshSelectedActivity();
@@ -538,8 +542,8 @@ public partial class MainWindow : Window
     {
         if (incident is null)
         {
-            SessionStoryTime.Text = monitored ? "LIVE" : "OFF";
-            SessionStoryEvent.Text = running ? "Session running" : monitored ? "Monitoring active" : "Monitoring disabled";
+            SessionStoryTime.Text = running ? "LIVE" : monitored ? "READY" : "OFF";
+            SessionStoryEvent.Text = running ? "Monitoring active" : monitored ? "Waiting for simulator" : "Monitoring disabled";
             SessionStoryEvidence.Text = running
                 ? "Telemetry and logs are being captured"
                 : monitored ? "Waiting for the next session" : "Enable this simulator in Settings";

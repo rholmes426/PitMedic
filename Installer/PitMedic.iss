@@ -170,13 +170,13 @@ begin
 
   Parameters := 'create ' + SensorServiceName +
     ' binPath= "\"' + SensorExecutable + '\""' +
-    ' start= auto DisplayName= "PitMedic Sensor Service"';
+    ' start= delayed-auto DisplayName= "PitMedic Sensor Service"';
   Exec(ExpandConstant('{sys}\sc.exe'), Parameters,
     '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
 
   Parameters := 'config ' + SensorServiceName +
     ' binPath= "\"' + SensorExecutable + '\""' +
-    ' start= auto DisplayName= "PitMedic Sensor Service"';
+    ' start= delayed-auto DisplayName= "PitMedic Sensor Service"';
   if not Exec(ExpandConstant('{sys}\sc.exe'), Parameters,
     '', SW_HIDE, ewWaitUntilTerminated, ExitCode) or (ExitCode <> 0) then
   begin
@@ -189,7 +189,7 @@ begin
     'description ' + SensorServiceName + ' "Provides read-only CPU telemetry to the locally installed PitMedic app."',
     '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
   Exec(ExpandConstant('{sys}\sc.exe'),
-    'failure ' + SensorServiceName + ' reset= 86400 actions= restart/5000',
+    'failure ' + SensorServiceName + ' reset= 86400 actions= restart/5000/restart/30000/restart/60000',
     '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
 
   if not Exec(ExpandConstant('{sys}\sc.exe'), 'start ' + SensorServiceName,

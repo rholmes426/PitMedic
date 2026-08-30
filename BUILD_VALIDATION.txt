@@ -1,8 +1,8 @@
-PitMedic v0.6.0.0 release-candidate validation
+PitMedic v0.6.0.3 release-candidate validation
 ====================================
 
 Validated in the private packaging environment:
-- Project, assembly, file, informational, UI, and build-script versions are set to 0.6.0.0.
+- Project, assembly, file, informational, UI, and build-script versions are set to 0.6.0.3.
 - The main PitMedic manifest remains asInvoker; the app interface does not run as administrator.
 - Protected CPU access is isolated in the installer-managed PitMedic.SensorHelper.exe Windows service.
 - The service executable has an asInvoker manifest and can be started as LocalSystem only through the service registration created by the elevated installer.
@@ -28,11 +28,11 @@ Validated in the private packaging environment:
 - The main app, read-only sensor service, and elevated repair helper compile successfully in Release configuration with .NET SDK 10.0.400.
 - Self-contained Windows x64 publishing completed successfully for all three executables.
 - Published PE resources must confirm PitMedic.exe and PitMedic.SensorHelper.exe are asInvoker while PitMedic.RepairHelper.exe requires administrator approval.
-- Published file-version resources must report 0.6.0.0 for all three executables.
+- Published file-version resources must report 0.6.0.3 for all three executables.
 
 Windows behavior validation required for this private build:
 - Install PitMedic and confirm setup requests administrator approval once.
-- Start PitMedic normally and confirm About displays 0.6.0.0 without another UAC prompt.
+- Start PitMedic normally and confirm About displays 0.6.0.3 without another UAC prompt.
 - Confirm Task Manager shows PitMedic.exe unelevated and the PitMedic Sensor Service running as LocalSystem.
 - Confirm CPU temperature appears, the service output is read-only to the signed-in user, and stale samples are ignored.
 - Confirm Support PitMedic opens https://paypal.me/PitMedicApp in the default browser.

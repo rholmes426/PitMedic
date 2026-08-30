@@ -47,17 +47,26 @@ export default {
       // Keep the same privacy-preserving de-duplication model. The result of the
       // monthly INSERT tells us whether this anonymous installation is newly
       // counted this month; the rotating token itself is never included in email.
-      await env.DB.prepare(
-        "INSERT OR IGNORE INTO daily_active (day, token, app_version, channel, install_type) VALUES (?, ?, ?, ?, ?)",
-      )
-        .bind(
+      await env.DB.batch([
+        env.DB.prepare(
+          "INSERT OR IGNORE INTO daily_active (day, token, app_version, channel, install_type) VALUES (?, ?, ?, ?, ?)",
+        ).bind(
           day,
           payload.dailyToken,
           payload.appVersion,
           payload.channel,
           payload.installType,
-        )
-        .run();
+        ),
+        env.DB.prepare(
+          "UPDATE daily_active SET app_version = ?, channel = ?, install_type = ? WHERE day = ? AND token = ?",
+        ).bind(
+          payload.appVersion,
+          payload.channel,
+          payload.installType,
+          day,
+          payload.dailyToken,
+        ),
+      ]);
 
       const monthlyInsert = await env.DB.prepare(
         "INSERT OR IGNORE INTO monthly_active (month, token, app_version, channel, install_type) VALUES (?, ?, ?, ?, ?)",
@@ -68,6 +77,21 @@ export default {
           payload.appVersion,
           payload.channel,
           payload.installType,
+        )
+        .run();
+
+      // A rotating token identifies the same anonymous installation only for
+      // this month. Keep its current version/channel/install type up to date
+      // without adding another installation or sending another install alert.
+      await env.DB.prepare(
+        "UPDATE monthly_active SET app_version = ?, channel = ?, install_type = ? WHERE month = ? AND token = ?",
+      )
+        .bind(
+          payload.appVersion,
+          payload.channel,
+          payload.installType,
+          month,
+          payload.monthlyToken,
         )
         .run();
 

@@ -1,6 +1,14 @@
-# PitMedic v0.6.0.0
+# PitMedic v0.6.0.3
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.6.0.3
+
+- Reduced System Tools to Power Mode, Startup Apps, Storage, and Graphics Settings.
+- Removed the unreliable Windows Update restart-pending classification and the unused Game Mode, Task Manager, and Background Load cards.
+- Changed idle status text to Waiting for simulator; Monitoring active now appears only while a supported simulator is running.
+- Made the installed CPU sensor service start after Windows settles, retry hardware initialization, tolerate transient sample-file contention, and use multiple recovery attempts.
+- Updated anonymous usage records to the latest reported app version without increasing active-installation totals or sending duplicate install alerts.
 
 ## v0.6.0.0
 
