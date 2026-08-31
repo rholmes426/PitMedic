@@ -1,0 +1,7 @@
+RaceRoom car model ID/name catalog
+
+Derived from KW Studios' official r3e-spectator-overlay data:
+https://github.com/kwstudios-sweden/r3e-spectator-overlay/blob/master/r3e-data.json
+
+The upstream repository is released under the Unlicense:
+https://github.com/kwstudios-sweden/r3e-spectator-overlay/blob/master/LICENSE

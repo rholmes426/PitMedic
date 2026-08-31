@@ -30,6 +30,7 @@
     <AssemblyMetadata Include="PitMedicReleaseChannel" Value="$(ReleaseChannel)" />
     <Resource Include="Assets\PitMedic.ico" />
     <Resource Include="Assets\PitMedic.png" />
+    <EmbeddedResource Include="Assets\RaceRoomCars.json" />
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
     <PackageReference Include="System.Diagnostics.EventLog" Version="10.0.11" />
   </ItemGroup>

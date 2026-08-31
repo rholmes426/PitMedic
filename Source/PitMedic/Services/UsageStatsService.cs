@@ -101,6 +101,7 @@ public sealed class UsageStatsService
             var gameStats = GetGameStats(lap.Game);
             if (!_activeSessions.ContainsKey(lap.Game)) return;
             if (!_activeSessionBestLaps.TryGetValue(lap.Game, out var existing)
+                || !string.Equals(lap.CombinationKey, existing.CombinationKey, StringComparison.Ordinal)
                 || lap.LapSeconds < existing.LapSeconds)
             {
                 _activeSessionBestLaps[lap.Game] = lap;

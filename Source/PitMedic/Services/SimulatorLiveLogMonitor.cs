@@ -167,17 +167,57 @@ public sealed class SimulatorLiveLogMonitor : ILiveLogMonitor
         var l = raw.Trim(); var x = l.ToLowerInvariant();
         if ((x.Contains("gameusersettings") || x.Contains("resolution") || x.Contains("fullscreen")) && Bad(x))
             return ("acc-game-user-settings", "ACC display/startup configuration failure", l);
-        if ((x.Contains("engine.ini") || x.Contains("dxgi") || x.Contains("d3d") || x.Contains("render")) && Bad(x))
+        if (IsAccGraphicsFailure(x))
             return ("acc-engine-config", "ACC engine/graphics configuration failure", l);
         if ((x.Contains("controls.json") || x.Contains("controller") || x.Contains("directinput") || x.Contains("wheel")) && Bad(x))
             return ("acc-controls", "ACC controller configuration failure", l);
         if ((x.Contains("trueforce") || x.Contains("manufacturerextras") || x.Contains("manufacturer extras")) && Bad(x))
             return ("acc-trueforce", "ACC Logitech TrueForce integration failure", l);
         if (x.Contains("ffb") && Bad(x)) return ("acc-ffb", "ACC force-feedback configuration failure", l);
-        if ((x.Contains("pak") || x.Contains("file")) && (x.Contains("missing") || x.Contains("corrupt") || x.Contains("failed to load")))
+        if (IsAccContentFailure(x))
             return ("acc-steam-content", "ACC local content failure", l);
         if (Fatal(x)) return ("acc-game-user-settings", "ACC fatal simulator failure", l);
         return null;
+    }
+
+    private static bool IsAccGraphicsFailure(string x)
+    {
+        // Unreal uses the Error log level for benign object-dependency diagnostics during normal
+        // loading and shutdown. In particular, TextRenderComponent lines contain "render" but do
+        // not indicate a graphics failure. Require an explicit configuration or GPU-device signal.
+        return (x.Contains("engine.ini") && Bad(x))
+            || x.Contains("dxgi_error")
+            || x.Contains("d3d device lost")
+            || x.Contains("device being lost")
+            || x.Contains("device removed")
+            || x.Contains("gpu crashed")
+            || x.Contains("rendering thread exception");
+    }
+
+    private static bool IsAccContentFailure(string x)
+    {
+        // NVIDIA NGX/DLSS can log a failed optional DLL load from Windows DriverStore even when
+        // ACC runs and exits normally. A path containing "FileRepository" is not evidence that
+        // an ACC game file is missing, so content findings require an explicit package/archive.
+        if (x.Contains("logdlssngx") || x.Contains("nvngx") || x.Contains("driverstore")
+            || x.Contains("\\windows\\system32"))
+            return false;
+
+        var damaged = x.Contains("missing")
+            || x.Contains("corrupt")
+            || x.Contains("failed to load")
+            || x.Contains("failed to open")
+            || x.Contains("failed to read")
+            || x.Contains("couldn't find")
+            || x.Contains("cannot find")
+            || x.Contains("can't find");
+        var gamePackage = x.Contains(".pak")
+            || x.Contains("pak file")
+            || x.Contains("package /game/")
+            || x.Contains("file for package")
+            || x.Contains("file for asset")
+            || x.Contains("asset registry");
+        return damaged && gamePackage;
     }
 
     private static bool Bad(string x) => x.Contains("error") || x.Contains("failed") || x.Contains("failure") || x.Contains("invalid") || x.Contains("corrupt") || x.Contains("fatal");

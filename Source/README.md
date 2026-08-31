@@ -2,6 +2,12 @@
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
 
+## Next patch
+
+- Captures exact simulator-reported session-best lap, track, layout, and car data for ACC, RaceRoom, Automobilista 2, Le Mans Ultimate, and Assetto Corsa EVO in addition to iRacing.
+- Uses LMU's local player profile and official session result so multiplayer laps from other drivers are never attributed to the user.
+- Ignores benign ACC TextRender and NVIDIA NGX/DriverStore shutdown diagnostics while preserving real package and GPU-device failures.
+
 ## v0.6.0.6
 
 - Keeps recent findings, captured evidence, and Open All Findings together in one uninterrupted section.

@@ -241,12 +241,12 @@ public sealed class LogCollector
         else if (game.Kind == GameKind.AssettoCorsaCompetizione)
         {
             if (lower.Contains("gameusersettings") || lower.Contains("resolution") || lower.Contains("fullscreen")) signatures.Add("acc-game-user-settings");
-            if (lower.Contains("engine.ini") || lower.Contains("dxgi") || lower.Contains("d3d") || lower.Contains("rendering thread")) signatures.Add("acc-engine-config");
+            if (IsAccGraphicsFailure(lower)) signatures.Add("acc-engine-config");
             if (lower.Contains("controls.json") || lower.Contains("directinput") || (lower.Contains("controller") && (lower.Contains("failed") || lower.Contains("invalid")))) signatures.Add("acc-controls");
             if ((lower.Contains("trueforce") || lower.Contains("manufacturerextras") || lower.Contains("manufacturer extras")) && (lower.Contains("failed") || lower.Contains("error") || lower.Contains("crash"))) signatures.Add("acc-trueforce");
             if (lower.Contains("ffb") && (lower.Contains("failed") || lower.Contains("invalid") || lower.Contains("error"))) signatures.Add("acc-ffb");
             if (lower.Contains("customs\\controls") && (lower.Contains("crash") || lower.Contains("failed") || lower.Contains("invalid"))) signatures.Add("acc-control-presets");
-            if ((lower.Contains("pak") || lower.Contains("file")) && (lower.Contains("missing") || lower.Contains("corrupt") || lower.Contains("failed to load"))) signatures.Add("acc-steam-content");
+            if (IsAccContentFailure(lower)) signatures.Add("acc-steam-content");
             if (lower.Contains("config") && (lower.Contains("corrupt") || lower.Contains("parse error"))) signatures.Add("acc-user-profile");
         }
         else if (game.Kind == GameKind.Automobilista2)
@@ -262,6 +262,33 @@ public sealed class LogCollector
             if (lower.Contains("profile") && (lower.Contains("corrupt") || lower.Contains("invalid") || lower.Contains("parse"))) signatures.Add("ams2-user-profile");
         }
     }
+
+    private static bool IsAccGraphicsFailure(string lower) =>
+        (lower.Contains("engine.ini") && IsFailureText(lower))
+        || lower.Contains("dxgi_error")
+        || lower.Contains("d3d device lost")
+        || lower.Contains("device being lost")
+        || lower.Contains("device removed")
+        || lower.Contains("gpu crashed")
+        || lower.Contains("rendering thread exception");
+
+    private static bool IsAccContentFailure(string lower)
+    {
+        if (lower.Contains("logdlssngx") || lower.Contains("nvngx") || lower.Contains("driverstore")
+            || lower.Contains("\\windows\\system32")) return false;
+        var damaged = lower.Contains("missing") || lower.Contains("corrupt")
+            || lower.Contains("failed to load") || lower.Contains("failed to open")
+            || lower.Contains("failed to read") || lower.Contains("couldn't find")
+            || lower.Contains("cannot find") || lower.Contains("can't find");
+        var package = lower.Contains(".pak") || lower.Contains("pak file")
+            || lower.Contains("package /game/") || lower.Contains("file for package")
+            || lower.Contains("file for asset") || lower.Contains("asset registry");
+        return damaged && package;
+    }
+
+    private static bool IsFailureText(string lower) => lower.Contains("error")
+        || lower.Contains("failed") || lower.Contains("failure") || lower.Contains("invalid")
+        || lower.Contains("corrupt") || lower.Contains("fatal");
 
     private static IReadOnlyList<string> GetAceUserDataRoots()
     {

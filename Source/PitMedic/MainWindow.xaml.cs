@@ -542,7 +542,7 @@ public partial class MainWindow : Window
             _benchmarkSourceUrl = null;
             _benchmarkLookupCancellation?.Cancel();
             ActivityBestLapValue.Text = "Waiting for a valid lap";
-            ActivityBestLapDetail.Text = _selectedGame == GameKind.IRacing
+            ActivityBestLapDetail.Text = SimulatorLapTelemetryService.SupportsBestLap(_selectedGame)
                 ? running
                     ? "Complete a valid lap; PitMedic will use the exact track, layout, and car."
                     : "No valid lap was recorded in the last session."

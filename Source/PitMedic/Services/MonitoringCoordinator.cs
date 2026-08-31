@@ -35,7 +35,8 @@ public sealed class MonitoringCoordinator : IDisposable
             else
             {
                 _distanceTelemetry.Stop(g);
-                _lapTelemetry.Stop(g);
+                if (_lapTelemetry.Stop(g) is { } finalLap)
+                    _usage.RecordBestLap(finalLap, persist: false);
                 _usage.Flush();
             }
             GameStatusChanged?.Invoke(g, running);
