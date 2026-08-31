@@ -1,6 +1,11 @@
-# PitMedic v0.6.0.7
+# PitMedic v0.6.0.8
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.6.0.8
+
+- Refreshes the anonymous usage dashboard immediately when the app version, release channel, or installation type changes within the same UTC day.
+- Reuses the existing rotating anonymous tokens, so the refreshed dimensions replace the previous row without increasing active-installation totals or sending another install alert.
 
 ## v0.6.0.7
 

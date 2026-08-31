@@ -82,8 +82,14 @@ public sealed class AnonymousUsageService : IDisposable
 
             var utcNow = DateTimeOffset.UtcNow;
             var utcDay = utcNow.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            var appVersion = AppInfo.Version;
+            var channel = AppInfo.ReleaseChannel;
+            var installType = DetectInstallType();
+            var usageDimensions = $"{appVersion}|{channel}|{installType}";
             var state = LoadState();
-            if (string.Equals(state?.LastSuccessfulUtcDay, utcDay, StringComparison.Ordinal)) return;
+            if (string.Equals(state?.LastSuccessfulUtcDay, utcDay, StringComparison.Ordinal)
+                && string.Equals(state.LastSuccessfulDimensions, usageDimensions, StringComparison.Ordinal))
+                return;
 
             if (state?.LastAttemptUtc is { Length: > 0 } lastAttemptText
                 && DateTimeOffset.TryParse(lastAttemptText, System.Globalization.CultureInfo.InvariantCulture,
@@ -100,9 +106,9 @@ public sealed class AnonymousUsageService : IDisposable
                 ProtocolVersion,
                 CreateRotatingToken(secret, $"pitmedic:day:{utcDay}"),
                 CreateRotatingToken(secret, $"pitmedic:month:{utcNow.ToString("yyyy-MM", System.Globalization.CultureInfo.InvariantCulture)}"),
-                AppInfo.Version,
-                AppInfo.ReleaseChannel,
-                DetectInstallType());
+                appVersion,
+                channel,
+                installType);
 
             // The Worker uses a strict six-field camelCase allowlist. Use the exact same serializer
             // settings as the user-visible data preview so previewed and transmitted fields cannot drift.
@@ -123,7 +129,8 @@ public sealed class AnonymousUsageService : IDisposable
             SaveState(new UsageState(
                 utcDay,
                 utcNow.ToString("o", System.Globalization.CultureInfo.InvariantCulture),
-                utcDay));
+                utcDay,
+                usageDimensions));
             AppLog.Write("Anonymous usage count sent successfully.");
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
@@ -253,5 +260,6 @@ public sealed class AnonymousUsageService : IDisposable
     private sealed record UsageState(
         string? LastAttemptUtcDay,
         string? LastAttemptUtc,
-        string? LastSuccessfulUtcDay);
+        string? LastSuccessfulUtcDay,
+        string? LastSuccessfulDimensions = null);
 }
