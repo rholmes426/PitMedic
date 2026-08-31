@@ -34,14 +34,46 @@ const IGNORED_TOKENS = new Set([
   "the",
 ]);
 
+const TRACK_IGNORED_TOKENS = new Set([
+  ...IGNORED_TOKENS,
+  "circuit",
+  "course",
+  "de",
+  "international",
+  "motor",
+  "raceway",
+  "speedway",
+]);
+
+const CAR_IGNORED_TOKENS = new Set([
+  ...IGNORED_TOKENS,
+  "car",
+  "cup",
+  "global",
+  "series",
+]);
+
 export function normalizeSearchText(value: string): string {
   return value
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
+    .replace(/['’]s\b/gi, "s")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .trim()
     .replace(/\s+/g, " ");
+}
+
+export function buildYouTubeSearchQuery(query: BenchmarkQuery): string {
+  return [
+    preferredSimSearchTerm(query.sim),
+    significantPhrase(query.track, TRACK_IGNORED_TOKENS),
+    significantPhrase(query.layout, IGNORED_TOKENS),
+    significantPhrase(query.car, CAR_IGNORED_TOKENS),
+    "hotlap lap guide",
+  ]
+    .filter(Boolean)
+    .join(" ");
 }
 
 export function combinationKey(query: BenchmarkQuery): string {
@@ -62,9 +94,9 @@ export function selectFastestWebLap(
     );
     if (
       !simMatches(searchable, query.sim) ||
-      !phraseMatches(searchable, query.track) ||
-      !phraseMatches(searchable, query.car) ||
-      (query.layout.length > 0 && !phraseMatches(searchable, query.layout))
+      !trackMatches(searchable, query.track) ||
+      !phraseMatches(searchable, query.car, CAR_IGNORED_TOKENS) ||
+      (query.layout.length > 0 && !layoutMatches(searchable, query.layout))
     ) {
       continue;
     }
@@ -102,14 +134,73 @@ export function extractLapTimes(value: string): number[] {
   return times;
 }
 
-function phraseMatches(searchable: string, phrase: string): boolean {
+function phraseMatches(
+  searchable: string,
+  phrase: string,
+  ignoredTokens: Set<string> = IGNORED_TOKENS,
+): boolean {
   const normalized = normalizeSearchText(phrase);
   if (normalized.length === 0) return true;
   if (searchable.includes(normalized)) return true;
-  const tokens = normalized
+  const tokens = significantTokens(normalized, ignoredTokens);
+  if (tokens.length === 0) return false;
+  if (tokens.every((token) => containsToken(searchable, token))) return true;
+  return compact(searchable).includes(compact(tokens.join(" ")));
+}
+
+function trackMatches(searchable: string, track: string): boolean {
+  if (phraseMatches(searchable, track, TRACK_IGNORED_TOKENS)) return true;
+  const tokens = significantTokens(track, TRACK_IGNORED_TOKENS);
+  if (tokens.length === 0) return false;
+  const matched = tokens.filter((token) => containsToken(searchable, token)).length;
+  return matched >= 1 && matched / tokens.length >= 0.5;
+}
+
+function layoutMatches(searchable: string, layout: string): boolean {
+  if (phraseMatches(searchable, layout)) return true;
+  const normalized = normalizeSearchText(layout);
+  const aliases = new Set([
+    normalized.replace(/\bgrand prix\b/g, "gp"),
+    normalized.replace(/\binternational\b/g, "intl"),
+    normalized.replace(/\bfull course\b/g, "full"),
+  ]);
+  return [...aliases].some(
+    (alias) => alias !== normalized && phraseMatches(searchable, alias),
+  );
+}
+
+function significantPhrase(value: string, ignoredTokens: Set<string>): string {
+  return significantTokens(value, ignoredTokens).join(" ");
+}
+
+function significantTokens(value: string, ignoredTokens: Set<string>): string[] {
+  return normalizeSearchText(value)
     .split(" ")
-    .filter((token) => token.length > 1 && !IGNORED_TOKENS.has(token));
-  return tokens.length > 0 && tokens.every((token) => searchable.includes(token));
+    .filter(
+      (token) =>
+        (token.length > 1 || /^\d+$/.test(token)) && !ignoredTokens.has(token),
+    );
+}
+
+function containsToken(searchable: string, token: string): boolean {
+  return ` ${searchable} `.includes(` ${token} `);
+}
+
+function compact(value: string): string {
+  return value.replace(/\s+/g, "");
+}
+
+function preferredSimSearchTerm(sim: string): string {
+  const normalized = normalizeSearchText(sim);
+  const terms: Record<string, string> = {
+    "le mans ultimate": "LMU",
+    iracing: "iRacing",
+    "assetto corsa evo": "Assetto Corsa EVO",
+    "raceroom racing experience": "RaceRoom",
+    "assetto corsa competizione": "ACC",
+    "automobilista 2": "AMS2",
+  };
+  return terms[normalized] ?? sim;
 }
 
 function simMatches(searchable: string, sim: string): boolean {

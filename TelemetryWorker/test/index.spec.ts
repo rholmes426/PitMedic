@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import worker from "../src/index";
 import { rollUpExpiredTokens, validatePayload } from "../src/usage";
 import {
+  buildYouTubeSearchQuery,
   combinationKey,
   extractLapTimes,
   selectFastestWebLap,
@@ -210,6 +211,40 @@ describe("lap benchmark matching", () => {
       sourceName: "YouTube · Driver Two",
       sourceUrl: "https://www.youtube.com/watch?v=fastest",
       confidence: "exact_match",
+    });
+  });
+
+  it("matches common track and car naming aliases without accepting another layout", () => {
+    const oulton = {
+      sim: "iRacing",
+      track: "Oulton Park Circuit",
+      layout: "Fosters",
+      car: "Mazda MX-5 Cup",
+    };
+
+    expect(buildYouTubeSearchQuery(oulton)).toBe(
+      "iRacing oulton park fosters mazda mx 5 hotlap lap guide",
+    );
+
+    const result = selectFastestWebLap(oulton, [
+      {
+        title: "iRacing Oulton Park Fosters MX-5 - Guide Lap - 1:06,469",
+        description: "Learn to drive the Global Mazda MX-5 at Oulton Park.",
+        channelTitle: "crexLive",
+        videoId: "exact",
+      },
+      {
+        title: "iRacing Oulton Park International MX-5 Hotlap 1:02.000",
+        description: "Global Mazda MX-5 at Oulton Park.",
+        channelTitle: "Wrong Layout",
+        videoId: "wrong-layout",
+      },
+    ]);
+
+    expect(result).toMatchObject({
+      lapSeconds: 66.469,
+      sourceName: "YouTube · crexLive",
+      sourceUrl: "https://www.youtube.com/watch?v=exact",
     });
   });
 

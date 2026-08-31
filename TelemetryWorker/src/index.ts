@@ -1,5 +1,6 @@
 import { rollUpExpiredTokens, validatePayload } from "./usage";
 import {
+  buildYouTubeSearchQuery,
   combinationKey,
   selectFastestWebLap,
   type BenchmarkQuery,
@@ -291,15 +292,7 @@ async function searchYouTube(
   query: BenchmarkQuery,
   apiKey: string,
 ): Promise<ReturnType<typeof selectFastestWebLap>> {
-  const search = [
-    `"${query.sim}"`,
-    `"${query.track}"`,
-    query.layout ? `"${query.layout}"` : "",
-    `"${query.car}"`,
-    "hotlap OR world record OR leaderboard",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const search = buildYouTubeSearchQuery(query);
   const endpoint = new URL("https://www.googleapis.com/youtube/v3/search");
   endpoint.searchParams.set("part", "snippet");
   endpoint.searchParams.set("type", "video");
