@@ -1,6 +1,15 @@
-# PitMedic v0.6.0.5
+# PitMedic v0.6.0.6
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.6.0.6
+
+- Keeps recent findings, captured evidence, and Open All Findings together in one uninterrupted section.
+- Separates Driving Stats from the 48-hour findings window, with explicit lifetime totals and current/last-session best-lap labels.
+- Compares the latest iRacing session best against an exact track, layout, and car reference lap.
+- Broadens safe YouTube matching for common track and car aliases while continuing to reject mismatched layouts and cars.
+- Adds a clearly labeled link to watch the source lap whenever a web video supplies the reference time.
+- Cleans up the comparison card so its label, lap time, gap, source, and action remain readable in the narrow right rail.
 
 ## v0.6.0.5
 

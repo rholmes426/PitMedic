@@ -82,6 +82,8 @@ jobs:
 
           It is intentionally unsigned while the PitMedic SignPath application is pending. Windows may show an Unknown publisher or SmartScreen warning. The package must not be described as an official signed release.
 
+          v0.6.0.6 keeps recent findings and their evidence together, separates driving statistics from the 48-hour findings window, labels lifetime totals and session-best laps precisely, improves exact-combination iRacing reference matching, and links directly to the source video when a web lap supplies the comparison.
+
           v0.6.0.5 checks for updates whenever PitMedic launches while preserving approval for every download and install. It makes guided repair actions easier to reach, removes the redundant no-findings card when resolved evidence is present, places monitored distance and time beneath recent findings, removes Clean Streak from the visible activity panel, and adds exact-combination iRacing best laps with trustworthy benchmark-source comparison.
 
           v0.6.0.4 keeps the updater's Cancel and Install now actions visible on smaller displays and at increased Windows display scaling. Install now explicitly requests administrator approval before PitMedic closes and records the verified installer handoff in the local diagnostic log.

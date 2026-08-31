@@ -513,6 +513,8 @@ public partial class MainWindow : Window
     {
         if (ActivityTimeValue is null) return;
         var activity = _monitoring.SimulatorActivity(_selectedGame);
+        var running = _gameRunning.TryGetValue(_selectedGame, out var isRunning) && isRunning;
+        ActivityBestLapLabel.Text = running ? "SESSION BEST" : "LAST SESSION BEST";
         ActivityTimeValue.Text = FormatMonitoredTime(activity.TimeMonitored);
 
         var hasMileage = SimulatorDistanceTelemetryService.SupportsMileage(_selectedGame);
@@ -528,10 +530,10 @@ public partial class MainWindow : Window
             ActivityMilesValue.Text = "Not available";
         }
 
-        RefreshBestLap(activity.BestLap);
+        RefreshBestLap(activity.BestLap, running);
     }
 
-    private void RefreshBestLap(BestLapRecord? lap)
+    private void RefreshBestLap(BestLapRecord? lap, bool running)
     {
         if (ActivityBestLapValue is null) return;
         if (lap is null)
@@ -541,9 +543,11 @@ public partial class MainWindow : Window
             _benchmarkLookupCancellation?.Cancel();
             ActivityBestLapValue.Text = "Waiting for a valid lap";
             ActivityBestLapDetail.Text = _selectedGame == GameKind.IRacing
-                ? "Complete a valid lap; PitMedic will use the exact track, layout, and car."
+                ? running
+                    ? "Complete a valid lap; PitMedic will use the exact track, layout, and car."
+                    : "No valid lap was recorded in the last session."
                 : "Exact best-lap telemetry is not available for this simulator yet.";
-            ActivityBenchmarkLabel.Text = "GLOBAL BENCHMARK";
+            ActivityBenchmarkLabel.Text = "EXTERNAL REFERENCE LAP";
             ActivityBenchmarkValue.Text = "Waiting for best lap";
             ActivityBenchmarkDetail.Text = "No comparison is shown until the simulator confirms the combination.";
             ActivityBenchmarkSourceButton.Visibility = Visibility.Collapsed;
@@ -558,7 +562,7 @@ public partial class MainWindow : Window
         if (string.Equals(_displayedLapCombination, lap.CombinationKey, StringComparison.Ordinal)) return;
         _displayedLapCombination = lap.CombinationKey;
         _benchmarkSourceUrl = null;
-        ActivityBenchmarkLabel.Text = "GLOBAL BENCHMARK";
+        ActivityBenchmarkLabel.Text = "EXTERNAL REFERENCE LAP";
         ActivityBenchmarkValue.Text = "Checking…";
         ActivityBenchmarkDetail.Text = "Looking for the best exact-combination source.";
         ActivityBenchmarkSourceButton.Visibility = Visibility.Collapsed;
@@ -580,7 +584,7 @@ public partial class MainWindow : Window
             if (!benchmark.Available || benchmark.LapSeconds is not double benchmarkSeconds
                 || benchmarkSeconds is < 20 or > 1_800)
             {
-                ActivityBenchmarkValue.Text = "No reliable match yet";
+                ActivityBenchmarkValue.Text = "No reliable match";
                 ActivityBenchmarkDetail.Text = "PitMedic did not find a trustworthy exact-combination comparison.";
                 ActivityBenchmarkSourceButton.Visibility = Visibility.Collapsed;
                 return;
@@ -590,11 +594,14 @@ public partial class MainWindow : Window
             var pace = lap.LapSeconds / benchmarkSeconds * 100d;
             ActivityBenchmarkValue.Text = FormatLapTime(benchmarkSeconds);
             ActivityBenchmarkLabel.Text = benchmark.SourceKind.Equals("official", StringComparison.OrdinalIgnoreCase)
-                ? "OFFICIAL BENCHMARK"
-                : "FASTEST WEB LAP FOUND";
+                ? "OFFICIAL REFERENCE LAP"
+                : "WEB REFERENCE LAP";
+            ActivityBenchmarkSourceButton.Content = benchmark.SourceKind.Equals("official", StringComparison.OrdinalIgnoreCase)
+                ? "VIEW OFFICIAL SOURCE ↗"
+                : "WATCH SOURCE LAP ↗";
             ActivityBenchmarkDetail.Text = gap >= 0
-                ? $"Your best is +{gap:0.000}s · {pace:0.0}% pace · {benchmark.SourceName}"
-                : $"Your best is {-gap:0.000}s faster · {pace:0.0}% pace · {benchmark.SourceName}";
+                ? $"External source · Your best is +{gap:0.000}s · {pace:0.0}% pace · {benchmark.SourceName}"
+                : $"External source · Your best is {-gap:0.000}s faster · {pace:0.0}% pace · {benchmark.SourceName}";
             _benchmarkSourceUrl = benchmark.SourceUrl;
             ActivityBenchmarkSourceButton.Visibility = Uri.TryCreate(_benchmarkSourceUrl, UriKind.Absolute, out _)
                 ? Visibility.Visible
