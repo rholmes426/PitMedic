@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     private readonly MonitoringCoordinator _monitoring;
     private readonly AnonymousUsageService _anonymousUsage;
     private readonly UpdateService _updates;
+    private readonly LapBenchmarkService _lapBenchmarks = new();
     private readonly ObservableCollection<IncidentSummary> _incidents = new();
     private readonly Queue<TelemetrySample> _chart = new();
     private readonly Dictionary<GameKind, bool> _gameRunning = Enum.GetValues<GameKind>().ToDictionary(game => game, _ => false);
@@ -32,6 +33,9 @@ public partial class MainWindow : Window
     private IncidentSummary? _homeLatestIncident;
     private AvailableUpdate? _availableUpdate;
     private TelemetrySample? _latestTelemetry;
+    private CancellationTokenSource? _benchmarkLookupCancellation;
+    private string? _displayedLapCombination;
+    private string? _benchmarkSourceUrl;
 
     public MainWindow(MonitoringCoordinator monitoring, AnonymousUsageService anonymousUsage, UpdateService updates)
     {
@@ -71,6 +75,12 @@ public partial class MainWindow : Window
         {
             if (IsVisible && _latestTelemetry is not null)
                 UpdateTelemetry(_latestTelemetry, record: false);
+        };
+        Closed += (_, _) =>
+        {
+            _benchmarkLookupCancellation?.Cancel();
+            _benchmarkLookupCancellation?.Dispose();
+            _lapBenchmarks.Dispose();
         };
     }
 
@@ -504,22 +514,111 @@ public partial class MainWindow : Window
         if (ActivityTimeValue is null) return;
         var activity = _monitoring.SimulatorActivity(_selectedGame);
         ActivityTimeValue.Text = FormatMonitoredTime(activity.TimeMonitored);
-        ActivityCleanStreakValue.Text = activity.CleanStreak == 1
-            ? "1 session"
-            : $"{activity.CleanStreak:N0} sessions";
 
         var hasMileage = SimulatorDistanceTelemetryService.SupportsMileage(_selectedGame);
-        ActivityMilesCard.Visibility = hasMileage ? Visibility.Visible : Visibility.Collapsed;
-        ActivityMilesColumn.Width = hasMileage ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
-        ActivityMilesSpacer.Width = hasMileage ? new GridLength(12) : new GridLength(0);
         if (hasMileage)
         {
             var miles = activity.MilesMonitored.GetValueOrDefault();
-            ActivityDistanceLabel.Text = "DISTANCE MONITORED";
             ActivityMilesValue.Text = _settings.UseFahrenheit
                 ? $"{miles:N1} mi"
                 : $"{miles * 1.609344d:N1} km";
         }
+        else
+        {
+            ActivityMilesValue.Text = "Not available";
+        }
+
+        RefreshBestLap(activity.BestLap);
+    }
+
+    private void RefreshBestLap(BestLapRecord? lap)
+    {
+        if (ActivityBestLapValue is null) return;
+        if (lap is null)
+        {
+            _displayedLapCombination = null;
+            _benchmarkSourceUrl = null;
+            _benchmarkLookupCancellation?.Cancel();
+            ActivityBestLapValue.Text = "Waiting for a valid lap";
+            ActivityBestLapDetail.Text = _selectedGame == GameKind.IRacing
+                ? "Complete a valid lap; PitMedic will use the exact track, layout, and car."
+                : "Exact best-lap telemetry is not available for this simulator yet.";
+            ActivityBenchmarkLabel.Text = "GLOBAL BENCHMARK";
+            ActivityBenchmarkValue.Text = "Waiting for best lap";
+            ActivityBenchmarkDetail.Text = "No comparison is shown until the simulator confirms the combination.";
+            ActivityBenchmarkSourceButton.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        ActivityBestLapValue.Text = FormatLapTime(lap.LapSeconds);
+        ActivityBestLapDetail.Text = string.IsNullOrWhiteSpace(lap.Layout)
+            ? $"{lap.Track} · {lap.Car}"
+            : $"{lap.Track} · {lap.Layout} · {lap.Car}";
+
+        if (string.Equals(_displayedLapCombination, lap.CombinationKey, StringComparison.Ordinal)) return;
+        _displayedLapCombination = lap.CombinationKey;
+        _benchmarkSourceUrl = null;
+        ActivityBenchmarkLabel.Text = "GLOBAL BENCHMARK";
+        ActivityBenchmarkValue.Text = "Checking…";
+        ActivityBenchmarkDetail.Text = "Looking for the best exact-combination source.";
+        ActivityBenchmarkSourceButton.Visibility = Visibility.Collapsed;
+
+        _benchmarkLookupCancellation?.Cancel();
+        _benchmarkLookupCancellation?.Dispose();
+        _benchmarkLookupCancellation = new CancellationTokenSource();
+        _ = RefreshBenchmarkAsync(lap, _benchmarkLookupCancellation.Token);
+    }
+
+    private async Task RefreshBenchmarkAsync(BestLapRecord lap, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var benchmark = await _lapBenchmarks.FindAsync(lap, cancellationToken);
+            if (cancellationToken.IsCancellationRequested
+                || !string.Equals(_displayedLapCombination, lap.CombinationKey, StringComparison.Ordinal)) return;
+
+            if (!benchmark.Available || benchmark.LapSeconds is not double benchmarkSeconds
+                || benchmarkSeconds is < 20 or > 1_800)
+            {
+                ActivityBenchmarkValue.Text = "No reliable match yet";
+                ActivityBenchmarkDetail.Text = "PitMedic did not find a trustworthy exact-combination comparison.";
+                ActivityBenchmarkSourceButton.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var gap = lap.LapSeconds - benchmarkSeconds;
+            var pace = lap.LapSeconds / benchmarkSeconds * 100d;
+            ActivityBenchmarkValue.Text = FormatLapTime(benchmarkSeconds);
+            ActivityBenchmarkLabel.Text = benchmark.SourceKind.Equals("official", StringComparison.OrdinalIgnoreCase)
+                ? "OFFICIAL BENCHMARK"
+                : "FASTEST WEB LAP FOUND";
+            ActivityBenchmarkDetail.Text = gap >= 0
+                ? $"Your best is +{gap:0.000}s · {pace:0.0}% pace · {benchmark.SourceName}"
+                : $"Your best is {-gap:0.000}s faster · {pace:0.0}% pace · {benchmark.SourceName}";
+            _benchmarkSourceUrl = benchmark.SourceUrl;
+            ActivityBenchmarkSourceButton.Visibility = Uri.TryCreate(_benchmarkSourceUrl, UriKind.Absolute, out _)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+        catch (OperationCanceledException)
+        {
+            // A newer simulator/combination selection replaced this lookup.
+        }
+    }
+
+    private void ActivityBenchmarkSource_Click(object sender, RoutedEventArgs e)
+    {
+        if (!Uri.TryCreate(_benchmarkSourceUrl, UriKind.Absolute, out var source)
+            || (source.Scheme != Uri.UriSchemeHttps && source.Scheme != Uri.UriSchemeHttp)) return;
+        Process.Start(new ProcessStartInfo(source.AbsoluteUri) { UseShellExecute = true });
+    }
+
+    private static string FormatLapTime(double seconds)
+    {
+        var duration = TimeSpan.FromSeconds(seconds);
+        return duration.TotalHours >= 1
+            ? $"{(int)duration.TotalHours}:{duration.Minutes:00}:{duration.Seconds:00}.{duration.Milliseconds:000}"
+            : $"{(int)duration.TotalMinutes}:{duration.Seconds:00}.{duration.Milliseconds:000}";
     }
 
     private static string FormatMonitoredTime(TimeSpan duration)
@@ -570,7 +669,9 @@ public partial class MainWindow : Window
     private void RefreshSelectedFinding(IncidentSummary? active, IncidentSummary? latest)
     {
         SelectedFindingCard.Visibility = active is null ? Visibility.Collapsed : Visibility.Visible;
-        SelectedFindingEmpty.Visibility = active is null ? Visibility.Visible : Visibility.Collapsed;
+        SelectedFindingEmpty.Visibility = active is null && latest is null
+            ? Visibility.Visible
+            : Visibility.Collapsed;
 
         if (active is not null)
         {

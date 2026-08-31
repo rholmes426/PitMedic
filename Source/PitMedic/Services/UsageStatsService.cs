@@ -11,6 +11,8 @@ public sealed class UsageStatsService
         public int CleanStreak { get; set; }
         public double MilesMonitored { get; set; }
         public bool MileageAvailable { get; set; }
+        public string? LastBestLapKey { get; set; }
+        public Dictionary<string, BestLapRecord> BestLaps { get; set; } = new(StringComparer.Ordinal);
     }
 
     private sealed class PersistedStats
@@ -66,8 +68,8 @@ public sealed class UsageStatsService
     }
 
     // Simulator-specific telemetry adapters can call this only after they have measured actual
-    // on-track distance. Until then, the UI deliberately shows time and clean streak instead of
-    // presenting an estimated mileage value as fact.
+    // on-track distance. Until then, the UI deliberately marks mileage unavailable instead of
+    // presenting an estimated value as fact.
     public void RecordMiles(GameKind game, double miles, bool persist = true)
     {
         if (!double.IsFinite(miles) || miles < 0) return;
@@ -77,6 +79,26 @@ public sealed class UsageStatsService
             gameStats.MileageAvailable = true;
             gameStats.MilesMonitored += miles;
             if (persist) Save();
+        }
+    }
+
+    public void RecordBestLap(BestLapRecord lap, bool persist = true)
+    {
+        if (!double.IsFinite(lap.LapSeconds) || lap.LapSeconds is < 20 or > 1_800
+            || string.IsNullOrWhiteSpace(lap.Track) || string.IsNullOrWhiteSpace(lap.Car))
+            return;
+
+        lock (_gate)
+        {
+            var gameStats = GetGameStats(lap.Game);
+            var key = lap.CombinationKey;
+            gameStats.LastBestLapKey = key;
+            if (!gameStats.BestLaps.TryGetValue(key, out var existing)
+                || lap.LapSeconds < existing.LapSeconds)
+            {
+                gameStats.BestLaps[key] = lap;
+                if (persist) Save();
+            }
         }
     }
 
@@ -93,11 +115,17 @@ public sealed class UsageStatsService
             var seconds = gameStats.MonitoredSeconds;
             if (_activeSessions.TryGetValue(game, out var started))
                 seconds += Math.Max(0, (DateTimeOffset.Now - started).TotalSeconds);
+            gameStats.BestLaps ??= new Dictionary<string, BestLapRecord>(StringComparer.Ordinal);
+            var bestLap = gameStats.LastBestLapKey is { Length: > 0 } key
+                && gameStats.BestLaps.TryGetValue(key, out var lap)
+                    ? lap
+                    : gameStats.BestLaps.Values.OrderByDescending(item => item.RecordedAt).FirstOrDefault();
             return new SimulatorActivitySnapshot(
                 game,
                 TimeSpan.FromSeconds(seconds),
                 gameStats.CleanStreak,
-                gameStats.MileageAvailable ? gameStats.MilesMonitored : null);
+                gameStats.MileageAvailable ? gameStats.MilesMonitored : null,
+                bestLap);
         }
     }
 
@@ -225,6 +253,7 @@ public sealed class UsageStatsService
             gameStats = new PersistedGameStats();
             _stats.Games[key] = gameStats;
         }
+        gameStats.BestLaps ??= new Dictionary<string, BestLapRecord>(StringComparer.Ordinal);
         return gameStats;
     }
 

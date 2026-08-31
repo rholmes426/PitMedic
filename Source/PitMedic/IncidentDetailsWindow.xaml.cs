@@ -134,6 +134,7 @@ public partial class IncidentDetailsWindow : Window
             && _runAutomaticRepair is not null;
         ProposedRepairPanel.Visibility = canRunRepair ? Visibility.Visible : Visibility.Collapsed;
         RunAutomaticRepairButton.Visibility = canRunRepair ? Visibility.Visible : Visibility.Collapsed;
+        FooterRepairButton.Visibility = canRunRepair ? Visibility.Visible : Visibility.Collapsed;
 
         if (_details.RepairPlan is not null)
         {

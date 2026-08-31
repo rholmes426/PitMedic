@@ -2,6 +2,8 @@
 
 This Worker accepts one explicitly consented active-installation heartbeat per PitMedic installation per UTC day. The accepted JSON contract contains only protocol version, app version, release channel, install type, and rotating daily/monthly tokens.
 
+It also exposes a read-only lap benchmark endpoint. That endpoint accepts only simulator, track/layout, and car names; it never receives the user's lap time or identity. It checks manually verified official records first, then an exact-match YouTube result when the search integration is configured. Results are cached by normalized combination.
+
 The service rejects unknown fields so an app bug cannot silently upload diagnostics, file paths, hostnames, or other undeclared data. Request bodies and network identifiers are never written to the database or application logs.
 
 Daily tokens are rolled into aggregate counts after the UTC day closes. Monthly tokens are rolled up after the UTC month closes. Tokens are then deleted; only counts grouped by version, channel, and install type remain.
@@ -26,6 +28,18 @@ npm run deploy:dry-run
 The production Worker is `pitmedic-usage` and uses the `pitmedic-usage` D1 database. Its public heartbeat URL is:
 
 `https://pitmedic-usage.pitmedic-usage-telemetry.workers.dev/v1/active`
+
+The public comparison endpoint is:
+
+`https://pitmedic-usage.pitmedic-usage-telemetry.workers.dev/v1/lap-benchmark`
+
+Configure YouTube fallback search as a Worker secret; never place the key in source or `wrangler.jsonc`:
+
+```bash
+npx wrangler secret put YOUTUBE_API_KEY
+```
+
+Without that secret, the endpoint still serves curated records from `official_lap_benchmarks` and otherwise returns an honest unavailable result. Clear affected negative rows from `lap_benchmark_cache` after first enabling the search secret if immediate discovery is needed.
 
 After a code or schema change:
 

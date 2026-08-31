@@ -80,7 +80,7 @@
                         <TextBlock Text="APP BEHAVIOR" Style="{StaticResource SectionHeader}"/>
                         <WrapPanel>
                             <CheckBox x:Name="StartWithWindows" Content="Start PitMedic with Windows"/>
-                            <CheckBox x:Name="CheckForUpdates" Content="Check once daily for PitMedic updates"/>
+                            <CheckBox x:Name="CheckForUpdates" Content="Check for PitMedic updates when the app starts"/>
                             <CheckBox x:Name="CaptureEveryExit" Content="Preserve ambiguous exits (diagnostic)" ToolTip="Normally off. Preserves exits whose status cannot be determined, but clean exit-code-0 sessions are never treated as issues."/>
                         </WrapPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
@@ -95,7 +95,7 @@
                         <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                             <Button x:Name="CheckForUpdatesNow" Content="Check now" Click="CheckForUpdatesNow_Click" Margin="0,0,10,0"/>
-                            <TextBlock x:Name="UpdateCheckStatus" Grid.Column="1" Text="Update checks only read a small public version file; PitMedic never downloads or installs updates automatically."
+                            <TextBlock x:Name="UpdateCheckStatus" Grid.Column="1" Text="At startup, PitMedic reads a small public version file; it never downloads or installs updates automatically."
                                        Foreground="{DynamicResource MutedBrush}" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
                         </Grid>
                     </StackPanel>

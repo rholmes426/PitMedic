@@ -12,6 +12,7 @@ PitMedic may store:
 - Simulator process, log, and Windows event evidence related to a detected problem.
 - Repair plans, progress, results, and recovery backups.
 - Local counters such as sessions monitored, repairs completed, and estimated troubleshooting time saved.
+- Simulator-reported personal best laps together with their simulator, track/layout, and car combination.
 - Application settings and operational logs.
 
 These files remain on the computer unless the user deliberately opens, copies, exports, or shares them.
@@ -41,7 +42,9 @@ Turning anonymous usage off immediately deletes the local secret and last-send s
 
 Diagnostics, findings, repairs, hardware telemetry, and simulator activity are never sent to the PitMedic project. The installed read-only sensor service writes current CPU telemetry only to `%ProgramData%\PitMedic\sensor.json` on the same computer. Ordinary users can read but not change this service-owned file, and PitMedic ignores stale samples.
 
-By default, PitMedic reads a small public version file from `pitmedic.com` at most once per UTC day to check whether an update is available. The request has no body, app-usage token, diagnostic, or permanent identifier. Automatic checks can be turned off in Settings, and PitMedic never downloads or installs an update without the user choosing the Download button. As with any website request, the hosting providers necessarily process connection information such as the source IP address to deliver and protect the file.
+By default, PitMedic reads a small public version file from `pitmedic.com` when the app launches to check whether an update is available. The request has no body, app-usage token, diagnostic, or permanent identifier. Automatic checks can be turned off in Settings, and PitMedic never downloads or installs an update without the user choosing the Download button. As with any website request, the hosting providers necessarily process connection information such as the source IP address to deliver and protect the file.
+
+When a supported simulator reports a valid best lap together with an exact simulator, track/layout, and car combination, PitMedic can ask the PitMedic comparison service for a public benchmark. The request contains only those four public combination names. It does not contain the user's lap time, name, account, app-usage token, diagnostic, hardware telemetry, finding, repair, file path, or permanent identifier. The service checks a curated official-source table first and may use the YouTube Data API to find a clearly labeled exact-combination web lap when no official record is available. Positive and negative results are cached by combination to reduce third-party searches. Cloudflare and the selected public source necessarily process network connection information under their own privacy terms.
 
 Choosing **Support PitMedic** opens the project's hosted PayPal page in the user's default browser. PitMedic does not receive or process payment details, and no donor identity or contribution information is written into the app.
 

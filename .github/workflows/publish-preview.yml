@@ -82,11 +82,13 @@ jobs:
 
           It is intentionally unsigned while the PitMedic SignPath application is pending. Windows may show an Unknown publisher or SmartScreen warning. The package must not be described as an official signed release.
 
+          v0.6.0.5 checks for updates whenever PitMedic launches while preserving approval for every download and install. It makes guided repair actions easier to reach, removes the redundant no-findings card when resolved evidence is present, places monitored distance and time beneath recent findings, removes Clean Streak from the visible activity panel, and adds exact-combination iRacing best laps with trustworthy benchmark-source comparison.
+
           v0.6.0.4 keeps the updater's Cancel and Install now actions visible on smaller displays and at increased Windows display scaling. Install now explicitly requests administrator approval before PitMedic closes and records the verified installer handoff in the local diagnostic log.
 
           v0.6.0.3 streamlined System Tools, corrected idle monitoring labels, improved CPU sensor-service recovery, and kept anonymous usage version labels current without double-counting installations.
 
-          The v0.6 line also includes simulator-specific monitored time and clean streaks; verified live mileage for iRacing, Assetto Corsa Competizione, RaceRoom, and Automobilista 2; persistent distance cards; Metric/Imperial display controls; lightweight background monitoring; privacy-safe anonymous usage counting; 48-hour recent-finding views; safer elevated repair validation; and improved upgrade behavior.
+          The v0.6 line also includes simulator-specific monitored time and verified live mileage for iRacing, Assetto Corsa Competizione, RaceRoom, and Automobilista 2; persistent distance cards; Metric/Imperial display controls; lightweight background monitoring; privacy-safe anonymous usage counting; 48-hour recent-finding views; safer elevated repair validation; and improved upgrade behavior.
 
           PitMedic remains free and open source. Voluntary support unlocks nothing.
           "@ | Set-Content -Encoding UTF8 ./Artifacts/preview/RELEASE-NOTES-UNSIGNED-PREVIEW.txt

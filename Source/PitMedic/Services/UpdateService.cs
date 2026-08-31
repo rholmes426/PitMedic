@@ -56,12 +56,7 @@ public sealed class UpdateService : IDisposable
             if (!force && !_settings.Current.CheckForUpdates)
                 return new UpdateCheckResult("Automatic update checks are off.");
 
-            var utcDay = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             var state = LoadState();
-            if (!force && string.Equals(state.LastAttemptUtcDay, utcDay, StringComparison.Ordinal))
-                return new UpdateCheckResult("PitMedic already checked for updates today.");
-
-            SaveState(state with { LastAttemptUtcDay = utcDay });
             using var request = new HttpRequestMessage(HttpMethod.Get, _manifestUri);
             request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true };
             using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
@@ -172,13 +167,13 @@ public sealed class UpdateService : IDisposable
     {
         try
         {
-            if (!File.Exists(AppPaths.UpdateCheckStateFile)) return new UpdateCheckState(null, null);
+            if (!File.Exists(AppPaths.UpdateCheckStateFile)) return new UpdateCheckState(null);
             return JsonSerializer.Deserialize<UpdateCheckState>(File.ReadAllText(AppPaths.UpdateCheckStateFile), JsonOptions)
-                ?? new UpdateCheckState(null, null);
+                ?? new UpdateCheckState(null);
         }
         catch
         {
-            return new UpdateCheckState(null, null);
+            return new UpdateCheckState(null);
         }
     }
 
@@ -205,5 +200,5 @@ public sealed class UpdateService : IDisposable
         string DownloadUrl,
         string ReleaseUrl);
 
-    private sealed record UpdateCheckState(string? LastAttemptUtcDay, string? DismissedVersion);
+    private sealed record UpdateCheckState(string? DismissedVersion);
 }

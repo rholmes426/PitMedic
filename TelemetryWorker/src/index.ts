@@ -1,18 +1,31 @@
 import { rollUpExpiredTokens, validatePayload } from "./usage";
+import {
+  combinationKey,
+  selectFastestWebLap,
+  type BenchmarkQuery,
+  type WebLapCandidate,
+} from "./benchmark";
 
 const ACTIVE_PATH = "/v1/active";
 const HEALTH_PATH = "/health";
+const BENCHMARK_PATH = "/v1/lap-benchmark";
 const MAX_BODY_BYTES = 2_048;
 const INSTALL_ALERT_TO = "bobbyholmes@gmail.com";
 const INSTALL_ALERT_FROM = "notifications@pitmedic.com";
 
-export default {
+type WorkerEnv = Env & { YOUTUBE_API_KEY?: string };
+
+const worker = {
   async fetch(request, env): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === HEALTH_PATH && request.method === "GET") {
       await env.DB.prepare("SELECT 1").first();
       return jsonResponse({ status: "ok", protocol: 1 }, 200);
+    }
+
+    if (url.pathname === BENCHMARK_PATH) {
+      return handleBenchmarkRequest(request, url, env);
     }
 
     if (url.pathname !== ACTIVE_PATH) {
@@ -137,7 +150,220 @@ export default {
   async scheduled(_controller, env, ctx): Promise<void> {
     ctx.waitUntil(rollUpExpiredTokens(env.DB));
   },
-} satisfies ExportedHandler<Env>;
+} satisfies ExportedHandler<WorkerEnv>;
+
+export default worker;
+
+async function handleBenchmarkRequest(
+  request: Request,
+  url: URL,
+  env: WorkerEnv,
+): Promise<Response> {
+  if (request.method !== "GET") {
+    return jsonResponse({ error: "method_not_allowed" }, 405, { Allow: "GET" });
+  }
+
+  const query = readBenchmarkQuery(url.searchParams);
+  if (!query) return jsonResponse({ error: "invalid_combination" }, 400);
+
+  try {
+    const key = combinationKey(query);
+    const official = await env.DB.prepare(
+      "SELECT lap_seconds, source_name, source_url, verified_at FROM official_lap_benchmarks WHERE combination_key = ?",
+    )
+      .bind(key)
+      .first<{
+        lap_seconds: number;
+        source_name: string;
+        source_url: string;
+        verified_at: string;
+      }>();
+    if (official) {
+      return benchmarkResponse({
+        available: true,
+        lapSeconds: official.lap_seconds,
+        sourceKind: "official",
+        sourceName: official.source_name,
+        sourceUrl: official.source_url,
+        confidence: "official",
+        checkedAt: official.verified_at,
+      });
+    }
+
+    const now = new Date();
+    const cached = await env.DB.prepare(
+      "SELECT available, lap_seconds, source_kind, source_name, source_url, confidence, checked_at FROM lap_benchmark_cache WHERE combination_key = ? AND expires_at > ?",
+    )
+      .bind(key, now.toISOString())
+      .first<{
+        available: number;
+        lap_seconds: number | null;
+        source_kind: string;
+        source_name: string;
+        source_url: string | null;
+        confidence: string;
+        checked_at: string;
+      }>();
+    if (cached) {
+      return benchmarkResponse({
+        available: cached.available === 1,
+        lapSeconds: cached.lap_seconds,
+        sourceKind: cached.source_kind,
+        sourceName: cached.source_name,
+        sourceUrl: cached.source_url,
+        confidence: cached.confidence,
+        checkedAt: cached.checked_at,
+      });
+    }
+
+    const benchmark = env.YOUTUBE_API_KEY
+      ? await searchYouTube(query, env.YOUTUBE_API_KEY)
+      : null;
+    const checkedAt = now.toISOString();
+    const expiresAt = new Date(
+      now.getTime() + (benchmark ? 7 : 1) * 24 * 60 * 60 * 1_000,
+    ).toISOString();
+    const result = benchmark
+      ? {
+          available: true,
+          ...benchmark,
+          checkedAt,
+        }
+      : {
+          available: false,
+          lapSeconds: null,
+          sourceKind: "",
+          sourceName: "",
+          sourceUrl: null,
+          confidence: "",
+          checkedAt,
+        };
+
+    await env.DB.prepare(
+      "INSERT INTO lap_benchmark_cache (combination_key, available, lap_seconds, source_kind, source_name, source_url, confidence, checked_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(combination_key) DO UPDATE SET available = excluded.available, lap_seconds = excluded.lap_seconds, source_kind = excluded.source_kind, source_name = excluded.source_name, source_url = excluded.source_url, confidence = excluded.confidence, checked_at = excluded.checked_at, expires_at = excluded.expires_at",
+    )
+      .bind(
+        key,
+        result.available ? 1 : 0,
+        result.lapSeconds,
+        result.sourceKind,
+        result.sourceName,
+        result.sourceUrl,
+        result.confidence,
+        checkedAt,
+        expiresAt,
+      )
+      .run();
+    return benchmarkResponse(result);
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "lap_benchmark_failed",
+        errorType: error instanceof Error ? error.name : "UnknownError",
+      }),
+    );
+    return jsonResponse({ error: "temporary_failure" }, 503);
+  }
+}
+
+function readBenchmarkQuery(params: URLSearchParams): BenchmarkQuery | null {
+  const query = {
+    sim: params.get("sim")?.trim() ?? "",
+    track: params.get("track")?.trim() ?? "",
+    layout: params.get("layout")?.trim() ?? "",
+    car: params.get("car")?.trim() ?? "",
+  };
+  if (
+    query.sim.length < 1 ||
+    query.sim.length > 80 ||
+    query.track.length < 1 ||
+    query.track.length > 120 ||
+    query.layout.length > 120 ||
+    query.car.length < 1 ||
+    query.car.length > 120
+  ) {
+    return null;
+  }
+  return query;
+}
+
+async function searchYouTube(
+  query: BenchmarkQuery,
+  apiKey: string,
+): Promise<ReturnType<typeof selectFastestWebLap>> {
+  const search = [
+    `"${query.sim}"`,
+    `"${query.track}"`,
+    query.layout ? `"${query.layout}"` : "",
+    `"${query.car}"`,
+    "hotlap OR world record OR leaderboard",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const endpoint = new URL("https://www.googleapis.com/youtube/v3/search");
+  endpoint.searchParams.set("part", "snippet");
+  endpoint.searchParams.set("type", "video");
+  endpoint.searchParams.set("maxResults", "25");
+  endpoint.searchParams.set("safeSearch", "moderate");
+  endpoint.searchParams.set("q", search);
+  endpoint.searchParams.set("key", apiKey);
+
+  const response = await fetch(endpoint, {
+    headers: { Accept: "application/json" },
+  });
+  if (!response.ok) throw new Error(`YouTube search failed: ${response.status}`);
+  const body: unknown = await response.json();
+  if (!isYouTubeSearchResponse(body)) return null;
+  const candidates: WebLapCandidate[] = body.items.map((item) => ({
+    title: item.snippet.title,
+    description: item.snippet.description,
+    channelTitle: item.snippet.channelTitle,
+    videoId: item.id.videoId,
+  }));
+  return selectFastestWebLap(query, candidates);
+}
+
+function isYouTubeSearchResponse(value: unknown): value is {
+  items: Array<{
+    id: { videoId: string };
+    snippet: { title: string; description: string; channelTitle: string };
+  }>;
+} {
+  if (!value || typeof value !== "object" || !("items" in value)) return false;
+  const items = (value as { items?: unknown }).items;
+  return (
+    Array.isArray(items) &&
+    items.length <= 50 &&
+    items.every((item) => {
+      if (!item || typeof item !== "object") return false;
+      const record = item as {
+        id?: { videoId?: unknown };
+        snippet?: {
+          title?: unknown;
+          description?: unknown;
+          channelTitle?: unknown;
+        };
+      };
+      return (
+        typeof record.id?.videoId === "string" &&
+        typeof record.snippet?.title === "string" &&
+        typeof record.snippet.description === "string" &&
+        typeof record.snippet.channelTitle === "string"
+      );
+    })
+  );
+}
+
+function benchmarkResponse(body: Record<string, unknown>): Response {
+  return Response.json(body, {
+    status: 200,
+    headers: {
+      "Cache-Control": "public, max-age=900",
+      "Content-Type": "application/json; charset=utf-8",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
+}
 
 async function sendInstallAlert(
   env: Env,

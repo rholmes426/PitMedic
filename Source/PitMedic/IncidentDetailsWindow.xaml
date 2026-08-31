@@ -183,6 +183,7 @@
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <Button Content="Open evidence folder" HorizontalAlignment="Left" Click="EvidenceFolder_Click"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="FooterRepairButton" Content="REPAIR NOW" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0" Click="RunAutomaticRepair_Click" Visibility="Collapsed"/>
                     <Button x:Name="AcknowledgeFindingButton" Content="ACKNOWLEDGE &amp; CLEAR" Margin="0,0,8,0" Click="AcknowledgeFinding_Click" Visibility="Collapsed"/>
                     <Button Content="Close" Click="Close_Click"/>
                 </StackPanel>

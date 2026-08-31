@@ -2,6 +2,11 @@ import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it } from "vitest";
 import worker from "../src/index";
 import { rollUpExpiredTokens, validatePayload } from "../src/usage";
+import {
+  combinationKey,
+  extractLapTimes,
+  selectFastestWebLap,
+} from "../src/benchmark";
 
 const TOKEN_A = "a".repeat(64);
 const TOKEN_B = "b".repeat(64);
@@ -36,6 +41,8 @@ beforeEach(async () => {
     env.DB.prepare("DELETE FROM monthly_active"),
     env.DB.prepare("DELETE FROM daily_rollup"),
     env.DB.prepare("DELETE FROM monthly_rollup"),
+    env.DB.prepare("DELETE FROM official_lap_benchmarks"),
+    env.DB.prepare("DELETE FROM lap_benchmark_cache"),
   ]);
 });
 
@@ -152,5 +159,74 @@ describe("active installation endpoint", () => {
         ).first<{ active_installations: number }>()
       )?.active_installations,
     ).toBe(1);
+  });
+});
+
+describe("lap benchmark matching", () => {
+  const query = {
+    sim: "Le Mans Ultimate",
+    track: "Circuit de Spa-Francorchamps",
+    layout: "Grand Prix",
+    car: "Ferrari 499P",
+  };
+
+  it("normalizes an exact combination into a stable cache key", () => {
+    expect(combinationKey(query)).toBe(
+      "le mans ultimate|circuit de spa francorchamps|grand prix|ferrari 499p",
+    );
+  });
+
+  it("extracts title lap times without interpreting ordinary video timestamps", () => {
+    expect(extractLapTimes("Ferrari 499P Spa 2:04.381 hotlap")).toEqual([
+      124.381,
+    ]);
+    expect(extractLapTimes("Onboard chapter 2:04")).toEqual([]);
+  });
+
+  it("chooses the fastest exact-match video and rejects a different car", () => {
+    const result = selectFastestWebLap(query, [
+      {
+        title: "LMU Spa Grand Prix Ferrari 499P Hotlap 2:05.100",
+        description: "Le Mans Ultimate at Circuit de Spa-Francorchamps",
+        channelTitle: "Driver One",
+        videoId: "slower",
+      },
+      {
+        title: "Le Mans Ultimate Ferrari 499P Spa Grand Prix 2:04.381",
+        description: "Circuit de Spa-Francorchamps hotlap",
+        channelTitle: "Driver Two",
+        videoId: "fastest",
+      },
+      {
+        title: "LMU Porsche 963 Spa Grand Prix world record 2:01.000",
+        description: "Le Mans Ultimate Circuit de Spa-Francorchamps",
+        channelTitle: "Wrong Car",
+        videoId: "wrong-car",
+      },
+    ]);
+
+    expect(result).toMatchObject({
+      lapSeconds: 124.381,
+      sourceName: "YouTube · Driver Two",
+      sourceUrl: "https://www.youtube.com/watch?v=fastest",
+      confidence: "exact_match",
+    });
+  });
+
+  it("returns an honest unavailable result when no source search is configured", async () => {
+    const request = new IncomingRequest(
+      "https://usage.example/v1/lap-benchmark?sim=Le%20Mans%20Ultimate&track=Spa-Francorchamps&layout=Grand%20Prix&car=Ferrari%20499P",
+    );
+    const response = await worker.fetch(request, env);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      available: false,
+      lapSeconds: null,
+    });
+
+    const cached = await env.DB.prepare(
+      "SELECT available FROM lap_benchmark_cache",
+    ).first<{ available: number }>();
+    expect(cached?.available).toBe(0);
   });
 });

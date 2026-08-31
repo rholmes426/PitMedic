@@ -1,6 +1,6 @@
 {
   "name": "pitmedic-usage-telemetry",
-  "version": "0.6.0",
+  "version": "0.6.0.5",
   "private": true,
   "type": "module",
   "scripts": {

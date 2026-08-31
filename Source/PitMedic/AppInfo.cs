@@ -10,6 +10,7 @@ internal static class AppInfo
     public const string UpdateManifestUrl = "https://pitmedic.com/update.json";
 
     public const string AnonymousUsageEndpoint = "https://pitmedic-usage.pitmedic-usage-telemetry.workers.dev/v1/active";
+    public const string LapBenchmarkEndpoint = "https://pitmedic-usage.pitmedic-usage-telemetry.workers.dev/v1/lap-benchmark";
 
     public static string Version =>
         typeof(AppInfo).Assembly.GetName().Version?.ToString() ?? "Unknown";
