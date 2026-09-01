@@ -87,19 +87,25 @@ public sealed class AnonymousUsageService : IDisposable
             var installType = DetectInstallType();
             var usageDimensions = $"{appVersion}|{channel}|{installType}";
             var state = LoadState();
-            if (string.Equals(state?.LastSuccessfulUtcDay, utcDay, StringComparison.Ordinal)
-                && string.Equals(state.LastSuccessfulDimensions, usageDimensions, StringComparison.Ordinal))
+            if (!AnonymousUsageThrottlePolicy.ShouldSend(
+                    utcNow,
+                    utcDay,
+                    usageDimensions,
+                    state?.LastSuccessfulUtcDay,
+                    state?.LastSuccessfulDimensions,
+                    state?.LastAttemptUtc,
+                    state?.LastAttemptDimensions,
+                    FailedAttemptRetryDelay))
                 return;
 
-            if (state?.LastAttemptUtc is { Length: > 0 } lastAttemptText
-                && DateTimeOffset.TryParse(lastAttemptText, System.Globalization.CultureInfo.InvariantCulture,
-                    System.Globalization.DateTimeStyles.RoundtripKind, out var lastAttempt)
-                && utcNow - lastAttempt < FailedAttemptRetryDelay)
-                return;
-
-            // Store only local send timing. A failed request may retry after a quiet one-hour delay;
-            // a successful request remains capped at one accepted count per UTC day.
-            SaveState(new UsageState(utcDay, utcNow.ToString("o", System.Globalization.CultureInfo.InvariantCulture), null));
+            // Store only local send timing. A failed request may retry after a quiet one-hour delay
+            // when the dimensions are unchanged; a version/channel/install change may send at once.
+            SaveState(new UsageState(
+                utcDay,
+                utcNow.ToString("o", System.Globalization.CultureInfo.InvariantCulture),
+                state?.LastSuccessfulUtcDay,
+                state?.LastSuccessfulDimensions,
+                usageDimensions));
 
             var secret = LoadOrCreateSecret();
             var payload = new UsagePayload(
@@ -130,6 +136,7 @@ public sealed class AnonymousUsageService : IDisposable
                 utcDay,
                 utcNow.ToString("o", System.Globalization.CultureInfo.InvariantCulture),
                 utcDay,
+                usageDimensions,
                 usageDimensions));
             AppLog.Write("Anonymous usage count sent successfully.");
         }
@@ -261,5 +268,6 @@ public sealed class AnonymousUsageService : IDisposable
         string? LastAttemptUtcDay,
         string? LastAttemptUtc,
         string? LastSuccessfulUtcDay,
-        string? LastSuccessfulDimensions = null);
+        string? LastSuccessfulDimensions = null,
+        string? LastAttemptDimensions = null);
 }

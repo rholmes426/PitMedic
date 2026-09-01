@@ -20,6 +20,9 @@ public sealed class SimulatorDistanceTelemetryService : IDisposable
     ];
 
     private readonly Dictionary<GameKind, DistanceAdapter> _adapters = new();
+    private readonly Dictionary<GameKind, DistanceTelemetryStatus> _lastStatuses = new();
+
+    public event Action<DistanceTelemetryStatus>? StatusChanged;
 
     public static bool SupportsMileage(GameKind game) => SupportedGames.Contains(game);
 
@@ -29,7 +32,9 @@ public sealed class SimulatorDistanceTelemetryService : IDisposable
         {
             if (!isRunning(game))
             {
-                Stop(game);
+                var finalMiles = Stop(game);
+                if (double.IsFinite(finalMiles) && finalMiles > 0)
+                    yield return (game, finalMiles);
                 continue;
             }
 
@@ -40,21 +45,37 @@ public sealed class SimulatorDistanceTelemetryService : IDisposable
             }
 
             var miles = adapter.PollMiles();
+            PublishStatus(game, adapter);
             if (double.IsFinite(miles) && miles > 0)
                 yield return (game, miles);
         }
     }
 
-    public void Stop(GameKind game)
+    public double Stop(GameKind game)
     {
-        if (!_adapters.Remove(game, out var adapter)) return;
-        adapter.Dispose();
+        if (!_adapters.Remove(game, out var adapter)) return 0;
+        try { return adapter.FlushMiles(); }
+        finally
+        {
+            adapter.Dispose();
+            _lastStatuses.Remove(game);
+        }
     }
 
     public void Dispose()
     {
         foreach (var adapter in _adapters.Values) adapter.Dispose();
         _adapters.Clear();
+        _lastStatuses.Clear();
+    }
+
+    private void PublishStatus(GameKind game, DistanceAdapter adapter)
+    {
+        if (game != GameKind.Automobilista2) return;
+        var status = new DistanceTelemetryStatus(game, adapter.IsTelemetryAvailable, adapter.TelemetryMessage);
+        if (_lastStatuses.TryGetValue(game, out var previous) && previous == status) return;
+        _lastStatuses[game] = status;
+        StatusChanged?.Invoke(status);
     }
 
     private static DistanceAdapter Create(GameKind game) => game switch
@@ -87,7 +108,10 @@ public sealed class SimulatorDistanceTelemetryService : IDisposable
         }
 
         public abstract double PollMiles();
+        public virtual double FlushMiles() => 0;
         public abstract void Dispose();
+        public virtual bool IsTelemetryAvailable => true;
+        public virtual string TelemetryMessage => string.Empty;
 
         protected static double MetresToMiles(double metres) => metres / 1609.344d;
         protected static bool PlausibleSpeed(double metresPerSecond) =>
@@ -390,34 +414,110 @@ public sealed class SimulatorDistanceTelemetryService : IDisposable
     private sealed class Ams2DistanceAdapter : DistanceAdapter
     {
         // Offsets are from Reiza's v14 $pcars2$ shared-memory structure (Pack=4/8).
+        private const long SpeedMetresPerSecondOffset = 6848;
         private const long OdometerKmOffset = 6884;
+        private const double OdometerStallFallbackSeconds = 4;
+        private const string SharedMemoryGuidance =
+            "AMS2 shared memory is unavailable. In AMS2, set Shared Memory to Project CARS 2, then restart the session.";
         private MemoryMappedFile? _map;
         private MemoryMappedViewAccessor? _view;
         private double? _lastOdometerKm;
+        private long? _lastTimestamp;
+        private double? _lastSpeed;
+        private double _pendingSpeedMetres;
+        private double _odometerStallSeconds;
+        private bool _usingSpeedFallback;
+        private bool _lastDriving;
+
+        public override bool IsTelemetryAvailable => _view is not null;
+        public override string TelemetryMessage => IsTelemetryAvailable ? string.Empty : SharedMemoryGuidance;
 
         public override double PollMiles()
         {
             if (!EnsureOpen()) return 0;
             try
             {
+                var timestamp = System.Diagnostics.Stopwatch.GetTimestamp();
                 var version = _view!.ReadUInt32(0);
                 var gameState = _view.ReadUInt32(8);
+                var speed = _view.ReadSingle(SpeedMetresPerSecondOffset);
                 var odometerKm = _view.ReadSingle(OdometerKmOffset);
-                if (version < 8 || gameState != 2 || !double.IsFinite(odometerKm) || odometerKm < 0)
+                var driving = version >= 8 && gameState == 2 && PlausibleSpeed(speed);
+                var (speedMetres, elapsedSeconds) = IntegrateSpeed(timestamp, speed, driving);
+                _lastDriving = driving;
+
+                if (!driving)
                 {
                     _lastOdometerKm = odometerKm >= 0 ? odometerKm : null;
+                    _pendingSpeedMetres = 0;
+                    _odometerStallSeconds = 0;
+                    _usingSpeedFallback = false;
                     return 0;
                 }
 
-                var kilometres = _lastOdometerKm is double previous ? odometerKm - previous : 0;
-                _lastOdometerKm = odometerKm;
-                return kilometres is > 0 and < 20 ? kilometres * 0.621371192237334d : 0;
+                var validOdometer = double.IsFinite(odometerKm) && odometerKm >= 0;
+                if (_lastOdometerKm is null)
+                {
+                    _lastOdometerKm = validOdometer ? odometerKm : null;
+                    if (validOdometer) return 0;
+                }
+
+                var kilometres = validOdometer && _lastOdometerKm is double previous
+                    ? odometerKm - previous
+                    : double.NaN;
+                if (validOdometer) _lastOdometerKm = odometerKm;
+
+                if (kilometres is > 0 and < 20)
+                {
+                    // Once speed integration has been emitted, the next odometer movement is only
+                    // a new baseline. Emitting both would count the same stretch twice.
+                    if (_usingSpeedFallback)
+                    {
+                        _usingSpeedFallback = false;
+                        _pendingSpeedMetres = 0;
+                        _odometerStallSeconds = 0;
+                        return 0;
+                    }
+
+                    _pendingSpeedMetres = 0;
+                    _odometerStallSeconds = 0;
+                    return kilometres * 0.621371192237334d;
+                }
+
+                _pendingSpeedMetres += speedMetres;
+                _odometerStallSeconds += elapsedSeconds;
+                if (!validOdometer || kilometres < 0 || kilometres >= 20
+                    || _usingSpeedFallback || _odometerStallSeconds >= OdometerStallFallbackSeconds)
+                {
+                    _usingSpeedFallback = true;
+                    var fallbackMetres = _pendingSpeedMetres;
+                    _pendingSpeedMetres = 0;
+                    return MetresToMiles(fallbackMetres);
+                }
+
+                return 0;
             }
             catch
             {
                 Reset();
                 return 0;
             }
+        }
+
+        public override double FlushMiles()
+        {
+            var finalMetres = _pendingSpeedMetres;
+            _pendingSpeedMetres = 0;
+            if (_lastDriving && _lastTimestamp is long previousTimestamp
+                && _lastSpeed is double previousSpeed && PlausibleSpeed(previousSpeed))
+            {
+                var elapsed = System.Diagnostics.Stopwatch.GetElapsedTime(
+                    previousTimestamp, System.Diagnostics.Stopwatch.GetTimestamp()).TotalSeconds;
+                if (elapsed is > 0 and <= 5)
+                    finalMetres += previousSpeed * elapsed;
+            }
+
+            return MetresToMiles(finalMetres);
         }
 
         private bool EnsureOpen()
@@ -429,6 +529,22 @@ public sealed class SimulatorDistanceTelemetryService : IDisposable
             return true;
         }
 
+        private (double Metres, double ElapsedSeconds) IntegrateSpeed(long timestamp, double speed, bool driving)
+        {
+            var metres = 0d;
+            var elapsed = 0d;
+            if (_lastTimestamp is long previousTimestamp && _lastSpeed is double previousSpeed)
+            {
+                elapsed = System.Diagnostics.Stopwatch.GetElapsedTime(previousTimestamp, timestamp).TotalSeconds;
+                if (driving && elapsed is > 0 and <= 5 && PlausibleSpeed(previousSpeed))
+                    metres = (speed + previousSpeed) * 0.5d * elapsed;
+            }
+
+            _lastTimestamp = timestamp;
+            _lastSpeed = speed;
+            return (metres, elapsed is > 0 and <= 5 ? elapsed : 0);
+        }
+
         private void Reset()
         {
             _view?.Dispose();
@@ -436,6 +552,12 @@ public sealed class SimulatorDistanceTelemetryService : IDisposable
             _view = null;
             _map = null;
             _lastOdometerKm = null;
+            _lastTimestamp = null;
+            _lastSpeed = null;
+            _pendingSpeedMetres = 0;
+            _odometerStallSeconds = 0;
+            _usingSpeedFallback = false;
+            _lastDriving = false;
         }
 
         public override void Dispose() => Reset();

@@ -67,6 +67,15 @@ public static class RepairCapabilityCatalog
         new RepairCapability("ams2-championship-capability", "Corrupted custom championship state", "Automobilista 2", "Configuration"),
         new RepairCapability("ams2-profile-capability", "Damaged AMS2 user profile", "Automobilista 2", "Configuration"),
         new RepairCapability("ams2-content-capability", "Missing or damaged Steam game files", "Automobilista 2", "Game & Content"),
+
+        // Detected companion software
+        new RepairCapability("companion-moza-restart", "Confirmed Pit House crash / stale process", "MOZA Pit House", "Companion Software"),
+        new RepairCapability("companion-simucube-restart", "Confirmed True Drive crash / stale process", "Simucube True Drive", "Companion Software"),
+        new RepairCapability("companion-fanatec-restart", "Confirmed Fanatec app crash / stale process", "Fanatec software", "Companion Software"),
+        new RepairCapability("companion-logitech-restart", "Confirmed G HUB agent crash / loading loop", "Logitech G HUB", "Companion Software"),
+        new RepairCapability("companion-simagic-restart", "Confirmed SimPro crash / hidden stale process", "SIMAGIC SimPro Manager", "Companion Software"),
+        new RepairCapability("companion-asetek-restart", "Confirmed RaceHub crash / stale process", "Asetek RaceHub", "Companion Software"),
+        new RepairCapability("companion-vrs-restart", "Confirmed VRS configuration-app crash", "VRS DirectForce", "Companion Software"),
     };
 
     public static int AutomatedFixCount => Capabilities.Count;

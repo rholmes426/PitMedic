@@ -125,6 +125,11 @@ public static class IncidentDetailsService
         if (references.Count == 0 && plan is not null)
             references.AddRange(RepairKnowledgeBase.ReferencesForPlan(plan.Id));
 
+        var companion = CompanionSoftwareDefinition.Supported.FirstOrDefault(software =>
+            software.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase));
+        if (references.Count == 0 && companion is not null)
+            references.AddRange(CompanionSoftwareKnowledgeBase.ReferencesFor(companion.Kind));
+
         var outcome = BuildOutcome(incident, plan, repairAttempted, repairInProgress, repairCancelled, repairFailed, resolved, resolutionSummary);
         var resolutionActions = activity.Count > 0
             ? activity.Select(x => string.IsNullOrWhiteSpace(x.Detail) ? x.Title : $"{x.Title} — {x.Detail}").ToArray()
@@ -162,6 +167,8 @@ public static class IncidentDetailsService
         bool resolved,
         string statusMessage)
     {
+        var isCompanionSoftware = CompanionSoftwareDefinition.Supported.Any(software =>
+            software.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase));
         if (resolved)
         {
             return (
@@ -169,7 +176,9 @@ public static class IncidentDetailsService
                 string.IsNullOrWhiteSpace(statusMessage)
                     ? "The repair steps completed successfully and the full record was saved with this finding."
                     : statusMessage,
-                $"Launch {incident.Game} and retry the same activity. PitMedic will continue monitoring the next session.");
+                isCompanionSoftware
+                    ? $"Confirm {incident.Game} is responsive, then start the simulator when you are ready. PitMedic will continue monitoring both."
+                    : $"Launch {incident.Game} and retry the same activity. PitMedic will continue monitoring the next session.");
         }
 
         if (repairInProgress)
@@ -215,6 +224,13 @@ public static class IncidentDetailsService
     private static string ExplainInPlainLanguage(IncidentRecord incident)
     {
         var category = incident.Classification.Category.ToLowerInvariant();
+        var isCompanionSoftware = CompanionSoftwareDefinition.Supported.Any(software =>
+            software.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase));
+        if (isCompanionSoftware
+            && (category.Contains("application fault")
+                || category.Contains("crash dump")
+                || category.Contains("abnormal termination")))
+            return $"{incident.Game} stopped unexpectedly. PitMedic matched the process exit to Windows fault evidence, a crash dump, or a non-zero exit code, and preserved the surrounding system telemetry. After the simulator is closed, the available recovery closes only that companion app's remaining processes and relaunches its captured executable with approval.";
         if (category.Contains("hardware stability"))
             return "Windows recorded a hardware-level error at about the same time the simulator stopped. That makes system stability the strongest lead, although the event alone does not identify a specific failing part.";
         if (category.Contains("graphics driver") || category.Contains("graphics device") || category.Contains("rendering device"))
