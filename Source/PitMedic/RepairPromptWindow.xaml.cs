@@ -37,11 +37,17 @@ public partial class RepairPromptWindow : Window
         RepairSummary.Text = _plan.Summary;
         EstimateText.Text = _plan.EstimatedMinutes <= 2 ? "under 2 min" : $"~{_plan.EstimatedMinutes} min";
         AffectedList.ItemsSource = _plan.AffectedContentRelativePaths.Select(p => $"Installed\\{p}").ToArray();
+        AffectedContentPanel.Visibility = _plan.AffectedContentRelativePaths.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        RepairBehaviorText.Text = _plan.Id.Equals("companion-app-restart", StringComparison.OrdinalIgnoreCase)
+            ? "PitMedic first confirms every supported simulator is closed. It then closes only the affected companion app's known processes, relaunches its validated captured executable, and verifies that the app remains running."
+            : "PitMedic follows the listed repair steps, preserves recovery data where the playbook changes files, and records every action with this finding.";
         ReferenceList.ItemsSource = _plan.References.Take(2).Select(r => $"{r.Source}: {r.Title}").ToArray();
         ReferencePanel.Visibility = _plan.References.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         ApprovalNote.Text = _plan.EstimatedMinutes > 2
             ? "Because this repair is expected to take more than 2 minutes, PitMedic will only start it with your approval."
-            : "This repair is expected to be quick and reversible.";
+            : _plan.RequiresApproval
+                ? "This recovery is quick, but PitMedic will only restart the companion software after you approve it."
+                : "This repair is expected to be quick and reversible.";
     }
 
     private void RepairNow_Click(object sender, RoutedEventArgs e)

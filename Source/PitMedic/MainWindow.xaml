@@ -182,7 +182,7 @@
                             <StackPanel>
                                 <TextBlock Text="HOME" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
                                 <TextBlock Text="System overview" FontFamily="Segoe UI Variable Display" FontWeight="Bold" FontSize="36" Margin="0,6,0,2"/>
-                                <TextBlock Text="Live hardware health, simulator readiness, and recent PitMedic activity." Foreground="{DynamicResource MutedBrush}" FontSize="15"/>
+                                <TextBlock Text="Live hardware health, simulator and companion-software readiness, and recent PitMedic activity." Foreground="{DynamicResource MutedBrush}" FontSize="15"/>
                             </StackPanel>
                             <Border x:Name="HomeStatusBorder" Grid.Column="1" Background="{DynamicResource GoodSoftBrush}" BorderBrush="{DynamicResource GoodBorderBrush}" BorderThickness="1" CornerRadius="24" Padding="17,10" VerticalAlignment="Top" Margin="24,10,0,0">
                                 <StackPanel Orientation="Horizontal"><Ellipse x:Name="HomeStatusDot" Width="10" Height="10" Fill="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,9,0"/><TextBlock x:Name="HomeStatusText" Text="WAITING FOR SIMULATOR" Foreground="{DynamicResource MutedBrush}" FontWeight="Bold" VerticalAlignment="Center"/></StackPanel>
@@ -216,7 +216,7 @@
                                     <Grid><TextBlock Text="LATEST FINDING" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/><TextBlock x:Name="HomeLatestFindingTime" Text="" Foreground="{DynamicResource MutedBrush}" FontSize="12" HorizontalAlignment="Right"/></Grid>
                                     <Border x:Name="HomeLatestFindingIconBorder" Width="42" Height="42" CornerRadius="21" Background="{DynamicResource GoodSoftBrush}" HorizontalAlignment="Left" Margin="0,14,0,0"><TextBlock x:Name="HomeLatestFindingIcon" Text="✓" Foreground="{DynamicResource GoodTextBrush}" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
                                     <TextBlock x:Name="HomeLatestFindingTitle" Text="No findings yet" FontFamily="Segoe UI Variable Display" FontWeight="SemiBold" FontSize="19" Margin="0,11,0,0"/>
-                                    <TextBlock x:Name="HomeLatestFindingSummary" Text="PitMedic will summarize the most recent simulator finding here." Foreground="{DynamicResource MutedBrush}" FontSize="13" LineHeight="18" Margin="0,5,0,0"/>
+                                    <TextBlock x:Name="HomeLatestFindingSummary" Text="PitMedic will summarize the most recent simulator or companion-software finding here." Foreground="{DynamicResource MutedBrush}" FontSize="13" LineHeight="18" Margin="0,5,0,0"/>
                                     <Button x:Name="HomeReviewFindingButton" Content="REVIEW FINDING" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Left" Margin="0,15,0,0" Click="HomeReviewFinding_Click" Visibility="Collapsed"/>
                                 </StackPanel>
                             </Border>
@@ -239,6 +239,30 @@
                                         <Grid Margin="0,5"><TextBlock Text="Automobilista 2" FontWeight="SemiBold"/><TextBlock x:Name="HomeAms2Status" Text="Ready" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"/></Grid>
                                     </StackPanel>
                                 </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border x:Name="HomeCompanionSoftwareCard" Style="{StaticResource CardStyle}" Margin="0,0,0,22" Visibility="Collapsed">
+                            <StackPanel>
+                                <Grid>
+                                    <TextBlock Text="COMPANION SOFTWARE" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                                    <TextBlock x:Name="HomeCompanionSoftwareSummary" Text="Detected on this PC" Foreground="{DynamicResource MutedBrush}" FontSize="12" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <ItemsControl x:Name="HomeCompanionSoftwareList" Margin="0,13,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,6">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1" Text="{Binding Status}" Foreground="{Binding StatusBrush}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="18,0,0,0"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="Only installed or running companion apps are shown. Crash recovery waits for the simulator to close and always asks before relaunching software." Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,11,0,0"/>
                             </StackPanel>
                         </Border>
 
@@ -291,7 +315,10 @@
                                     <TextBlock Text="DRIVING STATS" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
                                     <TextBlock Text="Lifetime totals and your latest session" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" Margin="0,4,0,9"/>
                                     <Border x:Name="ActivityMilesCard" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,13">
-                                        <Grid><TextBlock x:Name="ActivityDistanceLabel" Text="TOTAL DISTANCE" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center"/><TextBlock x:Name="ActivityMilesValue" Text="0.0 km" FontFamily="Segoe UI Variable Display" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Right"/></Grid>
+                                        <StackPanel>
+                                            <Grid><TextBlock x:Name="ActivityDistanceLabel" Text="TOTAL DISTANCE" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center"/><TextBlock x:Name="ActivityMilesValue" Text="0.0 km" FontFamily="Segoe UI Variable Display" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Right"/></Grid>
+                                            <TextBlock x:Name="ActivityDistanceDetail" Text="AMS2 shared memory is unavailable." Foreground="{DynamicResource WarnTextBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,6,0,0" Visibility="Collapsed"/>
+                                        </StackPanel>
                                     </Border>
                                     <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,13">
                                         <Grid><TextBlock Text="TOTAL TIME MONITORED" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center"/><TextBlock x:Name="ActivityTimeValue" Text="0m" FontFamily="Segoe UI Variable Display" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Right"/></Grid>
