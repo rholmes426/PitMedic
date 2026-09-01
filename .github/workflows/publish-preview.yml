@@ -48,6 +48,9 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Run release policy tests
+        run: dotnet run --project Source/PitMedic.ReleaseTests/PitMedic.ReleaseTests.csproj --configuration Release
+
       - name: Build unsigned Windows release
         shell: pwsh
         run: ./Build/Build-UnsignedRelease.ps1
@@ -82,7 +85,11 @@ jobs:
 
           It is intentionally unsigned while the PitMedic SignPath application is pending. Windows may show an Unknown publisher or SmartScreen warning. The package must not be described as an official signed release.
 
-          v0.6.0.8 refreshes the anonymous usage dashboard immediately after an app version, release channel, or installation-type change while reusing the existing rotating token so the installation is not counted twice and no duplicate install alert is sent.
+          v0.6.0.9 adds detected-only reliability monitoring for installed wheelbase and companion software, with confirmed-fault evidence and approval-gated restart recovery after every supported simulator is closed. It makes AMS2 distance tracking diagnosable and resilient to a stalled odometer, preserves narrow iRacing repairs through elevated validation, moves Check for updates to the top of Settings, and corrects same-day anonymous usage-version refreshes without double-counting installations.
+
+          The v0.6.0.9 source also includes a verified September 2026 simulator-forum review as the next diagnostic and repair backlog. Risky advice such as disabling security, broad administrator changes, third-party DLL downloads, and destructive profile deletion remains excluded from automatic repair.
+
+          v0.6.0.8 improved the anonymous usage version reporting path; v0.6.0.9 corrects the remaining same-day throttle edge case that could leave the private dashboard on an older version.
 
           v0.6.0.7 captures exact simulator-reported session-best laps and exact track, layout, and car identity for all six supported simulators. It uses LMU's local player profile to avoid attributing another multiplayer driver's lap to the user, resolves RaceRoom car model IDs through the official catalog, and stops benign ACC TextRender and NVIDIA DriverStore shutdown diagnostics from offering unnecessary game-file repairs.
 
