@@ -27,3 +27,8 @@ public sealed record LapBenchmark(
     string? SourceUrl,
     string Confidence,
     DateTimeOffset? CheckedAt);
+
+public sealed record DistanceTelemetryStatus(
+    GameKind Game,
+    bool IsAvailable,
+    string Message);
