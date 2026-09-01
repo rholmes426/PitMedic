@@ -37,12 +37,19 @@ BrowserData refresh; graphics_options.xml reset; ShaderCache.bin rebuild; preser
 - Preserved full Documents\Automobilista 2 profile reset.
 - Steam file verification (App ID 1066890).
 
+## Detected companion software — 7 automated recovery categories
+
+PitMedic discovers installed or running companion apps and hides software that is not detected. It monitors MOZA Pit House, Simucube True Drive, Fanatec software, Logitech G HUB, SIMAGIC SimPro Manager, Asetek RaceHub, and VRS DirectForce.
+
+For a confirmed application fault, crash dump, or non-zero process exit, PitMedic preserves Windows events, matching dumps, and surrounding hardware telemetry. After all supported simulators are closed, its one-click recovery closes only the affected vendor app's remaining processes and relaunches the exact captured executable. Recovery always requires approval and never changes wheel profiles, drivers, firmware, security settings, or global Windows configuration.
+
 ## Monitoring coverage
 - iRacing: dedicated live-log monitor plus process state, Windows events and exit-time collection.
 - Assetto Corsa EVO: passive live tailing of supported simulator-owned text logs when present, plus process/events/exit-time collection.
 - RaceRoom: passive live tailing of UserData\Log files, plus crash-dump collection and Windows events.
 - Assetto Corsa Competizione: passive live tailing of `%LOCALAPPDATA%\AC2\Saved\Logs`, plus Unreal crash folders, Windows events and exit-time evidence.
 - Automobilista 2: process state, telemetry, Windows events, Windows crash dumps and exit-time evidence. AMS2 does not expose a consistently documented always-on support text log, so PitMedic does not invent an unstable live-log path.
+- Companion software: install/running discovery, process state, matching Windows application events, local crash dumps, and exit-time telemetry for detected apps only.
 
 ## Not automated by design
 Broad security, driver, BIOS/overclock, page-file, firewall/Defender, router and operating-system changes remain diagnostic/guided rather than automatic unless a future implementation is narrowly scoped and safely reversible.
