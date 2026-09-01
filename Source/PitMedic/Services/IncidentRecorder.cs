@@ -61,6 +61,96 @@ public sealed class IncidentRecorder
         return record;
     }
 
+    public async Task<IncidentRecord?> RecordCompanionAsync(
+        CompanionSoftwareDefinition software,
+        int pid,
+        DateTimeOffset started,
+        DateTimeOffset ended,
+        int? exitCode,
+        string processPath,
+        IReadOnlyList<TelemetrySample> telemetry)
+    {
+        await Task.Delay(5500);
+
+        var slug = software.DisplayName.Replace(" ", "_");
+        var folder = Path.Combine(AppPaths.Incidents, $"{ended:yyyyMMdd_HHmmss}_{slug}_{pid}");
+        Directory.CreateDirectory(folder);
+
+        try
+        {
+            var eventExecutable = string.IsNullOrWhiteSpace(processPath)
+                ? software.ExecutableName
+                : Path.GetFileName(processPath);
+            if (string.IsNullOrWhiteSpace(eventExecutable)) eventExecutable = software.ExecutableName;
+            var windowsEvents = _events.GetAround(ended, eventExecutable, TimeSpan.FromSeconds(45));
+            var matchingEvent = windowsEvents.FirstOrDefault(e =>
+                (e.Provider.Equals("Application Error", StringComparison.OrdinalIgnoreCase)
+                    || e.Provider.Equals("Application Hang", StringComparison.OrdinalIgnoreCase)
+                    || e.Provider.Equals("Windows Error Reporting", StringComparison.OrdinalIgnoreCase)
+                    || e.EventId is 1000 or 1001 or 1002)
+                && (e.Message.Contains(software.ExecutableName, StringComparison.OrdinalIgnoreCase)
+                    || software.ProcessNames.Any(name => e.Message.Contains(name, StringComparison.OrdinalIgnoreCase))
+                    || e.Message.Contains(software.DisplayName, StringComparison.OrdinalIgnoreCase)));
+            var dumpFiles = CollectCompanionDumps(software, started, ended, folder);
+
+            if (matchingEvent is null && dumpFiles == 0 && (!exitCode.HasValue || exitCode.Value == 0))
+            {
+                Directory.Delete(folder, true);
+                AppLog.Write($"Ignored clean/ambiguous companion software exit for {software.DisplayName}: exitCode={(exitCode.HasValue ? $"0x{unchecked((uint)exitCode.Value):X8}" : "unknown")}");
+                return null;
+            }
+
+            var evidence = BuildCompanionEvidence(software, exitCode, matchingEvent, dumpFiles, telemetry);
+            var classification = matchingEvent is not null
+                ? new CrashClassification(
+                    "Companion software application fault",
+                    92,
+                    $"Windows recorded an application fault for {software.DisplayName}. PitMedic preserved the event, crash dumps, and surrounding hardware telemetry.",
+                    evidence)
+                : dumpFiles > 0
+                    ? new CrashClassification(
+                        "Companion software crash dump captured",
+                        88,
+                        $"{software.DisplayName} wrote a crash dump when it stopped. PitMedic preserved the dump and surrounding hardware telemetry.",
+                        evidence)
+                    : new CrashClassification(
+                        "Companion software abnormal termination",
+                        76,
+                        $"{software.DisplayName} returned a non-zero exit code. PitMedic preserved the surrounding evidence for review.",
+                        evidence);
+
+            var repairPlan = RepairPlanner.CreateCompanion(software, processPath);
+            var record = new IncidentRecord
+            {
+                Game = software.DisplayName,
+                Executable = software.ExecutableName,
+                ProcessPath = processPath,
+                ProcessId = pid,
+                SessionStarted = started,
+                IncidentTime = ended,
+                ExitCode = exitCode,
+                Classification = classification,
+                RecommendedRepair = repairPlan,
+                IncidentFolder = folder
+            };
+
+            await File.WriteAllTextAsync(Path.Combine(folder, "incident.json"), JsonSerializer.Serialize(record, JsonOptions));
+            await File.WriteAllTextAsync(Path.Combine(folder, "telemetry.csv"), ToCsv(telemetry));
+            await File.WriteAllTextAsync(Path.Combine(folder, "windows-events.txt"), FormatEvents(windowsEvents));
+            await File.WriteAllTextAsync(Path.Combine(folder, "summary.txt"), FormatCompanionSummary(record, dumpFiles));
+
+            AppLog.Write($"Recorded {software.DisplayName} exit as '{classification.Category}' ({classification.Confidence}%), repair={(repairPlan is null ? "none" : repairPlan.Id)}, folder={folder}");
+            var summary = ToSummary(record, repairPlan);
+            IncidentCreated?.Invoke(summary);
+            return record;
+        }
+        catch
+        {
+            try { if (Directory.Exists(folder)) Directory.Delete(folder, true); } catch { }
+            throw;
+        }
+    }
+
     public async Task<IncidentRecord?> RecordLiveFaultAsync(GameDefinition game, LiveFaultEvidence fault,
         IReadOnlyList<TelemetrySample> telemetry)
     {
@@ -338,6 +428,107 @@ public sealed class IncidentRecorder
             foreach (var path in r.RecommendedRepair.AffectedContentRelativePaths) sb.AppendLine($"- Installed\\{path}");
         }
 
+        return sb.ToString();
+    }
+
+    private static IReadOnlyList<string> BuildCompanionEvidence(
+        CompanionSoftwareDefinition software,
+        int? exitCode,
+        WindowsEventEvidence? matchingEvent,
+        int dumpFiles,
+        IReadOnlyList<TelemetrySample> telemetry)
+    {
+        var evidence = new List<string> { $"PitMedic identified the affected companion app as {software.DisplayName}." };
+        if (matchingEvent is not null)
+            evidence.Add($"Windows {matchingEvent.Provider} event {matchingEvent.EventId} matched {software.ExecutableName}.");
+        if (dumpFiles > 0)
+            evidence.Add($"PitMedic collected {dumpFiles} matching crash dump file(s).");
+        if (exitCode is int code && code != 0)
+            evidence.Add($"The process exited with non-zero code 0x{unchecked((uint)code):X8}.");
+
+        var end = telemetry.Count > 0 ? telemetry.Max(x => x.Timestamp) : DateTimeOffset.Now;
+        var recent = telemetry.Where(x => x.Timestamp >= end.AddMinutes(-1)).ToArray();
+        var maxCpu = recent.Where(x => x.CpuTempC.HasValue).Select(x => x.CpuTempC!.Value).DefaultIfEmpty().Max();
+        var maxGpu = recent.Where(x => x.GpuTempC.HasValue).Select(x => x.GpuTempC!.Value).DefaultIfEmpty().Max();
+        if (maxCpu > 0) evidence.Add($"CPU peaked at {maxCpu:0}°C in the final minute.");
+        if (maxGpu > 0) evidence.Add($"GPU core peaked at {maxGpu:0}°C in the final minute.");
+        return evidence;
+    }
+
+    private static int CollectCompanionDumps(
+        CompanionSoftwareDefinition software,
+        DateTimeOffset started,
+        DateTimeOffset ended,
+        string incidentFolder)
+    {
+        var destination = Path.Combine(incidentFolder, "Dumps");
+        var copied = 0;
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var cutoff = started.AddSeconds(-5).UtcDateTime;
+        var latest = ended.AddSeconds(75).UtcDateTime;
+        var roots = new[]
+        {
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CrashDumps"),
+            Path.GetTempPath()
+        };
+
+        foreach (var root in roots.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            if (!Directory.Exists(root)) continue;
+            IEnumerable<string> files;
+            try { files = Directory.EnumerateFiles(root, "*.dmp", SearchOption.TopDirectoryOnly).ToArray(); }
+            catch { continue; }
+
+            foreach (var file in files)
+            {
+                try
+                {
+                    var info = new FileInfo(file);
+                    if (info.LastWriteTimeUtc < cutoff || info.LastWriteTimeUtc > latest) continue;
+                    if (!software.ProcessNames.Any(name =>
+                        info.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
+                        && !info.Name.Contains(Path.GetFileNameWithoutExtension(software.ExecutableName), StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    if (!seen.Add(info.FullName)) continue;
+
+                    Directory.CreateDirectory(destination);
+                    var target = Path.Combine(destination, info.Name);
+                    if (File.Exists(target))
+                        target = Path.Combine(destination, $"{Path.GetFileNameWithoutExtension(info.Name)}_{copied + 1}.dmp");
+                    File.Copy(info.FullName, target, true);
+                    copied++;
+                }
+                catch { }
+            }
+        }
+
+        return copied;
+    }
+
+    private static string FormatCompanionSummary(IncidentRecord record, int dumpFiles)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("PITMEDIC COMPANION SOFTWARE FINDING");
+        sb.AppendLine(new string('=', 64));
+        sb.AppendLine($"Software: {record.Game}");
+        sb.AppendLine($"Issue: {record.IncidentTime:O}");
+        sb.AppendLine($"Process started: {record.SessionStarted:O}");
+        sb.AppendLine($"Process: {record.Executable} (PID {record.ProcessId})");
+        sb.AppendLine($"Exit code: {(record.ExitCode.HasValue ? $"0x{unchecked((uint)record.ExitCode.Value):X8}" : "Unavailable")}");
+        sb.AppendLine($"Classification: {record.Classification.Category}");
+        sb.AppendLine($"Collected dumps: {dumpFiles}");
+        sb.AppendLine();
+        sb.AppendLine(record.Classification.Summary);
+        sb.AppendLine();
+        sb.AppendLine("Evidence:");
+        foreach (var item in record.Classification.Evidence) sb.AppendLine($"- {item}");
+        if (record.RecommendedRepair is not null)
+        {
+            sb.AppendLine();
+            sb.AppendLine("Recommended recovery:");
+            sb.AppendLine($"- {record.RecommendedRepair.Title}");
+            sb.AppendLine($"- Estimated time: {record.RecommendedRepair.EstimatedMinutes} minute(s)");
+        }
         return sb.ToString();
     }
 }

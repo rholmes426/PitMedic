@@ -139,7 +139,7 @@
                 <Border Style="{StaticResource CardStyle}" Margin="0,0,0,14">
                     <StackPanel>
                         <TextBlock Text="HOW PITMEDIC KNOWS" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
-                        <TextBlock Text="These observations were captured from this simulator session. They support the finding but are not presented as absolute proof of one root cause." Foreground="{DynamicResource MutedBrush}" FontSize="12.5" LineHeight="18" Margin="0,6,0,5"/>
+                        <TextBlock Text="These observations were captured around this finding. They support the diagnosis but are not presented as absolute proof of one root cause." Foreground="{DynamicResource MutedBrush}" FontSize="12.5" LineHeight="18" Margin="0,6,0,5"/>
                         <ItemsControl x:Name="EvidenceList">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>

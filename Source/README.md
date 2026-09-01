@@ -1,6 +1,16 @@
-# PitMedic v0.6.0.8
+# PitMedic v0.6.0.9
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.6.0.9
+
+- Shows only detected wheelbase and companion software, monitors confirmed crashes and hangs, and offers an approval-gated restart only after every supported simulator has closed.
+- Covers MOZA Pit House, Simucube True Drive, Fanatec/FanaLab, Logitech G HUB, Simagic SimPro Manager, Asetek RaceHub, and VRS DirectForce with vendor-specific known-issue references while leaving profiles, drivers, firmware, and security controls unchanged.
+- Makes AMS2 distance telemetry diagnosable, integrates simulator-reported speed when its odometer stalls, prevents double counting when the odometer resumes, and saves the last session increment.
+- Preserves iRacing live diagnostic signatures so the elevated helper reconstructs a narrow repair such as Easy Anti-Cheat instead of falling back to generic Windows integrity work.
+- Moves Check for updates to the top of Settings and presents it as the primary update action.
+- Sends an anonymous heartbeat immediately after the app version, release channel, or installation type changes while retaining same-dimension retry throttling and rotating-token deduplication.
+- Adds the September 2026 verified simulator-forum issue review to the versioned diagnostic and repair backlog, with unsafe community advice explicitly excluded from automation.
 
 ## v0.6.0.8
 

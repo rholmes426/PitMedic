@@ -37,7 +37,7 @@ public static class RepairPlanner
         {
             foreach (var fault in liveFaults ?? Array.Empty<LiveFaultEvidence>())
             {
-                var plan = PlanForSignature(MapIRacingSignatureToKnowledge(fault.SignatureId));
+                var plan = PlanForSignature(IRacingRepairSignaturePolicy.MapDiagnosticSignature(fault.SignatureId));
                 if (plan is not null) return plan;
             }
 
@@ -125,8 +125,8 @@ public static class RepairPlanner
         }
 
         if (record.Game.Equals("iRacing", StringComparison.OrdinalIgnoreCase))
-            return PlanForCategory(record.Classification.Category)
-                ?? PlanFromEvidence("iRacing", record.Classification.Evidence);
+            return PlanFromEvidence("iRacing", record.Classification.Evidence)
+                ?? PlanForCategory(record.Classification.Category);
 
         if (record.Game.Equals("Assetto Corsa EVO", StringComparison.OrdinalIgnoreCase))
             return PlanFromEvidence("Assetto Corsa EVO", record.Classification.Evidence)
@@ -144,11 +144,67 @@ public static class RepairPlanner
             return PlanFromEvidence("Automobilista 2", record.Classification.Evidence)
                 ?? (record.Classification.Category.Contains("application fault", StringComparison.OrdinalIgnoreCase) ? PlanForSignature("ams2-graphics-config") : null);
 
+        var companion = CompanionSoftwareDefinition.Supported.FirstOrDefault(software =>
+            record.Game.Equals(software.DisplayName, StringComparison.OrdinalIgnoreCase));
+        if (companion is not null)
+            return CreateCompanion(companion, record.ProcessPath);
+
         return null;
+    }
+
+    public static RepairPlan? CreateCompanion(CompanionSoftwareDefinition software, string processPath)
+    {
+        var executable = ValidCompanionExecutable(software, processPath)
+            ?? software.DefaultExecutablePaths.FirstOrDefault(ValidCompanionPath);
+        if (string.IsNullOrWhiteSpace(executable)) return null;
+
+        return new RepairPlan
+        {
+            Id = "companion-app-restart",
+            Title = $"Restart {software.DisplayName}",
+            Summary = $"After the simulator is closed, PitMedic will close only {software.DisplayName}'s remaining processes and relaunch the same installed executable. It will not change wheel settings, profiles, drivers, or firmware.",
+            Game = software.DisplayName,
+            Safety = RepairSafety.Reversible,
+            EstimatedMinutes = 1,
+            RequiresApproval = true,
+            Steps = new[]
+            {
+                "Confirm the simulator is closed and approve the recovery",
+                $"Close remaining {software.DisplayName} processes",
+                "Relaunch the captured installed executable",
+                "Verify that the companion app is running again"
+            },
+            References = CompanionSoftwareKnowledgeBase.ReferencesFor(software.Kind)
+        };
+    }
+
+    private static string? ValidCompanionExecutable(CompanionSoftwareDefinition software, string path)
+    {
+        if (!ValidCompanionPath(path)) return null;
+        var fileName = Path.GetFileName(path);
+        var processName = Path.GetFileNameWithoutExtension(path);
+        return fileName.Equals(software.ExecutableName, StringComparison.OrdinalIgnoreCase)
+            || software.ProcessNames.Any(name => processName.Equals(name, StringComparison.OrdinalIgnoreCase))
+            ? Path.GetFullPath(path)
+            : null;
+    }
+
+    private static bool ValidCompanionPath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return false;
+        try { return Path.IsPathFullyQualified(path) && File.Exists(Path.GetFullPath(path)); }
+        catch { return false; }
     }
 
     private static RepairPlan? PlanFromEvidence(string game, IEnumerable<string> evidence)
     {
+        if (game.Equals("iRacing", StringComparison.OrdinalIgnoreCase))
+        {
+            var preservedSignature = IRacingRepairSignaturePolicy.FindKnowledgeSignature(evidence);
+            var preservedPlan = PlanForSignature(preservedSignature ?? string.Empty);
+            if (preservedPlan is not null) return preservedPlan;
+        }
+
         var text = string.Join("\n", evidence);
         foreach (var entry in RepairKnowledgeBase.Entries.Where(x => x.Game.Equals(game, StringComparison.OrdinalIgnoreCase)))
         {
@@ -179,26 +235,6 @@ public static class RepairPlanner
         if (c.Contains("application fault") || c.Contains("abnormal process termination")) return PlanForSignature("iracing-windows-integrity");
         return null;
     }
-
-    private static string MapIRacingSignatureToKnowledge(string signatureId) => signatureId switch
-    {
-        "helper-service" => "iracing-helper-service",
-        "waiting-service" => "iracing-updater-autoinstall",
-        "ui-welcome" => "iracing-ui-safe",
-        "ui-render-failure" => "iracing-ui-cache",
-        "eac-error-73" or "eac-failure" or "eac-error-10011" => "iracing-eac-error73",
-        "verification-failure" => "iracing-update-verification",
-        "content-file-locked" => "iracing-content-file-locked",
-        "track-loading-error" => "iracing-track-corruption",
-        "car-loading-error" => "iracing-car-corruption",
-        "loading-error-49" => "iracing-loading-error-49",
-        "already-running" => "iracing-trueforce-stale-state",
-        "loading-error-3" => "iracing-loading-error-3",
-        "createprocessasuser" or "compatibility-mode" => "iracing-compatibility-flags",
-        "digital-signature" => "iracing-run-updater",
-        "renderer-config" => "iracing-renderer-config",
-        _ => string.Empty
-    };
 
     private static RepairPlan? PlanForSignature(string signature) => signature switch
     {

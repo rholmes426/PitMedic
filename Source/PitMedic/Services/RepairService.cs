@@ -312,6 +312,8 @@ public sealed class RepairService : IDisposable
     {
         return plan.Id switch
         {
+            "companion-app-restart" => await RepairCompanionAppAsync(incident, plan, backupRoot, token),
+
             "lmu-steam-verify" => await RepairLmuSteamVerifyAsync(incident, plan, backupRoot, token),
             "lmu-shader-cache" => await RepairLmuShaderCacheAsync(incident, plan, backupRoot, token),
             "lmu-reset-dx11-config" => await RepairLmuDx11ConfigAsync(incident, plan, backupRoot, token),
@@ -371,6 +373,53 @@ public sealed class RepairService : IDisposable
             "ams2-steam-verify" => await RepairSteamVerifyAsync(incident, plan, backupRoot, token, GameKind.Automobilista2, "Automobilista 2", "1066890"),
             _ => throw new NotSupportedException($"This repair playbook is not implemented yet: {plan.Id}")
         };
+    }
+
+    private async Task<string> RepairCompanionAppAsync(
+        IncidentRecord incident,
+        RepairPlan plan,
+        string backupRoot,
+        CancellationToken token)
+    {
+        var software = CompanionSoftwareDefinition.Supported.FirstOrDefault(item =>
+            item.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase))
+            ?? throw new InvalidOperationException("The companion software definition is no longer supported.");
+
+        foreach (var game in GameDefinition.Supported)
+            EnsureGameNotRunning(game.Kind, game.DisplayName);
+
+        var target = ResolveCompanionExecutable(software, incident.ProcessPath)
+            ?? throw new FileNotFoundException($"{software.DisplayName}'s captured executable could not be found. No process was closed.");
+
+        UpdateSimple(incident, plan, 18, $"Preparing {software.DisplayName} recovery",
+            "Validating the captured executable and limiting the recovery to this companion app...", 1, 4, backupRoot);
+
+        UpdateSimple(incident, plan, 42, $"Closing {software.DisplayName}",
+            $"Closing only {software.DisplayName}'s remaining processes before relaunch...", 2, 4, backupRoot);
+        await CloseProcessesAsync(software.RecoveryProcessNames, token);
+        await Task.Delay(750, token);
+
+        if (software.Kind == CompanionSoftwareKind.LogitechGHub)
+        {
+            var hubUi = Path.Combine(Path.GetDirectoryName(target) ?? string.Empty, "lghub.exe");
+            if (File.Exists(hubUi)) target = hubUi;
+        }
+
+        UpdateSimple(incident, plan, 70, $"Restarting {software.DisplayName}",
+            $"Launching the installed {Path.GetFileName(target)} executable...", 3, 4, backupRoot);
+        using var launched = Process.Start(new ProcessStartInfo
+        {
+            FileName = target,
+            WorkingDirectory = Path.GetDirectoryName(target) ?? Environment.CurrentDirectory,
+            UseShellExecute = true
+        }) ?? throw new InvalidOperationException($"{software.DisplayName} could not be started.");
+
+        if (!await WaitForCompanionProcessAsync(software, TimeSpan.FromSeconds(12), token))
+            throw new InvalidOperationException($"{software.DisplayName} did not remain running after the recovery launch.");
+
+        UpdateSimple(incident, plan, 92, $"{software.DisplayName} is running",
+            "PitMedic detected the companion app after relaunch. Device profiles, drivers, and firmware were not changed.", 4, 4, backupRoot);
+        return $"{software.DisplayName} restarted successfully. PitMedic did not change wheel settings, profiles, drivers, or firmware.";
     }
 
     private async Task<string> RepairLmuSteamVerifyAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
@@ -1125,6 +1174,55 @@ public sealed class RepairService : IDisposable
             }
             finally { foreach (var p in processes) p.Dispose(); }
         }
+    }
+
+    private static string? ResolveCompanionExecutable(CompanionSoftwareDefinition software, string capturedPath)
+    {
+        foreach (var candidate in new[] { capturedPath }.Concat(software.DefaultExecutablePaths))
+        {
+            if (string.IsNullOrWhiteSpace(candidate)) continue;
+            string fullPath;
+            try { fullPath = Path.GetFullPath(candidate); } catch { continue; }
+            if (!Path.IsPathFullyQualified(fullPath) || !File.Exists(fullPath)) continue;
+
+            var fileName = Path.GetFileName(fullPath);
+            var processName = Path.GetFileNameWithoutExtension(fullPath);
+            if (fileName.Equals(software.ExecutableName, StringComparison.OrdinalIgnoreCase)
+                || software.ProcessNames.Any(name => processName.Equals(name, StringComparison.OrdinalIgnoreCase)))
+                return fullPath;
+        }
+        return null;
+    }
+
+    private static async Task<bool> WaitForCompanionProcessAsync(
+        CompanionSoftwareDefinition software,
+        TimeSpan timeout,
+        CancellationToken token)
+    {
+        var deadline = DateTimeOffset.Now + timeout;
+        while (DateTimeOffset.Now < deadline)
+        {
+            token.ThrowIfCancellationRequested();
+            foreach (var name in software.ProcessNames)
+            {
+                Process[] processes;
+                try { processes = Process.GetProcessesByName(name); } catch { continue; }
+                try
+                {
+                    if (processes.Any(process =>
+                    {
+                        try { return !process.HasExited; } catch { return false; }
+                    }))
+                        return true;
+                }
+                finally
+                {
+                    foreach (var process in processes) process.Dispose();
+                }
+            }
+            await Task.Delay(400, token);
+        }
+        return false;
     }
 
     private static async Task BackupPathAsync(string source, string backupRoot, string relativeRoot, CancellationToken token)

@@ -57,7 +57,7 @@
                         <Image Source="Assets/PitMedic.png" Width="32" Height="32" Margin="0,0,12,0"/>
                         <StackPanel>
                             <TextBlock Text="ISSUE HISTORY" Foreground="{DynamicResource TitleMutedBrush}" FontSize="11.5" FontWeight="Bold"/>
-                            <TextBlock Text="Simulator reliability history" Foreground="{DynamicResource TitleTextBrush}" FontFamily="Segoe UI Variable Display" FontSize="25" FontWeight="SemiBold" Margin="0,2,0,0"/>
+                            <TextBlock Text="Simulator and companion-software reliability" Foreground="{DynamicResource TitleTextBrush}" FontFamily="Segoe UI Variable Display" FontSize="25" FontWeight="SemiBold" Margin="0,2,0,0"/>
                         </StackPanel>
                     </StackPanel>
                     <TextBlock Text="Detected issues, repairs, and acknowledged findings." Foreground="{DynamicResource TitleMutedBrush}" FontSize="13" Margin="44,7,0,0"/>

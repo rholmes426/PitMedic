@@ -20,7 +20,7 @@
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,18,0,18">
             <StackPanel>
-                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                <Border x:Name="AffectedContentPanel" Style="{StaticResource CardStyle}" Margin="0,0,0,12">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <StackPanel>
@@ -55,7 +55,7 @@
                 <Border Background="{DynamicResource Panel2Brush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14">
                     <StackPanel>
                         <TextBlock Text="What PitMedic will do" Foreground="{DynamicResource InfoTextBrush}" FontWeight="SemiBold" FontSize="13"/>
-                        <TextBlock Text="The affected packages are copied into a recovery backup first. PitMedic then removes only the damaged installed files, starts Steam validation in the background, and monitors for clean replacements. If the repair cannot complete, PitMedic restores the recovery copy where possible." Foreground="{DynamicResource MutedBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,6,0,0" LineHeight="17"/>
+                        <TextBlock x:Name="RepairBehaviorText" Text="PitMedic follows the listed repair steps, preserves recovery data where the playbook changes files, and records every action with this finding." Foreground="{DynamicResource MutedBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,6,0,0" LineHeight="17"/>
                     </StackPanel>
                 </Border>
 

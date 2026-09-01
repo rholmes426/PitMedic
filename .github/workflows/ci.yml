@@ -65,6 +65,9 @@ jobs:
         run: |
           dotnet restore Source/PitMedic.RepairHelper/PitMedic.RepairHelper.csproj
           dotnet restore Source/PitMedic.SensorHelper/PitMedic.SensorHelper.csproj
+          dotnet restore Source/PitMedic.ReleaseTests/PitMedic.ReleaseTests.csproj
+      - name: Run release policy tests
+        run: dotnet run --project Source/PitMedic.ReleaseTests/PitMedic.ReleaseTests.csproj --configuration Release --no-restore
       - name: Compile PitMedic Release
         run: dotnet build Source/PitMedic/PitMedic.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
       - name: Compile elevated repair helper Release

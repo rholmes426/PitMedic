@@ -83,3 +83,31 @@ References:
 - https://forum.reizastudios.com/threads/championship-mode-bug.32498/
 - https://forum.reizastudios.com/threads/graphics-setting-are-not-saved-reset-on-game-launch.35342/
 - https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB
+
+## Companion software — v0.6.0.9 additions
+
+Only installed or running companion apps appear in PitMedic. The first automated action is deliberately narrow: after a confirmed application fault, crash dump, or non-zero exit, and once every supported simulator is closed, PitMedic can close the affected app's remaining processes and relaunch its captured executable with approval.
+
+| App | Known issue represented | Current PitMedic response | Further vendor-backed guidance |
+|---|---|---|---|
+| MOZA Pit House | Application crash; missing Visual C++ x86 runtime or damaged updater/maintenance components | Automatic approved app restart after confirmed crash | Guided runtime/installation check; no automatic driver or firmware change |
+| Simucube True Drive | Application crash; Windows-blocked downloaded executable; missing runtime prerequisite | Automatic approved app restart after confirmed crash | Guided unblock/runtime check |
+| Fanatec software | Application crash or app telemetry feed stopping after a background failure | Automatic approved app restart after confirmed crash | Guided app restart/update when there is no confirmed process fault |
+| Logitech G HUB | Agent crash, spinning-logo/loading loop, or stale agent/UI/updater processes | Automatic approved close-and-restart of the G HUB process set | Guided reinstall only if restart fails; never remove settings automatically |
+| SIMAGIC SimPro Manager | Application crash or a hidden/stale SimPro process preventing relaunch | Automatic approved close-and-restart of the SimPro app/daemon process set | Guided update/current-build check |
+| Asetek RaceHub | Application crash or stale RaceHub/elevated helper state | Automatic approved close-and-restart of the RaceHub process set | Guided update/log collection; corrupt wheel/display cache reset stays approval- and backup-gated until an exact signature is available |
+| VRS DirectForce | Configuration-app crash | Automatic approved app restart after confirmed crash | Guided vendor support/current-software check for unresolved device faults |
+
+Primary references:
+
+- https://support.mozaracing.com/en/support/solutions/articles/70000625635-moza-pit-house-user-manual
+- https://support.mozaracing.com/en/support/solutions/articles/70000627928-moza-pit-house-faqs
+- https://granitedevices.com/wiki/Simucube_2_True_Drive_releases
+- https://community.granitedevices.com/t/true-drive-update-not-starting/10772
+- https://help.fanatec.com/hc/en-us/articles/47862678424593-The-game-telemetry-function-of-the-Fanatec-app-is-no-longer-working
+- https://support.logi.com/hc/en-ca/articles/360036179173-G-HUB-freezes-while-loading-and-logo-animation-loops
+- https://support.logi.com/hc/en-150/articles/360023192454-G-HUB-Install-Uninstall-Update-Troubleshooting
+- https://simagic.com/pages/download-center
+- https://www.asetek.com/simsports/knowledge-base/troubleshooting/
+- https://www.asetek.com/simsports/knowledge-base/how-to-find-serial-number-and-racehub-log-files/
+- https://vrs.racing/hardware

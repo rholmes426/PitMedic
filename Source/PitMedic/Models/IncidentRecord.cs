@@ -11,6 +11,7 @@ public sealed record IncidentRecord
     public Guid Id { get; init; } = Guid.NewGuid();
     public string Game { get; init; } = string.Empty;
     public string Executable { get; init; } = string.Empty;
+    public string ProcessPath { get; init; } = string.Empty;
     public int ProcessId { get; init; }
     public DateTimeOffset SessionStarted { get; init; }
     public DateTimeOffset IncidentTime { get; init; }

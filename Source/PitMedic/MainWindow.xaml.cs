@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using PitMedic.Models;
 using PitMedic.Services;
 
@@ -23,6 +24,7 @@ public partial class MainWindow : Window
     private readonly Dictionary<GameKind, RadioButton> _navButtons = new();
     private readonly Dictionary<GameKind, TextBlock> _navStatuses = new();
     private readonly Dictionary<GameKind, System.Windows.Shapes.Ellipse> _navDots = new();
+    private readonly Dictionary<GameKind, DistanceTelemetryStatus> _distanceTelemetryStatuses = new();
     private bool _allowClose;
     private AppSettings _settings;
     private RepairProgressWindow? _repairProgressWindow;
@@ -49,6 +51,8 @@ public partial class MainWindow : Window
 
         _monitoring.TelemetryUpdated += sample => Dispatcher.BeginInvoke(() => UpdateTelemetry(sample));
         _monitoring.GameStatusChanged += (game, running) => Dispatcher.BeginInvoke(() => UpdateGame(game, running));
+        _monitoring.DistanceTelemetryStatusChanged += status => Dispatcher.BeginInvoke(() => UpdateDistanceTelemetryStatus(status));
+        _monitoring.CompanionSoftwareStatusChanged += _ => Dispatcher.BeginInvoke(() => RefreshHomePage());
         _monitoring.LiveFaultDetected += fault => Dispatcher.BeginInvoke(() => UpdateLiveFault(fault));
         _monitoring.IncidentCreated += incident => Dispatcher.BeginInvoke(() => AddIncident(incident));
         _monitoring.RepairStatusChanged += status => Dispatcher.BeginInvoke(() => UpdateRepair(status));
@@ -389,6 +393,9 @@ public partial class MainWindow : Window
         var supported = GameDefinition.Supported.Select(x => x.Kind).ToArray();
         var monitored = supported.Count(IsMonitored);
         var running = supported.Count(game => _gameRunning.TryGetValue(game, out var value) && value);
+        var companions = _monitoring.CompanionSoftwareStatuses().Where(x => x.IsDetected).ToArray();
+        var companionRunning = companions.Count(x => x.IsRunning);
+        var companionMonitoring = _settings.MonitorCompanionSoftware && companions.Length > 0;
         var activeFindings = _incidents.Count(i => !i.IsDismissed && !i.IsResolved && IsRecentFinding(i));
 
         HomeMonitoringSummary.Text = $"{monitored} monitored · {running} running";
@@ -398,6 +405,7 @@ public partial class MainWindow : Window
         SetHomeReadiness(HomeRaceRoomStatus, GameKind.RaceRoom);
         SetHomeReadiness(HomeAccStatus, GameKind.AssettoCorsaCompetizione);
         SetHomeReadiness(HomeAms2Status, GameKind.Automobilista2);
+        RefreshHomeCompanionSoftware(companions);
 
         if (_monitoring.CurrentRepair?.IsActive == true)
         {
@@ -408,11 +416,11 @@ public partial class MainWindow : Window
             SetHomeStatus(activeFindings == 1 ? "1 FINDING NEEDS REVIEW" : $"{activeFindings} FINDINGS NEED REVIEW",
                 "WarnSoftBrush", "WarnBorderBrush", "AccentBrush", "WarnTextBrush");
         }
-        else if (monitored == 0)
+        else if (monitored == 0 && !companionMonitoring)
         {
             SetHomeStatus("MONITORING OFF", "Panel2Brush", "BorderBrush", "MutedBrush", "MutedBrush");
         }
-        else if (running == 0)
+        else if (running == 0 && companionRunning == 0)
         {
             SetHomeStatus("WAITING FOR SIMULATOR", "Panel2Brush", "BorderBrush", "MutedBrush", "MutedBrush");
         }
@@ -439,12 +447,64 @@ public partial class MainWindow : Window
         HomeLatestFindingTitle.Text = $"{latest.Game} · {latest.Category}";
         HomeLatestFindingSummary.Text = latest.IsResolved
             ? (string.IsNullOrWhiteSpace(latest.ResolutionText) ? "The repair record and evidence are available for review." : latest.ResolutionText)
-            : string.IsNullOrWhiteSpace(latest.Summary) ? "PitMedic preserved this simulator session for review." : latest.Summary;
+            : string.IsNullOrWhiteSpace(latest.Summary) ? "PitMedic preserved this simulator or companion-software event for review." : latest.Summary;
         HomeLatestFindingIcon.Text = latest.IsResolved ? "✓" : "!";
         HomeLatestFindingIconBorder.SetResourceReference(Border.BackgroundProperty, latest.IsResolved ? "GoodSoftBrush" : "WarnSoftBrush");
         HomeLatestFindingIcon.SetResourceReference(TextBlock.ForegroundProperty, latest.IsResolved ? "GoodTextBrush" : "WarnTextBrush");
         HomeReviewFindingButton.Visibility = Visibility.Visible;
     }
+
+    private void RefreshHomeCompanionSoftware(IReadOnlyList<CompanionSoftwareStatus> companions)
+    {
+        if (HomeCompanionSoftwareCard is null || HomeCompanionSoftwareList is null) return;
+
+        HomeCompanionSoftwareCard.Visibility = companions.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        if (companions.Count == 0)
+        {
+            HomeCompanionSoftwareList.ItemsSource = null;
+            return;
+        }
+
+        var items = companions.Select(companion =>
+        {
+            var hasIssue = _incidents.Any(incident =>
+                !incident.IsDismissed
+                && !incident.IsResolved
+                && IsRecentFinding(incident)
+                && incident.Game.Equals(companion.DisplayName, StringComparison.OrdinalIgnoreCase));
+
+            if (hasIssue)
+                return new CompanionSoftwareDisplayItem(
+                    companion.DisplayName,
+                    "PitMedic captured an application fault and preserved the evidence.",
+                    "Issue detected",
+                    ResourceBrush("WarnTextBrush"));
+            if (!_settings.MonitorCompanionSoftware)
+                return new CompanionSoftwareDisplayItem(
+                    companion.DisplayName,
+                    companion.IsRunning ? "Detected running on this PC." : "Detected on this PC.",
+                    "Monitoring off",
+                    ResourceBrush("MutedBrush"));
+            if (companion.IsRunning)
+                return new CompanionSoftwareDisplayItem(
+                    companion.DisplayName,
+                    "Crash monitoring is active.",
+                    "Running",
+                    ResourceBrush("GoodTextBrush"));
+            return new CompanionSoftwareDisplayItem(
+                companion.DisplayName,
+                "Installed and ready for crash monitoring when launched.",
+                "Ready",
+                ResourceBrush("MutedBrush"));
+        }).ToArray();
+
+        HomeCompanionSoftwareList.ItemsSource = items;
+        var running = companions.Count(x => x.IsRunning);
+        HomeCompanionSoftwareSummary.Text = $"{companions.Count} detected · {running} running";
+    }
+
+    private Brush ResourceBrush(string key)
+        => TryFindResource(key) as Brush ?? Brushes.Gray;
 
     private void SetHomeStatus(string text, string background, string border, string dot, string foreground)
     {
@@ -530,7 +590,20 @@ public partial class MainWindow : Window
             ActivityMilesValue.Text = "Not available";
         }
 
+        _distanceTelemetryStatuses.TryGetValue(_selectedGame, out var distanceStatus);
+        var showAms2Guidance = _selectedGame == GameKind.Automobilista2
+            && running
+            && distanceStatus is { IsAvailable: false };
+        ActivityDistanceDetail.Visibility = showAms2Guidance ? Visibility.Visible : Visibility.Collapsed;
+        ActivityDistanceDetail.Text = showAms2Guidance ? distanceStatus!.Message : string.Empty;
+
         RefreshBestLap(activity.BestLap, running);
+    }
+
+    private void UpdateDistanceTelemetryStatus(DistanceTelemetryStatus status)
+    {
+        _distanceTelemetryStatuses[status.Game] = status;
+        if (_selectedGame == status.Game) RefreshSelectedActivity();
     }
 
     private void RefreshBestLap(BestLapRecord? lap, bool running)
@@ -1204,4 +1277,10 @@ public partial class MainWindow : Window
     private void ThermalCanvas_MouseLeave(object sender, MouseEventArgs e) => HideThermalHover();
 
     private void ThermalCanvas_SizeChanged(object sender, SizeChangedEventArgs e) => DrawChart();
+
+    private sealed record CompanionSoftwareDisplayItem(
+        string Name,
+        string Detail,
+        string Status,
+        Brush StatusBrush);
 }

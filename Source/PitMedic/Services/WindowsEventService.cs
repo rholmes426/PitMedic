@@ -7,7 +7,7 @@ public sealed class WindowsEventService
 {
     private static readonly HashSet<string> InterestingProviders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Application Error", "Windows Error Reporting", "Display", "nvlddmkm", "amdwddmg",
+        "Application Error", "Application Hang", "Windows Error Reporting", "Display", "nvlddmkm", "amdwddmg",
         "WHEA-Logger", "Kernel-Power", "Kernel-PnP", "DriverFrameworks-UserMode"
     };
 
@@ -33,7 +33,7 @@ public sealed class WindowsEventService
                     var message = SafeMessage(record);
                     var mentionsGame = message.Contains(executable, StringComparison.OrdinalIgnoreCase);
                     var providerInteresting = InterestingProviders.Contains(provider);
-                    var idInteresting = record.Id is 1000 or 1001 or 4101 or 41;
+                    var idInteresting = record.Id is 1000 or 1001 or 1002 or 4101 or 41;
 
                     if (!mentionsGame && !providerInteresting && !idInteresting) continue;
 

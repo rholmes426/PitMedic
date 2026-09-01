@@ -23,6 +23,13 @@ public sealed class CrashClassifier
         foreach (var content in collected.AffectedInstalledContent)
             evidence.Add($"LMU reported a content-read failure involving Installed\\{content}.");
 
+        // Preserve live detector signatures even when stronger Windows crash evidence wins the
+        // displayed classification below. The elevated helper removes the serialized repair plan
+        // and reconstructs it from saved evidence, so dropping these signatures can make a narrow
+        // iRacing repair (for example EAC) reconstruct as a generic Windows-integrity repair.
+        foreach (var fault in liveFaults ?? Array.Empty<LiveFaultEvidence>())
+            evidence.Add(fault.ToEvidenceText());
+
         var whea = events.FirstOrDefault(e => e.Provider.Contains("WHEA", StringComparison.OrdinalIgnoreCase));
         if (whea is not null)
         {
@@ -74,8 +81,6 @@ public sealed class CrashClassifier
 
         if (liveFaults is { Count: > 0 })
         {
-            foreach (var fault in liveFaults.OrderBy(x => x.Timestamp))
-                evidence.Insert(0, fault.ToEvidenceText());
             var lead = liveFaults[0];
             if (exitCode == 0)
             {
