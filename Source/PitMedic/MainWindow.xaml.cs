@@ -199,6 +199,14 @@ public partial class MainWindow : Window
         HomeProcessorText.Text = $"{Environment.ProcessorCount} logical processors";
         HomeRuntimeText.Text = $"PitMedic {AppInfo.Version} · .NET {Environment.Version.Major}";
         AboutVersionText.Text = $"PitMedic {AppInfo.Version}";
+        AboutSupportedSimulatorsList.ItemsSource = GameDefinition.Supported
+            .Select(game => new SupportedSoftwareDisplayItem(game.DisplayName, string.Empty))
+            .ToArray();
+        AboutSupportedCompanionSoftwareList.ItemsSource = CompanionSoftwareDefinition.Supported
+            .Select(software => new SupportedSoftwareDisplayItem(
+                software.DisplayName,
+                CompanionRecoveryPolicy.For(software.Kind).AutomaticCoverage))
+            .ToArray();
         HomeNav.IsChecked = true;
         RefreshHomePage();
     }
@@ -1283,4 +1291,8 @@ public partial class MainWindow : Window
         string Detail,
         string Status,
         Brush StatusBrush);
+
+    private sealed record SupportedSoftwareDisplayItem(
+        string Name,
+        string Detail);
 }

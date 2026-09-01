@@ -84,19 +84,19 @@ References:
 - https://forum.reizastudios.com/threads/graphics-setting-are-not-saved-reset-on-game-launch.35342/
 - https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB
 
-## Companion software — v0.6.0.9 additions
+## Companion software
 
-Only installed or running companion apps appear in PitMedic. The first automated action is deliberately narrow: after a confirmed application fault, crash dump, or non-zero exit, and once every supported simulator is closed, PitMedic can close the affected app's remaining processes and relaunch its captured executable with approval.
+Only installed or running companion apps appear on Home. About lists the full monitored catalog. After a confirmed application fault, crash dump, or non-zero exit, and once every supported simulator is closed, PitMedic offers the affected app's vendor-specific approved recovery.
 
 | App | Known issue represented | Current PitMedic response | Further vendor-backed guidance |
 |---|---|---|---|
-| MOZA Pit House | Application crash; missing Visual C++ x86 runtime or damaged updater/maintenance components | Automatic approved app restart after confirmed crash | Guided runtime/installation check; no automatic driver or firmware change |
-| Simucube True Drive | Application crash; Windows-blocked downloaded executable; missing runtime prerequisite | Automatic approved app restart after confirmed crash | Guided unblock/runtime check |
-| Fanatec software | Application crash or app telemetry feed stopping after a background failure | Automatic approved app restart after confirmed crash | Guided app restart/update when there is no confirmed process fault |
-| Logitech G HUB | Agent crash, spinning-logo/loading loop, or stale agent/UI/updater processes | Automatic approved close-and-restart of the G HUB process set | Guided reinstall only if restart fails; never remove settings automatically |
-| SIMAGIC SimPro Manager | Application crash or a hidden/stale SimPro process preventing relaunch | Automatic approved close-and-restart of the SimPro app/daemon process set | Guided update/current-build check |
-| Asetek RaceHub | Application crash or stale RaceHub/elevated helper state | Automatic approved close-and-restart of the RaceHub process set | Guided update/log collection; corrupt wheel/display cache reset stays approval- and backup-gated until an exact signature is available |
-| VRS DirectForce | Configuration-app crash | Automatic approved app restart after confirmed crash | Guided vendor support/current-software check for unresolved device faults |
+| MOZA Pit House | Application crash; missing Visual C++ x86 runtime or damaged updater/maintenance components | Approved Pit House process cleanup, validated relaunch, and running-state verification | Guided runtime/installation check; no automatic driver or firmware change |
+| Simucube True Drive | Application crash; Windows-blocked downloaded executable; missing runtime prerequisite | Approved True Drive process cleanup, validated relaunch, and running-state verification | Guided unblock/runtime check |
+| Fanatec software | Application crash or app telemetry feed stopping after a background failure | Approved Fanatec app, Control Panel, and FanaLab process cleanup followed by validated relaunch | Guided update/reboot when relaunch does not restore the feed |
+| Logitech G HUB | Agent crash, spinning-logo/loading loop, or stuck updater service | Approved official-order recovery: close UI/agent, restart `LGHUBUpdaterService`, relaunch, and verify | Guided reinstall only if service recovery fails; settings are never removed automatically |
+| SIMAGIC SimPro Manager | Application crash, SimPro 2/3 conflict, or a hidden/stale daemon preventing relaunch | Approved cleanup of known SimPro 2/3/daemon processes followed by relaunch of the captured installed generation | Guided current-build check; firmware changes remain manual |
+| Asetek RaceHub | Application crash or stale RaceHub/elevated helper state | Approved RaceHub/elevated-helper cleanup followed by validated relaunch | Guided update/log collection; cache reset requires an exact signature and verified backup |
+| VRS DirectForce | Configuration-app crash | Approved VRS configuration-app cleanup, validated relaunch, and running-state verification | Guided vendor support/current-software check for unresolved device faults |
 
 Primary references:
 

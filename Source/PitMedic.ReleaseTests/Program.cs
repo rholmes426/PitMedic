@@ -1,3 +1,4 @@
+using PitMedic.Models;
 using PitMedic.Services;
 
 var now = new DateTimeOffset(2026, 9, 1, 12, 0, 0, TimeSpan.Zero);
@@ -37,6 +38,20 @@ var preservedIRacingSignature = IRacingRepairSignaturePolicy.FindKnowledgeSignat
 AssertTrue(
     string.Equals(preservedIRacingSignature, "iracing-eac-error73", StringComparison.Ordinal),
     "Saved iRacing EAC evidence must reconstruct the narrow anti-cheat repair before a generic crash category.");
+
+AssertTrue(
+    CompanionRecoveryPolicy.Supported.Count == CompanionSoftwareDefinition.Supported.Count,
+    "Every monitored companion app must have one vendor-specific recovery policy.");
+AssertTrue(
+    CompanionRecoveryPolicy.Supported.Select(item => item.RepairId).Distinct(StringComparer.OrdinalIgnoreCase).Count()
+        == CompanionRecoveryPolicy.Supported.Count,
+    "Companion recovery identifiers must be unique.");
+var gHubRecovery = CompanionRecoveryPolicy.For(CompanionSoftwareKind.LogitechGHub);
+AssertTrue(
+    gHubRecovery.WindowsServiceName.Equals("LGHUBUpdaterService", StringComparison.Ordinal)
+    && gHubRecovery.RequiresElevation
+    && ElevatedRepairPolicy.RequiresElevation(gHubRecovery.RepairId),
+    "G HUB loading-loop recovery must restart only its allowlisted updater service with elevation.");
 
 Console.WriteLine("PitMedic release policy tests passed.");
 

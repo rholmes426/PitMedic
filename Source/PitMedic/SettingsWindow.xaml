@@ -74,8 +74,6 @@
                     <StackPanel>
                         <TextBlock Text="COMPANION SOFTWARE" Style="{StaticResource SectionHeader}"/>
                         <CheckBox x:Name="MonitorCompanionSoftware" Content="Monitor detected wheelbase and racing companion apps"/>
-                        <TextBlock Text="Only software detected on this PC appears on Home. PitMedic captures confirmed application faults and, after the simulator is closed, can offer an approved one-click restart without changing device profiles, drivers, or firmware."
-                                   Foreground="{DynamicResource MutedBrush}" FontSize="12.5" TextWrapping="Wrap" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
 

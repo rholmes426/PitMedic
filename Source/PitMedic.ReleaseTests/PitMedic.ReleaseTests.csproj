@@ -7,6 +7,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../PitMedic/Services/AnonymousUsageThrottlePolicy.cs" Link="AnonymousUsageThrottlePolicy.cs" />
+    <Compile Include="../PitMedic/Services/CompanionRecoveryPolicy.cs" Link="CompanionRecoveryPolicy.cs" />
+    <Compile Include="../PitMedic/Services/ElevatedRepairPolicy.cs" Link="ElevatedRepairPolicy.cs" />
     <Compile Include="../PitMedic/Services/IRacingRepairSignaturePolicy.cs" Link="IRacingRepairSignaturePolicy.cs" />
+    <Compile Include="../PitMedic/Models/CompanionSoftwareDefinition.cs" Link="CompanionSoftwareDefinition.cs" />
   </ItemGroup>
 </Project>

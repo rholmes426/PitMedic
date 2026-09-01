@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "allowedHosts": [
+    "guide.lemansultimate.com",
+    "community.lemansultimate.com",
+    "support.iracing.com",
+    "www.assettocorsa.net",
+    "forum.kw-studios.com",
+    "forum.reizastudios.com",
+    "support.mozaracing.com",
+    "granitedevices.com",
+    "community.granitedevices.com",
+    "help.fanatec.com",
+    "support.logi.com",
+    "simagic.com",
+    "www.asetek.com",
+    "vrs.racing",
+    "help.steampowered.com",
+    "steamcommunity.com",
+    "www.reddit.com"
+  ],
+  "defaultKeywords": [
+    "crash",
+    "freeze",
+    "hang",
+    "launch",
+    "loading error",
+    "stutter",
+    "telemetry",
+    "force feedback",
+    "ffb",
+    "wheel",
+    "update",
+    "workaround",
+    "resolved",
+    "fix"
+  ],
+  "sources": [
+    {
+      "id": "lmu-official-support",
+      "product": "Le Mans Ultimate",
+      "productType": "simulator",
+      "authority": "official",
+      "url": "https://guide.lemansultimate.com/",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    },
+    {
+      "id": "lmu-community",
+      "product": "Le Mans Ultimate",
+      "productType": "simulator",
+      "authority": "vendor-community",
+      "url": "https://community.lemansultimate.com/",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    },
+    {
+      "id": "iracing-support",
+      "product": "iRacing",
+      "productType": "simulator",
+      "authority": "official",
+      "url": "https://support.iracing.com/",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    },
+    {
+      "id": "kunos-community",
+      "product": "Assetto Corsa EVO / Competizione",
+      "productType": "simulator",
+      "authority": "vendor-community",
+      "url": "https://www.assettocorsa.net/forum/",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    },
+    {
+      "id": "raceroom-community",
+      "product": "RaceRoom Racing Experience",
+      "productType": "simulator",
+      "authority": "vendor-community",
+      "url": "https://forum.kw-studios.com/",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    },
+    {
+      "id": "ams2-community",
+      "product": "Automobilista 2",
+      "productType": "simulator",
+      "authority": "vendor-community",
+      "url": "https://forum.reizastudios.com/",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    },
+    {
+      "id": "moza-support",
+      "product": "MOZA Pit House",
+      "productType": "companion",
+      "authority": "official",
+      "url": "https://support.mozaracing.com/en/support/home",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    },
+    {
+      "id": "simucube-releases",
+      "product": "Simucube True Drive",
+      "productType": "companion",
+      "authority": "official",
+      "url": "https://granitedevices.com/wiki/Simucube_2_True_Drive_releases",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    },
+    {
+      "id": "fanatec-support",
+      "product": "Fanatec software",
+      "productType": "companion",
+      "authority": "official",
+      "url": "https://help.fanatec.com/hc/en-us/categories/30308193480337",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    },
+    {
+      "id": "logitech-ghub-support",
+      "product": "Logitech G HUB",
+      "productType": "companion",
+      "authority": "official",
+      "url": "https://support.logi.com/hc/en-ca/articles/360036179173-G-HUB-freezes-while-loading-and-logo-animation-loops",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    },
+    {
+      "id": "simagic-downloads",
+      "product": "SIMAGIC SimPro Manager",
+      "productType": "companion",
+      "authority": "official",
+      "url": "https://simagic.com/pages/download-center",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    },
+    {
+      "id": "asetek-knowledge-base",
+      "product": "Asetek RaceHub",
+      "productType": "companion",
+      "authority": "official",
+      "url": "https://www.asetek.com/simsports/knowledge-base/",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    },
+    {
+      "id": "vrs-downloads",
+      "product": "VRS DirectForce",
+      "productType": "companion",
+      "authority": "official",
+      "url": "https://vrs.racing/downloads",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "enabled": true
+    }
+  ]
+}

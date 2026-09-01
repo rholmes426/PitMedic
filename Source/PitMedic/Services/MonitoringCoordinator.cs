@@ -120,7 +120,7 @@ public sealed class MonitoringCoordinator : IDisposable
     {
         var incident = _incidents.LoadRecord(incidentFolder);
         if (incident is null) return false;
-        var plan = incident.RecommendedRepair ?? RepairPlanner.TryCreateFromIncident(incident);
+        var plan = RepairPlanner.TryCreateFromIncident(incident);
         if (plan is null) return false;
         return _repairs.Begin(incident, plan, _settings.Current, automatic);
     }

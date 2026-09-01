@@ -10,6 +10,20 @@ permissions:
   contents: read
 
 jobs:
+  repair-knowledge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Validate lifecycle coverage and safety policy
+        run: python Tools/KnowledgeScout/knowledge_scout.py --validate-only
+      - name: Test Knowledge Scout behavior
+        run: python -m unittest discover -s Tools/KnowledgeScout/tests -v
+
   telemetry-worker:
     runs-on: ubuntu-latest
     defaults:

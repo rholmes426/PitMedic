@@ -2,10 +2,10 @@
 
 PitMedic is a free, ad-free, open-source Windows simulator reliability monitor and repair assistant. It watches supported racing simulators, captures useful evidence when something goes wrong, explains the finding in plain language, and offers safe, reversible repairs when a known automatic fix is available.
 
-Current public test preview: **0.6.0.9** (intentionally unsigned while SignPath approval is pending)
+Current public test preview: **0.6.0.10** (intentionally unsigned while SignPath approval is pending)
 
-- [Download the v0.6.0.9 unsigned Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.9/PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe)
-- [View the v0.6.0.9 prerelease and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.9)
+- [Download the v0.6.0.10 unsigned Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.10/PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe)
+- [View the v0.6.0.10 prerelease and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.10)
 
 Because this preview is unsigned, Windows may show an **Unknown publisher** or SmartScreen warning. It is a public test preview, not a signed production release.
 
@@ -20,6 +20,7 @@ Because this preview is unsigned, Windows may show an **Unknown publisher** or S
 
 ## v0.6 highlights
 
+- v0.6.0.10 adds distinct vendor-specific recovery for all seven detected companion apps, including Logitech's updater-service recovery sequence, and publishes the complete monitored-software catalog in the app and on the website. It also adds a read-only Knowledge Scout that reviews allowlisted simulator and companion sources while preserving every fix unless reviewed evidence shows its use could cause harm.
 - v0.6.0.9 adds detected-only wheelbase and companion-app monitoring with approval-gated restart recovery, makes AMS2 distance tracking diagnosable and resilient to a stalled odometer, preserves narrow iRacing repairs through elevated validation, promotes Check for updates in Settings, and corrects same-day usage-version refreshes.
 - v0.6.0.8 refreshes the anonymous usage dashboard immediately after an app version, release channel, or installation-type change without double-counting the installation.
 - v0.6.0.7 captures exact session-best laps and track/layout/car identity for all six supported simulators, and stops benign ACC shutdown diagnostics from offering an unnecessary game-file repair.

@@ -69,13 +69,13 @@ public static class RepairCapabilityCatalog
         new RepairCapability("ams2-content-capability", "Missing or damaged Steam game files", "Automobilista 2", "Game & Content"),
 
         // Detected companion software
-        new RepairCapability("companion-moza-restart", "Confirmed Pit House crash / stale process", "MOZA Pit House", "Companion Software"),
-        new RepairCapability("companion-simucube-restart", "Confirmed True Drive crash / stale process", "Simucube True Drive", "Companion Software"),
-        new RepairCapability("companion-fanatec-restart", "Confirmed Fanatec app crash / stale process", "Fanatec software", "Companion Software"),
-        new RepairCapability("companion-logitech-restart", "Confirmed G HUB agent crash / loading loop", "Logitech G HUB", "Companion Software"),
-        new RepairCapability("companion-simagic-restart", "Confirmed SimPro crash / hidden stale process", "SIMAGIC SimPro Manager", "Companion Software"),
-        new RepairCapability("companion-asetek-restart", "Confirmed RaceHub crash / stale process", "Asetek RaceHub", "Companion Software"),
-        new RepairCapability("companion-vrs-restart", "Confirmed VRS configuration-app crash", "VRS DirectForce", "Companion Software"),
+        new RepairCapability("companion-moza-clean-recovery", "Pit House crash / stale-process clean recovery", "MOZA Pit House", "Companion Software"),
+        new RepairCapability("companion-simucube-clean-recovery", "True Drive crash / stale-process clean recovery", "Simucube True Drive", "Companion Software"),
+        new RepairCapability("companion-fanatec-process-recovery", "Fanatec app / Control Panel / FanaLab recovery", "Fanatec software", "Companion Software"),
+        new RepairCapability("companion-logitech-ghub-service-recovery", "G HUB loading-loop / updater-service recovery", "Logitech G HUB", "Companion Software"),
+        new RepairCapability("companion-simagic-clean-recovery", "SimPro 2/3 conflict / daemon recovery", "SIMAGIC SimPro Manager", "Companion Software"),
+        new RepairCapability("companion-asetek-clean-recovery", "RaceHub app / elevated-helper recovery", "Asetek RaceHub", "Companion Software"),
+        new RepairCapability("companion-vrs-clean-recovery", "DirectForce configuration-app recovery", "VRS DirectForce", "Companion Software"),
     };
 
     public static int AutomatedFixCount => Capabilities.Count;

@@ -262,7 +262,6 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                <TextBlock Text="Only installed or running companion apps are shown. Crash recovery waits for the simulator to close and always asks before relaunching software." Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,11,0,0"/>
                             </StackPanel>
                         </Border>
 
@@ -386,6 +385,40 @@
                                 <TextBlock Text="VERSION" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
                                 <TextBlock x:Name="AboutVersionText" Text="PitMedic" FontFamily="Segoe UI Variable Display" FontWeight="SemiBold" FontSize="23" Margin="0,8,0,0"/>
                                 <TextBlock Text="Windows 10/11 · 64-bit · .NET 10" Foreground="{DynamicResource MutedBrush}" FontSize="13" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,18">
+                            <StackPanel>
+                                <TextBlock Text="MONITORED SOFTWARE" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                                <TextBlock Text="Every app PitMedic currently monitors" FontFamily="Segoe UI Variable Display" FontWeight="SemiBold" FontSize="21" Margin="0,8,0,0"/>
+
+                                <TextBlock Text="SIMULATORS" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold" Margin="0,20,0,8"/>
+                                <ItemsControl x:Name="AboutSupportedSimulatorsList">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource Panel2Brush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="7" Padding="11,8" Margin="0,0,8,8" Width="218">
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <TextBlock Text="COMPANION SOFTWARE" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold" Margin="0,14,0,8"/>
+                                <ItemsControl x:Name="AboutSupportedCompanionSoftwareList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,5">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="220"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,16,0"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Detail}" Foreground="{DynamicResource MutedBrush}" FontSize="12.5" TextWrapping="Wrap"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                             </StackPanel>
                         </Border>
 

@@ -26,7 +26,10 @@ public static class ElevatedRepairPolicy
         "iracing-steam-track-repair",
         "iracing-release-content-lock",
         "iracing-run-updater",
-        "iracing-windows-integrity"
+        "iracing-windows-integrity",
+
+        // Logitech's official G HUB loading-loop recovery restarts its Windows service.
+        "companion-logitech-ghub-service-recovery"
     };
 
     public static IReadOnlyCollection<string> RepairIds => ElevatedRepairIds;

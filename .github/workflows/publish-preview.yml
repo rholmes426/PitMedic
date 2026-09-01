@@ -85,9 +85,13 @@ jobs:
 
           It is intentionally unsigned while the PitMedic SignPath application is pending. Windows may show an Unknown publisher or SmartScreen warning. The package must not be described as an official signed release.
 
-          v0.6.0.9 adds detected-only reliability monitoring for installed wheelbase and companion software, with confirmed-fault evidence and approval-gated restart recovery after every supported simulator is closed. It makes AMS2 distance tracking diagnosable and resilient to a stalled odometer, preserves narrow iRacing repairs through elevated validation, moves Check for updates to the top of Settings, and corrects same-day anonymous usage-version refreshes without double-counting installations.
+          v0.6.0.10 replaces the single generic companion restart with distinct vendor-specific recovery plans for MOZA Pit House, Simucube True Drive, Fanatec software, Logitech G HUB, SIMAGIC SimPro Manager, Asetek RaceHub, and VRS DirectForce. Logitech recovery follows the documented loading-loop sequence by restarting only its allowlisted updater service; every recovery still requires confirmed fault evidence, waits until supported simulators close, relaunches only a validated executable, and verifies that the app remains running.
 
-          The v0.6.0.9 source also includes a verified September 2026 simulator-forum review as the next diagnostic and repair backlog. Risky advice such as disabling security, broad administrator changes, third-party DLL downloads, and destructive profile deletion remains excluded from automatic repair.
+          The app and website now list the complete monitored-software catalog and no longer show the redundant companion disclaimer. Existing v0.6.0.9 findings migrate to the current vendor plan, while firmware flashing, driver replacement, profile deletion, third-party runtime downloads, and Windows security changes remain outside automatic repair.
+
+          v0.6.0.10 also adds a read-only Knowledge Scout for allowlisted simulator and companion sources. It flags changed guidance, new candidate discussions, source availability, review reminders, lifecycle drift, and possible harm language in one rolling GitHub issue. Age, inactivity, and moved citations never retire a fix; disabling or version-gating requires human-reviewed evidence that using it could cause harm.
+
+          v0.6.0.9 added detected-only reliability monitoring for installed wheelbase and companion software, made AMS2 distance tracking diagnosable and resilient to a stalled odometer, preserved narrow iRacing repairs through elevated validation, moved Check for updates to the top of Settings, and corrected same-day anonymous usage-version refreshes without double-counting installations. Its source also includes the verified September 2026 simulator-forum review.
 
           v0.6.0.8 improved the anonymous usage version reporting path; v0.6.0.9 corrects the remaining same-day throttle edge case that could leave the private dashboard on an older version.
 
