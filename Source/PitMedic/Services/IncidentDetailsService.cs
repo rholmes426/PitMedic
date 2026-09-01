@@ -7,7 +7,7 @@ public static class IncidentDetailsService
 {
     public static IncidentDetailsData Build(IncidentRecord incident)
     {
-        var plan = incident.RecommendedRepair ?? RepairPlanner.TryCreateFromIncident(incident);
+        var plan = RepairPlanner.TryCreateFromIncident(incident);
         var repairAttempted = false;
         var repairInProgress = false;
         var repairCancelled = false;

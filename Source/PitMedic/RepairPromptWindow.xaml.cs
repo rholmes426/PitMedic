@@ -16,7 +16,7 @@ public partial class RepairPromptWindow : Window
         _monitoring = monitoring;
         _summary = summary;
         var incident = monitoring.GetIncident(summary.Folder);
-        _plan = incident?.RecommendedRepair ?? (incident is not null ? RepairPlanner.TryCreateFromIncident(incident) : null);
+        _plan = incident is not null ? RepairPlanner.TryCreateFromIncident(incident) : null;
         if (_plan is not null && _plan.References.Count == 0)
             _plan = _plan with { References = RepairKnowledgeBase.ReferencesForPlan(_plan.Id) };
 
@@ -38,8 +38,8 @@ public partial class RepairPromptWindow : Window
         EstimateText.Text = _plan.EstimatedMinutes <= 2 ? "under 2 min" : $"~{_plan.EstimatedMinutes} min";
         AffectedList.ItemsSource = _plan.AffectedContentRelativePaths.Select(p => $"Installed\\{p}").ToArray();
         AffectedContentPanel.Visibility = _plan.AffectedContentRelativePaths.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        RepairBehaviorText.Text = _plan.Id.Equals("companion-app-restart", StringComparison.OrdinalIgnoreCase)
-            ? "PitMedic first confirms every supported simulator is closed. It then closes only the affected companion app's known processes, relaunches its validated captured executable, and verifies that the app remains running."
+        RepairBehaviorText.Text = CompanionRecoveryPolicy.IsSupportedRepairId(_plan.Id)
+            ? _plan.Summary
             : "PitMedic follows the listed repair steps, preserves recovery data where the playbook changes files, and records every action with this finding.";
         ReferenceList.ItemsSource = _plan.References.Take(2).Select(r => $"{r.Source}: {r.Title}").ToArray();
         ReferencePanel.Visibility = _plan.References.Count > 0 ? Visibility.Visible : Visibility.Collapsed;

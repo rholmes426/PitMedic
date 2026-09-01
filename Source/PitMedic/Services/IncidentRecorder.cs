@@ -230,7 +230,9 @@ public sealed class IncidentRecorder
                 record = record with { IncidentFolder = folder };
             var plan = RepairPlanner.TryCreateFromIncident(record);
             var changed = false;
-            if (record.RecommendedRepair is null && plan is not null)
+            if (plan is not null
+                && (record.RecommendedRepair is null
+                    || !record.RecommendedRepair.Id.Equals(plan.Id, StringComparison.OrdinalIgnoreCase)))
             {
                 record = record with { RecommendedRepair = plan };
                 changed = true;

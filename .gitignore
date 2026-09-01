@@ -20,6 +20,8 @@ PrivateBuild/
 appsettings.local.json
 signing.local.json
 node_modules/
+__pycache__/
+*.py[cod]
 worker-configuration.d.ts
 .wrangler/
 .dev.vars

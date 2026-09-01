@@ -1,0 +1,92 @@
+name: Repair knowledge scout
+
+on:
+  schedule:
+    # Avoid the start-of-hour congestion window. Times are UTC.
+    - cron: "17 17 * * 2,5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: repair-knowledge-scout
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source without write credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Locate the rolling review issue
+        id: issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh label create knowledge-scout \
+            --repo "$GITHUB_REPOSITORY" \
+            --description "Automated read-only repair knowledge review" \
+            --color "1D76DB" \
+            --force
+          issue_json="$(gh issue list \
+            --repo "$GITHUB_REPOSITORY" \
+            --label knowledge-scout \
+            --state all \
+            --limit 1 \
+            --json number,state \
+            --jq '.[0] // {}')"
+          issue_number="$(jq -r '.number // empty' <<<"$issue_json")"
+          issue_state="$(jq -r '.state // empty' <<<"$issue_json")"
+          echo "number=$issue_number" >> "$GITHUB_OUTPUT"
+          echo "state=$issue_state" >> "$GITHUB_OUTPUT"
+          if [[ -n "$issue_number" ]]; then
+            gh issue view "$issue_number" \
+              --repo "$GITHUB_REPOSITORY" \
+              --json body \
+              --jq '.body' > prior-report.md
+          else
+            : > prior-report.md
+          fi
+
+      - name: Scan allowlisted sources as untrusted text
+        run: |
+          python Tools/KnowledgeScout/knowledge_scout.py \
+            --prior-report prior-report.md \
+            --report knowledge-report.md \
+            --state-output knowledge-state.json
+
+      - name: Create or update the rolling review issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
+          ISSUE_STATE: ${{ steps.issue.outputs.state }}
+        shell: bash
+        run: |
+          if [[ -z "$ISSUE_NUMBER" ]]; then
+            gh issue create \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "PitMedic Knowledge Scout — rolling review" \
+              --label knowledge-scout \
+              --body-file knowledge-report.md
+          else
+            gh issue edit "$ISSUE_NUMBER" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "PitMedic Knowledge Scout — rolling review" \
+              --body-file knowledge-report.md
+            if [[ "$ISSUE_STATE" == "CLOSED" ]]; then
+              gh issue reopen "$ISSUE_NUMBER" --repo "$GITHUB_REPOSITORY"
+            fi
+          fi
+          sed '/<!-- pitmedic-knowledge-state:/d' knowledge-report.md >> "$GITHUB_STEP_SUMMARY"

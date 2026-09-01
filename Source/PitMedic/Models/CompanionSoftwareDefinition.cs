@@ -54,11 +54,13 @@ public sealed record CompanionSoftwareDefinition(
         new CompanionSoftwareDefinition(
             CompanionSoftwareKind.LogitechGHub,
             "Logitech G HUB",
-            "lghub_agent.exe",
-            new[] { "lghub_agent" },
-            new[] { "lghub", "lghub_agent", "lghub_updater" },
+            "lghub.exe",
+            new[] { "lghub", "lghub_agent" },
+            new[] { "lghub_agent", "lghub" },
             new[] { "Logitech G HUB", "Logitech G HUB Software" },
-            DefaultPaths(Path.Combine("LGHUB", "lghub_agent.exe"))),
+            DefaultPaths(
+                Path.Combine("LGHUB", "lghub.exe"),
+                Path.Combine("LGHUB", "lghub_agent.exe"))),
         new CompanionSoftwareDefinition(
             CompanionSoftwareKind.SimagicSimProManager,
             "SIMAGIC SimPro Manager",

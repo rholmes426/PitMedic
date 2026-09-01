@@ -115,7 +115,9 @@ public static class RepairPlanner
 
     public static RepairPlan? TryCreateFromIncident(IncidentRecord record)
     {
-        if (record.RecommendedRepair is not null) return record.RecommendedRepair;
+        if (record.RecommendedRepair is not null
+            && !record.RecommendedRepair.Id.Equals("companion-app-restart", StringComparison.OrdinalIgnoreCase))
+            return record.RecommendedRepair;
 
         if (record.Game.Equals("Le Mans Ultimate", StringComparison.OrdinalIgnoreCase))
         {
@@ -158,22 +160,18 @@ public static class RepairPlanner
             ?? software.DefaultExecutablePaths.FirstOrDefault(ValidCompanionPath);
         if (string.IsNullOrWhiteSpace(executable)) return null;
 
+        var recovery = CompanionRecoveryPolicy.For(software.Kind);
+
         return new RepairPlan
         {
-            Id = "companion-app-restart",
-            Title = $"Restart {software.DisplayName}",
-            Summary = $"After the simulator is closed, PitMedic will close only {software.DisplayName}'s remaining processes and relaunch the same installed executable. It will not change wheel settings, profiles, drivers, or firmware.",
+            Id = recovery.RepairId,
+            Title = recovery.Title,
+            Summary = recovery.Summary,
             Game = software.DisplayName,
             Safety = RepairSafety.Reversible,
             EstimatedMinutes = 1,
             RequiresApproval = true,
-            Steps = new[]
-            {
-                "Confirm the simulator is closed and approve the recovery",
-                $"Close remaining {software.DisplayName} processes",
-                "Relaunch the captured installed executable",
-                "Verify that the companion app is running again"
-            },
+            Steps = recovery.Steps,
             References = CompanionSoftwareKnowledgeBase.ReferencesFor(software.Kind)
         };
     }

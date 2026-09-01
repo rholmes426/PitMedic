@@ -1,5 +1,26 @@
 # Pending fixes
 
+## v0.6.0.10
+
+- [x] Add a repository-native Knowledge Scout to keep simulator and companion-software fixes current.
+  - Monitor allowlisted official support, vendor community, and forum sources twice weekly and on demand.
+  - Compare changed guidance and newly linked issue discussions against state stored in one rolling GitHub issue.
+  - Flag possible harm language, unavailable citations, due reviews, and lifecycle/catalog drift without executing fetched content.
+  - Never retire a fix because of age, inactivity, or a broken source; keep it active while a replacement citation is researched.
+  - Require human-reviewed credible evidence that use could cause harm before disabling or version-gating a fix, and retain the historical entry and reason.
+  - Keep automation read-only with respect to the repository and product: no automatic repair-state edits, pull requests, releases, or publishing.
+
+- [x] Remove the explanatory disclaimer beneath Companion Software on Home and in Settings.
+- [x] Add a complete, data-driven monitored-software catalog to About, covering all six simulators and all seven companion apps.
+- [x] Publish the complete companion-software list on the PitMedic website.
+- [x] Replace the single generic companion restart with distinct vendor-specific recovery plans.
+  - Follow Logitech's official G HUB loading-loop sequence by closing only the UI/agent, restarting `LGHUBUpdaterService` through the allowlisted elevated helper, relaunching G HUB, and verifying it remains running.
+  - Recover Fanatec telemetry-app faults by closing the Fanatec app, Control Panel, and FanaLab process set before relaunch.
+  - Recover SimPro 2/3 conflicts by closing the known SimPro generations and daemon before relaunching the captured installed generation.
+  - Keep Pit House, True Drive, RaceHub, and VRS recovery scoped to their verified vendor process sets and validated executable.
+  - Preserve compatibility with companion findings saved by v0.6.0.9 by reconstructing the current vendor-specific plan.
+  - Keep firmware flashing, driver replacement, profile deletion, third-party runtime downloads, and Windows security unblocking outside automatic repair.
+
 ## v0.6.0.9
 
 - [x] Move update checking to the top of Settings and present the manual check as a prominent primary action.

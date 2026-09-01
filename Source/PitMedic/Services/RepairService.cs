@@ -312,7 +312,7 @@ public sealed class RepairService : IDisposable
     {
         return plan.Id switch
         {
-            "companion-app-restart" => await RepairCompanionAppAsync(incident, plan, backupRoot, token),
+            _ when CompanionRecoveryPolicy.IsSupportedRepairId(plan.Id) => await RepairCompanionAppAsync(incident, plan, backupRoot, token),
 
             "lmu-steam-verify" => await RepairLmuSteamVerifyAsync(incident, plan, backupRoot, token),
             "lmu-shader-cache" => await RepairLmuShaderCacheAsync(incident, plan, backupRoot, token),
@@ -384,6 +384,9 @@ public sealed class RepairService : IDisposable
         var software = CompanionSoftwareDefinition.Supported.FirstOrDefault(item =>
             item.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase))
             ?? throw new InvalidOperationException("The companion software definition is no longer supported.");
+        var recovery = CompanionRecoveryPolicy.For(software.Kind);
+        if (!recovery.RepairId.Equals(plan.Id, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("The saved companion recovery no longer matches the affected software.");
 
         foreach (var game in GameDefinition.Supported)
             EnsureGameNotRunning(game.Kind, game.DisplayName);
@@ -391,11 +394,12 @@ public sealed class RepairService : IDisposable
         var target = ResolveCompanionExecutable(software, incident.ProcessPath)
             ?? throw new FileNotFoundException($"{software.DisplayName}'s captured executable could not be found. No process was closed.");
 
+        var totalSteps = string.IsNullOrWhiteSpace(recovery.WindowsServiceName) ? 4 : 5;
         UpdateSimple(incident, plan, 18, $"Preparing {software.DisplayName} recovery",
-            "Validating the captured executable and limiting the recovery to this companion app...", 1, 4, backupRoot);
+            "Validating the captured executable and limiting the recovery to this companion app...", 1, totalSteps, backupRoot);
 
         UpdateSimple(incident, plan, 42, $"Closing {software.DisplayName}",
-            $"Closing only {software.DisplayName}'s remaining processes before relaunch...", 2, 4, backupRoot);
+            $"Closing only {software.DisplayName}'s remaining processes before relaunch...", 2, totalSteps, backupRoot);
         await CloseProcessesAsync(software.RecoveryProcessNames, token);
         await Task.Delay(750, token);
 
@@ -405,8 +409,17 @@ public sealed class RepairService : IDisposable
             if (File.Exists(hubUi)) target = hubUi;
         }
 
+        var launchStep = 3;
+        if (!string.IsNullOrWhiteSpace(recovery.WindowsServiceName))
+        {
+            UpdateSimple(incident, plan, 57, "Restarting G HUB service",
+                $"Restarting {recovery.WindowsServiceName} using Logitech's documented loading-loop recovery order...", 3, totalSteps, backupRoot);
+            await RestartWindowsServiceAsync(recovery.WindowsServiceName, token);
+            launchStep = 4;
+        }
+
         UpdateSimple(incident, plan, 70, $"Restarting {software.DisplayName}",
-            $"Launching the installed {Path.GetFileName(target)} executable...", 3, 4, backupRoot);
+            $"Launching the installed {Path.GetFileName(target)} executable...", launchStep, totalSteps, backupRoot);
         using var launched = Process.Start(new ProcessStartInfo
         {
             FileName = target,
@@ -418,8 +431,8 @@ public sealed class RepairService : IDisposable
             throw new InvalidOperationException($"{software.DisplayName} did not remain running after the recovery launch.");
 
         UpdateSimple(incident, plan, 92, $"{software.DisplayName} is running",
-            "PitMedic detected the companion app after relaunch. Device profiles, drivers, and firmware were not changed.", 4, 4, backupRoot);
-        return $"{software.DisplayName} restarted successfully. PitMedic did not change wheel settings, profiles, drivers, or firmware.";
+            "PitMedic detected the companion app after relaunch.", totalSteps, totalSteps, backupRoot);
+        return $"{software.DisplayName} recovery completed successfully.";
     }
 
     private async Task<string> RepairLmuSteamVerifyAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
@@ -1533,6 +1546,44 @@ public sealed class RepairService : IDisposable
         var standardOutput = await standardOutputTask;
         var standardError = await standardErrorTask;
         return new ProcessCaptureResult(process.ExitCode, standardOutput, standardError);
+    }
+
+    private static async Task RestartWindowsServiceAsync(string serviceName, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(serviceName)
+            || serviceName.Any(c => !char.IsLetterOrDigit(c) && c is not '_' and not '-'))
+            throw new InvalidOperationException("The companion service name was rejected.");
+
+        var sc = Path.Combine(Environment.SystemDirectory, "sc.exe");
+        if (!File.Exists(sc)) throw new FileNotFoundException("Windows Service Control could not be found.", sc);
+
+        var stop = await RunProcessCaptureAsync(sc, $"stop \"{serviceName}\"", Environment.SystemDirectory, token, 20);
+        var stopText = $"{stop.StandardOutput}\n{stop.StandardError}";
+        if (stop.ExitCode != 0
+            && !stopText.Contains("1062", StringComparison.OrdinalIgnoreCase)
+            && !stopText.Contains("has not been started", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException($"Windows could not stop {serviceName}: {stopText.Trim()}");
+
+        await Task.Delay(800, token);
+        var start = await RunProcessCaptureAsync(sc, $"start \"{serviceName}\"", Environment.SystemDirectory, token, 20);
+        var startText = $"{start.StandardOutput}\n{start.StandardError}";
+        if (start.ExitCode != 0
+            && !startText.Contains("1056", StringComparison.OrdinalIgnoreCase)
+            && !startText.Contains("already running", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException($"Windows could not start {serviceName}: {startText.Trim()}");
+
+        var deadline = DateTimeOffset.Now.AddSeconds(12);
+        while (DateTimeOffset.Now < deadline)
+        {
+            token.ThrowIfCancellationRequested();
+            var query = await RunProcessCaptureAsync(sc, $"query \"{serviceName}\"", Environment.SystemDirectory, token, 10);
+            if (query.ExitCode == 0
+                && query.StandardOutput.Contains("RUNNING", StringComparison.OrdinalIgnoreCase))
+                return;
+            await Task.Delay(500, token);
+        }
+
+        throw new InvalidOperationException($"{serviceName} did not return to the running state.");
     }
 
     private static async Task<int> RunProcessAsync(string fileName, string arguments, string workingDirectory, CancellationToken token, int timeoutSeconds)

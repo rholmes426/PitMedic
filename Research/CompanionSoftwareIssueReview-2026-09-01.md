@@ -28,3 +28,12 @@ For every supported app, the safe automatic recovery is the same narrow operatio
 - G HUB and SimPro recovery can close their documented agent/daemon companions, but not unrelated simulator or device processes.
 - Asetek wheel/display cache resets are not triggered by a generic crash. They require a future exact signature, user approval, and a verified backup.
 - Firmware flashing, driver replacement, device resets, exploit-protection changes, Defender exclusions, and third-party DLL downloads are excluded.
+
+## Next-release follow-up
+
+The next release replaces the shared generic restart identifier with one recovery policy per vendor. This makes the affected process set, repair title, steps, elevation requirements, and UI coverage explicit for each monitored app.
+
+- Logitech G HUB now follows Logitech's documented loading-loop order: close G HUB UI/agent processes, leave user settings intact, restart `LGHUBUpdaterService` through PitMedic's allowlisted elevated helper, relaunch G HUB, and verify it remains running.
+- Fanatec recovery explicitly closes the Fanatec app, Control Panel, and FanaLab set before relaunch, matching Fanatec's official restart guidance for a stalled telemetry feed.
+- SimPro recovery explicitly covers conflicts between SimPro 2, SimPro 3, and the SimPro daemon before relaunching the captured installed generation.
+- Pit House, True Drive, RaceHub, and VRS retain scoped clean recovery because their deeper official paths involve runtime installation, Windows file unblocking, application updates, drivers, firmware, or insufficiently documented vendor state. Those actions remain guided until PitMedic has a deterministic signature and a safe rollback.

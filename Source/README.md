@@ -1,6 +1,15 @@
-# PitMedic v0.6.0.9
+# PitMedic v0.6.0.10
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.6.0.10
+
+- Replaces the single generic companion restart with vendor-specific recovery plans for MOZA Pit House, Simucube True Drive, Fanatec software, Logitech G HUB, SIMAGIC SimPro Manager, Asetek RaceHub, and VRS DirectForce.
+- Follows Logitech's documented G HUB loading-loop recovery order by closing only its UI and agent, restarting the allowlisted updater service, relaunching the validated executable, and checking that it remains running.
+- Preserves existing v0.6.0.9 companion findings by reconstructing the current vendor-specific plan while continuing to exclude firmware, drivers, profile deletion, third-party downloads, and security-control changes.
+- Removes the redundant companion-software disclaimer and adds a complete data-driven monitored-software catalog to About and the public website.
+- Adds the read-only Knowledge Scout for twice-weekly and manual review of allowlisted simulator and companion sources, lifecycle coverage, source availability, changed guidance, and possible safety signals.
+- Keeps fixes active regardless of age, inactivity, or a moved citation; disabling or version-gating requires human-reviewed evidence that using the fix could cause harm.
 
 ## v0.6.0.9
 
