@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "latestVersion": "0.6.0.11",
-  "title": "PitMedic 0.6.0.11 unsigned test preview",
-  "downloadUrl": "https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.11/PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe",
+  "title": "PitMedic 0.6.0.11 signed release",
+  "downloadUrl": "https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.11/PitMedic-Setup-x64.exe",
   "releaseUrl": "https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.11",
-  "sha256": "ef6992df3ee2db8df4b57469a81d755b94c03b085a85dcb7a19b291c0d079dc7"
+  "sha256": "626e9f9135caefda69b1a2e80c65b57eba33cd4855a673ca92a01f6d60eb1655"
 }
