@@ -163,6 +163,37 @@ svg { display: block; }
   font-size: 11px;
 }
 .version-note strong { color: var(--navy-2); }
+.development-note {
+  max-width: 480px;
+  margin-top: 18px;
+  padding: 13px 15px;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  border: 1px solid rgba(189, 95, 52, .3);
+  border-left: 3px solid var(--orange);
+  border-radius: 2px;
+  background: rgba(255, 253, 247, .56);
+}
+.development-note > span {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 0 4px rgba(189, 95, 52, .12);
+}
+.development-note strong {
+  color: var(--navy);
+  font-size: 13px;
+}
+.development-note p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
 
 .product-stage {
   position: relative;
