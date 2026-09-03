@@ -40,6 +40,26 @@ AssertTrue(
     "Saved iRacing EAC evidence must reconstruct the narrow anti-cheat repair before a generic crash category.");
 
 AssertTrue(
+    IRacingRepairSignaturePolicy.MapDiagnosticSignature("missing-file-privileges")
+        .Equals("iracing-missing-file-privileges", StringComparison.Ordinal),
+    "Steam Missing File Privileges must map to the targeted iRacing file-release repair.");
+AssertTrue(
+    ElevatedRepairPolicy.RequiresElevation("iracing-release-file-privileges"),
+    "The iRacing Helper Service file-release workflow must remain approval-gated and elevated.");
+
+AssertTrue(
+    RepairKnowledgeBase.Entries.Count == 53,
+    "Every simulator repair implemented for this release must have a formal knowledge record.");
+AssertTrue(
+    RepairKnowledgeBase.DiagnosticLibraryUrlForPlan("ams2-controller-reset")
+        == "https://pitmedic.com/diagnostic-library/ams2-controller-config/",
+    "App repair aliases must deep-link to their canonical Diagnostic Library page.");
+AssertTrue(
+    RepairKnowledgeBase.DiagnosticLibraryUrlForPlan("companion-moza-clean-recovery")
+        == "https://pitmedic.com/diagnostic-library/companion-moza-clean-recovery/",
+    "Companion recovery plans must deep-link to their Diagnostic Library page.");
+
+AssertTrue(
     CompanionRecoveryPolicy.Supported.Count == CompanionSoftwareDefinition.Supported.Count,
     "Every monitored companion app must have one vendor-specific recovery policy.");
 AssertTrue(

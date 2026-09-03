@@ -329,6 +329,10 @@ public static class RepairPlanner
             "PitMedic will stop the iRacing Helper Service, wait for file handles to release, and start Steam validation. The service is restarted afterward.",
             "iRacing", RepairSafety.Reversible, 4, true, new[] { "Stop iRacing Helper Service", "Wait for locks to release", "Start Steam validation", "Restart Helper Service" }, "266410"),
 
+        "iracing-missing-file-privileges" => Simple("iracing-release-file-privileges", "Release iRacing files for Steam update",
+            "PitMedic will stop the iRacing Helper Service, wait for its file handles to release, and start Steam validation. The service is restarted afterward.",
+            "iRacing", RepairSafety.Reversible, 4, true, new[] { "Stop iRacing Helper Service", "Wait for locks to release", "Start Steam validation", "Restart Helper Service" }, "266410"),
+
         "iracing-renderer-config" => Simple("iracing-renderer-reset", "Reset iRacing renderer configuration",
             "PitMedic will back up rendererDX11*.ini files and remove the active copies so iRacing regenerates graphics configuration.",
             "iRacing", RepairSafety.Reversible, 1, false,

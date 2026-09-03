@@ -25,6 +25,7 @@ public static class ElevatedRepairPolicy
         "iracing-car-index-reset",
         "iracing-steam-track-repair",
         "iracing-release-content-lock",
+        "iracing-release-file-privileges",
         "iracing-run-updater",
         "iracing-windows-integrity",
 

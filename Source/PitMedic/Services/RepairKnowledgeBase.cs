@@ -266,11 +266,26 @@ public static class RepairKnowledgeBase
             Issue = "Steam Content File Locked during iRacing update",
             Detection = "Steam reports Content File Locked while updating iRacing and the Helper Service is running.",
             RepairStrategy = "Stop the iRacing Helper Service to release file handles, begin Steam validation/update work, then restart the service.",
-            Safety = "Reversible; validation may exceed two minutes",
+            Safety = "Reversible / approval required because validation may exceed two minutes",
             Signatures = new[] { "Content File Locked", "Helper Service" },
             References = new[]
             {
                 Ref("Steam accounts getting Content File Locked error", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000167301-steam-accounts-getting-content-file-locked-error", "Official support's first action is stopping the iRacing Helper Service before retrying the Steam update."),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "iracing-missing-file-privileges",
+            Game = "iRacing",
+            Issue = "Steam Missing File Privileges during an iRacing update",
+            Detection = "Steam reports Missing File Privileges for iRacing while the iRacing Helper Service may still hold installed files open.",
+            RepairStrategy = "Stop the iRacing Helper Service, wait for its file handles to close, start Steam validation/update work, and restart the service afterward.",
+            Safety = "Reversible / approval required because Steam validation may exceed two minutes",
+            Signatures = new[] { "Missing File Privileges", "missing-file-privileges", "Helper Service" },
+            References = new[]
+            {
+                Ref("Steam accounts getting Content File Locked error", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000167301-steam-accounts-getting-content-file-locked-error", "iRacing officially documents stopping its Helper Service when that process prevents Steam from updating installed files."),
+                Ref("Steam Missing file privileges", "iRacing Reddit community", "https://www.reddit.com/r/iRacing/comments/12domdi/steam_missing_file_privileges/", "Multiple iRacing users confirmed across later updates that closing the iRacing Helper process resolved this specific Steam error.", false),
             }
         },
 
@@ -524,11 +539,253 @@ public static class RepairKnowledgeBase
                 Ref("ERROR 503. How to fix?", "RaceRoom Steam Community", "https://steamcommunity.com/app/211500/discussions/1/587308261888346216/", "Recent RaceRoom users also report Steam file verification resolving the issue.", false),
             }
         },
+        new KnowledgeEntry
+        {
+            Id = "acc-game-user-settings",
+            Game = "Assetto Corsa Competizione",
+            Issue = "Broken display or startup settings",
+            Detection = "ACC log evidence names GameUserSettings.ini, resolution, or fullscreen configuration near a startup/display failure.",
+            RepairStrategy = "Back up and remove only GameUserSettings.ini so ACC can regenerate clean display and startup settings.",
+            Safety = "Automatic / reversible / one-click",
+            Signatures = new[] { "GameUserSettings.ini", "resolution", "fullscreen" },
+            References = new[]
+            {
+                Ref("Assetto Corsa Competizione support forum", "Kunos Simulazioni", "https://www.assettocorsa.net/forum/index.php?forums/acc-troubleshooting.79/", "Kunos directs ACC troubleshooting through simulator logs and configuration evidence before broader recovery actions."),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "acc-engine-config",
+            Game = "Assetto Corsa Competizione",
+            Issue = "Unreal Engine or graphics configuration failure",
+            Detection = "ACC logs identify Engine.ini, DXGI device loss, a rendering-thread exception, or a GPU crash without a stronger content signature.",
+            RepairStrategy = "Back up and remove Engine.ini so ACC can regenerate a clean Unreal Engine configuration. PitMedic does not change graphics drivers automatically.",
+            Safety = "Automatic / reversible / one-click",
+            Signatures = new[] { "Engine.ini", "DXGI_ERROR", "D3D device lost", "rendering thread exception" },
+            References = new[]
+            {
+                Ref("Assetto Corsa Competizione support forum", "Kunos Simulazioni", "https://www.assettocorsa.net/forum/index.php?forums/acc-troubleshooting.79/", "Kunos troubleshooting requests the ACC logs and crash evidence needed to distinguish configuration failures from driver or hardware faults."),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "acc-controls",
+            Game = "Assetto Corsa Competizione",
+            Issue = "Damaged controller or wheel configuration",
+            Detection = "ACC reports invalid controller, DirectInput, wheel, or controls.json state around a Controls-menu or input failure.",
+            RepairStrategy = "Preserve controls.json, remove the active copy, and allow ACC to create a clean controller configuration. The user must remap controls afterward.",
+            Safety = "Significant / reversible / ask first",
+            Signatures = new[] { "controls.json", "DirectInput", "controller", "wheel" },
+            References = new[]
+            {
+                Ref("Key bindings reset to default", "ACC Steam Community", "https://steamcommunity.com/app/805550/discussions/0/562535555862292385/", "ACC users document moving controls.json aside as a targeted way to regenerate controller bindings.", false),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "acc-ffb",
+            Game = "Assetto Corsa Competizione",
+            Issue = "Invalid or damaged force-feedback settings",
+            Detection = "ACC log evidence identifies FFB or ffbUserSettings.json as failed, invalid, or unreadable.",
+            RepairStrategy = "Preserve ffbUserSettings.json and remove only the active copy so ACC can regenerate force-feedback settings.",
+            Safety = "Significant / reversible / ask first",
+            Signatures = new[] { "ffbUserSettings.json", "FFB", "force feedback" },
+            References = new[]
+            {
+                Ref("ACC v1.6 update notes", "Kunos Simulazioni", "https://store.steampowered.com/news/posts/?appids=805550&enddate=1607333042&feed=steam_community_announcements", "Kunos documents that per-car force-feedback values are stored in ffbUserSettings.json."),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "acc-trueforce",
+            Game = "Assetto Corsa Competizione",
+            Issue = "Logitech TrueForce or manufacturer-library conflict",
+            Detection = "ACC reports TrueForce, manufacturer extras, or wheel-library failure near a controller-related crash.",
+            RepairStrategy = "Back up controls.json and set enableManufacturerExtras to false so ACC stops calling external wheel-manufacturer libraries during the controlled retest.",
+            Safety = "Significant / reversible / ask first",
+            Signatures = new[] { "TrueForce", "enableManufacturerExtras", "manufacturer extras" },
+            References = new[]
+            {
+                Ref("ACC v1.5.7 and v1.6.1 update notes", "Kunos Simulazioni", "https://store.steampowered.com/news/posts/?appids=805550&enddate=1607333042&feed=steam_community_announcements", "Kunos explicitly documents enableManufacturerExtras=false as a troubleshooting control for Logitech, Thrustmaster, and Fanatec libraries."),
+                Ref("UE4 AC2 fatal error and TrueForce workaround", "ACC Steam Community", "https://steamcommunity.com/app/805550/discussions/0/2967271684630200427/", "A Kunos developer response supplied the same controls.json change while a TrueForce crash was under investigation.", false),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "acc-control-presets",
+            Game = "Assetto Corsa Competizione",
+            Issue = "Saved control preset crashes the Controls menu",
+            Detection = "ACC identifies a saved Customs\\Controls preset as invalid or failed immediately before a Controls-menu crash.",
+            RepairStrategy = "Preserve the complete saved control-preset folder and move the active copy aside for a clean Controls-menu retest.",
+            Safety = "Significant / reversible / ask first",
+            Signatures = new[] { "Customs\\Controls", "control preset", "Controls menu" },
+            References = new[]
+            {
+                Ref("Assetto Corsa Competizione support forum", "Kunos Simulazioni", "https://www.assettocorsa.net/forum/index.php?forums/acc-troubleshooting.79/", "ACC troubleshooting reports identify Customs\\Controls as the saved preset location; PitMedic acts only when the implicated preset is named and moves it intact rather than deleting it.", false),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "acc-user-profile",
+            Game = "Assetto Corsa Competizione",
+            Issue = "Damaged ACC user configuration",
+            Detection = "Repeated startup failure remains after targeted repairs and ACC reports corrupt or unparseable configuration state.",
+            RepairStrategy = "Preserve the ACC Documents configuration and LocalAppData Saved\\Config folders, then move the active copies aside so ACC can generate clean settings.",
+            Safety = "Significant / reversible / ask first",
+            Signatures = new[] { "configuration corruption", "parse error", "Saved\\Config" },
+            References = new[]
+            {
+                Ref("Assetto Corsa Competizione support forum", "Kunos Simulazioni", "https://www.assettocorsa.net/forum/index.php?forums/acc-troubleshooting.79/", "Kunos support uses ACC configuration and crash evidence to isolate persistent user-state failures; PitMedic preserves all moved data for rollback."),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "acc-steam-content",
+            Game = "Assetto Corsa Competizione",
+            Issue = "Missing or damaged ACC game files",
+            Detection = "ACC explicitly reports a missing, corrupt, or unreadable game package or asset rather than a driver, Windows, or optional plugin file.",
+            RepairStrategy = "Ask Steam to verify Assetto Corsa Competizione and reacquire missing or damaged game files.",
+            Safety = "Reversible / approval required when expected over two minutes",
+            Signatures = new[] { ".pak", "pak file", "asset registry", "failed to load package" },
+            References = new[]
+            {
+                Ref("Verify Integrity of Game Files", "Steam Support", "https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB", "Valve documents file verification for missing or damaged game content."),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ams2-graphics-config",
+            Game = "Automobilista 2",
+            Issue = "Broken graphics or display configuration",
+            Detection = "AMS2 evidence identifies graphicsconfigdx11.xml near a display, startup, or settings failure.",
+            RepairStrategy = "Preserve graphicsconfigdx11.xml and remove the active copy so AMS2 can regenerate clean display settings.",
+            Safety = "Automatic / reversible / one-click",
+            Signatures = new[] { "graphicsconfigdx11.xml", "graphics configuration", "display settings" },
+            References = new[]
+            {
+                Ref("Graphics settings reset on launch", "Reiza Studios Forum", "https://forum.reizastudios.com/threads/graphics-setting-are-not-saved-reset-on-game-launch.35342/", "Reiza staff and users document regenerating AMS2 Documents configuration while investigating graphics-state failures.", false),
+                Ref("Can't access Options", "AMS2 Steam Community", "https://steamcommunity.com/app/1066890/discussions/0/586181727714649000/", "A resolved report confirms that removing only graphicsconfigdx11.xml allowed AMS2 to regenerate the correct display state.", false),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ams2-vr-config",
+            Game = "Automobilista 2",
+            Issue = "Broken OpenVR or Oculus configuration",
+            Detection = "AMS2 evidence names OpenVR, Oculus, or the related graphics/settings XML files near a VR startup failure.",
+            RepairStrategy = "Back up only the OpenVR/Oculus graphics and settings XML files, then remove the active copies so VR configuration can be regenerated.",
+            Safety = "Significant / reversible / ask first",
+            Signatures = new[] { "graphicsconfigopenvrdx11.xml", "openvrsettings.xml", "graphicsconfigoculusdx11.xml", "oculussettings.xml" },
+            References = new[]
+            {
+                Ref("Automobilista 2 troubleshooting", "Reiza Studios Forum", "https://forum.reizastudios.com/threads/troubleshooting-automobilista-2.9860/", "The Reiza troubleshooting forum documents simulator-specific configuration isolation and retesting for VR and startup problems.", false),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ams2-controller-config",
+            Game = "Automobilista 2",
+            Issue = "Controller input or calibration is lost",
+            Detection = "AMS2 evidence identifies controller settings or default.controllersettings.v1.03.sav after an update, USB-port change, or driver change.",
+            RepairStrategy = "Preserve and remove only default.controllersettings.v1.03.sav so wheel/controller bindings can be rebuilt without resetting unrelated game settings.",
+            Safety = "Significant / reversible / ask first",
+            Signatures = new[] { "default.controllersettings.v1.03.sav", "controller config", "calibration" },
+            References = new[]
+            {
+                Ref("Automobilista 2 v1.5.5.0 development update", "Reiza Studios", "https://store.steampowered.com/news/posts/?appgroupname=Automobilista+2&appids=1066890&enddate=1707913912&feed=steam_community_announcements", "Reiza explicitly recommends deleting only default.controllersettings.v1.03.sav when controller input or calibration is lost after updates or hardware changes."),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ams2-ffb-custom",
+            Game = "Automobilista 2",
+            Issue = "Damaged custom force-feedback configuration",
+            Detection = "AMS2 evidence names ffb_custom_settings.txt near a force-feedback initialization or parsing problem.",
+            RepairStrategy = "Preserve ffb_custom_settings.txt and remove only the active copy so AMS2 can return to a clean/default force-feedback state.",
+            Safety = "Significant / reversible / ask first",
+            Signatures = new[] { "ffb_custom_settings.txt", "custom FFB", "force feedback" },
+            References = new[]
+            {
+                Ref("Automobilista 2 FFB discussion", "Reiza Studios Forum", "https://forum.reizastudios.com/threads/automobilista-2-custom-force-feedback-overview-recommendations.11135/", "The Reiza community documents ffb_custom_settings.txt as AMS2's custom force-feedback configuration file.", false),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ams2-tuning-setups",
+            Game = "Automobilista 2",
+            Issue = "Car setups are incompatible after a physics update",
+            Detection = "AMS2 evidence points to tuning setup or vehiclesetups data while an affected car or setup fails after an update.",
+            RepairStrategy = "Preserve the tuning setup folders and move their active copies aside so the affected cars can load without stale setup data.",
+            Safety = "Significant / reversible / ask first",
+            Signatures = new[] { "tuningsetups", "vehiclesetups", "tuning setup" },
+            References = new[]
+            {
+                Ref("AMS2 file backup locations", "Reiza Studios Forum", "https://forum.reizastudios.com/threads/file-backup.32850/", "The Reiza community identifies vehiclesetups folders as the location of saved car setup data; PitMedic preserves the folders intact.", false),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ams2-championship-state",
+            Game = "Automobilista 2",
+            Issue = "Corrupted custom championship state",
+            Detection = "A championship or singlechamps save file changed immediately before a Championship-mode failure and no stronger system fault is present.",
+            RepairStrategy = "Preserve only the implicated championship save-state files and move them aside so AMS2 can rebuild the mode without deleting other profile data.",
+            Safety = "Significant / reversible / ask first",
+            Signatures = new[] { "championship", "singlechamps", "championship save" },
+            References = new[]
+            {
+                Ref("Automobilista 2 troubleshooting", "Reiza Studios Forum", "https://forum.reizastudios.com/threads/troubleshooting-automobilista-2.9860/", "Reiza's troubleshooting forum establishes the user save hierarchy used to isolate mode-specific state; PitMedic acts only when recent championship evidence exists.", false),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ams2-default-profile",
+            Game = "Automobilista 2",
+            Issue = "Damaged default profile settings",
+            Detection = "AMS2 reports profile corruption involving default.sav rather than the controller-specific profile file.",
+            RepairStrategy = "Preserve default.sav and remove only the active copy so AMS2 can rebuild default profile state.",
+            Safety = "Significant / reversible / ask first",
+            Signatures = new[] { "default.sav", "profile corruption", "invalid profile" },
+            References = new[]
+            {
+                Ref("Steering linearity and profile recovery", "Reiza Studios Forum", "https://forum.reizastudios.com/threads/steering-linearity.9686/", "AMS2 community troubleshooting documents resetting profile save files when in-game reset and recalibration do not correct damaged state.", false),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ams2-user-profile",
+            Game = "Automobilista 2",
+            Issue = "Damaged Automobilista 2 user profile",
+            Detection = "Repeated startup failure remains after targeted repairs and AMS2 evidence identifies corrupt, invalid, or unparseable profile state.",
+            RepairStrategy = "Preserve the complete Documents\\Automobilista 2 folder and move the active copy aside so AMS2 can generate clean user data.",
+            Safety = "Significant / reversible / ask first",
+            Signatures = new[] { "profile corrupt", "invalid profile", "Documents\\Automobilista 2" },
+            References = new[]
+            {
+                Ref("Crashing on game startup", "Reiza Studios Forum", "https://forum.reizastudios.com/tags/crash-to-desktop/", "A resolved Reiza forum report confirms that regenerating the Documents\\Automobilista 2 folder restored startup. PitMedic preserves the original folder instead of deleting it.", false),
+                Ref("Graphics settings reset on launch", "Reiza Studios Forum", "https://forum.reizastudios.com/threads/graphics-setting-are-not-saved-reset-on-game-launch.35342/", "Reiza staff list regenerating the AMS2 Documents folder as a broader recovery after targeted steps fail.", false),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ams2-steam-content",
+            Game = "Automobilista 2",
+            Issue = "Missing or damaged Automobilista 2 game files",
+            Detection = "AMS2 evidence explicitly reports a missing, corrupt, or unreadable game file or package.",
+            RepairStrategy = "Ask Steam to verify Automobilista 2 and reacquire missing or damaged game files.",
+            Safety = "Reversible / approval required when expected over two minutes",
+            Signatures = new[] { "missing file", "corrupt package", "failed to load" },
+            References = new[]
+            {
+                Ref("Verify Integrity of Game Files", "Steam Support", "https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB", "Valve documents file verification for missing or damaged game content."),
+                Ref("Graphics settings reset on launch", "Reiza Studios Forum", "https://forum.reizastudios.com/threads/graphics-setting-are-not-saved-reset-on-game-launch.35342/", "Reiza staff include Steam file verification among the supported AMS2 troubleshooting steps.", false),
+            }
+        },
     };
 
     public static KnowledgeEntry? Find(string id) => Entries.FirstOrDefault(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
 
-    public static IReadOnlyList<RepairReference> ReferencesForPlan(string planId)
+    public static string? PublicIdForPlan(string planId)
     {
         var id = planId switch
         {
@@ -548,6 +805,7 @@ public static class RepairKnowledgeBase
             "iracing-car-index-reset" => "iracing-car-loading-errors",
             "iracing-steam-track-repair" => "iracing-track-loading-errors",
             "iracing-release-content-lock" => "iracing-content-file-locked",
+            "iracing-release-file-privileges" => "iracing-missing-file-privileges",
             "iracing-trueforce-disable" => "iracing-trueforce-stale-state",
             "iracing-logitech-led-disable" => "iracing-trueforce-stale-state",
             "iracing-logitech-shutdown-workaround" => "iracing-trueforce-stale-state",
@@ -564,8 +822,37 @@ public static class RepairKnowledgeBase
             "raceroom-shader-reset" => "raceroom-shader-cache",
             "raceroom-profile-reset" => "raceroom-user-config",
             "raceroom-steam-verify" => "raceroom-steam-content",
+            "acc-game-user-settings-reset" => "acc-game-user-settings",
+            "acc-engine-config-reset" => "acc-engine-config",
+            "acc-controls-reset" => "acc-controls",
+            "acc-ffb-reset" => "acc-ffb",
+            "acc-trueforce-disable" => "acc-trueforce",
+            "acc-control-presets-reset" => "acc-control-presets",
+            "acc-profile-reset" => "acc-user-profile",
+            "acc-steam-verify" => "acc-steam-content",
+            "ams2-graphics-reset" => "ams2-graphics-config",
+            "ams2-vr-reset" => "ams2-vr-config",
+            "ams2-controller-reset" => "ams2-controller-config",
+            "ams2-ffb-reset" => "ams2-ffb-custom",
+            "ams2-tuning-reset" => "ams2-tuning-setups",
+            "ams2-championship-reset" => "ams2-championship-state",
+            "ams2-default-profile-reset" => "ams2-default-profile",
+            "ams2-profile-reset" => "ams2-user-profile",
+            "ams2-steam-verify" => "ams2-steam-content",
             _ => planId
         };
-        return Find(id)?.References ?? Array.Empty<RepairReference>();
+        return Find(id) is not null || CompanionRecoveryPolicy.IsSupportedRepairId(id) ? id : null;
+    }
+
+    public static string? DiagnosticLibraryUrlForPlan(string planId)
+    {
+        var id = PublicIdForPlan(planId);
+        return id is null ? null : $"https://pitmedic.com/diagnostic-library/{id}/";
+    }
+
+    public static IReadOnlyList<RepairReference> ReferencesForPlan(string planId)
+    {
+        var id = PublicIdForPlan(planId);
+        return id is null ? Array.Empty<RepairReference>() : Find(id)?.References ?? Array.Empty<RepairReference>();
     }
 }

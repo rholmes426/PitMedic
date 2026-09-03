@@ -69,6 +69,7 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+                        <Button x:Name="DiagnosticLibraryButton" Content="View full details in Diagnostic Library" HorizontalAlignment="Left" Padding="11,6" Margin="0,10,0,0" Click="DiagnosticLibrary_Click"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

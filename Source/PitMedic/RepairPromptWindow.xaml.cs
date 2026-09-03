@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Windows;
 using PitMedic.Models;
 using PitMedic.Services;
@@ -9,6 +10,7 @@ public partial class RepairPromptWindow : Window
     private readonly MonitoringCoordinator _monitoring;
     private readonly IncidentSummary _summary;
     private readonly RepairPlan? _plan;
+    private readonly string? _diagnosticLibraryUrl;
 
     public RepairPromptWindow(MonitoringCoordinator monitoring, IncidentSummary summary)
     {
@@ -19,6 +21,7 @@ public partial class RepairPromptWindow : Window
         _plan = incident is not null ? RepairPlanner.TryCreateFromIncident(incident) : null;
         if (_plan is not null && _plan.References.Count == 0)
             _plan = _plan with { References = RepairKnowledgeBase.ReferencesForPlan(_plan.Id) };
+        _diagnosticLibraryUrl = _plan is null ? null : RepairKnowledgeBase.DiagnosticLibraryUrlForPlan(_plan.Id);
 
         if (incident is null || _plan is null)
         {
@@ -43,6 +46,7 @@ public partial class RepairPromptWindow : Window
             : "PitMedic follows the listed repair steps, preserves recovery data where the playbook changes files, and records every action with this finding.";
         ReferenceList.ItemsSource = _plan.References.Take(2).Select(r => $"{r.Source}: {r.Title}").ToArray();
         ReferencePanel.Visibility = _plan.References.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        DiagnosticLibraryButton.Visibility = _diagnosticLibraryUrl is null ? Visibility.Collapsed : Visibility.Visible;
         ApprovalNote.Text = _plan.EstimatedMinutes > 2
             ? "Because this repair is expected to take more than 2 minutes, PitMedic will only start it with your approval."
             : _plan.RequiresApproval
@@ -68,5 +72,11 @@ public partial class RepairPromptWindow : Window
     {
         DialogResult = false;
         Close();
+    }
+
+    private void DiagnosticLibrary_Click(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(_diagnosticLibraryUrl)) return;
+        try { Process.Start(new ProcessStartInfo(_diagnosticLibraryUrl) { UseShellExecute = true }); } catch { }
     }
 }

@@ -156,6 +156,7 @@
 
                 <Expander x:Name="ReferencesCard" Header="Repair references" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="15" Margin="0,0,0,14">
                     <StackPanel Margin="0,10,0,0">
+                        <Button x:Name="DiagnosticLibraryButton" Content="View in Diagnostic Library" HorizontalAlignment="Left" Padding="12,7" Margin="0,0,0,10" Click="DiagnosticLibrary_Click"/>
                         <TextBlock Text="PitMedic uses official support guidance first and treats community reports as supporting evidence, not proof." Foreground="{DynamicResource MutedBrush}" FontSize="12.5" TextWrapping="Wrap" Margin="0,0,0,5"/>
                         <ItemsControl x:Name="ReferencesList">
                             <ItemsControl.ItemTemplate>

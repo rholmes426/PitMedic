@@ -10,6 +10,9 @@
     <Compile Include="../PitMedic/Services/CompanionRecoveryPolicy.cs" Link="CompanionRecoveryPolicy.cs" />
     <Compile Include="../PitMedic/Services/ElevatedRepairPolicy.cs" Link="ElevatedRepairPolicy.cs" />
     <Compile Include="../PitMedic/Services/IRacingRepairSignaturePolicy.cs" Link="IRacingRepairSignaturePolicy.cs" />
+    <Compile Include="../PitMedic/Services/RepairKnowledgeBase.cs" Link="RepairKnowledgeBase.cs" />
     <Compile Include="../PitMedic/Models/CompanionSoftwareDefinition.cs" Link="CompanionSoftwareDefinition.cs" />
+    <Compile Include="../PitMedic/Models/KnowledgeModels.cs" Link="KnowledgeModels.cs" />
+    <Compile Include="../PitMedic/Models/RepairModels.cs" Link="RepairModels.cs" />
   </ItemGroup>
 </Project>

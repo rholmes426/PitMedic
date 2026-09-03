@@ -28,6 +28,7 @@ public static class RepairCapabilityCatalog
         new RepairCapability("iracing-car-capability", "Car loading/content corruption", "iRacing", "Game & Content"),
         new RepairCapability("iracing-error49-capability", "Loading Error 49 / Steam track corruption", "iRacing", "Game & Content"),
         new RepairCapability("iracing-lock-capability", "Steam Content File Locked", "iRacing", "Game & Content"),
+        new RepairCapability("iracing-privileges-capability", "Steam Missing File Privileges", "iRacing", "Game & Content"),
         new RepairCapability("iracing-renderer-capability", "rendererDX11 configuration corruption", "iRacing", "Configuration"),
         new RepairCapability("iracing-trueforce-capability", "Already running / Logitech TrueForce shutdown conflict", "iRacing", "Services & System"),
         new RepairCapability("iracing-error3-capability", "Loading Error 3 / damaged user configuration", "iRacing", "Configuration"),

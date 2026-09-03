@@ -21,6 +21,8 @@ jobs:
           python-version: "3.13"
       - name: Validate lifecycle coverage and safety policy
         run: python Tools/KnowledgeScout/knowledge_scout.py --validate-only
+      - name: Verify Diagnostic Library matches app knowledge
+        run: python Tools/DiagnosticLibrary/generate.py --check
       - name: Test Knowledge Scout behavior
         run: python -m unittest discover -s Tools/KnowledgeScout/tests -v
 

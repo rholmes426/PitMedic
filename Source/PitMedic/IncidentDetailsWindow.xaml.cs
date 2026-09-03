@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using PitMedic.Models;
+using PitMedic.Services;
 
 namespace PitMedic;
 
@@ -11,6 +12,7 @@ public partial class IncidentDetailsWindow : Window
     private readonly IncidentDetailsData _details;
     private readonly Action? _runAutomaticRepair;
     private readonly Func<bool>? _acknowledgeFinding;
+    private readonly string? _diagnosticLibraryUrl;
 
     public IncidentDetailsWindow(IncidentDetailsData details, Action? runAutomaticRepair = null, Func<bool>? acknowledgeFinding = null)
     {
@@ -18,6 +20,9 @@ public partial class IncidentDetailsWindow : Window
         _details = details;
         _runAutomaticRepair = runAutomaticRepair;
         _acknowledgeFinding = acknowledgeFinding;
+        _diagnosticLibraryUrl = details.RepairPlan is null
+            ? null
+            : RepairKnowledgeBase.DiagnosticLibraryUrlForPlan(details.RepairPlan.Id);
         var incident = details.Incident;
 
         TitleText.Text = incident.Game;
@@ -37,6 +42,7 @@ public partial class IncidentDetailsWindow : Window
 
         ReferencesList.ItemsSource = details.References;
         ReferencesCard.Visibility = details.References.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        DiagnosticLibraryButton.Visibility = _diagnosticLibraryUrl is null ? Visibility.Collapsed : Visibility.Visible;
         AcknowledgeFindingButton.Visibility = acknowledgeFinding is null ? Visibility.Collapsed : Visibility.Visible;
 
         if (!string.IsNullOrWhiteSpace(details.BackupFolder) && Directory.Exists(details.BackupFolder))
@@ -187,6 +193,12 @@ public partial class IncidentDetailsWindow : Window
     {
         if (sender is not Button button || button.DataContext is not RepairReference reference || string.IsNullOrWhiteSpace(reference.Url)) return;
         try { Process.Start(new ProcessStartInfo(reference.Url) { UseShellExecute = true }); } catch { }
+    }
+
+    private void DiagnosticLibrary_Click(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(_diagnosticLibraryUrl)) return;
+        try { Process.Start(new ProcessStartInfo(_diagnosticLibraryUrl) { UseShellExecute = true }); } catch { }
     }
 
     private void RecoveryFolder_Click(object sender, RoutedEventArgs e)

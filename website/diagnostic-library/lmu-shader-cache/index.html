@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stale/corrupt shader cache or loading failure — Le Mans Ultimate | PitMedic</title>
+  <meta name="description" content="How PitMedic detects and safely responds to stale/corrupt shader cache or loading failure in Le Mans Ultimate." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://pitmedic.com/diagnostic-library/lmu-shader-cache/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="PitMedic" />
+  <meta property="og:title" content="Stale/corrupt shader cache or loading failure — Le Mans Ultimate | PitMedic" />
+  <meta property="og:description" content="How PitMedic detects and safely responds to stale/corrupt shader cache or loading failure in Le Mans Ultimate." />
+  <meta property="og:url" content="https://pitmedic.com/diagnostic-library/lmu-shader-cache/" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" />
+  <link rel="icon" href="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Le Mans Ultimate"}]},{"@type":"TechArticle","headline":"Le Mans Ultimate: Stale/corrupt shader cache or loading failure","description":"How PitMedic detects and safely responds to stale/corrupt shader cache or loading failure in Le Mans Ultimate.","url":"https://pitmedic.com/diagnostic-library/lmu-shader-cache/","dateModified":"2026-09-01","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Le Mans Ultimate"}]}</script>
+</head>
+<body>
+<main>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="PitMedic home"><img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="" /><span>PitMedic</span></a>
+    <nav aria-label="Primary navigation"><a href="/#how-it-works">How it works</a><a href="/#simulators">Simulators</a><a class="active" href="/diagnostic-library/">Diagnostic Library</a><a href="/#about">About</a></nav>
+    <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-cta" href="/">Home</a></div>
+  </header>
+  <article class="library-page issue-page">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><a href="/diagnostic-library/">Diagnostic Library</a><span>›</span><span>Le Mans Ultimate</span></nav>
+    <header class="library-hero">
+      <span class="section-kicker">Simulator repair</span>
+      <p class="library-product">Le Mans Ultimate</p>
+      <h1>Stale/corrupt shader cache or loading failure</h1>
+      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
+      <div class="issue-status"><span>Automatic repair available</span><span>Active</span><span>Reviewed 2026-09-01</span></div>
+    </header>
+    <div class="diagnostic-layout">
+      <div class="diagnostic-main">
+        <section class="diagnostic-card"><span class="card-number">01</span><h2>How PitMedic recognizes it</h2><p>Loading failures around track/car initialization without package corruption; repeated shader/cache errors or known 48% load behavior.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>shader</code></li><li><code>dynamic.cache</code></li><li><code>48%</code></li></ul></section>
+        <section class="diagnostic-card"><span class="card-number">02</span><h2>Built-in response</h2><p>Back up then clear UserData\Log\Shaders\dynamic.cache; optionally clear vendor DX shader cache only when the evidence supports it.</p><div class="safety-note"><strong>Repair safety</strong><span>Automatic/reversible for LMU dynamic.cache; vendor cache requires confirmation</span></div></section>
+        <section class="diagnostic-card"><span class="card-number">03</span><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Common Fixes</strong><span>Le Mans Ultimate Support · Official source</span><p>Official LMU guidance recommends clearing dynamic.cache for crashes.</p></div><a href="https://guide.lemansultimate.com/hc/en-gb/articles/13260585473551-Common-Fixes" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>48% loading fixes</strong><span>Le Mans Ultimate Community · Official source</span><p>Community moderator guidance also lists dynamic.cache and NVIDIA DX cache cleanup.</p></div><a href="https://community.lemansultimate.com/index.php?threads/i-cant-connect-to-any-multiplayer-server.3023/" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+      </div>
+      <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.11/PitMedic-Setup-x64.exe">Download v0.6.0.11</a><a class="button button-secondary" href="/simulators/le-mans-ultimate/">View Le Mans Ultimate coverage</a><small>Free and open source · Windows 10/11</small></aside>
+    </div>
+    <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>More for Le Mans Ultimate</h2><div><a href="/diagnostic-library/lmu-content-corruption/"><strong>Installed track or vehicle content cannot be read/decompressed</strong><span>Approval required</span></a><a href="/diagnostic-library/lmu-startup-config/"><strong>Startup / black-screen / early initialization failure</strong><span>Automatic repair available</span></a><a href="/diagnostic-library/lmu-plugin-conflict/"><strong>Third-party plugin conflict</strong><span>Automatic repair available</span></a><a href="/diagnostic-library/lmu-overlay-conflict/"><strong>Overlay / hook / tuning software conflict</strong><span>Automatic repair available</span></a></div></nav>
+  </article>
+  <footer>
+    <a class="brand" href="/"><img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="" /><span>PitMedic</span></a>
+    <p>A free open-source project for the sim-racing community.</p>
+    <div><a href="/diagnostic-library/">Diagnostic Library</a><a href="/#simulators">Simulators</a><a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a><a href="https://github.com/rholmes426/PitMedic">GitHub</a><a href="https://paypal.me/PitMedicApp">Support</a></div>
+  </footer>
+</main>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5a4e361a3e0d4f838478d54e24d8f925"}'></script>
+</body>
+</html>

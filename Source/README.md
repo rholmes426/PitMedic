@@ -1,6 +1,18 @@
-# PitMedic v0.6.0.10
+# PitMedic v0.6.0.12
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.6.0.12
+
+- Adds a browsable Diagnostic Library generated directly from the app's repair knowledge, with 60 simulator and companion-software records, source citations, safety details, related issues, search filters, and crawlable issue pages.
+- Adds Diagnostic Library deep links to incident details and repair prompts so users can move directly from a finding to its complete public explanation.
+- Formalizes 17 existing Assetto Corsa Competizione and Automobilista 2 repair paths in the app knowledge base so they remain synchronized with the public library.
+- Adds a targeted iRacing Steam Missing File Privileges diagnosis and approval-gated automatic repair that stops the iRacing Helper Service, opens Steam validation, and restarts the service without deleting user content.
+- Adds generated-content consistency checks to CI so the app catalog, public JSON database, issue pages, and sitemap cannot drift silently.
+
+## v0.6.0.11
+
+- Publishes the first signed and timestamped PitMedic release, carrying forward the v0.6.0.10 companion-software recovery and Knowledge Scout changes.
 
 ## v0.6.0.10
 

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Installed track or vehicle content cannot be read/decompressed — Le Mans Ultimate | PitMedic</title>
+  <meta name="description" content="How PitMedic detects and safely responds to installed track or vehicle content cannot be read/decompressed in Le Mans Ultimate." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://pitmedic.com/diagnostic-library/lmu-content-corruption/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="PitMedic" />
+  <meta property="og:title" content="Installed track or vehicle content cannot be read/decompressed — Le Mans Ultimate | PitMedic" />
+  <meta property="og:description" content="How PitMedic detects and safely responds to installed track or vehicle content cannot be read/decompressed in Le Mans Ultimate." />
+  <meta property="og:url" content="https://pitmedic.com/diagnostic-library/lmu-content-corruption/" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" />
+  <link rel="icon" href="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Le Mans Ultimate"}]},{"@type":"TechArticle","headline":"Le Mans Ultimate: Installed track or vehicle content cannot be read/decompressed","description":"How PitMedic detects and safely responds to installed track or vehicle content cannot be read/decompressed in Le Mans Ultimate.","url":"https://pitmedic.com/diagnostic-library/lmu-content-corruption/","dateModified":"2026-09-01","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Le Mans Ultimate"}]}</script>
+</head>
+<body>
+<main>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="PitMedic home"><img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="" /><span>PitMedic</span></a>
+    <nav aria-label="Primary navigation"><a href="/#how-it-works">How it works</a><a href="/#simulators">Simulators</a><a class="active" href="/diagnostic-library/">Diagnostic Library</a><a href="/#about">About</a></nav>
+    <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-cta" href="/">Home</a></div>
+  </header>
+  <article class="library-page issue-page">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><a href="/diagnostic-library/">Diagnostic Library</a><span>›</span><span>Le Mans Ultimate</span></nav>
+    <header class="library-hero">
+      <span class="section-kicker">Simulator repair</span>
+      <p class="library-product">Le Mans Ultimate</p>
+      <h1>Installed track or vehicle content cannot be read/decompressed</h1>
+      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
+      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Reviewed 2026-09-01</span></div>
+    </header>
+    <div class="diagnostic-layout">
+      <div class="diagnostic-main">
+        <section class="diagnostic-card"><span class="card-number">01</span><h2>How PitMedic recognizes it</h2><p>MAS decompression, missing mesh/scene, or affected Installed\Locations / Installed\Vehicles package references near the failure.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>Error decompressing file</code></li><li><code>Error loading mesh file</code></li><li><code>Error initializing scene file</code></li><li><code>CUBE error loading scene file</code></li></ul></section>
+        <section class="diagnostic-card"><span class="card-number">02</span><h2>Built-in response</h2><p>Back up only affected content, remove the installed copy, then use Steam validation to reacquire clean content.</p><div class="safety-note"><strong>Repair safety</strong><span>Reversible / approval required when expected over two minutes</span></div></section>
+        <section class="diagnostic-card"><span class="card-number">03</span><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Common Fixes</strong><span>Le Mans Ultimate Support · Official source</span><p>Official guidance starts with Steam file verification for game issues.</p></div><a href="https://guide.lemansultimate.com/hc/en-gb/articles/13260585473551-Common-Fixes" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>Game Launching Error - targeted track replacement</strong><span>Le Mans Ultimate Community · Official source</span><p>Studio 397 community moderator guidance recommends deleting affected track content then verifying files.</p></div><a href="https://community.lemansultimate.com/index.php?threads/crash-game-launching-error.3785/" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+      </div>
+      <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.11/PitMedic-Setup-x64.exe">Download v0.6.0.11</a><a class="button button-secondary" href="/simulators/le-mans-ultimate/">View Le Mans Ultimate coverage</a><small>Free and open source · Windows 10/11</small></aside>
+    </div>
+    <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>More for Le Mans Ultimate</h2><div><a href="/diagnostic-library/lmu-shader-cache/"><strong>Stale/corrupt shader cache or loading failure</strong><span>Automatic repair available</span></a><a href="/diagnostic-library/lmu-startup-config/"><strong>Startup / black-screen / early initialization failure</strong><span>Automatic repair available</span></a><a href="/diagnostic-library/lmu-plugin-conflict/"><strong>Third-party plugin conflict</strong><span>Automatic repair available</span></a><a href="/diagnostic-library/lmu-overlay-conflict/"><strong>Overlay / hook / tuning software conflict</strong><span>Automatic repair available</span></a></div></nav>
+  </article>
+  <footer>
+    <a class="brand" href="/"><img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="" /><span>PitMedic</span></a>
+    <p>A free open-source project for the sim-racing community.</p>
+    <div><a href="/diagnostic-library/">Diagnostic Library</a><a href="/#simulators">Simulators</a><a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a><a href="https://github.com/rholmes426/PitMedic">GitHub</a><a href="https://paypal.me/PitMedicApp">Support</a></div>
+  </footer>
+</main>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5a4e361a3e0d4f838478d54e24d8f925"}'></script>
+</body>
+</html>

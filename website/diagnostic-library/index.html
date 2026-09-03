@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PitMedic Diagnostic Library — Known Sim Racing Issues &amp; Fixes</title>
+  <meta name="description" content="Browse the simulator and companion-software problems PitMedic can recognize, explain, and safely repair." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://pitmedic.com/diagnostic-library/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="PitMedic" />
+  <meta property="og:title" content="PitMedic Diagnostic Library — Known Sim Racing Issues &amp; Fixes" />
+  <meta property="og:description" content="Browse the simulator and companion-software problems PitMedic can recognize, explain, and safely repair." />
+  <meta property="og:url" content="https://pitmedic.com/diagnostic-library/" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" />
+  <link rel="icon" href="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library"}]},{"@type":"CollectionPage","name":"PitMedic Diagnostic Library","description":"Browse the simulator and companion-software problems PitMedic can recognize, explain, and safely repair.","url":"https://pitmedic.com/diagnostic-library/","mainEntity":{"@type":"ItemList","numberOfItems":60}}]}</script>
+</head>
+<body>
+<main>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="PitMedic home"><img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="" /><span>PitMedic</span></a>
+    <nav aria-label="Primary navigation"><a href="/#how-it-works">How it works</a><a href="/#simulators">Simulators</a><a class="active" href="/diagnostic-library/">Diagnostic Library</a><a href="/#about">About</a></nav>
+    <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-cta" href="/">Home</a></div>
+  </header>
+  <section class="library-page">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><span>Diagnostic Library</span></nav>
+    <header class="library-hero library-index-hero">
+      <span class="section-kicker">Built into PitMedic</span>
+      <h1>PitMedic Diagnostic Library</h1>
+      <p>Known simulator and companion-software problems, the evidence PitMedic looks for, and the safe responses available inside the app.</p>
+      <div class="library-count"><strong>60</strong><span>active diagnostic and repair records</span></div>
+    </header>
+    <section class="library-controls" aria-label="Filter diagnostics">
+      <label><span>Search</span><input id="library-search" type="search" placeholder="Error message, symptom, or software" autocomplete="off" /></label>
+      <label><span>Software</span><select id="library-product"><option value="">All software</option><option value="asetek racehub">Asetek RaceHub</option><option value="assetto corsa competizione">Assetto Corsa Competizione</option><option value="assetto corsa evo">Assetto Corsa EVO</option><option value="automobilista 2">Automobilista 2</option><option value="fanatec software">Fanatec software</option><option value="le mans ultimate">Le Mans Ultimate</option><option value="logitech g hub">Logitech G HUB</option><option value="moza pit house">MOZA Pit House</option><option value="raceroom racing experience">RaceRoom Racing Experience</option><option value="simagic simpro manager">SIMAGIC SimPro Manager</option><option value="simucube true drive">Simucube True Drive</option><option value="vrs directforce">VRS DirectForce</option><option value="iracing">iRacing</option></select></label>
+      <label><span>Coverage</span><select id="library-repair"><option value="">All coverage</option><option value="automatic repair available">Automatic repair available</option><option value="approval required">Approval required</option><option value="guided diagnosis">Guided diagnosis</option></select></label>
+    </section>
+    <p class="library-results"><strong id="library-visible-count">60</strong> records shown</p>
+    <div class="library-grid" id="library-grid">
+        <article class="library-card" data-product="le mans ultimate" data-kind="simulator-repair" data-repair="approval required" data-search="le mans ultimate installed track or vehicle content cannot be read/decompressed mas decompression, missing mesh/scene, or affected installed\locations / installed\vehicles package references near the failure. error decompressing file error loading mesh file error initializing scene file cube error loading scene file">
+          <span class="library-card-product">Le Mans Ultimate</span>
+          <h2><a href="/diagnostic-library/lmu-content-corruption/">Installed track or vehicle content cannot be read/decompressed</a></h2>
+          <p>MAS decompression, missing mesh/scene, or affected Installed\Locations / Installed\Vehicles package references near the failure.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/lmu-content-corruption/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="le mans ultimate" data-kind="simulator-repair" data-repair="automatic repair available" data-search="le mans ultimate stale/corrupt shader cache or loading failure loading failures around track/car initialization without package corruption; repeated shader/cache errors or known 48% load behavior. shader dynamic.cache 48%">
+          <span class="library-card-product">Le Mans Ultimate</span>
+          <h2><a href="/diagnostic-library/lmu-shader-cache/">Stale/corrupt shader cache or loading failure</a></h2>
+          <p>Loading failures around track/car initialization without package corruption; repeated shader/cache errors or known 48% load behavior.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/lmu-shader-cache/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="le mans ultimate" data-kind="simulator-repair" data-repair="automatic repair available" data-search="le mans ultimate startup / black-screen / early initialization failure lmu exits during early configuration or cef/video initialization before a session begins. cef config_dx11 dx11_config black screen">
+          <span class="library-card-product">Le Mans Ultimate</span>
+          <h2><a href="/diagnostic-library/lmu-startup-config/">Startup / black-screen / early initialization failure</a></h2>
+          <p>LMU exits during early configuration or CEF/video initialization before a session begins.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/lmu-startup-config/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="le mans ultimate" data-kind="simulator-repair" data-repair="automatic repair available" data-search="le mans ultimate third-party plugin conflict crash occurs with plugin-related trace evidence or after enabling a known plugin; no stronger hardware/content fault is present. custompluginvariables plugin">
+          <span class="library-card-product">Le Mans Ultimate</span>
+          <h2><a href="/diagnostic-library/lmu-plugin-conflict/">Third-party plugin conflict</a></h2>
+          <p>Crash occurs with plugin-related trace evidence or after enabling a known plugin; no stronger hardware/content fault is present.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/lmu-plugin-conflict/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="le mans ultimate" data-kind="simulator-repair" data-repair="automatic repair available" data-search="le mans ultimate overlay / hook / tuning software conflict lmu loading crash while msi afterburner / rivatuner or similar hook software is running, especially when no stronger content fault exists. msiafterburner rtss rivatuner">
+          <span class="library-card-product">Le Mans Ultimate</span>
+          <h2><a href="/diagnostic-library/lmu-overlay-conflict/">Overlay / hook / tuning software conflict</a></h2>
+          <p>LMU loading crash while MSI Afterburner / RivaTuner or similar hook software is running, especially when no stronger content fault exists.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/lmu-overlay-conflict/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="le mans ultimate" data-kind="simulator-repair" data-repair="guided diagnosis" data-search="le mans ultimate logitech g hub compatibility/version issue lmu launch failure with g hub running and no stronger signature; only suggest when installed version/state is known. lghub logitech g hub">
+          <span class="library-card-product">Le Mans Ultimate</span>
+          <h2><a href="/diagnostic-library/lmu-ghub-conflict/">Logitech G Hub compatibility/version issue</a></h2>
+          <p>LMU launch failure with G Hub running and no stronger signature; only suggest when installed version/state is known.</p>
+          <div><span>Guided diagnosis</span><a href="/diagnostic-library/lmu-ghub-conflict/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="le mans ultimate" data-kind="simulator-repair" data-repair="approval required" data-search="le mans ultimate virtual memory / page-file allocation failure trace contains &#x27;failed to allocate a section of memory&#x27; or windows commit pressure is exhausted near the failure. failed to allocate a section of memory out of memory allocation">
+          <span class="library-card-product">Le Mans Ultimate</span>
+          <h2><a href="/diagnostic-library/lmu-memory-allocation/">Virtual memory / page-file allocation failure</a></h2>
+          <p>Trace contains &#x27;Failed to allocate a section of memory&#x27; or Windows commit pressure is exhausted near the failure.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/lmu-memory-allocation/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="le mans ultimate" data-kind="simulator-repair" data-repair="approval required" data-search="le mans ultimate easy anti-cheat installation/startup failure lmu trace or launch state reports easy anti-cheat/eac missing, failed, or not installed. easy anti-cheat easyanticheat eac not installed">
+          <span class="library-card-product">Le Mans Ultimate</span>
+          <h2><a href="/diagnostic-library/lmu-eac/">Easy Anti-Cheat installation/startup failure</a></h2>
+          <p>LMU trace or launch state reports Easy Anti-Cheat/EAC missing, failed, or not installed.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/lmu-eac/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="le mans ultimate" data-kind="simulator-repair" data-repair="approval required" data-search="le mans ultimate unsupported reshade/custom runtime prevents launch early launch failure or 0xc000007b plus reshade/custom graphics runtime files in the lmu application directory. 0xc000007b reshade dxgi.dll d3d11.dll">
+          <span class="library-card-product">Le Mans Ultimate</span>
+          <h2><a href="/diagnostic-library/lmu-reshade-runtime/">Unsupported ReShade/custom runtime prevents launch</a></h2>
+          <p>Early launch failure or 0xc000007b plus ReShade/custom graphics runtime files in the LMU application directory.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/lmu-reshade-runtime/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="le mans ultimate" data-kind="simulator-repair" data-repair="guided diagnosis" data-search="le mans ultimate unable to join online sessions racecontrol connection/join failure without local loading crash; compare windows time settings and eac launch state. join racecontrol easy anti-cheat eac">
+          <span class="library-card-product">Le Mans Ultimate</span>
+          <h2><a href="/diagnostic-library/lmu-online-clock-eac/">Unable to join online sessions</a></h2>
+          <p>RaceControl connection/join failure without local loading crash; compare Windows time settings and EAC launch state.</p>
+          <div><span>Guided diagnosis</span><a href="/diagnostic-library/lmu-online-clock-eac/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="automatic repair available" data-search="iracing iracing helper service stopped / ui cannot launch iracing.com helper service absent or stopped while ui launch fails or reports not in service. not in service iracing.com helper service iracingservice">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-helper-service/">iRacing Helper Service stopped / UI cannot launch</a></h2>
+          <p>iRacing.com Helper Service absent or stopped while UI launch fails or reports Not In Service.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/iracing-helper-service/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="automatic repair available" data-search="iracing iracing ui black/white screen, frozen ui, or stale electron cache ui process remains alive but fails to render/respond; logs point to electron/ui state rather than simulator crash. iracing-electron white screen black screen ui cache">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-ui-cache/">iRacing UI black/white screen, frozen UI, or stale Electron cache</a></h2>
+          <p>UI process remains alive but fails to render/respond; logs point to Electron/UI state rather than simulator crash.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/iracing-ui-cache/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="automatic repair available" data-search="iracing iracing ui stuck on welcome to iracing ui startup stuck/crashing with the supported uisafe setting present in app.ini. welcome to iracing uisafe">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-ui-safe/">iRacing UI stuck on Welcome to iRacing</a></h2>
+          <p>UI startup stuck/crashing with the supported UISafe setting present in app.ini.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/iracing-ui-safe/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="approval required" data-search="iracing easy anti-cheat error 73 / anti-cheat installation failure error 73 or explicit eac/eos anti-cheat failure near simulator startup. error 73 easy anti-cheat eos">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-eac-error73/">Easy Anti-Cheat Error 73 / anti-cheat installation failure</a></h2>
+          <p>Error 73 or explicit EAC/EOS anti-cheat failure near simulator startup.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/iracing-eac-error73/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="automatic repair available" data-search="iracing update verification failure updater reports verification failure or repeatedly requests the same update. verification failure version_system.txt downloads">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-update-verification/">Update verification failure</a></h2>
+          <p>Updater reports verification failure or repeatedly requests the same update.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/iracing-update-verification/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="automatic repair available" data-search="iracing corrupt/missing vehicle content specific car data fails in the ui/3d viewer while other content works. car data 3d model cars.dat">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-content-corruption/">Corrupt/missing vehicle content</a></h2>
+          <p>Specific car data fails in the UI/3D viewer while other content works.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/iracing-content-corruption/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="guided diagnosis" data-search="iracing could not find sim ui reports could not find sim; correlate vr/openxr toolkit, duplicate installations, onedrive documents path, and windows utf-8 beta setting. could not find sim openxr toolkit onedrive">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-could-not-find-sim/">Could not find sim</a></h2>
+          <p>UI reports Could not find sim; correlate VR/OpenXR Toolkit, duplicate installations, OneDrive Documents path, and Windows UTF-8 beta setting.</p>
+          <div><span>Guided diagnosis</span><a href="/diagnostic-library/iracing-could-not-find-sim/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="approval required" data-search="iracing steam content file locked during iracing update steam reports content file locked while updating iracing and the helper service is running. content file locked helper service">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-content-file-locked/">Steam Content File Locked during iRacing update</a></h2>
+          <p>Steam reports Content File Locked while updating iRacing and the Helper Service is running.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/iracing-content-file-locked/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="approval required" data-search="iracing steam missing file privileges during an iracing update steam reports missing file privileges for iracing while the iracing helper service may still hold installed files open. missing file privileges missing-file-privileges helper service">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-missing-file-privileges/">Steam Missing File Privileges during an iRacing update</a></h2>
+          <p>Steam reports Missing File Privileges for iRacing while the iRacing Helper Service may still hold installed files open.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/iracing-missing-file-privileges/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="automatic repair available" data-search="iracing loading error 49 / 61 / 62 / 72 and damaged track content iracing reports a numbered track loading error or a track-specific content failure during sim launch. loading error 49 loading error 61 loading error 62 loading error 72 tracks.dat version.txt">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-track-loading-errors/">Loading Error 49 / 61 / 62 / 72 and damaged track content</a></h2>
+          <p>iRacing reports a numbered track loading error or a track-specific content failure during sim launch.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/iracing-track-loading-errors/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="automatic repair available" data-search="iracing loading error 22 / 71 and damaged car content iracing reports loading error 22/71 or car-data corruption while other content remains available. loading error 22 loading error 71 cars.dat car data">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-car-loading-errors/">Loading Error 22 / 71 and damaged car content</a></h2>
+          <p>iRacing reports Loading Error 22/71 or car-data corruption while other content remains available.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/iracing-car-loading-errors/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="approval required" data-search="iracing loading error 3 / damaged user configuration iracing reports loading error 3 after simpler car/track causes have not produced a more specific signature. loading error 3 documents\iracing iracing.old">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-loading-error-3/">Loading Error 3 / damaged user configuration</a></h2>
+          <p>iRacing reports Loading Error 3 after simpler car/track causes have not produced a more specific signature.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/iracing-loading-error-3/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="approval required" data-search="iracing iracing is already running / simulator failed to close iracing reports the simulator is already running or a stale simulator process remains after exit. iracing is already running sim is already running trueforceenabled enablelogitechled please close the simulator">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-trueforce-stale-state/">iRacing is already running / simulator failed to close</a></h2>
+          <p>iRacing reports the simulator is already running or a stale simulator process remains after exit.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/iracing-trueforce-stale-state/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="automatic repair available" data-search="iracing failed createprocessasuser / incompatible windows compatibility override launch log reports createprocessasuser failure or windows compatibility mode/admin override is applied to iracing executables. createprocessasuser compatibility mode runasadmin">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-compatibility-flags/">Failed CreateProcessAsUser / incompatible Windows compatibility override</a></h2>
+          <p>Launch log reports CreateProcessAsUser failure or Windows compatibility mode/admin override is applied to iRacing executables.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/iracing-compatibility-flags/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="automatic repair available" data-search="iracing updater stuck waiting for iracingservice updater log/ui reports waiting for iracingservice while downloaded update files are ready to install. waiting for iracingservice -autoinstall">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-updater-autoinstall/">Updater stuck waiting for iRacingService</a></h2>
+          <p>Updater log/UI reports Waiting for iRacingService while downloaded update files are ready to install.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/iracing-updater-autoinstall/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="automatic repair available" data-search="iracing digital signature failed during update/startup iracing reports digital signature failed while the ui/updater is involved. digital signature failed iracingupdater.exe">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-digital-signature/">Digital Signature Failed during update/startup</a></h2>
+          <p>iRacing reports Digital Signature Failed while the UI/updater is involved.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/iracing-digital-signature/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="approval required" data-search="iracing repeated 0xc0000005 / windows application access-violation failure windows/iracing records a repeatable application fault or 0xc0000005 without a more specific content, driver, thermal, or service signature. 0xc0000005 access violation application fault">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-windows-integrity/">Repeated 0xc0000005 / Windows application access-violation failure</a></h2>
+          <p>Windows/iRacing records a repeatable application fault or 0xc0000005 without a more specific content, driver, thermal, or service signature.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/iracing-windows-integrity/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="iracing" data-kind="simulator-repair" data-repair="automatic repair available" data-search="iracing graphics configuration / renderer settings corruption graphics config crashes or rendererdx11 settings are implicated without stronger gpu driver evidence. rendererdx11 graphics config">
+          <span class="library-card-product">iRacing</span>
+          <h2><a href="/diagnostic-library/iracing-renderer-config/">Graphics configuration / renderer settings corruption</a></h2>
+          <p>Graphics Config crashes or rendererDX11 settings are implicated without stronger GPU driver evidence.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/iracing-renderer-config/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="assetto corsa evo" data-kind="simulator-repair" data-repair="automatic repair available" data-search="assetto corsa evo broken video settings / graphics startup state assetto corsa evo exits during startup or logs point to video/graphics initialization. a video.videosettings file exists in the ace user-data folder. video.videosettings video settings graphics startup">
+          <span class="library-card-product">Assetto Corsa EVO</span>
+          <h2><a href="/diagnostic-library/ace-video-settings/">Broken video settings / graphics startup state</a></h2>
+          <p>Assetto Corsa EVO exits during startup or logs point to video/graphics initialization. A Video.videosettings file exists in the ACE user-data folder.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/ace-video-settings/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="assetto corsa evo" data-kind="simulator-repair" data-repair="approval required" data-search="assetto corsa evo corrupt ace user profile / launch state repeated early launch crash or black/white startup failure without a stronger hardware/driver signature after a targeted video reset is not enough. ace folder saved games\ace documents\ace profile corruption">
+          <span class="library-card-product">Assetto Corsa EVO</span>
+          <h2><a href="/diagnostic-library/ace-user-profile/">Corrupt ACE user profile / launch state</a></h2>
+          <p>Repeated early launch crash or black/white startup failure without a stronger hardware/driver signature after a targeted video reset is not enough.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/ace-user-profile/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="assetto corsa evo" data-kind="simulator-repair" data-repair="approval required" data-search="assetto corsa evo missing or damaged steam game files assetto corsa evo logs or windows evidence indicate missing/corrupt local game files or a failed asset load without a more specific repair signature. missing file corrupt file failed to load">
+          <span class="library-card-product">Assetto Corsa EVO</span>
+          <h2><a href="/diagnostic-library/ace-steam-content/">Missing or damaged Steam game files</a></h2>
+          <p>Assetto Corsa EVO logs or Windows evidence indicate missing/corrupt local game files or a failed asset load without a more specific repair signature.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/ace-steam-content/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="raceroom racing experience" data-kind="simulator-repair" data-repair="automatic repair available" data-search="raceroom racing experience browser cache / error 503 / ui loading problem raceroom reports error 503, cef/browser loading errors, or the browser ui fails while the game process remains otherwise functional. 503 browserdata cef browser cache">
+          <span class="library-card-product">RaceRoom Racing Experience</span>
+          <h2><a href="/diagnostic-library/raceroom-browser-cache/">Browser cache / Error 503 / UI loading problem</a></h2>
+          <p>RaceRoom reports Error 503, CEF/browser loading errors, or the browser UI fails while the game process remains otherwise functional.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/raceroom-browser-cache/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="raceroom racing experience" data-kind="simulator-repair" data-repair="automatic repair available" data-search="raceroom racing experience broken graphics / resolution configuration raceroom cannot display correctly, minimizes on launch, shows black output after a gpu/display change, or graphics_options.xml is implicated. graphics_options.xml resolution refresh rate black screen">
+          <span class="library-card-product">RaceRoom Racing Experience</span>
+          <h2><a href="/diagnostic-library/raceroom-graphics-config/">Broken graphics / resolution configuration</a></h2>
+          <p>RaceRoom cannot display correctly, minimizes on launch, shows black output after a GPU/display change, or graphics_options.xml is implicated.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/raceroom-graphics-config/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="raceroom racing experience" data-kind="simulator-repair" data-repair="automatic repair available" data-search="raceroom racing experience shader cache corruption raceroom logs point to shader compilation/cache errors or graphics behavior persists despite normal configuration. shadercache.bin shader cache shader">
+          <span class="library-card-product">RaceRoom Racing Experience</span>
+          <h2><a href="/diagnostic-library/raceroom-shader-cache/">Shader cache corruption</a></h2>
+          <p>RaceRoom logs point to shader compilation/cache errors or graphics behavior persists despite normal configuration.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/raceroom-shader-cache/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="raceroom racing experience" data-kind="simulator-repair" data-repair="approval required" data-search="raceroom racing experience damaged raceroom user configuration repeated startup/loading failure remains after targeted cache/config repairs and evidence points to userdata configuration corruption. userdata configuration corruption raceroom racing experience.old">
+          <span class="library-card-product">RaceRoom Racing Experience</span>
+          <h2><a href="/diagnostic-library/raceroom-user-config/">Damaged RaceRoom user configuration</a></h2>
+          <p>Repeated startup/loading failure remains after targeted cache/config repairs and evidence points to UserData configuration corruption.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/raceroom-user-config/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="raceroom racing experience" data-kind="simulator-repair" data-repair="approval required" data-search="raceroom racing experience missing or damaged steam game files raceroom logs or windows evidence indicate missing/corrupt local content or verification-related failures. missing file corrupt file verify file integrity">
+          <span class="library-card-product">RaceRoom Racing Experience</span>
+          <h2><a href="/diagnostic-library/raceroom-steam-content/">Missing or damaged Steam game files</a></h2>
+          <p>RaceRoom logs or Windows evidence indicate missing/corrupt local content or verification-related failures.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/raceroom-steam-content/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="assetto corsa competizione" data-kind="simulator-repair" data-repair="automatic repair available" data-search="assetto corsa competizione broken display or startup settings acc log evidence names gameusersettings.ini, resolution, or fullscreen configuration near a startup/display failure. gameusersettings.ini resolution fullscreen">
+          <span class="library-card-product">Assetto Corsa Competizione</span>
+          <h2><a href="/diagnostic-library/acc-game-user-settings/">Broken display or startup settings</a></h2>
+          <p>ACC log evidence names GameUserSettings.ini, resolution, or fullscreen configuration near a startup/display failure.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/acc-game-user-settings/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="assetto corsa competizione" data-kind="simulator-repair" data-repair="automatic repair available" data-search="assetto corsa competizione unreal engine or graphics configuration failure acc logs identify engine.ini, dxgi device loss, a rendering-thread exception, or a gpu crash without a stronger content signature. engine.ini dxgi_error d3d device lost rendering thread exception">
+          <span class="library-card-product">Assetto Corsa Competizione</span>
+          <h2><a href="/diagnostic-library/acc-engine-config/">Unreal Engine or graphics configuration failure</a></h2>
+          <p>ACC logs identify Engine.ini, DXGI device loss, a rendering-thread exception, or a GPU crash without a stronger content signature.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/acc-engine-config/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="assetto corsa competizione" data-kind="simulator-repair" data-repair="approval required" data-search="assetto corsa competizione damaged controller or wheel configuration acc reports invalid controller, directinput, wheel, or controls.json state around a controls-menu or input failure. controls.json directinput controller wheel">
+          <span class="library-card-product">Assetto Corsa Competizione</span>
+          <h2><a href="/diagnostic-library/acc-controls/">Damaged controller or wheel configuration</a></h2>
+          <p>ACC reports invalid controller, DirectInput, wheel, or controls.json state around a Controls-menu or input failure.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/acc-controls/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="assetto corsa competizione" data-kind="simulator-repair" data-repair="approval required" data-search="assetto corsa competizione invalid or damaged force-feedback settings acc log evidence identifies ffb or ffbusersettings.json as failed, invalid, or unreadable. ffbusersettings.json ffb force feedback">
+          <span class="library-card-product">Assetto Corsa Competizione</span>
+          <h2><a href="/diagnostic-library/acc-ffb/">Invalid or damaged force-feedback settings</a></h2>
+          <p>ACC log evidence identifies FFB or ffbUserSettings.json as failed, invalid, or unreadable.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/acc-ffb/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="assetto corsa competizione" data-kind="simulator-repair" data-repair="approval required" data-search="assetto corsa competizione logitech trueforce or manufacturer-library conflict acc reports trueforce, manufacturer extras, or wheel-library failure near a controller-related crash. trueforce enablemanufacturerextras manufacturer extras">
+          <span class="library-card-product">Assetto Corsa Competizione</span>
+          <h2><a href="/diagnostic-library/acc-trueforce/">Logitech TrueForce or manufacturer-library conflict</a></h2>
+          <p>ACC reports TrueForce, manufacturer extras, or wheel-library failure near a controller-related crash.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/acc-trueforce/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="assetto corsa competizione" data-kind="simulator-repair" data-repair="approval required" data-search="assetto corsa competizione saved control preset crashes the controls menu acc identifies a saved customs\controls preset as invalid or failed immediately before a controls-menu crash. customs\controls control preset controls menu">
+          <span class="library-card-product">Assetto Corsa Competizione</span>
+          <h2><a href="/diagnostic-library/acc-control-presets/">Saved control preset crashes the Controls menu</a></h2>
+          <p>ACC identifies a saved Customs\Controls preset as invalid or failed immediately before a Controls-menu crash.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/acc-control-presets/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="assetto corsa competizione" data-kind="simulator-repair" data-repair="approval required" data-search="assetto corsa competizione damaged acc user configuration repeated startup failure remains after targeted repairs and acc reports corrupt or unparseable configuration state. configuration corruption parse error saved\config">
+          <span class="library-card-product">Assetto Corsa Competizione</span>
+          <h2><a href="/diagnostic-library/acc-user-profile/">Damaged ACC user configuration</a></h2>
+          <p>Repeated startup failure remains after targeted repairs and ACC reports corrupt or unparseable configuration state.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/acc-user-profile/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="assetto corsa competizione" data-kind="simulator-repair" data-repair="approval required" data-search="assetto corsa competizione missing or damaged acc game files acc explicitly reports a missing, corrupt, or unreadable game package or asset rather than a driver, windows, or optional plugin file. .pak pak file asset registry failed to load package">
+          <span class="library-card-product">Assetto Corsa Competizione</span>
+          <h2><a href="/diagnostic-library/acc-steam-content/">Missing or damaged ACC game files</a></h2>
+          <p>ACC explicitly reports a missing, corrupt, or unreadable game package or asset rather than a driver, Windows, or optional plugin file.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/acc-steam-content/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="automobilista 2" data-kind="simulator-repair" data-repair="automatic repair available" data-search="automobilista 2 broken graphics or display configuration ams2 evidence identifies graphicsconfigdx11.xml near a display, startup, or settings failure. graphicsconfigdx11.xml graphics configuration display settings">
+          <span class="library-card-product">Automobilista 2</span>
+          <h2><a href="/diagnostic-library/ams2-graphics-config/">Broken graphics or display configuration</a></h2>
+          <p>AMS2 evidence identifies graphicsconfigdx11.xml near a display, startup, or settings failure.</p>
+          <div><span>Automatic repair available</span><a href="/diagnostic-library/ams2-graphics-config/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="automobilista 2" data-kind="simulator-repair" data-repair="approval required" data-search="automobilista 2 broken openvr or oculus configuration ams2 evidence names openvr, oculus, or the related graphics/settings xml files near a vr startup failure. graphicsconfigopenvrdx11.xml openvrsettings.xml graphicsconfigoculusdx11.xml oculussettings.xml">
+          <span class="library-card-product">Automobilista 2</span>
+          <h2><a href="/diagnostic-library/ams2-vr-config/">Broken OpenVR or Oculus configuration</a></h2>
+          <p>AMS2 evidence names OpenVR, Oculus, or the related graphics/settings XML files near a VR startup failure.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/ams2-vr-config/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="automobilista 2" data-kind="simulator-repair" data-repair="approval required" data-search="automobilista 2 controller input or calibration is lost ams2 evidence identifies controller settings or default.controllersettings.v1.03.sav after an update, usb-port change, or driver change. default.controllersettings.v1.03.sav controller config calibration">
+          <span class="library-card-product">Automobilista 2</span>
+          <h2><a href="/diagnostic-library/ams2-controller-config/">Controller input or calibration is lost</a></h2>
+          <p>AMS2 evidence identifies controller settings or default.controllersettings.v1.03.sav after an update, USB-port change, or driver change.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/ams2-controller-config/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="automobilista 2" data-kind="simulator-repair" data-repair="approval required" data-search="automobilista 2 damaged custom force-feedback configuration ams2 evidence names ffb_custom_settings.txt near a force-feedback initialization or parsing problem. ffb_custom_settings.txt custom ffb force feedback">
+          <span class="library-card-product">Automobilista 2</span>
+          <h2><a href="/diagnostic-library/ams2-ffb-custom/">Damaged custom force-feedback configuration</a></h2>
+          <p>AMS2 evidence names ffb_custom_settings.txt near a force-feedback initialization or parsing problem.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/ams2-ffb-custom/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="automobilista 2" data-kind="simulator-repair" data-repair="approval required" data-search="automobilista 2 car setups are incompatible after a physics update ams2 evidence points to tuning setup or vehiclesetups data while an affected car or setup fails after an update. tuningsetups vehiclesetups tuning setup">
+          <span class="library-card-product">Automobilista 2</span>
+          <h2><a href="/diagnostic-library/ams2-tuning-setups/">Car setups are incompatible after a physics update</a></h2>
+          <p>AMS2 evidence points to tuning setup or vehiclesetups data while an affected car or setup fails after an update.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/ams2-tuning-setups/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="automobilista 2" data-kind="simulator-repair" data-repair="approval required" data-search="automobilista 2 corrupted custom championship state a championship or singlechamps save file changed immediately before a championship-mode failure and no stronger system fault is present. championship singlechamps championship save">
+          <span class="library-card-product">Automobilista 2</span>
+          <h2><a href="/diagnostic-library/ams2-championship-state/">Corrupted custom championship state</a></h2>
+          <p>A championship or singlechamps save file changed immediately before a Championship-mode failure and no stronger system fault is present.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/ams2-championship-state/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="automobilista 2" data-kind="simulator-repair" data-repair="approval required" data-search="automobilista 2 damaged default profile settings ams2 reports profile corruption involving default.sav rather than the controller-specific profile file. default.sav profile corruption invalid profile">
+          <span class="library-card-product">Automobilista 2</span>
+          <h2><a href="/diagnostic-library/ams2-default-profile/">Damaged default profile settings</a></h2>
+          <p>AMS2 reports profile corruption involving default.sav rather than the controller-specific profile file.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/ams2-default-profile/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="automobilista 2" data-kind="simulator-repair" data-repair="approval required" data-search="automobilista 2 damaged automobilista 2 user profile repeated startup failure remains after targeted repairs and ams2 evidence identifies corrupt, invalid, or unparseable profile state. profile corrupt invalid profile documents\automobilista 2">
+          <span class="library-card-product">Automobilista 2</span>
+          <h2><a href="/diagnostic-library/ams2-user-profile/">Damaged Automobilista 2 user profile</a></h2>
+          <p>Repeated startup failure remains after targeted repairs and AMS2 evidence identifies corrupt, invalid, or unparseable profile state.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/ams2-user-profile/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="automobilista 2" data-kind="simulator-repair" data-repair="approval required" data-search="automobilista 2 missing or damaged automobilista 2 game files ams2 evidence explicitly reports a missing, corrupt, or unreadable game file or package. missing file corrupt package failed to load">
+          <span class="library-card-product">Automobilista 2</span>
+          <h2><a href="/diagnostic-library/ams2-steam-content/">Missing or damaged Automobilista 2 game files</a></h2>
+          <p>AMS2 evidence explicitly reports a missing, corrupt, or unreadable game file or package.</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/ams2-steam-content/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="moza pit house" data-kind="companion-repair" data-repair="approval required" data-search="moza pit house recover moza pit house confirmed crash or stale-process clean recovery">
+          <span class="library-card-product">MOZA Pit House</span>
+          <h2><a href="/diagnostic-library/companion-moza-clean-recovery/">Recover MOZA Pit House</a></h2>
+          <p>Confirmed crash or stale-process clean recovery</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/companion-moza-clean-recovery/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="simucube true drive" data-kind="companion-repair" data-repair="approval required" data-search="simucube true drive recover simucube true drive confirmed crash or stale-process clean recovery">
+          <span class="library-card-product">Simucube True Drive</span>
+          <h2><a href="/diagnostic-library/companion-simucube-clean-recovery/">Recover Simucube True Drive</a></h2>
+          <p>Confirmed crash or stale-process clean recovery</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/companion-simucube-clean-recovery/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="fanatec software" data-kind="companion-repair" data-repair="approval required" data-search="fanatec software recover fanatec software confirmed app fault and process-set recovery">
+          <span class="library-card-product">Fanatec software</span>
+          <h2><a href="/diagnostic-library/companion-fanatec-process-recovery/">Recover Fanatec software</a></h2>
+          <p>Confirmed app fault and process-set recovery</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/companion-fanatec-process-recovery/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="logitech g hub" data-kind="companion-repair" data-repair="approval required" data-search="logitech g hub recover logitech g hub loading-loop, agent-fault, and updater-service recovery">
+          <span class="library-card-product">Logitech G HUB</span>
+          <h2><a href="/diagnostic-library/companion-logitech-ghub-service-recovery/">Recover Logitech G HUB</a></h2>
+          <p>Loading-loop, agent-fault, and updater-service recovery</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/companion-logitech-ghub-service-recovery/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="simagic simpro manager" data-kind="companion-repair" data-repair="approval required" data-search="simagic simpro manager recover simagic simpro manager simpro 2/3 conflict, daemon, crash, and stale-process recovery">
+          <span class="library-card-product">SIMAGIC SimPro Manager</span>
+          <h2><a href="/diagnostic-library/companion-simagic-clean-recovery/">Recover SIMAGIC SimPro Manager</a></h2>
+          <p>SimPro 2/3 conflict, daemon, crash, and stale-process recovery</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/companion-simagic-clean-recovery/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="asetek racehub" data-kind="companion-repair" data-repair="approval required" data-search="asetek racehub recover asetek racehub racehub app and elevated-helper clean recovery">
+          <span class="library-card-product">Asetek RaceHub</span>
+          <h2><a href="/diagnostic-library/companion-asetek-clean-recovery/">Recover Asetek RaceHub</a></h2>
+          <p>RaceHub app and elevated-helper clean recovery</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/companion-asetek-clean-recovery/">View diagnostic →</a></div>
+        </article>
+        <article class="library-card" data-product="vrs directforce" data-kind="companion-repair" data-repair="approval required" data-search="vrs directforce recover vrs directforce confirmed configuration-app crash or stale-process recovery">
+          <span class="library-card-product">VRS DirectForce</span>
+          <h2><a href="/diagnostic-library/companion-vrs-clean-recovery/">Recover VRS DirectForce</a></h2>
+          <p>Confirmed configuration-app crash or stale-process recovery</p>
+          <div><span>Approval required</span><a href="/diagnostic-library/companion-vrs-clean-recovery/">View diagnostic →</a></div>
+        </article></div>
+    <p class="library-empty" id="library-empty" hidden>No matching diagnostic records. Try a broader search or clear a filter.</p>
+  </section>
+  <script>
+    (() => {
+      const search = document.querySelector('#library-search');
+      const product = document.querySelector('#library-product');
+      const repair = document.querySelector('#library-repair');
+      const cards = [...document.querySelectorAll('.library-card')];
+      const count = document.querySelector('#library-visible-count');
+      const empty = document.querySelector('#library-empty');
+      const requestedProduct = new URLSearchParams(window.location.search).get('software');
+      if (requestedProduct) {
+        const normalized = requestedProduct.replaceAll('-', ' ').toLowerCase();
+        if ([...product.options].some(option => option.value === normalized)) product.value = normalized;
+      }
+      const filter = () => {
+        const query = search.value.trim().toLowerCase();
+        let visible = 0;
+        cards.forEach(card => {
+          const show = (!query || card.dataset.search.includes(query)) && (!product.value || card.dataset.product === product.value) && (!repair.value || card.dataset.repair === repair.value);
+          card.hidden = !show;
+          if (show) visible += 1;
+        });
+        count.textContent = visible;
+        empty.hidden = visible !== 0;
+      };
+      search.addEventListener('input', filter);
+      product.addEventListener('change', filter);
+      repair.addEventListener('change', filter);
+      filter();
+    })();
+  </script>
+  <footer>
+    <a class="brand" href="/"><img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="" /><span>PitMedic</span></a>
+    <p>A free open-source project for the sim-racing community.</p>
+    <div><a href="/diagnostic-library/">Diagnostic Library</a><a href="/#simulators">Simulators</a><a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a><a href="https://github.com/rholmes426/PitMedic">GitHub</a><a href="https://paypal.me/PitMedicApp">Support</a></div>
+  </footer>
+</main>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5a4e361a3e0d4f838478d54e24d8f925"}'></script>
+</body>
+</html>

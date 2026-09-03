@@ -29,6 +29,7 @@ public static class IRacingRepairSignaturePolicy
         "eac-error-73" or "eac-failure" or "eac-error-10011" => "iracing-eac-error73",
         "verification-failure" => "iracing-update-verification",
         "content-file-locked" => "iracing-content-file-locked",
+        "missing-file-privileges" => "iracing-missing-file-privileges",
         "track-loading-error" => "iracing-track-corruption",
         "car-loading-error" => "iracing-car-corruption",
         "loading-error-49" => "iracing-loading-error-49",

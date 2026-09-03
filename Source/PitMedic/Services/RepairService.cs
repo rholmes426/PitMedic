@@ -334,6 +334,7 @@ public sealed class RepairService : IDisposable
             "iracing-car-index-reset" => await RepairIRacingCarIndexAsync(incident, plan, backupRoot, token),
             "iracing-steam-track-repair" => await RepairIRacingTrackIndexAsync(incident, plan, backupRoot, token, true),
             "iracing-release-content-lock" => await RepairIRacingContentLockAsync(incident, plan, backupRoot, token),
+            "iracing-release-file-privileges" => await RepairIRacingContentLockAsync(incident, plan, backupRoot, token),
             "iracing-renderer-reset" => await RepairIRacingRendererAsync(incident, plan, backupRoot, token),
             "iracing-trueforce-disable" => await RepairIRacingIniValueAsync(incident, plan, backupRoot, token, "trueForceEnabled", "0", "TrueForce disabled"),
             "iracing-logitech-led-disable" => await RepairIRacingIniValueAsync(incident, plan, backupRoot, token, "enableLogitechLED", "0", "Logitech hardware lighting disabled"),

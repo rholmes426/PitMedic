@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Corrupt ACE user profile / launch state — Assetto Corsa EVO | PitMedic</title>
+  <meta name="description" content="How PitMedic detects and safely responds to corrupt ace user profile / launch state in Assetto Corsa EVO." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://pitmedic.com/diagnostic-library/ace-user-profile/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="PitMedic" />
+  <meta property="og:title" content="Corrupt ACE user profile / launch state — Assetto Corsa EVO | PitMedic" />
+  <meta property="og:description" content="How PitMedic detects and safely responds to corrupt ace user profile / launch state in Assetto Corsa EVO." />
+  <meta property="og:url" content="https://pitmedic.com/diagnostic-library/ace-user-profile/" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" />
+  <link rel="icon" href="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Assetto Corsa EVO"}]},{"@type":"TechArticle","headline":"Assetto Corsa EVO: Corrupt ACE user profile / launch state","description":"How PitMedic detects and safely responds to corrupt ace user profile / launch state in Assetto Corsa EVO.","url":"https://pitmedic.com/diagnostic-library/ace-user-profile/","dateModified":"2026-09-01","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Assetto Corsa EVO"}]}</script>
+</head>
+<body>
+<main>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="PitMedic home"><img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="" /><span>PitMedic</span></a>
+    <nav aria-label="Primary navigation"><a href="/#how-it-works">How it works</a><a href="/#simulators">Simulators</a><a class="active" href="/diagnostic-library/">Diagnostic Library</a><a href="/#about">About</a></nav>
+    <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-cta" href="/">Home</a></div>
+  </header>
+  <article class="library-page issue-page">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><a href="/diagnostic-library/">Diagnostic Library</a><span>›</span><span>Assetto Corsa EVO</span></nav>
+    <header class="library-hero">
+      <span class="section-kicker">Simulator repair</span>
+      <p class="library-product">Assetto Corsa EVO</p>
+      <h1>Corrupt ACE user profile / launch state</h1>
+      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
+      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Reviewed 2026-09-01</span></div>
+    </header>
+    <div class="diagnostic-layout">
+      <div class="diagnostic-main">
+        <section class="diagnostic-card"><span class="card-number">01</span><h2>How PitMedic recognizes it</h2><p>Repeated early launch crash or black/white startup failure without a stronger hardware/driver signature after a targeted video reset is not enough.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>ACE folder</code></li><li><code>Saved Games\ACE</code></li><li><code>Documents\ACE</code></li><li><code>profile corruption</code></li></ul></section>
+        <section class="diagnostic-card"><span class="card-number">02</span><h2>Built-in response</h2><p>Preserve the ACE user-data folder, move the active copy aside, and allow Assetto Corsa EVO to build a clean profile on the next launch.</p><div class="safety-note"><strong>Repair safety</strong><span>Significant / reversible / ask first</span></div></section>
+        <section class="diagnostic-card"><span class="card-number">03</span><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>0.8 crash at launch - Kunos support response</strong><span>Assetto Corsa EVO Steam Community · Community evidence</span><p>The accepted post reports Kunos support instructed the user to remove Saved Games\ACE and Documents\ACE so the game could regenerate its user data.</p></div><a href="https://steamcommunity.com/app/3058630/discussions/0/576046907555585146/" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>Game does not start</strong><span>Assetto Corsa EVO Steam Community · Community evidence</span><p>A large launch-troubleshooting thread contains repeated successful ACE-folder resets; PitMedic uses a reversible move instead of permanent deletion.</p></div><a href="https://steamcommunity.com/app/3058630/discussions/0/756142145462660478/" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+      </div>
+      <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.11/PitMedic-Setup-x64.exe">Download v0.6.0.11</a><a class="button button-secondary" href="/simulators/assetto-corsa-evo/">View Assetto Corsa EVO coverage</a><small>Free and open source · Windows 10/11</small></aside>
+    </div>
+    <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>More for Assetto Corsa EVO</h2><div><a href="/diagnostic-library/ace-video-settings/"><strong>Broken video settings / graphics startup state</strong><span>Automatic repair available</span></a><a href="/diagnostic-library/ace-steam-content/"><strong>Missing or damaged Steam game files</strong><span>Approval required</span></a></div></nav>
+  </article>
+  <footer>
+    <a class="brand" href="/"><img src="https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png" alt="" /><span>PitMedic</span></a>
+    <p>A free open-source project for the sim-racing community.</p>
+    <div><a href="/diagnostic-library/">Diagnostic Library</a><a href="/#simulators">Simulators</a><a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a><a href="https://github.com/rholmes426/PitMedic">GitHub</a><a href="https://paypal.me/PitMedicApp">Support</a></div>
+  </footer>
+</main>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5a4e361a3e0d4f838478d54e24d8f925"}'></script>
+</body>
+</html>
