@@ -2,7 +2,7 @@
   "use strict";
 
   const endpoint =
-    "https://pitmedic-usage.pitmedic-usage-telemetry.workers.dev/v1/web-event";
+    "https://br-billowing-bar-ayh10nfr-analytics.compute.c-5.us-east-2.aws.neon.tech/v1/web-event";
 
   const normalizePath = (value) => {
     const path = value.toLowerCase().replace(/\/{2,}/g, "/");
