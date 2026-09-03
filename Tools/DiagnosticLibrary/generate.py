@@ -292,9 +292,9 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
-        <section class="diagnostic-card"><span class="card-number">01</span><h2>How PitMedic recognizes it</h2><p>{esc(entry["detection"])}</p>{details}</section>
-        <section class="diagnostic-card"><span class="card-number">02</span><h2>Built-in response</h2><p>{esc(entry["repair"])}</p><div class="safety-note"><strong>Repair safety</strong><span>{esc(entry["safety"])}</span></div></section>
-        <section class="diagnostic-card"><span class="card-number">03</span><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list">{source_items}</ul></section>
+        <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>{esc(entry["detection"])}</p>{details}</section>
+        <section class="diagnostic-card"><h2>Built-in response</h2><p>{esc(entry["repair"])}</p><div class="safety-note"><strong>Repair safety</strong><span>{esc(entry["safety"])}</span></div></section>
+        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list">{source_items}</ul></section>
       </div>
       <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="{RELEASE_URL}">Download v0.6.0.12</a>{product_link}<small>Free and open source · Windows 10/11</small></aside>
     </div>
