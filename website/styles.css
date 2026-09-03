@@ -550,11 +550,10 @@ footer > div a:hover { color: var(--orange); }
 .related-sims-head{max-width:430px}
 .related-sims h2{margin:10px 0 14px;color:var(--navy);font-family:Georgia,"Times New Roman",serif;font-size:clamp(29px,3.5vw,40px);line-height:1.1}
 .related-sims-head p{margin:0;color:var(--muted);font-size:14px;line-height:1.68}
-.related-sim-links{counter-reset:related-link;display:flex;flex-direction:column;margin-top:0;border-top:1px solid var(--line)}
-.related-sim-links a{counter-increment:related-link;position:relative;min-height:82px;padding:18px 48px 18px 45px;display:flex;flex-direction:column;justify-content:center;gap:6px;border:0;border-bottom:1px solid var(--line);background:transparent;transition:padding-left .16s ease,color .16s ease}
-.related-sim-links a::before{content:counter(related-link,decimal-leading-zero);position:absolute;left:0;top:21px;color:#a39b8e;font:700 10px ui-monospace,Consolas,monospace;letter-spacing:.08em}
+.related-sim-links{display:flex;flex-direction:column;margin-top:0;border-top:1px solid var(--line)}
+.related-sim-links a{position:relative;min-height:82px;padding:18px 48px 18px 0;display:flex;flex-direction:column;justify-content:center;gap:6px;border:0;border-bottom:1px solid var(--line);background:transparent;transition:padding-left .16s ease,color .16s ease}
 .related-sim-links a::after{content:"\2192";position:absolute;right:4px;top:50%;transform:translateY(-50%);color:var(--orange);font-size:20px}
-.related-sim-links a:hover{padding-left:51px;color:var(--orange)}
+.related-sim-links a:hover{padding-left:8px;color:var(--orange)}
 .related-sim-links a:focus-visible{outline:3px solid rgba(189,95,52,.28);outline-offset:3px}
 .related-sim-links strong{color:var(--navy);font-family:Georgia,"Times New Roman",serif;font-size:18px;line-height:1.2}
 .related-sim-links span{color:var(--muted);font-size:12px;line-height:1.45}
@@ -564,7 +563,6 @@ footer > div a:hover { color: var(--orange); }
 .diagnostic-links .related-sims-head p{color:#c7d0d5}
 .diagnostic-links .related-sim-links{border-top-color:#50677a}
 .diagnostic-links .related-sim-links a{border-bottom-color:#50677a}
-.diagnostic-links .related-sim-links a::before{color:#e1a07a}
 .diagnostic-links .related-sim-links strong{color:#fff}
 .diagnostic-links .related-sim-links span{color:#bdc8cf}
 .diagnostic-links .related-sim-links a:hover{color:#fff;background:rgba(255,255,255,.035)}
