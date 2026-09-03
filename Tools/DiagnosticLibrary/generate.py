@@ -197,6 +197,7 @@ def page_footer() -> str:
     <div><a href="/diagnostic-library/">Diagnostic Library</a><a href="/#simulators">Simulators</a><a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a><a href="https://github.com/rholmes426/PitMedic">GitHub</a><a href="https://paypal.me/PitMedicApp">Support</a></div>
   </footer>
 </main>
+<script defer src="/analytics.js"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{{"token":"5a4e361a3e0d4f838478d54e24d8f925"}}'></script>
 </body>
 </html>

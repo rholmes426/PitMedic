@@ -1,5 +1,12 @@
 import { rollUpExpiredTokens, validatePayload } from "./usage";
 import {
+  allowedWebsiteOrigin,
+  pruneWebAnalytics,
+  recordWebEvent,
+  validateWebEvent,
+  websiteCorsHeaders,
+} from "./web";
+import {
   buildYouTubeSearchQuery,
   combinationKey,
   selectFastestWebLap,
@@ -10,6 +17,7 @@ import {
 const ACTIVE_PATH = "/v1/active";
 const HEALTH_PATH = "/health";
 const BENCHMARK_PATH = "/v1/lap-benchmark";
+const WEB_EVENT_PATH = "/v1/web-event";
 const MAX_BODY_BYTES = 2_048;
 const INSTALL_ALERT_TO = "bobbyholmes@gmail.com";
 const INSTALL_ALERT_FROM = "notifications@pitmedic.com";
@@ -27,6 +35,10 @@ const worker = {
 
     if (url.pathname === BENCHMARK_PATH) {
       return handleBenchmarkRequest(request, url, env);
+    }
+
+    if (url.pathname === WEB_EVENT_PATH) {
+      return handleWebEventRequest(request, env);
     }
 
     if (url.pathname !== ACTIVE_PATH) {
@@ -149,11 +161,64 @@ const worker = {
   },
 
   async scheduled(_controller, env, ctx): Promise<void> {
-    ctx.waitUntil(rollUpExpiredTokens(env.DB));
+    ctx.waitUntil(
+      Promise.all([
+        rollUpExpiredTokens(env.DB),
+        pruneWebAnalytics(env.DB),
+      ]).then(() => undefined),
+    );
   },
 } satisfies ExportedHandler<WorkerEnv>;
 
 export default worker;
+
+async function handleWebEventRequest(
+  request: Request,
+  env: WorkerEnv,
+): Promise<Response> {
+  const origin = allowedWebsiteOrigin(request);
+  if (!origin) return jsonResponse({ error: "origin_not_allowed" }, 403);
+  const cors = websiteCorsHeaders(origin);
+
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: cors });
+  }
+  if (request.method !== "POST") {
+    return jsonResponse(
+      { error: "method_not_allowed" },
+      405,
+      { ...cors, Allow: "POST, OPTIONS" },
+    );
+  }
+
+  try {
+    const rawPayload = await readBoundedJson(request, MAX_BODY_BYTES);
+    const validation = validateWebEvent(rawPayload);
+    if (!validation.ok) {
+      return jsonResponse(
+        { error: "invalid_payload", detail: validation.reason },
+        400,
+        cors,
+      );
+    }
+    await recordWebEvent(env.DB, validation.value, request);
+    return new Response(null, { status: 204, headers: cors });
+  } catch (error) {
+    if (error instanceof PayloadTooLargeError) {
+      return jsonResponse({ error: "payload_too_large" }, 413, cors);
+    }
+    if (error instanceof SyntaxError) {
+      return jsonResponse({ error: "invalid_json" }, 400, cors);
+    }
+    console.error(
+      JSON.stringify({
+        event: "website_analytics_failed",
+        errorType: error instanceof Error ? error.name : "UnknownError",
+      }),
+    );
+    return jsonResponse({ error: "temporary_failure" }, 503, cors);
+  }
+}
 
 async function handleBenchmarkRequest(
   request: Request,

@@ -2,6 +2,7 @@ import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it } from "vitest";
 import worker, { type DashboardEnv } from "../src/index";
 import { loadDashboardData } from "../src/usage-dashboard";
+import { loadWebsiteDashboardData } from "../src/website-dashboard";
 
 const DAILY_TOKEN = "a".repeat(64);
 const MONTHLY_TOKEN = "b".repeat(64);
@@ -30,6 +31,7 @@ beforeEach(async () => {
     env.DB.prepare("DELETE FROM monthly_active"),
     env.DB.prepare("DELETE FROM daily_rollup"),
     env.DB.prepare("DELETE FROM monthly_rollup"),
+    env.DB.prepare("DELETE FROM web_daily_events"),
   ]);
 });
 
@@ -147,6 +149,44 @@ describe("private aggregate dashboard", () => {
     );
     expect(response.status).toBe(405);
     expect(response.headers.get("Allow")).toBe("GET");
+  });
+
+  it("renders detailed aggregate website analytics in a separate private view", async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const insert = env.DB.prepare(
+      `INSERT INTO web_daily_events
+        (day, event_type, path, target, section, product, traffic_type, source, country, device_type, event_count)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    );
+    await env.DB.batch([
+      insert.bind(today, "page_view", "/diagnostic-library/iracing-helper-service/", "", "Simulator diagnostic", "iRacing", "search", "Google", "US", "desktop", 8),
+      insert.bind(today, "engaged", "/diagnostic-library/iracing-helper-service/", "", "Simulator diagnostic", "iRacing", "search", "Google", "US", "desktop", 5),
+      insert.bind(today, "download", "/diagnostic-library/iracing-helper-service/", "release:v0.6.0.12", "Simulator diagnostic", "iRacing", "search", "Google", "US", "desktop", 2),
+      insert.bind(today, "internal_navigation", "/diagnostic-library/", "/diagnostic-library/iracing-helper-service/", "Diagnostic Library", "All software", "internal", "PitMedic", "US", "desktop", 3),
+    ]);
+
+    const data = await loadWebsiteDashboardData(env.DB);
+    expect(data.thirtyDayPageViews).toBe(8);
+    expect(data.downloads).toBe(2);
+    expect(data.engagementRate).toBe(62.5);
+    expect(data.organicEntries).toBe(8);
+
+    const cookie = await authenticatedCookie();
+    const response = await worker.fetch(
+      new IncomingRequest("https://stats.example/website", {
+        headers: { Cookie: cookie },
+      }),
+      dashboardEnv,
+    );
+    const html = await response.text();
+    expect(response.status).toBe(200);
+    expect(html).toContain("Traffic and content");
+    expect(html).toContain("Organic landing pages");
+    expect(html).toContain("iRacing");
+    expect(html).toContain("United States");
+    expect(html).toContain("62.5%");
+    expect(html).not.toContain("dailyToken");
+    expect(html).not.toContain("User-Agent");
   });
 
   it("requires the private passcode and rejects forged sessions", async () => {

@@ -1,4 +1,16 @@
-import { loadDashboardData, renderDashboard } from "./usage-dashboard";
+import {
+  dashboardStyles,
+  loadDashboardData,
+  renderDashboard,
+} from "./usage-dashboard";
+import {
+  loadWebsiteDashboardData,
+  renderWebsiteDashboard,
+} from "./website-dashboard";
+import {
+  loadSearchConsoleData,
+  type SearchConsoleEnv,
+} from "./search-console";
 import {
   authHeaders,
   handleLogin,
@@ -8,7 +20,8 @@ import {
 } from "./auth";
 
 const DASHBOARD_PATH = "/dashboard";
-export type DashboardEnv = Env & DashboardAuthEnv;
+const WEBSITE_PATH = "/website";
+export type DashboardEnv = Env & DashboardAuthEnv & SearchConsoleEnv;
 
 export default {
   async fetch(request, env): Promise<Response> {
@@ -47,7 +60,7 @@ export default {
       });
     }
 
-    if (url.pathname !== DASHBOARD_PATH) {
+    if (url.pathname !== DASHBOARD_PATH && url.pathname !== WEBSITE_PATH) {
       return new Response("Not found", {
         status: 404,
         headers: securityHeaders(),
@@ -56,8 +69,15 @@ export default {
 
     try {
       const generatedAt = new Date();
-      const data = await loadDashboardData(env.DB, generatedAt);
-      return new Response(renderDashboard(data, generatedAt), {
+      const html = url.pathname === WEBSITE_PATH
+        ? renderWebsiteDashboard(
+            await loadWebsiteDashboardData(env.DB, generatedAt),
+            await loadSearchConsoleData(env, generatedAt),
+            generatedAt,
+            dashboardStyles,
+          )
+        : renderDashboard(await loadDashboardData(env.DB, generatedAt), generatedAt);
+      return new Response(html, {
         status: 200,
         headers: securityHeaders({
           "Content-Type": "text/html; charset=utf-8",

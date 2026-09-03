@@ -1,6 +1,6 @@
 # PitMedic privacy statement
 
-Last updated: August 29, 2026
+Last updated: September 3, 2026
 
 PitMedic is designed to perform monitoring, diagnostics, and repairs locally on the user's Windows computer.
 
@@ -55,6 +55,10 @@ Some user-approved repairs can ask Windows or Steam to perform actions such as v
 The PitMedic website uses Cloudflare Web Analytics to understand aggregate website traffic and performance. It can report page views, visited paths, referral sources, approximate country, general browser and device information, and site-performance measurements.
 
 Cloudflare Web Analytics does not use cookies or local storage, fingerprint visitors, or track people across websites. Website analytics are separate from the installed PitMedic application: the website does not use PitMedic's app-usage tokens, app-usage consent does not affect website analytics, and the PitMedic project does not combine website analytics with app-usage counts or local PitMedic data. Cloudflare processes website requests under its [privacy policy](https://www.cloudflare.com/privacypolicy/).
+
+The website also sends a small first-party event to the PitMedic aggregate analytics service when a page loads, when a visitor remains for 30 seconds or scrolls through at least half of a page, when an internal PitMedic link is selected, or when the signed Windows installer link is selected. The event contains only the event type, the PitMedic page path, an internal destination path or public release version when applicable, and the referring site's hostname. It never contains a full referrer URL, search terms, URL query parameters, IP address, cookie, local-storage identifier, app-usage token, or permanent visitor identifier.
+
+Before storage, the service converts Cloudflare's request-country code and the browser user-agent into broad country and device-class labels. It does not store the source IP address or raw user-agent string. Events are immediately combined into daily counters by page, content category, simulator or companion software, traffic-source category, referring hostname, country, and device class. There is no visitor or session record to inspect or connect to installed-app activity. Aggregate website counters are retained for up to two years and are shown only in the same private, access-controlled dashboard used for aggregate app-usage totals.
 
 ## Future changes
 

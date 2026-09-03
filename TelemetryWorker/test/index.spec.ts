@@ -2,6 +2,7 @@ import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it } from "vitest";
 import worker from "../src/index";
 import { rollUpExpiredTokens, validatePayload } from "../src/usage";
+import { validateWebEvent } from "../src/web";
 import {
   buildYouTubeSearchQuery,
   combinationKey,
@@ -36,6 +37,33 @@ async function post(body: unknown): Promise<Response> {
   return worker.fetch(request, env);
 }
 
+async function postWeb(
+  body: unknown,
+  origin = "https://pitmedic.com",
+): Promise<Response> {
+  const request = new IncomingRequest("https://usage.example/v1/web-event", {
+    method: "POST",
+    headers: {
+      "Content-Type": "text/plain;charset=UTF-8",
+      Origin: origin,
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+    },
+    body: JSON.stringify(body),
+  });
+  return worker.fetch(request, env);
+}
+
+function webPayload(overrides: Record<string, unknown> = {}) {
+  return {
+    protocol: 1,
+    event: "page_view",
+    path: "/diagnostic-library/iracing-helper-service/",
+    target: "",
+    referrer: "www.google.com",
+    ...overrides,
+  };
+}
+
 beforeEach(async () => {
   await env.DB.batch([
     env.DB.prepare("DELETE FROM daily_active"),
@@ -44,6 +72,7 @@ beforeEach(async () => {
     env.DB.prepare("DELETE FROM monthly_rollup"),
     env.DB.prepare("DELETE FROM official_lap_benchmarks"),
     env.DB.prepare("DELETE FROM lap_benchmark_cache"),
+    env.DB.prepare("DELETE FROM web_daily_events"),
   ]);
 });
 
@@ -160,6 +189,73 @@ describe("active installation endpoint", () => {
         ).first<{ active_installations: number }>()
       )?.active_installations,
     ).toBe(1);
+  });
+});
+
+describe("aggregate website analytics endpoint", () => {
+  it("accepts only the bounded privacy contract", () => {
+    expect(validateWebEvent(webPayload()).ok).toBe(true);
+    expect(
+      validateWebEvent(webPayload({ fullUrl: "https://pitmedic.com/?email=x" })),
+    ).toEqual({ ok: false, reason: "missing_or_extra_field" });
+    expect(
+      validateWebEvent(webPayload({ referrer: "google.com/search?q=private" })),
+    ).toEqual({ ok: false, reason: "invalid_referrer" });
+  });
+
+  it("stores aggregate dimensions and increments matching page views", async () => {
+    expect((await postWeb(webPayload())).status).toBe(204);
+    expect((await postWeb(webPayload())).status).toBe(204);
+
+    const row = await env.DB.prepare(
+      "SELECT event_type, path, section, product, traffic_type, source, country, device_type, event_count FROM web_daily_events",
+    ).first<Record<string, unknown>>();
+    expect(row).toMatchObject({
+      event_type: "page_view",
+      path: "/diagnostic-library/iracing-helper-service/",
+      section: "Simulator diagnostic",
+      product: "iRacing",
+      traffic_type: "search",
+      source: "Google",
+      country: "XX",
+      device_type: "desktop",
+      event_count: 2,
+    });
+  });
+
+  it("rejects requests from any site except PitMedic", async () => {
+    expect((await postWeb(webPayload(), "https://example.com")).status).toBe(403);
+    expect(
+      (await env.DB.prepare("SELECT COUNT(*) AS total FROM web_daily_events").first<{ total: number }>())?.total,
+    ).toBe(0);
+  });
+
+  it("validates download and internal-navigation targets", async () => {
+    expect(
+      (
+        await postWeb(
+          webPayload({
+            event: "download",
+            target: "release:v0.6.0.12",
+            referrer: "pitmedic.com",
+          }),
+        )
+      ).status,
+    ).toBe(204);
+    expect(
+      (
+        await postWeb(
+          webPayload({
+            event: "internal_navigation",
+            target: "/simulators/iracing/",
+            referrer: "pitmedic.com",
+          }),
+        )
+      ).status,
+    ).toBe(204);
+    expect(
+      (await postWeb(webPayload({ event: "download", target: "arbitrary-url" }))).status,
+    ).toBe(400);
   });
 });
 

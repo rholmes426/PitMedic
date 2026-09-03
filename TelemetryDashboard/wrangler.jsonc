@@ -10,6 +10,9 @@
     "enabled": true,
     "head_sampling_rate": 1,
   },
+  "vars": {
+    "SEARCH_CONSOLE_PROPERTY": "https://pitmedic.com/"
+  },
   "d1_databases": [
     {
       "binding": "DB",
