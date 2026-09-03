@@ -4,7 +4,10 @@ on:
   push:
     branches: [main]
     paths:
-      - "Source/**"
+      - "Source/**/*.cs"
+      - "Source/**/*.csproj"
+      - "Source/**/*.xaml"
+      - "Source/**/Assets/**"
       - "Build/**"
       - "Installer/**"
       - "Build and Run PitMedic.cmd"

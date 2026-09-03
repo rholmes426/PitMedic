@@ -1,0 +1,57 @@
+name: Deploy PitMedic analytics
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pitmedic-analytics-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            TelemetryWorker/package-lock.json
+            TelemetryDashboard/package-lock.json
+
+      - name: Validate Cloudflare deployment credentials
+        shell: bash
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "CLOUDFLARE_API_TOKEN is not configured."; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo "CLOUDFLARE_ACCOUNT_ID is not configured."; exit 1; }
+
+      - name: Install and test telemetry Worker
+        working-directory: TelemetryWorker
+        run: npm ci && npm run check
+
+      - name: Apply analytics database migrations
+        working-directory: TelemetryWorker
+        run: npm run migrate:remote
+
+      - name: Deploy telemetry Worker
+        working-directory: TelemetryWorker
+        run: npm run deploy
+
+      - name: Install and test private dashboard
+        working-directory: TelemetryDashboard
+        run: npm ci && npm run check
+
+      - name: Deploy private dashboard
+        working-directory: TelemetryDashboard
+        run: npm run deploy
