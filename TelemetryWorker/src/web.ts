@@ -189,7 +189,7 @@ function classifyContent(path: string): { section: string; product: string } {
     const companion = diagnostic.match(
       /^companion-(moza|simucube|fanatec|logitech-ghub|simagic|asetek|vrs)-/,
     )?.[1];
-    const prefix = companion ?? diagnostic.split("-", 1)[0];
+    const prefix = companion ?? diagnostic.split("-", 1)[0] ?? diagnostic;
     return {
       section: diagnostic.startsWith("companion-")
         ? "Companion diagnostic"
