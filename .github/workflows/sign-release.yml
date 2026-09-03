@@ -1,10 +1,10 @@
-name: Sign release with SignPath
+name: Sign release with Azure Artifact Signing
 
 on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: Existing protected tag for this release, for example v0.5.0.0
+        description: Existing protected tag for this release, for example v0.6.0.10
         required: true
         type: string
 
@@ -14,8 +14,8 @@ permissions:
 
 jobs:
   build-sign-verify:
-    if: startsWith(inputs.release_tag, 'v')
-    runs-on: windows-latest
+    if: startsWith(${{ inputs.release_tag }}, 'v')
+    runs-on: windows-2025
     environment: production-signing
     steps:
       - name: Check out requested release tag
@@ -23,12 +23,14 @@ jobs:
         with:
           ref: ${{ inputs.release_tag }}
           fetch-depth: 0
+
       - name: Require exact tagged commit
         shell: pwsh
         run: |
           $tagCommit = git rev-list -n 1 "${{ inputs.release_tag }}"
           $headCommit = git rev-parse HEAD
           if ($tagCommit -ne $headCommit) { throw "Checked-out commit does not match the requested tag." }
+
           [xml]$appProject = Get-Content -Raw Source/PitMedic/PitMedic.csproj
           [xml]$helperProject = Get-Content -Raw Source/PitMedic.RepairHelper/PitMedic.RepairHelper.csproj
           [xml]$sensorHelperProject = Get-Content -Raw Source/PitMedic.SensorHelper/PitMedic.SensorHelper.csproj
@@ -38,70 +40,84 @@ jobs:
           if ("${{ inputs.release_tag }}" -ne "v$version") { throw "Release tag does not match project version $version." }
           if ($helperVersion -ne $version) { throw "Repair helper version $helperVersion does not match app version $version." }
           if ($sensorHelperVersion -ne $version) { throw "Sensor helper version $sensorHelperVersion does not match app version $version." }
+
       - name: Set up .NET 10
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
+
       - name: Build unsigned app and helpers
         shell: pwsh
         run: ./Build/Build-UnsignedRelease.ps1 -ReleaseChannel stable
-      - name: Upload unsigned binaries for SignPath
-        id: unsigned-binaries
-        uses: actions/upload-artifact@v4
+
+      - name: Locate release payload
+        id: payload
+        shell: pwsh
+        run: |
+          $payload = Get-ChildItem ./Artifacts/unsigned -Directory -Filter "PitMedic-*-win-x64" | Select-Object -First 1
+          if (-not $payload) { throw "The unsigned PitMedic release payload was not found." }
+          "path=$($payload.FullName)" >> $env:GITHUB_OUTPUT
+
+      - name: Sign in to Azure with GitHub OIDC
+        uses: azure/login@v3
         with:
-          name: PitMedic-${{ inputs.release_tag }}-unsigned-binaries
-          path: Artifacts/unsigned/PitMedic-*-win-x64/
-          if-no-files-found: error
-          retention-days: 7
-      - name: Sign app and scoped helpers
-        uses: signpath/github-action-submit-signing-request@v2
+          client-id: 880a903b-9c28-4f2f-8058-c3df84ea99ab
+          tenant-id: 9b435f7a-5e9b-4da1-82a2-50e2f556871b
+          subscription-id: c98cd262-4c9a-453a-96da-25de90651a7a
+
+      - name: Sign PitMedic app and helpers
+        uses: azure/artifact-signing-action@v2
         with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
-          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
-          artifact-configuration-slug: pitmedic-windows-x64-binaries
-          github-artifact-id: ${{ steps.unsigned-binaries.outputs.artifact-id }}
-          wait-for-completion: true
-          output-artifact-directory: Artifacts/signed-binaries
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: pitmedicsigning426
+          certificate-profile-name: PITMEDICPUBLIC
+          files: |
+            ${{ steps.payload.outputs.path }}\PitMedic.exe
+            ${{ steps.payload.outputs.path }}\PitMedic.RepairHelper.exe
+            ${{ steps.payload.outputs.path }}\PitMedic.SensorHelper.exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+          description: PitMedic Sim Racing Diagnostics and Repair
+          description-url: https://pitmedic.com/
+
       - name: Verify app and helper signatures
         shell: pwsh
         run: |
           $expectedVersion = "${{ inputs.release_tag }}".TrimStart("v")
-          ./Build/Verify-SignedRelease.ps1 -Path ./Artifacts/signed-binaries -ArtifactKind Binaries -ExpectedVersion $expectedVersion
+          ./Build/Verify-SignedRelease.ps1 -Path ./Artifacts/unsigned -ArtifactKind Binaries -ExpectedPublisher "Robert Holmes" -ExpectedVersion $expectedVersion
+
       - name: Install Inno Setup
         shell: pwsh
         run: choco install innosetup --yes --no-progress
+
       - name: Build installer from signed binaries
         shell: pwsh
-        run: ./Build/Build-Installer.ps1 -PayloadPath ./Artifacts/signed-binaries -OutputRoot ./Artifacts/unsigned-installer
-      - name: Upload unsigned installer for SignPath
-        id: unsigned-installer
-        uses: actions/upload-artifact@v4
+        run: ./Build/Build-Installer.ps1 -PayloadPath ./Artifacts/unsigned -OutputRoot ./Artifacts/installer
+
+      - name: Sign PitMedic installer
+        uses: azure/artifact-signing-action@v2
         with:
-          name: PitMedic-${{ inputs.release_tag }}-unsigned-installer
-          path: Artifacts/unsigned-installer/PitMedic-Setup-x64.exe
-          if-no-files-found: error
-          retention-days: 7
-      - name: Sign installer
-        uses: signpath/github-action-submit-signing-request@v2
-        with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
-          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
-          artifact-configuration-slug: pitmedic-windows-x64-installer
-          github-artifact-id: ${{ steps.unsigned-installer.outputs.artifact-id }}
-          wait-for-completion: true
-          output-artifact-directory: Artifacts/signed-installer
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: pitmedicsigning426
+          certificate-profile-name: PITMEDICPUBLIC
+          files: ${{ github.workspace }}\Artifacts\installer\PitMedic-Setup-x64.exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+          description: PitMedic Installer
+          description-url: https://pitmedic.com/
+
       - name: Verify installer signature
         shell: pwsh
         run: |
           $expectedVersion = "${{ inputs.release_tag }}".TrimStart("v")
-          ./Build/Verify-SignedRelease.ps1 -Path ./Artifacts/signed-installer -ArtifactKind Installer -ExpectedVersion $expectedVersion
+          ./Build/Verify-SignedRelease.ps1 -Path ./Artifacts/installer -ArtifactKind Installer -ExpectedPublisher "Robert Holmes" -ExpectedVersion $expectedVersion
+
       - name: Assemble verified release package
         shell: pwsh
-        run: ./Build/Assemble-SignedRelease.ps1 -SignedBinariesPath ./Artifacts/signed-binaries -SignedInstallerPath ./Artifacts/signed-installer
+        run: ./Build/Assemble-SignedRelease.ps1 -SignedBinariesPath ./Artifacts/unsigned -SignedInstallerPath ./Artifacts/installer
+
       - name: Upload verified signed release
         uses: actions/upload-artifact@v4
         with:
@@ -109,6 +125,7 @@ jobs:
           path: Artifacts/release/
           if-no-files-found: error
           retention-days: 90
+
       - name: Promote verified files to the public GitHub release
         shell: pwsh
         env:
@@ -132,10 +149,11 @@ jobs:
           @"
           PitMedic $version is the verified signed Windows release.
 
-          The installer and PitMedic-owned executables were built from this tag, signed through SignPath Foundation, timestamped, and independently verified by the release workflow. SHA-256 checksums and signature manifests are included.
+          The installer and PitMedic-owned executables were built from this tag, signed and timestamped with Microsoft Azure Artifact Signing under Robert Holmes, and independently verified by the release workflow. SHA-256 checksums and signature manifests are included.
 
           PitMedic remains free and open source. Voluntary support unlocks nothing.
           "@ | Set-Content -Encoding UTF8 ./Artifacts/signed-release-notes.txt
+
           gh release edit $releaseTag `
             --repo "${{ github.repository }}" `
             --title "PitMedic $version" `
