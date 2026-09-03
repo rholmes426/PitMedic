@@ -1,6 +1,6 @@
 # Code signing policy
 
-Official PitMedic Windows releases use free code signing provided by SignPath.io, certificate by SignPath Foundation.
+Official PitMedic Windows releases use Microsoft Azure Artifact Signing with PitMedic's public-trust certificate profile.
 
 ## Privacy
 
@@ -9,7 +9,7 @@ PitMedic never transfers diagnostics, findings, repairs, hardware data, or simul
 ## Team roles
 
 - Committers and reviewers: [PitMedic repository maintainers](https://github.com/rholmes426/PitMedic/graphs/contributors).
-- Approvers: [rholmes426](https://github.com/rholmes426) and any future repository owners who are also authorized as release approvers in SignPath.
+- Approvers: [rholmes426](https://github.com/rholmes426) and any future repository owners who are also authorized for the protected GitHub signing environment and Azure signing account.
 - Outside contributions require review by a maintainer before merge.
 - Every production signing request requires manual approval.
 
@@ -29,5 +29,5 @@ The initial repository owner may hold all three roles while PitMedic has a one-p
 - The final installer is signed and independently verified after it is built from the signed payload.
 - Every signed executable must have a valid timestamped Authenticode signature.
 - Release checksums are generated only after signature verification.
-- Maintainers must enable multi-factor authentication for GitHub and SignPath.
+- Maintainers must enable multi-factor authentication for GitHub and Microsoft Azure.
 - A signed binary that cannot be traced to its source commit and workflow run must not be distributed.

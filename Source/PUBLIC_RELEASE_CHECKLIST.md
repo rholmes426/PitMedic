@@ -10,22 +10,19 @@
 - Local-first privacy behavior is documented.
 - Contribution, security, and public code-signing policies are included.
 - Product, file, and assembly versions are kept consistent across the app and scoped helpers.
-- A Windows CI build and separate protected SignPath release workflow are included.
+- A Windows CI build and separate protected Azure Artifact Signing release workflow are included.
 - The ordinary monitoring application runs without administrator rights.
 - The installer creates a commandless read-only CPU sensor service during its one setup approval so protected sensor access does not prompt on every app launch.
 - A one-shot repair helper elevates only evidence-derived repairs in its compiled allowlist.
 - The Inno Setup installer installs the application and helper in Program Files and keeps elevated repair storage under ProgramData.
 - Signed-release validation checks the app, both scoped helpers, and installer publisher, signature, timestamp, version, and SHA-256 value.
 
-## User/account steps required for free signing
+## Signing infrastructure now in use
 
 - Create the official public GitHub repository and push this complete source package.
-- Enable multi-factor authentication on GitHub and SignPath.
-- Publish at least one clearly labeled unsigned preview release so SignPath can evaluate the running project; do not call it an official signed release.
-- Apply to SignPath Foundation with the public repository and project description.
-- After approval, configure the four repository secret/variables listed in `CODE_SIGNING.md`.
-- Configure `pitmedic-windows-x64-binaries` to sign only `PitMedic.exe`, `PitMedic.SensorHelper.exe`, and `PitMedic.RepairHelper.exe`.
-- Configure `pitmedic-windows-x64-installer` to sign only `PitMedic-Setup-x64.exe`.
+- Enable multi-factor authentication on GitHub and Microsoft Azure.
+- Configure GitHub-to-Azure OIDC so the protected workflow uses short-lived credentials without a repository signing secret.
+- Limit the Azure signing action to `PitMedic.exe`, `PitMedic.SensorHelper.exe`, `PitMedic.RepairHelper.exe`, and the completed `PitMedic-Setup-x64.exe` installer.
 - Protect release tags and the `production-signing` GitHub environment; require manual approval.
 - Run the signing workflow against the exact protected release tag and retain the verified output.
 

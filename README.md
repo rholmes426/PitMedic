@@ -2,10 +2,10 @@
 
 PitMedic is a free, ad-free, open-source Windows simulator reliability monitor and repair assistant. It watches supported racing simulators, captures useful evidence when something goes wrong, explains the finding in plain language, and offers safe, reversible repairs when a known automatic fix is available.
 
-Current signed release: **0.6.0.11**
+Current signed release: **0.6.0.12**
 
-- [Download the v0.6.0.11 signed Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.11/PitMedic-Setup-x64.exe)
-- [View the v0.6.0.11 release and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.11)
+- [Download the v0.6.0.12 signed Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.12/PitMedic-Setup-x64.exe)
+- [View the v0.6.0.12 release and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.12)
 
 The installer, PitMedic app, repair helper, and sensor service are signed and timestamped.
 
@@ -20,7 +20,7 @@ The installer, PitMedic app, repair helper, and sensor service are signed and ti
 
 ## v0.6 highlights
 
-- The next release adds a public Diagnostic Library generated from the same records used by the app, formalizes 17 existing ACC and AMS2 repair paths, and adds a targeted iRacing Steam Missing File Privileges repair.
+- v0.6.0.12 adds a public Diagnostic Library generated from the same records used by the app, formalizes 17 existing ACC and AMS2 repair paths, and adds a targeted iRacing Steam Missing File Privileges repair.
 - v0.6.0.11 is PitMedic's first signed and timestamped public release and carries forward the complete v0.6.0.10 companion-software and Knowledge Scout work.
 - v0.6.0.10 adds distinct vendor-specific recovery for all seven detected companion apps, including Logitech's updater-service recovery sequence, and publishes the complete monitored-software catalog in the app and on the website. It also adds a read-only Knowledge Scout that reviews allowlisted simulator and companion sources while preserving every fix unless reviewed evidence shows its use could cause harm.
 - v0.6.0.9 adds detected-only wheelbase and companion-app monitoring with approval-gated restart recovery, makes AMS2 distance tracking diagnosable and resilient to a stalled odometer, preserves narrow iRacing repairs through elevated validation, promotes Check for updates in Settings, and corrects same-day usage-version refreshes.
@@ -47,7 +47,7 @@ The installer, PitMedic app, repair helper, and sensor service are signed and ti
 
 Install the .NET 10 SDK, clone the repository, and run `Build and Run PitMedic.cmd`. The development builder creates an unsigned, self-contained Windows x64 build in `Output` and starts it.
 
-Local development builds are not release artifacts. Public signed releases must pass the repository's SignPath workflow and signature verification.
+Local development builds are not release artifacts. Public signed releases must pass the repository's Azure Artifact Signing workflow and signature verification.
 
 The release workflow produces `PitMedic-Setup-x64.exe` plus a portable ZIP. PitMedic itself runs without administrator rights. The installer registers a narrowly scoped, read-only CPU sensor service during its one setup approval so normal app launches do not need administrator approval. Protected repairs use the separate, one-shot `PitMedic.RepairHelper.exe` only when a protected change is selected.
 
@@ -67,4 +67,4 @@ PitMedic stays free and every feature is available without contributing. If it h
 
 PitMedic is licensed under [GPL-3.0-or-later](LICENSE). See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), the [privacy statement](Source/PRIVACY.md), and the [code signing policy](CODE_SIGNING_POLICY.md).
 
-Free code signing is provided through SignPath.io, certificate by SignPath Foundation. Signed releases are built from the public repository, manually approved, timestamped, verified, and accompanied by SHA-256 information. The app and both scoped helpers are signed before the installer is built; the completed installer is then signed and verified separately.
+Public-trust code signing is provided through Microsoft Azure Artifact Signing. Signed releases are built from an immutable public tag, authenticated to Azure through GitHub OIDC, timestamped, verified, and accompanied by SHA-256 information. The app and both scoped helpers are signed before the installer is built; the completed installer is then signed and verified separately.
