@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build-sign-verify:
-    if: startsWith(${{ inputs.release_tag }}, 'v')
+    if: ${{ startsWith(inputs.release_tag, 'v') }}
     runs-on: windows-2025
     environment: production-signing
     steps:
@@ -112,7 +112,15 @@ jobs:
         shell: pwsh
         run: |
           $expectedVersion = "${{ inputs.release_tag }}".TrimStart("v")
-          ./Build/Verify-SignedRelease.ps1 -Path ./Artifacts/installer -ArtifactKind Installer -ExpectedPublisher "Robert Holmes" -ExpectedVersion $expectedVersion
+          ./Build/Verify-SignedRelease.ps1 -Path ./Artifacts/installer -ArtifactKind Installer -ExpectedPublisher "Robert Holmes"
+
+          $installer = Get-Item ./Artifacts/installer/PitMedic-Setup-x64.exe
+          $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($installer.FullName)
+          $fileVersion = ([string]$versionInfo.FileVersion).Trim()
+          $productVersion = ([string]$versionInfo.ProductVersion).Trim()
+          if ($fileVersion -ne $expectedVersion -or $productVersion -notlike "$expectedVersion*") {
+            throw "PitMedic installer version mismatch. Expected $expectedVersion; FileVersion '$fileVersion'; ProductVersion '$productVersion'."
+          }
 
       - name: Assemble verified release package
         shell: pwsh
