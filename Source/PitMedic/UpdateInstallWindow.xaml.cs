@@ -181,7 +181,7 @@ public partial class UpdateInstallWindow : Window
         }
 
         await output.FlushAsync(cancellationToken);
-        return Convert.ToHexString(hash.GetHashAndGetReset()).ToLowerInvariant();
+        return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
     }
 
     private static async Task<byte[]> ReadBoundedAsync(Stream input, int maximumBytes, CancellationToken cancellationToken)
