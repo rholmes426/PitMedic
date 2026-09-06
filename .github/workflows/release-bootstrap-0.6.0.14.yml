@@ -1,0 +1,63 @@
+name: Bootstrap PitMedic 0.6.0.14 release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: release-v0.6.0.14
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out release commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify release version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(grep -oPm1 '(?<=<Version>)[^<]+' Source/PitMedic/PitMedic.csproj)
+          test "$version" = "0.6.0.14"
+          test "$(grep -oPm1 '(?<=<Version>)[^<]+' Source/PitMedic.RepairHelper/PitMedic.RepairHelper.csproj)" = "$version"
+          test "$(grep -oPm1 '(?<=<Version>)[^<]+' Source/PitMedic.SensorHelper/PitMedic.SensorHelper.csproj)" = "$version"
+
+      - name: Prepare tag and draft release if needed
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="v0.6.0.14"
+
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft' >/tmp/is-draft 2>/dev/null; then
+            if [ "$(cat /tmp/is-draft)" = "false" ]; then
+              echo "SKIP_SIGN=true" >> "$GITHUB_ENV"
+              echo "PitMedic $tag is already public; bootstrap is complete."
+              exit 0
+            fi
+          fi
+
+          if ! git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            git tag "$tag" "$GITHUB_SHA"
+            git push origin "refs/tags/$tag"
+          fi
+
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" --draft --title "PitMedic 0.6.0.14" --notes "Signed release preparation in progress."
+          fi
+
+      - name: Start hardened signing workflow
+        if: ${{ env.SKIP_SIGN != 'true' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run sign-release.yml --repo "$GITHUB_REPOSITORY" -f release_tag=v0.6.0.14

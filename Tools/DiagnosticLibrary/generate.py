@@ -18,6 +18,10 @@ WEBSITE = ROOT / "website"
 OUTPUT = WEBSITE / "diagnostic-library"
 BASE_URL = "https://pitmedic.com"
 RELEASE_URL = "https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.13/PitMedic-Setup-x64.exe"
+RELEASE_VERSION_MATCH = re.search(r"/v([^/]+)/PitMedic-Setup-x64\.exe$", RELEASE_URL)
+if not RELEASE_VERSION_MATCH:
+    raise RuntimeError("Diagnostic Library release URL does not contain a valid PitMedic version")
+RELEASE_VERSION = RELEASE_VERSION_MATCH.group(1)
 LOGO_URL = "https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png"
 TODAY = "2026-09-03"
 
@@ -297,7 +301,7 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
         <section class="diagnostic-card"><h2>Built-in response</h2><p>{esc(entry["repair"])}</p><div class="safety-note"><strong>Repair safety</strong><span>{esc(entry["safety"])}</span></div></section>
         <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list">{source_items}</ul></section>
       </div>
-      <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="{RELEASE_URL}">Download v0.6.0.12</a>{product_link}<small>Free and open source · Windows 10/11</small></aside>
+      <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="{RELEASE_URL}">Download v{RELEASE_VERSION}</a>{product_link}<small>Free and open source · Windows 10/11</small></aside>
     </div>
     <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>{"Other companion software recoveries" if is_companion else "More for " + esc(product)}</h2><div>{related_html}</div></nav>
   </article>
@@ -470,4 +474,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

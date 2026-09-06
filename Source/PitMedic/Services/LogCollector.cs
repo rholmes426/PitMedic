@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 using PitMedic.Models;
 
 namespace PitMedic.Services;
@@ -32,10 +31,6 @@ public sealed class LogCollector
         "Still has 0 bytes allocated"
     };
 
-    private static readonly Regex InstalledContentRegex = new(
-        @"(?is)(?:error\s+decompressing\s+file|error\s+loading\s+mesh|error\s+initializing\s+scene\s+file|cube\s+error\s+loading\s+scene\s+file).{0,1200}?[\\/]Installed[\\/](?<kind>Locations|Vehicles)[\\/](?<name>[^\\/\r\n]+)",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
     public CollectedEvidence Collect(GameDefinition game, DateTimeOffset sessionStarted, DateTimeOffset incidentTime, string incidentFolder)
     {
         var logsDest = Path.Combine(incidentFolder, "Logs");
@@ -52,6 +47,7 @@ public sealed class LogCollector
         var dumpFiles = 0;
         var hints = new List<string>();
         var cleanHints = new List<string>();
+        var cleanExitDetected = false;
         var affectedContent = new List<string>();
         var repairSignatures = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -136,7 +132,7 @@ public sealed class LogCollector
                     }
                 }
 
-                foreach (var relative in ExtractAffectedInstalledContent(text))
+                foreach (var relative in LmuLogEvidenceParser.ExtractAffectedInstalledContent(text))
                     affectedContent.Add(relative);
 
                 DetectRepairSignatures(game, text, repairSignatures);
@@ -148,10 +144,16 @@ public sealed class LogCollector
                     try { tail = ReadTail(file, 96 * 1024); }
                     catch { continue; }
 
+                    var fileCleanHints = new List<string>();
                     foreach (var token in LmuCleanExitTokens)
                     {
                         if (tail.Contains(token, StringComparison.OrdinalIgnoreCase))
-                            cleanHints.Add($"{Path.GetFileName(file)} contains clean shutdown marker '{token}'.");
+                            fileCleanHints.Add($"{Path.GetFileName(file)} contains clean shutdown marker '{token}'.");
+                    }
+                    if (fileCleanHints.Count >= 3)
+                    {
+                        cleanExitDetected = true;
+                        cleanHints.AddRange(fileCleanHints);
                     }
                 }
             }
@@ -188,8 +190,7 @@ public sealed class LogCollector
             catch { }
         }
 
-        var cleanExitDetected = game.Kind == GameKind.LeMansUltimate && cleanHints.Count >= 3;
-        return new CollectedEvidence(
+        var collected = new CollectedEvidence(
             logFiles,
             dumpFiles,
             hints.Distinct().Take(8).ToArray(),
@@ -197,27 +198,34 @@ public sealed class LogCollector
             cleanHints.Distinct().Take(6).ToArray(),
             affectedContent.Distinct(StringComparer.OrdinalIgnoreCase).Take(8).ToArray(),
             repairSignatures.Take(12).ToArray());
+        return ExitLogEvidencePolicy.Normalize(game.Kind, collected);
     }
 
     private static void DetectRepairSignatures(GameDefinition game, string text, ISet<string> signatures)
     {
-        var lower = text.ToLowerInvariant();
+        foreach (var rawLine in text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries))
+            DetectRepairSignatureLine(game, rawLine.Trim().ToLowerInvariant(), signatures);
+    }
+
+    private static void DetectRepairSignatureLine(GameDefinition game, string lower, ISet<string> signatures)
+    {
+        if (lower.Length == 0) return;
         if (game.Kind == GameKind.LeMansUltimate)
         {
             if (lower.Contains("error decompressing file") || lower.Contains("cube error loading scene file")) signatures.Add("lmu-content-corruption");
-            if ((lower.Contains("shader") && (lower.Contains("error") || lower.Contains("failed"))) || lower.Contains("dynamic.cache")) signatures.Add("lmu-shader-cache");
-            if (lower.Contains("config_dx11") || lower.Contains("config_dx11.ini") || lower.Contains("dx11_config")) signatures.Add("lmu-startup-config");
+            if ((lower.Contains("shader") || lower.Contains("dynamic.cache")) && IsFailureText(lower)) signatures.Add("lmu-shader-cache");
+            if ((lower.Contains("config_dx11") || lower.Contains("config_dx11.ini") || lower.Contains("dx11_config")) && IsFailureText(lower)) signatures.Add("lmu-startup-config");
             if (lower.Contains("custompluginvariables") || (lower.Contains("plugin") && (lower.Contains("crash") || lower.Contains("exception") || lower.Contains("failed")))) signatures.Add("lmu-plugin-conflict");
             if (lower.Contains("failed to allocate a section of memory") || lower.Contains("out of memory")) signatures.Add("lmu-memory-allocation");
             if (lower.Contains("easy anti-cheat") || lower.Contains("easyanticheat") || lower.Contains("eac"))
             {
                 if (lower.Contains("error") || lower.Contains("failed") || lower.Contains("not installed")) signatures.Add("lmu-eac");
             }
-            if (lower.Contains("0xc000007b") || lower.Contains("reshade")) signatures.Add("lmu-reshade-runtime");
+            if (lower.Contains("0xc000007b") || (lower.Contains("reshade") && IsFailureText(lower))) signatures.Add("lmu-reshade-runtime");
         }
         else if (game.Kind == GameKind.AssettoCorsaEvo)
         {
-            if (lower.Contains("video.videosettings") || ((lower.Contains("video") || lower.Contains("graphics")) && (lower.Contains("failed") || lower.Contains("error"))))
+            if ((lower.Contains("video.videosettings") || lower.Contains("video") || lower.Contains("graphics")) && IsFailureText(lower))
                 signatures.Add("ace-video-settings");
             if ((lower.Contains("file") && (lower.Contains("missing") || lower.Contains("corrupt") || lower.Contains("failed to load")))
                 || lower.Contains("content error"))
@@ -227,11 +235,11 @@ public sealed class LogCollector
         }
         else if (game.Kind == GameKind.RaceRoom)
         {
-            if (lower.Contains("503") || lower.Contains("browserdata") || (lower.Contains("cef") && (lower.Contains("error") || lower.Contains("failed"))))
+            if (IsHttp503Failure(lower) || ((lower.Contains("browserdata") || lower.Contains("cef")) && IsFailureText(lower)))
                 signatures.Add("raceroom-browser-cache");
-            if (lower.Contains("shadercache") || (lower.Contains("shader") && (lower.Contains("error") || lower.Contains("failed"))))
+            if ((lower.Contains("shadercache") || lower.Contains("shader")) && IsFailureText(lower))
                 signatures.Add("raceroom-shader-cache");
-            if (lower.Contains("graphics_options") || lower.Contains("resolution") || lower.Contains("refresh rate") || lower.Contains("display mode"))
+            if ((lower.Contains("graphics_options") || lower.Contains("resolution") || lower.Contains("refresh rate") || lower.Contains("display mode")) && IsFailureText(lower))
                 signatures.Add("raceroom-graphics-config");
             if (lower.Contains("userdata") && (lower.Contains("corrupt") || lower.Contains("parse error") || lower.Contains("invalid setting")))
                 signatures.Add("raceroom-user-config");
@@ -240,9 +248,9 @@ public sealed class LogCollector
         }
         else if (game.Kind == GameKind.AssettoCorsaCompetizione)
         {
-            if (lower.Contains("gameusersettings") || lower.Contains("resolution") || lower.Contains("fullscreen")) signatures.Add("acc-game-user-settings");
+            if ((lower.Contains("gameusersettings") || lower.Contains("resolution") || lower.Contains("fullscreen")) && IsFailureText(lower)) signatures.Add("acc-game-user-settings");
             if (IsAccGraphicsFailure(lower)) signatures.Add("acc-engine-config");
-            if (lower.Contains("controls.json") || lower.Contains("directinput") || (lower.Contains("controller") && (lower.Contains("failed") || lower.Contains("invalid")))) signatures.Add("acc-controls");
+            if ((lower.Contains("controls.json") || lower.Contains("directinput") || lower.Contains("controller")) && IsFailureText(lower)) signatures.Add("acc-controls");
             if ((lower.Contains("trueforce") || lower.Contains("manufacturerextras") || lower.Contains("manufacturer extras")) && (lower.Contains("failed") || lower.Contains("error") || lower.Contains("crash"))) signatures.Add("acc-trueforce");
             if (lower.Contains("ffb") && (lower.Contains("failed") || lower.Contains("invalid") || lower.Contains("error"))) signatures.Add("acc-ffb");
             if (lower.Contains("customs\\controls") && (lower.Contains("crash") || lower.Contains("failed") || lower.Contains("invalid"))) signatures.Add("acc-control-presets");
@@ -251,13 +259,13 @@ public sealed class LogCollector
         }
         else if (game.Kind == GameKind.Automobilista2)
         {
-            if (lower.Contains("graphicsconfigdx11")) signatures.Add("ams2-graphics-config");
-            if (lower.Contains("openvr") || lower.Contains("oculus")) signatures.Add("ams2-vr-config");
-            if (lower.Contains("controllersettings") || lower.Contains("controller config")) signatures.Add("ams2-controller-config");
-            if (lower.Contains("ffb_custom_settings")) signatures.Add("ams2-ffb-custom");
-            if (lower.Contains("tuningsetups") || lower.Contains("tuning setup")) signatures.Add("ams2-tuning-setups");
-            if (lower.Contains("championship") || lower.Contains("singlechamps")) signatures.Add("ams2-championship-state");
-            if (lower.Contains("default.sav") && lower.Contains("profile")) signatures.Add("ams2-default-profile");
+            if (lower.Contains("graphicsconfigdx11") && IsFailureText(lower)) signatures.Add("ams2-graphics-config");
+            if ((lower.Contains("openvr") || lower.Contains("oculus")) && IsFailureText(lower)) signatures.Add("ams2-vr-config");
+            if ((lower.Contains("controllersettings") || lower.Contains("controller config")) && IsFailureText(lower)) signatures.Add("ams2-controller-config");
+            if (lower.Contains("ffb_custom_settings") && IsFailureText(lower)) signatures.Add("ams2-ffb-custom");
+            if ((lower.Contains("tuningsetups") || lower.Contains("tuning setup")) && IsFailureText(lower)) signatures.Add("ams2-tuning-setups");
+            if ((lower.Contains("championship") || lower.Contains("singlechamps")) && IsFailureText(lower)) signatures.Add("ams2-championship-state");
+            if (lower.Contains("default.sav") && lower.Contains("profile") && IsFailureText(lower)) signatures.Add("ams2-default-profile");
             if ((lower.Contains("file") || lower.Contains("package")) && (lower.Contains("missing") || lower.Contains("corrupt") || lower.Contains("failed to load"))) signatures.Add("ams2-steam-content");
             if (lower.Contains("profile") && (lower.Contains("corrupt") || lower.Contains("invalid") || lower.Contains("parse"))) signatures.Add("ams2-user-profile");
         }
@@ -288,7 +296,12 @@ public sealed class LogCollector
 
     private static bool IsFailureText(string lower) => lower.Contains("error")
         || lower.Contains("failed") || lower.Contains("failure") || lower.Contains("invalid")
-        || lower.Contains("corrupt") || lower.Contains("fatal");
+        || lower.Contains("corrupt") || lower.Contains("fatal") || lower.Contains("missing")
+        || lower.Contains("unable") || lower.Contains("cannot") || lower.Contains("can't")
+        || lower.Contains("could not") || lower.Contains("couldn't");
+
+    private static bool IsHttp503Failure(string lower) => lower.Contains("http 503")
+        || lower.Contains("status 503") || lower.Contains("503 service unavailable");
 
     private static IReadOnlyList<string> GetAceUserDataRoots()
     {
@@ -363,25 +376,13 @@ public sealed class LogCollector
                 try
                 {
                     var text = ReadTail(file, 1024 * 1024);
-                    found.AddRange(ExtractAffectedInstalledContent(text));
+                    found.AddRange(LmuLogEvidenceParser.ExtractAffectedInstalledContent(text));
                 }
                 catch { }
             }
         }
         catch { }
         return found.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
-    }
-
-    private static IEnumerable<string> ExtractAffectedInstalledContent(string text)
-    {
-        foreach (Match match in InstalledContentRegex.Matches(text))
-        {
-            var kind = match.Groups["kind"].Value;
-            var name = match.Groups["name"].Value.Trim();
-            if (string.IsNullOrWhiteSpace(kind) || string.IsNullOrWhiteSpace(name)) continue;
-            if (name.Contains("..", StringComparison.Ordinal)) continue;
-            yield return Path.Combine(kind, name);
-        }
     }
 
     private static string ReadTail(string file, int maxBytes)

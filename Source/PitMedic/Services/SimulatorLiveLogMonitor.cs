@@ -137,7 +137,7 @@ public sealed class SimulatorLiveLogMonitor : ILiveLogMonitor
     private static (string, string, string)? MatchAce(string raw)
     {
         var l = raw.Trim(); var x = l.ToLowerInvariant();
-        if (x.Contains("video.videosettings") || ((x.Contains("video") || x.Contains("graphics")) && Bad(x)))
+        if ((x.Contains("video.videosettings") || x.Contains("video") || x.Contains("graphics")) && Bad(x))
             return ("ace-video-settings", "Assetto Corsa EVO video settings failure", l);
         if (x.Contains("profile") && Bad(x)) return ("ace-user-profile", "Assetto Corsa EVO profile failure", l);
         if ((x.Contains("file") && (x.Contains("missing") || x.Contains("corrupt") || x.Contains("failed to load"))) || x.Contains("content error"))
@@ -149,11 +149,11 @@ public sealed class SimulatorLiveLogMonitor : ILiveLogMonitor
     private static (string, string, string)? MatchRaceRoom(string raw)
     {
         var l = raw.Trim(); var x = l.ToLowerInvariant();
-        if (x.Contains("503") || x.Contains("browserdata") || (x.Contains("cef") && Bad(x)))
+        if (IsHttp503Failure(x) || ((x.Contains("browserdata") || x.Contains("cef")) && Bad(x)))
             return ("raceroom-browser-cache", "RaceRoom browser/UI failure", l);
-        if (x.Contains("shadercache") || (x.Contains("shader") && Bad(x)))
+        if ((x.Contains("shadercache") || x.Contains("shader")) && Bad(x))
             return ("raceroom-shader-cache", "RaceRoom shader-cache failure", l);
-        if (x.Contains("graphics_options") || ((x.Contains("resolution") || x.Contains("display mode")) && Bad(x)))
+        if ((x.Contains("graphics_options") || x.Contains("resolution") || x.Contains("display mode")) && Bad(x))
             return ("raceroom-graphics-config", "RaceRoom graphics configuration failure", l);
         if (x.Contains("userdata") && (x.Contains("corrupt") || x.Contains("invalid") || x.Contains("parse error")))
             return ("raceroom-user-config", "RaceRoom user configuration failure", l);
@@ -220,7 +220,20 @@ public sealed class SimulatorLiveLogMonitor : ILiveLogMonitor
         return damaged && gamePackage;
     }
 
-    private static bool Bad(string x) => x.Contains("error") || x.Contains("failed") || x.Contains("failure") || x.Contains("invalid") || x.Contains("corrupt") || x.Contains("fatal");
+    internal static (string Id, string Category, string Message)? MatchLine(GameKind game, string raw) => game switch
+    {
+        GameKind.AssettoCorsaEvo => MatchAce(raw),
+        GameKind.RaceRoom => MatchRaceRoom(raw),
+        GameKind.AssettoCorsaCompetizione => MatchAcc(raw),
+        _ => null
+    };
+
+    private static bool Bad(string x) => x.Contains("error") || x.Contains("failed") || x.Contains("failure")
+        || x.Contains("invalid") || x.Contains("corrupt") || x.Contains("fatal") || x.Contains("missing")
+        || x.Contains("unable") || x.Contains("cannot") || x.Contains("can't") || x.Contains("could not")
+        || x.Contains("couldn't");
+    private static bool IsHttp503Failure(string x) => x.Contains("http 503") || x.Contains("status 503")
+        || x.Contains("503 service unavailable");
     private static bool Fatal(string x) => x.Contains("fatal error") || x.Contains("unhandled exception") || x.Contains("access violation") || x.Contains("critical error");
     private static string Truncate(string s) => s.Length <= 240 ? s : s[..240] + "…";
 }

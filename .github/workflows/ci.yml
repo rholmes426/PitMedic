@@ -108,3 +108,17 @@ jobs:
             Artifacts/installer/
           if-no-files-found: error
           retention-days: 14
+
+  build-validation:
+    name: Build Validation
+    if: ${{ always() }}
+    needs: [repair-knowledge, telemetry-worker, telemetry-dashboard, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every validation job to pass
+        shell: bash
+        run: |
+          test "${{ needs.repair-knowledge.result }}" = "success"
+          test "${{ needs.telemetry-worker.result }}" = "success"
+          test "${{ needs.telemetry-dashboard.result }}" = "success"
+          test "${{ needs.build.result }}" = "success"

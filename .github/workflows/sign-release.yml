@@ -183,7 +183,7 @@ jobs:
 
           The installer and PitMedic-owned executables were built from this tag, signed and timestamped with Microsoft Azure Artifact Signing under Robert Holmes, and independently verified by the release workflow. SHA-256 checksums and signature manifests are included.
 
-          Security hardening in this release adds independent Authenticode publisher verification for in-app updates, stronger private-dashboard login protections, release-pipeline privilege separation, and automated dependency monitoring.
+          This reliability update prevents clean simulator shutdowns from being misclassified by stale or benign log messages. It also tightens current-session log matching across supported simulators while preserving confirmed failure detection.
 
           PitMedic remains free and open source. Voluntary support unlocks nothing.
           "@ | Set-Content -Encoding UTF8 ./Artifacts/signed-release-notes.txt
@@ -202,7 +202,7 @@ jobs:
           path: repo
           fetch-depth: 0
 
-      - name: Publish verified version and fingerprint to website
+      - name: Prepare protected website publication
         shell: pwsh
         run: |
           $version = "${{ inputs.release_tag }}".TrimStart("v")
@@ -211,14 +211,20 @@ jobs:
           $sha256 = (Get-FileHash -Algorithm SHA256 $installer).Hash.ToLowerInvariant()
           $repo = Join-Path $PWD "repo"
 
+          $currentManifestPath = Join-Path $repo "website/update.json"
+          $currentManifest = Get-Content -Raw $currentManifestPath | ConvertFrom-Json
+          $currentVersion = [string]$currentManifest.latestVersion
+          if ([string]::IsNullOrWhiteSpace($currentVersion)) { throw "The current website release version could not be determined." }
+
           $indexPath = Join-Path $repo "website/index.html"
           $index = Get-Content -Raw $indexPath
-          $index = $index -replace '0\.6\.0\.12', $version
+          $index = $index.Replace("v$currentVersion/PitMedic-Setup-x64.exe", "$tag/PitMedic-Setup-x64.exe")
+          $index = $index.Replace($currentVersion, $version)
           Set-Content -Encoding UTF8 $indexPath $index
 
           $generatorPath = Join-Path $repo "Tools/DiagnosticLibrary/generate.py"
           $generator = Get-Content -Raw $generatorPath
-          $generator = $generator -replace 'v0\.6\.0\.12/PitMedic-Setup-x64\.exe', "$tag/PitMedic-Setup-x64.exe"
+          $generator = $generator -replace 'v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/PitMedic-Setup-x64\.exe', "$tag/PitMedic-Setup-x64.exe"
           Set-Content -Encoding UTF8 $generatorPath $generator
 
           Push-Location $repo
@@ -233,14 +239,23 @@ jobs:
             releaseUrl = "https://github.com/${{ github.repository }}/releases/tag/$tag"
             sha256 = $sha256
           }
-          $manifest | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $repo "website/update.json")
+          $manifest | ConvertTo-Json | Set-Content -Encoding UTF8 $currentManifestPath
 
-          Push-Location $repo
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add website Tools/DiagnosticLibrary/generate.py
-          if (-not (git diff --cached --quiet)) {
-            git commit -m "Publish PitMedic $version website metadata"
-            git push origin main
+          $publication = [ordered]@{
+            releaseTag = $tag
+            version = $version
+            sha256 = $sha256
+            sourceCommit = "${{ github.sha }}"
           }
-          Pop-Location
+          $publication | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $repo "release-publication.json")
+
+      - name: Upload protected website publication input
+        uses: actions/upload-artifact@v4
+        with:
+          name: PitMedic-${{ inputs.release_tag }}-website-publication
+          path: |
+            repo/website/
+            repo/Tools/DiagnosticLibrary/generate.py
+            repo/release-publication.json
+          if-no-files-found: error
+          retention-days: 14
