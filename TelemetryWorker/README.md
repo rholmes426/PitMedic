@@ -2,7 +2,7 @@
 
 This Worker accepts one explicitly consented active-installation heartbeat per PitMedic installation per UTC day. The accepted JSON contract contains only protocol version, app version, release channel, install type, and rotating daily/monthly tokens.
 
-It also exposes a read-only lap benchmark endpoint. That endpoint accepts only simulator, track/layout, and car names; it never receives the user's lap time or identity. It checks manually verified official records first, then an exact-match YouTube result when the search integration is configured. Results are cached by normalized combination.
+It temporarily retains the read-only lap benchmark endpoint for compatibility with already released PitMedic clients. The next app release no longer collects best laps or calls this endpoint. The endpoint accepts only simulator, track/layout, and car names; it never receives the user's lap time or identity.
 
 The Worker additionally accepts privacy-preserving website events from `pitmedic.com`. It records daily aggregate counts for page views, meaningful engagement, signed-installer clicks, and internal navigation. The endpoint accepts only a normalized PitMedic path, a normalized internal destination or public release version when applicable, and the referring hostname. It stores no IP address, cookie, local-storage identifier, full referrer URL, URL query string, search term, or raw user-agent string. Country and device class are reduced to broad labels before the event is added to an aggregate counter, and those counters are retained for up to two years.
 

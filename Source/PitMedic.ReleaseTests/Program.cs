@@ -1,5 +1,6 @@
 using PitMedic.Models;
 using PitMedic.Services;
+using System.Text.Json;
 
 var now = new DateTimeOffset(2026, 9, 1, 12, 0, 0, TimeSpan.Zero);
 var day = "2026-09-01";
@@ -46,6 +47,23 @@ AssertTrue(
 AssertTrue(
     ElevatedRepairPolicy.RequiresElevation("iracing-release-file-privileges"),
     "The iRacing Helper Service file-release workflow must remain approval-gated and elevated.");
+
+using var legacyDrivingStats = JsonDocument.Parse("""
+    {"Games":{"IRacing":{"MonitoredSeconds":120,"LastSessionBestLap":{"LapSeconds":90},"BestLaps":{}}}}
+    """);
+AssertTrue(
+    LegacyDrivingStatsPolicy.ContainsBestLapData(legacyDrivingStats.RootElement),
+    "An upgraded installation must detect and purge legacy best-lap data.");
+using var currentDrivingStats = JsonDocument.Parse("""
+    {"Games":{"IRacing":{"MonitoredSeconds":120,"MilesMonitored":4.5,"MileageAvailable":true}}}
+    """);
+AssertFalse(
+    LegacyDrivingStatsPolicy.ContainsBestLapData(currentDrivingStats.RootElement),
+    "Current monitored-time and distance data must not trigger the legacy best-lap migration.");
+AssertFalse(
+    typeof(SimulatorActivitySnapshot).GetProperties()
+        .Any(property => property.Name.Contains("Lap", StringComparison.OrdinalIgnoreCase)),
+    "Simulator activity exposed to the UI must not contain lap data.");
 
 AssertTrue(
     RepairKnowledgeBase.Entries.Count == 53,

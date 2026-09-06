@@ -2,6 +2,12 @@
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
 
+## Next release
+
+- Removes simulator best-lap collection, persisted lap and combination data, reference-lap network lookups, and the best-lap/comparison cards from the interface.
+- Preserves simulator-specific monitored time and distance totals.
+- Purges legacy best-lap fields from the local activity-statistics file when an existing installation starts the updated app.
+
 ## v0.6.0.12
 
 - Adds a browsable Diagnostic Library generated directly from the app's repair knowledge, with 60 simulator and companion-software records, source citations, safety details, related issues, search filters, and crawlable issue pages.

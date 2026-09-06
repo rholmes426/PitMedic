@@ -20,6 +20,7 @@ The installer, PitMedic app, repair helper, and sensor service are signed and ti
 
 ## v0.6 highlights
 
+- The next release removes best-lap collection, local storage, comparison lookups, and lap reporting from PitMedic. Existing monitored-time and distance totals remain available.
 - v0.6.0.12 adds a public Diagnostic Library generated from the same records used by the app, formalizes 17 existing ACC and AMS2 repair paths, and adds a targeted iRacing Steam Missing File Privileges repair.
 - v0.6.0.11 is PitMedic's first signed and timestamped public release and carries forward the complete v0.6.0.10 companion-software and Knowledge Scout work.
 - v0.6.0.10 adds distinct vendor-specific recovery for all seven detected companion apps, including Logitech's updater-service recovery sequence, and publishes the complete monitored-software catalog in the app and on the website. It also adds a read-only Knowledge Scout that reviews allowlisted simulator and companion sources while preserving every fix unless reviewed evidence shows its use could cause harm.

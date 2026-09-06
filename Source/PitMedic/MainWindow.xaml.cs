@@ -16,7 +16,6 @@ public partial class MainWindow : Window
     private readonly MonitoringCoordinator _monitoring;
     private readonly AnonymousUsageService _anonymousUsage;
     private readonly UpdateService _updates;
-    private readonly LapBenchmarkService _lapBenchmarks = new();
     private readonly ObservableCollection<IncidentSummary> _incidents = new();
     private readonly Queue<TelemetrySample> _chart = new();
     private readonly Dictionary<GameKind, bool> _gameRunning = Enum.GetValues<GameKind>().ToDictionary(game => game, _ => false);
@@ -35,9 +34,6 @@ public partial class MainWindow : Window
     private IncidentSummary? _homeLatestIncident;
     private AvailableUpdate? _availableUpdate;
     private TelemetrySample? _latestTelemetry;
-    private CancellationTokenSource? _benchmarkLookupCancellation;
-    private string? _displayedLapCombination;
-    private string? _benchmarkSourceUrl;
 
     public MainWindow(MonitoringCoordinator monitoring, AnonymousUsageService anonymousUsage, UpdateService updates)
     {
@@ -79,12 +75,6 @@ public partial class MainWindow : Window
         {
             if (IsVisible && _latestTelemetry is not null)
                 UpdateTelemetry(_latestTelemetry, record: false);
-        };
-        Closed += (_, _) =>
-        {
-            _benchmarkLookupCancellation?.Cancel();
-            _benchmarkLookupCancellation?.Dispose();
-            _lapBenchmarks.Dispose();
         };
     }
 
@@ -582,7 +572,6 @@ public partial class MainWindow : Window
         if (ActivityTimeValue is null) return;
         var activity = _monitoring.SimulatorActivity(_selectedGame);
         var running = _gameRunning.TryGetValue(_selectedGame, out var isRunning) && isRunning;
-        ActivityBestLapLabel.Text = running ? "SESSION BEST" : "LAST SESSION BEST";
         ActivityTimeValue.Text = FormatMonitoredTime(activity.TimeMonitored);
 
         var hasMileage = SimulatorDistanceTelemetryService.SupportsMileage(_selectedGame);
@@ -605,108 +594,12 @@ public partial class MainWindow : Window
         ActivityDistanceDetail.Visibility = showAms2Guidance ? Visibility.Visible : Visibility.Collapsed;
         ActivityDistanceDetail.Text = showAms2Guidance ? distanceStatus!.Message : string.Empty;
 
-        RefreshBestLap(activity.BestLap, running);
     }
 
     private void UpdateDistanceTelemetryStatus(DistanceTelemetryStatus status)
     {
         _distanceTelemetryStatuses[status.Game] = status;
         if (_selectedGame == status.Game) RefreshSelectedActivity();
-    }
-
-    private void RefreshBestLap(BestLapRecord? lap, bool running)
-    {
-        if (ActivityBestLapValue is null) return;
-        if (lap is null)
-        {
-            _displayedLapCombination = null;
-            _benchmarkSourceUrl = null;
-            _benchmarkLookupCancellation?.Cancel();
-            ActivityBestLapValue.Text = "Waiting for a valid lap";
-            ActivityBestLapDetail.Text = SimulatorLapTelemetryService.SupportsBestLap(_selectedGame)
-                ? running
-                    ? "Complete a valid lap; PitMedic will use the exact track, layout, and car."
-                    : "No valid lap was recorded in the last session."
-                : "Exact best-lap telemetry is not available for this simulator yet.";
-            ActivityBenchmarkLabel.Text = "EXTERNAL REFERENCE LAP";
-            ActivityBenchmarkValue.Text = "Waiting for best lap";
-            ActivityBenchmarkDetail.Text = "No comparison is shown until the simulator confirms the combination.";
-            ActivityBenchmarkSourceButton.Visibility = Visibility.Collapsed;
-            return;
-        }
-
-        ActivityBestLapValue.Text = FormatLapTime(lap.LapSeconds);
-        ActivityBestLapDetail.Text = string.IsNullOrWhiteSpace(lap.Layout)
-            ? $"{lap.Track} · {lap.Car}"
-            : $"{lap.Track} · {lap.Layout} · {lap.Car}";
-
-        if (string.Equals(_displayedLapCombination, lap.CombinationKey, StringComparison.Ordinal)) return;
-        _displayedLapCombination = lap.CombinationKey;
-        _benchmarkSourceUrl = null;
-        ActivityBenchmarkLabel.Text = "EXTERNAL REFERENCE LAP";
-        ActivityBenchmarkValue.Text = "Checking…";
-        ActivityBenchmarkDetail.Text = "Looking for the best exact-combination source.";
-        ActivityBenchmarkSourceButton.Visibility = Visibility.Collapsed;
-
-        _benchmarkLookupCancellation?.Cancel();
-        _benchmarkLookupCancellation?.Dispose();
-        _benchmarkLookupCancellation = new CancellationTokenSource();
-        _ = RefreshBenchmarkAsync(lap, _benchmarkLookupCancellation.Token);
-    }
-
-    private async Task RefreshBenchmarkAsync(BestLapRecord lap, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var benchmark = await _lapBenchmarks.FindAsync(lap, cancellationToken);
-            if (cancellationToken.IsCancellationRequested
-                || !string.Equals(_displayedLapCombination, lap.CombinationKey, StringComparison.Ordinal)) return;
-
-            if (!benchmark.Available || benchmark.LapSeconds is not double benchmarkSeconds
-                || benchmarkSeconds is < 20 or > 1_800)
-            {
-                ActivityBenchmarkValue.Text = "No reliable match";
-                ActivityBenchmarkDetail.Text = "PitMedic did not find a trustworthy exact-combination comparison.";
-                ActivityBenchmarkSourceButton.Visibility = Visibility.Collapsed;
-                return;
-            }
-
-            var gap = lap.LapSeconds - benchmarkSeconds;
-            var pace = lap.LapSeconds / benchmarkSeconds * 100d;
-            ActivityBenchmarkValue.Text = FormatLapTime(benchmarkSeconds);
-            ActivityBenchmarkLabel.Text = benchmark.SourceKind.Equals("official", StringComparison.OrdinalIgnoreCase)
-                ? "OFFICIAL REFERENCE LAP"
-                : "WEB REFERENCE LAP";
-            ActivityBenchmarkSourceButton.Content = benchmark.SourceKind.Equals("official", StringComparison.OrdinalIgnoreCase)
-                ? "VIEW OFFICIAL SOURCE ↗"
-                : "WATCH SOURCE LAP ↗";
-            ActivityBenchmarkDetail.Text = gap >= 0
-                ? $"External source · Your best is +{gap:0.000}s · {pace:0.0}% pace · {benchmark.SourceName}"
-                : $"External source · Your best is {-gap:0.000}s faster · {pace:0.0}% pace · {benchmark.SourceName}";
-            _benchmarkSourceUrl = benchmark.SourceUrl;
-            ActivityBenchmarkSourceButton.Visibility = Uri.TryCreate(_benchmarkSourceUrl, UriKind.Absolute, out _)
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-        }
-        catch (OperationCanceledException)
-        {
-            // A newer simulator/combination selection replaced this lookup.
-        }
-    }
-
-    private void ActivityBenchmarkSource_Click(object sender, RoutedEventArgs e)
-    {
-        if (!Uri.TryCreate(_benchmarkSourceUrl, UriKind.Absolute, out var source)
-            || (source.Scheme != Uri.UriSchemeHttps && source.Scheme != Uri.UriSchemeHttp)) return;
-        Process.Start(new ProcessStartInfo(source.AbsoluteUri) { UseShellExecute = true });
-    }
-
-    private static string FormatLapTime(double seconds)
-    {
-        var duration = TimeSpan.FromSeconds(seconds);
-        return duration.TotalHours >= 1
-            ? $"{(int)duration.TotalHours}:{duration.Minutes:00}:{duration.Seconds:00}.{duration.Milliseconds:000}"
-            : $"{(int)duration.TotalMinutes}:{duration.Seconds:00}.{duration.Milliseconds:000}";
     }
 
     private static string FormatMonitoredTime(TimeSpan duration)

@@ -14,7 +14,6 @@ public sealed class MonitoringCoordinator : IDisposable
     private readonly SettingsService _settings;
     private readonly UsageStatsService _usage = new();
     private readonly SimulatorDistanceTelemetryService _distanceTelemetry = new();
-    private readonly SimulatorLapTelemetryService _lapTelemetry = new();
     private DateTimeOffset _lastUsageFlush = DateTimeOffset.UtcNow;
     private Task? _loop;
 
@@ -41,8 +40,6 @@ public sealed class MonitoringCoordinator : IDisposable
                 var finalMiles = _distanceTelemetry.Stop(g);
                 if (double.IsFinite(finalMiles) && finalMiles > 0)
                     _usage.RecordMiles(g, finalMiles, persist: false);
-                if (_lapTelemetry.Stop(g) is { } finalLap)
-                    _usage.RecordBestLap(finalLap, persist: false);
                 _usage.Flush();
             }
             GameStatusChanged?.Invoke(g, running);
@@ -85,8 +82,6 @@ public sealed class MonitoringCoordinator : IDisposable
                 _companions.Scan();
                 foreach (var (game, miles) in _distanceTelemetry.Poll(_games.IsRunning))
                     _usage.RecordMiles(game, miles, persist: false);
-                foreach (var lap in _lapTelemetry.Poll(_games.IsRunning))
-                    _usage.RecordBestLap(lap, persist: false);
                 if (DateTimeOffset.UtcNow - _lastUsageFlush >= TimeSpan.FromMinutes(1))
                 {
                     _usage.Flush();
@@ -141,7 +136,6 @@ public sealed class MonitoringCoordinator : IDisposable
         _cts.Cancel();
         try { _loop?.Wait(TimeSpan.FromSeconds(2)); } catch { }
         _distanceTelemetry.Dispose();
-        _lapTelemetry.Dispose();
         _usage.StopMonitoring();
         _repairs.Dispose();
         _companions.Dispose();

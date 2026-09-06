@@ -312,7 +312,7 @@
 
                                 <StackPanel Grid.Row="4" Margin="0,28,0,0">
                                     <TextBlock Text="DRIVING STATS" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
-                                    <TextBlock Text="Lifetime totals and your latest session" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" Margin="0,4,0,9"/>
+                                    <TextBlock Text="Lifetime totals while PitMedic is monitoring" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" Margin="0,4,0,9"/>
                                     <Border x:Name="ActivityMilesCard" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,13">
                                         <StackPanel>
                                             <Grid><TextBlock x:Name="ActivityDistanceLabel" Text="TOTAL DISTANCE" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center"/><TextBlock x:Name="ActivityMilesValue" Text="0.0 km" FontFamily="Segoe UI Variable Display" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Right"/></Grid>
@@ -321,20 +321,6 @@
                                     </Border>
                                     <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,13">
                                         <Grid><TextBlock Text="TOTAL TIME MONITORED" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center"/><TextBlock x:Name="ActivityTimeValue" Text="0m" FontFamily="Segoe UI Variable Display" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Right"/></Grid>
-                                    </Border>
-                                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,13">
-                                        <StackPanel>
-                                            <Grid><TextBlock x:Name="ActivityBestLapLabel" Text="LAST SESSION BEST" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold" VerticalAlignment="Center"/><TextBlock x:Name="ActivityBestLapValue" Text="Waiting for a valid lap" FontFamily="Segoe UI Variable Display" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Right"/></Grid>
-                                            <TextBlock x:Name="ActivityBestLapDetail" Text="PitMedic will use an exact track, layout, and car match." Foreground="{DynamicResource MutedBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,5,0,0"/>
-                                        </StackPanel>
-                                    </Border>
-                                    <Border x:Name="ActivityBenchmarkCard" Background="{DynamicResource InfoSoftBrush}" BorderBrush="{DynamicResource InfoBorderBrush}" BorderThickness="1" CornerRadius="9" Padding="12,10">
-                                        <StackPanel>
-                                            <TextBlock x:Name="ActivityBenchmarkLabel" Text="EXTERNAL REFERENCE LAP" Foreground="{DynamicResource InfoTextBrush}" FontSize="11.5" FontWeight="Bold"/>
-                                            <TextBlock x:Name="ActivityBenchmarkValue" Text="Waiting for best lap" FontFamily="Segoe UI Variable Display" FontSize="17" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,4,0,0"/>
-                                            <TextBlock x:Name="ActivityBenchmarkDetail" Text="PitMedic checks official sources first, then a matching web lap." Foreground="{DynamicResource MutedBrush}" FontSize="11.5" TextWrapping="Wrap" Margin="0,7,0,0"/>
-                                            <Button x:Name="ActivityBenchmarkSourceButton" Content="VIEW SOURCE ↗" HorizontalAlignment="Left" Padding="0" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource InfoTextBrush}" FontSize="11.5" FontWeight="SemiBold" Margin="0,7,0,0" Visibility="Collapsed" Click="ActivityBenchmarkSource_Click"/>
-                                        </StackPanel>
                                     </Border>
                                 </StackPanel>
 

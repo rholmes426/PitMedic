@@ -11,9 +11,6 @@ public sealed class UsageStatsService
         public int CleanStreak { get; set; }
         public double MilesMonitored { get; set; }
         public bool MileageAvailable { get; set; }
-        public BestLapRecord? LastSessionBestLap { get; set; }
-        public string? LastBestLapKey { get; set; }
-        public Dictionary<string, BestLapRecord> BestLaps { get; set; } = new(StringComparer.Ordinal);
     }
 
     private sealed class PersistedStats
@@ -28,12 +25,12 @@ public sealed class UsageStatsService
     private readonly object _gate = new();
     private readonly JsonSerializerOptions _json = new() { WriteIndented = true };
     private readonly Dictionary<GameKind, DateTimeOffset> _activeSessions = new();
-    private readonly Dictionary<GameKind, BestLapRecord> _activeSessionBestLaps = new();
     private PersistedStats _stats;
 
     public UsageStatsService()
     {
-        _stats = Load();
+        _stats = Load(out var containedLegacyBestLapData);
+        if (containedLegacyBestLapData) Save();
     }
 
     public void RecordSessionStarted(GameKind game)
@@ -42,12 +39,7 @@ public sealed class UsageStatsService
         {
             if (_activeSessions.ContainsKey(game)) return;
             _activeSessions[game] = DateTimeOffset.Now;
-            _activeSessionBestLaps.Remove(game);
             _stats.SessionsMonitored++;
-            var gameStats = GetGameStats(game);
-            gameStats.LastSessionBestLap = null;
-            gameStats.LastBestLapKey = null;
-            gameStats.BestLaps.Clear();
             Save();
         }
     }
@@ -60,8 +52,6 @@ public sealed class UsageStatsService
             var gameStats = GetGameStats(game);
             gameStats.MonitoredSeconds += Math.Max(0, (ended - started).TotalSeconds);
             gameStats.CleanStreak = clean ? gameStats.CleanStreak + 1 : 0;
-            if (_activeSessionBestLaps.Remove(game, out var sessionBest))
-                gameStats.LastSessionBestLap = sessionBest;
             Save();
         }
     }
@@ -90,27 +80,6 @@ public sealed class UsageStatsService
         }
     }
 
-    public void RecordBestLap(BestLapRecord lap, bool persist = true)
-    {
-        if (!double.IsFinite(lap.LapSeconds) || lap.LapSeconds is < 20 or > 1_800
-            || string.IsNullOrWhiteSpace(lap.Track) || string.IsNullOrWhiteSpace(lap.Car))
-            return;
-
-        lock (_gate)
-        {
-            var gameStats = GetGameStats(lap.Game);
-            if (!_activeSessions.ContainsKey(lap.Game)) return;
-            if (!_activeSessionBestLaps.TryGetValue(lap.Game, out var existing)
-                || !string.Equals(lap.CombinationKey, existing.CombinationKey, StringComparison.Ordinal)
-                || lap.LapSeconds < existing.LapSeconds)
-            {
-                _activeSessionBestLaps[lap.Game] = lap;
-                gameStats.LastSessionBestLap = lap;
-                if (persist) Save();
-            }
-        }
-    }
-
     public void Flush()
     {
         lock (_gate) Save();
@@ -124,20 +93,11 @@ public sealed class UsageStatsService
             var seconds = gameStats.MonitoredSeconds;
             if (_activeSessions.TryGetValue(game, out var started))
                 seconds += Math.Max(0, (DateTimeOffset.Now - started).TotalSeconds);
-            gameStats.BestLaps ??= new Dictionary<string, BestLapRecord>(StringComparer.Ordinal);
-            var legacyBestLap = gameStats.LastBestLapKey is { Length: > 0 } key
-                && gameStats.BestLaps.TryGetValue(key, out var lap)
-                    ? lap
-                    : gameStats.BestLaps.Values.OrderByDescending(item => item.RecordedAt).FirstOrDefault();
-            var bestLap = _activeSessionBestLaps.TryGetValue(game, out var activeBestLap)
-                ? activeBestLap
-                : gameStats.LastSessionBestLap ?? legacyBestLap;
             return new SimulatorActivitySnapshot(
                 game,
                 TimeSpan.FromSeconds(seconds),
                 gameStats.CleanStreak,
-                gameStats.MileageAvailable ? gameStats.MilesMonitored : null,
-                bestLap);
+                gameStats.MileageAvailable ? gameStats.MilesMonitored : null);
         }
     }
 
@@ -149,7 +109,6 @@ public sealed class UsageStatsService
             foreach (var (game, started) in _activeSessions)
                 GetGameStats(game).MonitoredSeconds += Math.Max(0, (stopped - started).TotalSeconds);
             _activeSessions.Clear();
-            _activeSessionBestLaps.Clear();
             Save();
         }
     }
@@ -244,12 +203,18 @@ public sealed class UsageStatsService
         };
     }
 
-    private PersistedStats Load()
+    private PersistedStats Load(out bool containedLegacyBestLapData)
     {
+        containedLegacyBestLapData = false;
         try
         {
             if (File.Exists(AppPaths.StatsFile))
-                return JsonSerializer.Deserialize<PersistedStats>(File.ReadAllText(AppPaths.StatsFile), _json) ?? new PersistedStats();
+            {
+                var json = File.ReadAllText(AppPaths.StatsFile);
+                using var document = JsonDocument.Parse(json);
+                containedLegacyBestLapData = LegacyDrivingStatsPolicy.ContainsBestLapData(document.RootElement);
+                return JsonSerializer.Deserialize<PersistedStats>(json, _json) ?? new PersistedStats();
+            }
         }
         catch (Exception ex)
         {
@@ -266,7 +231,6 @@ public sealed class UsageStatsService
             gameStats = new PersistedGameStats();
             _stats.Games[key] = gameStats;
         }
-        gameStats.BestLaps ??= new Dictionary<string, BestLapRecord>(StringComparer.Ordinal);
         return gameStats;
     }
 
