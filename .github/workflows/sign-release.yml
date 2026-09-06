@@ -183,6 +183,8 @@ jobs:
 
           The installer and PitMedic-owned executables were built from this tag, signed and timestamped with Microsoft Azure Artifact Signing under Robert Holmes, and independently verified by the release workflow. SHA-256 checksums and signature manifests are included.
 
+          Security hardening in this release adds independent Authenticode publisher verification for in-app updates, stronger private-dashboard login protections, release-pipeline privilege separation, and automated dependency monitoring.
+
           PitMedic remains free and open source. Voluntary support unlocks nothing.
           "@ | Set-Content -Encoding UTF8 ./Artifacts/signed-release-notes.txt
 
@@ -190,4 +192,55 @@ jobs:
             --repo "${{ github.repository }}" `
             --title "PitMedic $version" `
             --notes-file ./Artifacts/signed-release-notes.txt `
-            --prerelease=false
+            --prerelease=false `
+            --draft=false
+
+      - name: Check out main for website publication
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: repo
+          fetch-depth: 0
+
+      - name: Publish verified version and fingerprint to website
+        shell: pwsh
+        run: |
+          $version = "${{ inputs.release_tag }}".TrimStart("v")
+          $tag = "${{ inputs.release_tag }}"
+          $installer = Resolve-Path ./Artifacts/release/PitMedic-Setup-x64.exe
+          $sha256 = (Get-FileHash -Algorithm SHA256 $installer).Hash.ToLowerInvariant()
+          $repo = Join-Path $PWD "repo"
+
+          $indexPath = Join-Path $repo "website/index.html"
+          $index = Get-Content -Raw $indexPath
+          $index = $index -replace '0\.6\.0\.12', $version
+          Set-Content -Encoding UTF8 $indexPath $index
+
+          $generatorPath = Join-Path $repo "Tools/DiagnosticLibrary/generate.py"
+          $generator = Get-Content -Raw $generatorPath
+          $generator = $generator -replace 'v0\.6\.0\.12/PitMedic-Setup-x64\.exe', "$tag/PitMedic-Setup-x64.exe"
+          Set-Content -Encoding UTF8 $generatorPath $generator
+
+          Push-Location $repo
+          python Tools/DiagnosticLibrary/generate.py
+          Pop-Location
+
+          $manifest = [ordered]@{
+            schemaVersion = 1
+            latestVersion = $version
+            title = "PitMedic $version signed release"
+            downloadUrl = "https://github.com/${{ github.repository }}/releases/download/$tag/PitMedic-Setup-x64.exe"
+            releaseUrl = "https://github.com/${{ github.repository }}/releases/tag/$tag"
+            sha256 = $sha256
+          }
+          $manifest | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $repo "website/update.json")
+
+          Push-Location $repo
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add website Tools/DiagnosticLibrary/generate.py
+          if (-not (git diff --cached --quiet)) {
+            git commit -m "Publish PitMedic $version website metadata"
+            git push origin main
+          }
+          Pop-Location
