@@ -7,12 +7,23 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../PitMedic/Services/AnonymousUsageThrottlePolicy.cs" Link="AnonymousUsageThrottlePolicy.cs" />
+    <Compile Include="../PitMedic/Services/CrashClassifier.cs" Link="CrashClassifier.cs" />
     <Compile Include="../PitMedic/Services/CompanionRecoveryPolicy.cs" Link="CompanionRecoveryPolicy.cs" />
     <Compile Include="../PitMedic/Services/ElevatedRepairPolicy.cs" Link="ElevatedRepairPolicy.cs" />
+    <Compile Include="../PitMedic/Services/ExitLogEvidencePolicy.cs" Link="ExitLogEvidencePolicy.cs" />
+    <Compile Include="../PitMedic/Services/ILiveLogMonitor.cs" Link="ILiveLogMonitor.cs" />
     <Compile Include="../PitMedic/Services/IRacingRepairSignaturePolicy.cs" Link="IRacingRepairSignaturePolicy.cs" />
+    <Compile Include="../PitMedic/Services/LmuLogEvidenceParser.cs" Link="LmuLogEvidenceParser.cs" />
     <Compile Include="../PitMedic/Services/RepairKnowledgeBase.cs" Link="RepairKnowledgeBase.cs" />
+    <Compile Include="../PitMedic/Services/SimulatorLiveLogMonitor.cs" Link="SimulatorLiveLogMonitor.cs" />
+    <Compile Include="../PitMedic/Models/CollectedEvidence.cs" Link="CollectedEvidence.cs" />
     <Compile Include="../PitMedic/Models/CompanionSoftwareDefinition.cs" Link="CompanionSoftwareDefinition.cs" />
+    <Compile Include="../PitMedic/Models/GameDefinition.cs" Link="GameDefinition.cs" />
+    <Compile Include="../PitMedic/Models/IncidentRecord.cs" Link="IncidentRecord.cs" />
     <Compile Include="../PitMedic/Models/KnowledgeModels.cs" Link="KnowledgeModels.cs" />
+    <Compile Include="../PitMedic/Models/LiveFaultEvidence.cs" Link="LiveFaultEvidence.cs" />
     <Compile Include="../PitMedic/Models/RepairModels.cs" Link="RepairModels.cs" />
+    <Compile Include="../PitMedic/Models/TelemetrySample.cs" Link="TelemetrySample.cs" />
+    <Compile Include="../PitMedic/Models/WindowsEventEvidence.cs" Link="WindowsEventEvidence.cs" />
   </ItemGroup>
 </Project>

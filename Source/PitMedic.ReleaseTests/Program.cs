@@ -73,6 +73,115 @@ AssertTrue(
     && ElevatedRepairPolicy.RequiresElevation(gHubRecovery.RepairId),
     "G HUB loading-loop recovery must restart only its allowlisted updater service with elevation.");
 
+var classifier = new CrashClassifier();
+var cleanLmuEvidence = ExitLogEvidencePolicy.Normalize(GameKind.LeMansUltimate, new CollectedEvidence(
+    LogFiles: 1,
+    DumpFiles: 0,
+    CrashHints: new[] { "trace.txt contains strong failure marker 'error decompressing file'." },
+    CleanExitDetected: true,
+    CleanExitHints: new[]
+    {
+        "trace.txt contains clean shutdown marker 'Executing NAV_EXIT'.",
+        "trace.txt contains clean shutdown marker 'Entered Game::Exit()'.",
+        "trace.txt contains clean shutdown marker 'Entered OSMan::Exit()'."
+    },
+    AffectedInstalledContent: new[] { @"Locations\Silverstone_2025" },
+    RepairSignatureIds: new[] { "lmu-content-corruption" }));
+var cleanLmuClassification = classifier.Classify(
+    GameDefinition.Supported.Single(game => game.Kind == GameKind.LeMansUltimate),
+    0,
+    Array.Empty<WindowsEventEvidence>(),
+    Array.Empty<TelemetrySample>(),
+    cleanLmuEvidence);
+AssertTrue(
+    cleanLmuClassification.Category.Equals("Normal simulator exit", StringComparison.Ordinal)
+    && cleanLmuEvidence.AffectedInstalledContent.Count == 0
+    && cleanLmuEvidence.RepairSignatureIds.Count == 0,
+    "A clean LMU shutdown must suppress an isolated content warning and targeted repair prompt.");
+
+AssertTrue(
+    LmuLogEvidenceParser.ExtractAffectedInstalledContent(
+        @"error decompressing file C:\Games\LMU\Installed\Locations\Silverstone_2025\Silverstone.mas").Count == 1,
+    "A same-line LMU content read failure must remain detectable.");
+AssertTrue(
+    LmuLogEvidenceParser.ExtractAffectedInstalledContent(
+        "error loading mesh from an optional package\r\nLoaded C:\\Games\\LMU\\Installed\\Locations\\Silverstone_2025 successfully").Count == 0,
+    "An LMU error must not be joined to an unrelated installed-content path on another log line.");
+
+var failedLmuEvidence = ExitLogEvidencePolicy.Normalize(GameKind.LeMansUltimate, new CollectedEvidence(
+    LogFiles: 1,
+    DumpFiles: 0,
+    CrashHints: new[] { "trace.txt contains strong failure marker 'error decompressing file'." },
+    CleanExitDetected: false,
+    CleanExitHints: Array.Empty<string>(),
+    AffectedInstalledContent: new[] { @"Locations\Silverstone_2025" },
+    RepairSignatureIds: new[] { "lmu-content-corruption" }));
+AssertTrue(
+    classifier.Classify(
+        GameDefinition.Supported.Single(game => game.Kind == GameKind.LeMansUltimate),
+        1,
+        Array.Empty<WindowsEventEvidence>(),
+        Array.Empty<TelemetrySample>(),
+        failedLmuEvidence).Category.Equals("LMU content read / decompression failure", StringComparison.Ordinal),
+    "A content failure without LMU clean-shutdown evidence must remain actionable.");
+
+foreach (var game in GameDefinition.Supported.Where(game => game.Kind != GameKind.LeMansUltimate))
+{
+    var archivedWarning = ExitLogEvidencePolicy.Normalize(game.Kind, new CollectedEvidence(
+        LogFiles: 1,
+        DumpFiles: 0,
+        CrashHints: new[] { "A copied rolling log contains an old fatal error." },
+        CleanExitDetected: false,
+        CleanExitHints: Array.Empty<string>(),
+        AffectedInstalledContent: Array.Empty<string>(),
+        RepairSignatureIds: Array.Empty<string>()));
+    var classification = classifier.Classify(
+        game,
+        0,
+        Array.Empty<WindowsEventEvidence>(),
+        Array.Empty<TelemetrySample>(),
+        archivedWarning);
+    AssertTrue(
+        classification.Category.Equals("Normal simulator exit", StringComparison.Ordinal),
+        $"A copied {game.DisplayName} log tail must not turn a successful exit into a finding.");
+}
+
+var currentAccFault = new LiveFaultEvidence(
+    now,
+    "acc-engine-config",
+    "ACC graphics device failure",
+    "DXGI_ERROR_DEVICE_REMOVED",
+    "AC2.log",
+    GameKind.AssettoCorsaCompetizione);
+var accDefinition = GameDefinition.Supported.Single(game => game.Kind == GameKind.AssettoCorsaCompetizione);
+AssertTrue(
+    classifier.Classify(
+        accDefinition,
+        0,
+        Array.Empty<WindowsEventEvidence>(),
+        Array.Empty<TelemetrySample>(),
+        ExitLogEvidencePolicy.Normalize(accDefinition.Kind, new CollectedEvidence(
+            1, 0, new[] { "Old fatal error in copied log." }, false,
+            Array.Empty<string>(), Array.Empty<string>(), Array.Empty<string>())),
+        new[] { currentAccFault }).Category.Equals("ACC graphics device failure", StringComparison.Ordinal),
+    "Current-session live fault evidence must remain actionable even when the process later exits successfully.");
+
+AssertFalse(
+    SimulatorLiveLogMonitor.MatchLine(GameKind.AssettoCorsaEvo, "Loading Video.VideoSettings profile") is not null,
+    "An ordinary Assetto Corsa EVO settings line must not be treated as a fault.");
+AssertFalse(
+    SimulatorLiveLogMonitor.MatchLine(GameKind.RaceRoom, "ShaderCache initialized successfully") is not null,
+    "An ordinary RaceRoom shader-cache line must not be treated as a fault.");
+AssertFalse(
+    SimulatorLiveLogMonitor.MatchLine(GameKind.RaceRoom, "BrowserData directory opened") is not null,
+    "An ordinary RaceRoom browser-data line must not be treated as a fault.");
+AssertTrue(
+    string.Equals(
+        SimulatorLiveLogMonitor.MatchLine(GameKind.RaceRoom, "HTTP 503 Service Unavailable")?.Id,
+        "raceroom-browser-cache",
+        StringComparison.Ordinal),
+    "A real RaceRoom HTTP 503 failure must remain detectable.");
+
 Console.WriteLine("PitMedic release policy tests passed.");
 
 static void AssertTrue(bool value, string message)
