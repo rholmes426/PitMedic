@@ -1,11 +1,14 @@
 export type DashboardAuthEnv = {
   ADMIN_PASSCODE_HASH: string;
   SESSION_SIGNING_KEY: string;
+  DB: D1Database;
 };
 
 const SESSION_COOKIE = "__Host-pitmedic_admin";
-const SESSION_LIFETIME_SECONDS = 30 * 24 * 60 * 60;
+const SESSION_LIFETIME_SECONDS = 12 * 60 * 60;
 const MAX_LOGIN_BODY_BYTES = 4096;
+const LOGIN_WINDOW_SECONDS = 15 * 60;
+const MAX_FAILED_ATTEMPTS = 8;
 
 type SessionPayload = {
   version: 1;
@@ -60,6 +63,15 @@ export async function handleLogin(
     return loginPage("Private login is temporarily unavailable.", 503);
   }
 
+  const clientKey = await loginClientKey(request, env.SESSION_SIGNING_KEY);
+  if (await isRateLimited(env.DB, clientKey, now)) {
+    return loginPage(
+      "Too many unsuccessful sign-in attempts. Please try again later.",
+      429,
+      { "Retry-After": LOGIN_WINDOW_SECONDS.toString() },
+    );
+  }
+
   const contentType = request.headers.get("Content-Type") ?? "";
   if (!contentType.toLowerCase().startsWith("application/x-www-form-urlencoded")) {
     return loginPage("Please use the passcode form to sign in.", 415);
@@ -79,8 +91,11 @@ export async function handleLogin(
   const passcode = new URLSearchParams(body).get("passcode") ?? "";
   const providedHash = await sha256Hex(passcode);
   if (!constantTimeEqual(providedHash, env.ADMIN_PASSCODE_HASH.toLowerCase())) {
+    await recordFailedLogin(env.DB, clientKey, now);
     return loginPage("That passcode was not accepted.", 401);
   }
+
+  await clearFailedLogins(env.DB, clientKey);
 
   const expiresAt = Math.floor(now.getTime() / 1000) + SESSION_LIFETIME_SECONDS;
   const encodedPayload = encodeBase64Url(
@@ -115,6 +130,7 @@ export function authHeaders(additional: Record<string, string> = {}): Headers {
     "Cross-Origin-Opener-Policy": "same-origin",
     "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
     "Referrer-Policy": "no-referrer",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "X-Robots-Tag": "noindex, nofollow, noarchive",
@@ -122,7 +138,11 @@ export function authHeaders(additional: Record<string, string> = {}): Headers {
   });
 }
 
-function loginPage(message?: string, status = 200): Response {
+function loginPage(
+  message?: string,
+  status = 200,
+  additionalHeaders: Record<string, string> = {},
+): Response {
   const notice = message
     ? `<p class="notice" role="alert">${escapeHtml(message)}</p>`
     : "";
@@ -159,7 +179,10 @@ function loginPage(message?: string, status = 200): Response {
 
   return new Response(html, {
     status,
-    headers: authHeaders({ "Content-Type": "text/html; charset=utf-8" }),
+    headers: authHeaders({
+      "Content-Type": "text/html; charset=utf-8",
+      ...additionalHeaders,
+    }),
   });
 }
 
@@ -167,8 +190,49 @@ function hasValidConfiguration(env: DashboardAuthEnv): boolean {
   return (
     /^[a-f0-9]{64}$/i.test(env.ADMIN_PASSCODE_HASH ?? "") &&
     typeof env.SESSION_SIGNING_KEY === "string" &&
-    env.SESSION_SIGNING_KEY.length >= 32
+    env.SESSION_SIGNING_KEY.length >= 32 &&
+    env.DB !== undefined
   );
+}
+
+async function isRateLimited(
+  db: D1Database,
+  clientKey: string,
+  now: Date,
+): Promise<boolean> {
+  const cutoff = new Date(now.getTime() - LOGIN_WINDOW_SECONDS * 1000).toISOString();
+  await db.prepare("DELETE FROM dashboard_login_failures WHERE attempted_at < ?")
+    .bind(cutoff)
+    .run();
+  const result = await db.prepare(
+    "SELECT COUNT(*) AS failures FROM dashboard_login_failures WHERE client_key = ? AND attempted_at >= ?",
+  )
+    .bind(clientKey, cutoff)
+    .first<{ failures: number }>();
+  return Number(result?.failures ?? 0) >= MAX_FAILED_ATTEMPTS;
+}
+
+async function recordFailedLogin(
+  db: D1Database,
+  clientKey: string,
+  now: Date,
+): Promise<void> {
+  await db.prepare(
+    "INSERT INTO dashboard_login_failures (client_key, attempted_at) VALUES (?, ?)",
+  )
+    .bind(clientKey, now.toISOString())
+    .run();
+}
+
+async function clearFailedLogins(db: D1Database, clientKey: string): Promise<void> {
+  await db.prepare("DELETE FROM dashboard_login_failures WHERE client_key = ?")
+    .bind(clientKey)
+    .run();
+}
+
+async function loginClientKey(request: Request, signingKey: string): Promise<string> {
+  const address = request.headers.get("CF-Connecting-IP")?.trim() || "unknown";
+  return sign(`dashboard-login:${address}`, signingKey);
 }
 
 async function sha256Hex(value: string): Promise<string> {

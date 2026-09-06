@@ -15,20 +15,23 @@ on:
         type: string
 
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 
 jobs:
   build-sign-verify:
     if: ${{ startsWith(inputs.release_tag, 'v') }}
     runs-on: windows-2025
     environment: production-signing
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Check out requested release tag
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.release_tag }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Require exact tagged commit
         shell: pwsh
@@ -140,6 +143,20 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
+  publish-release:
+    if: ${{ startsWith(inputs.release_tag, 'v') }}
+    needs: build-sign-verify
+    runs-on: windows-2025
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Download verified signed release
+        uses: actions/download-artifact@v4
+        with:
+          name: PitMedic-${{ inputs.release_tag }}-signed-release
+          path: Artifacts/release
+
       - name: Promote verified files to the public GitHub release
         shell: pwsh
         env:
@@ -158,6 +175,7 @@ jobs:
           }
 
           $files = (Get-ChildItem ./Artifacts/release -File).FullName
+          if (-not $files) { throw "No verified signed release files were downloaded." }
           gh release upload $releaseTag $files --repo "${{ github.repository }}" --clobber
 
           @"
