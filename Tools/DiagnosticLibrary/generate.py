@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 WEBSITE = ROOT / "website"
 OUTPUT = WEBSITE / "diagnostic-library"
 BASE_URL = "https://pitmedic.com"
-RELEASE_URL = "https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.12/PitMedic-Setup-x64.exe"
+RELEASE_URL = "https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.13/PitMedic-Setup-x64.exe"
 LOGO_URL = "https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png"
 TODAY = "2026-09-03"
 
@@ -470,3 +470,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
