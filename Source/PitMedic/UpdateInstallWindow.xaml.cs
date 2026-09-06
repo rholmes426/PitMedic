@@ -13,6 +13,7 @@ public partial class UpdateInstallWindow : Window
 {
     private const long MaximumInstallerBytes = 300L * 1024 * 1024;
     private const int MaximumManifestBytes = 16_384;
+    private const string ExpectedPublisher = "Robert Holmes";
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -72,15 +73,19 @@ public partial class UpdateInstallWindow : Window
                 throw new InvalidDataException("The downloaded installer did not match the published SHA-256 fingerprint.");
             }
 
+            StatusText.Text = "Verifying Windows signature…";
+            DetailText.Text = "PitMedic is independently checking the installer's Authenticode signature and publisher before it can run.";
+            AuthenticodeVerifier.VerifyTrustedPitMedicInstaller(tempPath, ExpectedPublisher);
+
             File.Move(tempPath, finalPath, true);
             _installerPath = finalPath;
 
             Progress.Value = 100;
             ProgressText.Text = "Verified";
             TitleText.Text = "Ready to install";
-            StatusText.Text = "Download verified successfully";
-            DetailText.Text = "PitMedic checked the complete installer against the published SHA-256 fingerprint. Click Install now when you are ready.";
-            SafetyText.Text = $"Verified SHA-256: {manifest.Sha256.ToLowerInvariant()}";
+            StatusText.Text = "Download and publisher verified";
+            DetailText.Text = "PitMedic verified the complete installer against the published SHA-256 fingerprint and a Windows-trusted Authenticode signature from Robert Holmes. Click Install now when you are ready.";
+            SafetyText.Text = $"Trusted publisher: {ExpectedPublisher} · SHA-256: {manifest.Sha256.ToLowerInvariant()}";
             InstallButton.IsEnabled = true;
         }
         catch (OperationCanceledException)
@@ -176,7 +181,7 @@ public partial class UpdateInstallWindow : Window
         }
 
         await output.FlushAsync(cancellationToken);
-        return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
+        return Convert.ToHexString(hash.GetHashAndGetReset()).ToLowerInvariant();
     }
 
     private static async Task<byte[]> ReadBoundedAsync(Stream input, int maximumBytes, CancellationToken cancellationToken)
