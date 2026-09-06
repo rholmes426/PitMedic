@@ -1,5 +1,5 @@
-using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 namespace PitMedic.Services;
@@ -13,11 +13,12 @@ public static class AuthenticodeVerifier
         if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             throw new InvalidDataException("The downloaded installer is missing.");
 
-        var fileInfo = new WintrustFileInfo(path);
-        var trustData = new WintrustData(fileInfo);
+        using var fileInfo = new WintrustFileInfo(path);
+        using var trustData = new WintrustData(fileInfo.StructPtr);
         try
         {
-            var result = WinVerifyTrust(IntPtr.Zero, WintrustActionGenericVerifyV2, trustData);
+            var action = WintrustActionGenericVerifyV2;
+            var result = WinVerifyTrust(IntPtr.Zero, ref action, trustData.StructPtr);
             if (result != 0)
                 throw new InvalidDataException($"Windows did not trust the downloaded installer's Authenticode signature (0x{result:X8}).");
 
@@ -33,11 +34,6 @@ public static class AuthenticodeVerifier
         {
             throw new InvalidDataException("The downloaded installer did not contain a valid Authenticode signature.", ex);
         }
-        finally
-        {
-            trustData.Dispose();
-            fileInfo.Dispose();
-        }
     }
 
     private static bool HasCodeSigningUsage(X509Certificate2 certificate)
@@ -51,15 +47,12 @@ public static class AuthenticodeVerifier
     }
 
     [DllImport("wintrust.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
-    private static extern int WinVerifyTrust(
-        IntPtr hwnd,
-        [MarshalAs(UnmanagedType.LPStruct)] Guid pgActionID,
-        WintrustData pWVTData);
+    private static extern int WinVerifyTrust(IntPtr hwnd, ref Guid pgActionID, IntPtr pWVTData);
 
     private sealed class WintrustFileInfo : IDisposable
     {
         private readonly IntPtr _filePathPtr;
-        public readonly IntPtr StructPtr;
+        public IntPtr StructPtr { get; }
 
         public WintrustFileInfo(string filePath)
         {
@@ -84,9 +77,9 @@ public static class AuthenticodeVerifier
 
     private sealed class WintrustData : IDisposable
     {
-        private readonly IntPtr _structPtr;
+        public IntPtr StructPtr { get; }
 
-        public WintrustData(WintrustFileInfo fileInfo)
+        public WintrustData(IntPtr fileInfoPtr)
         {
             var value = new WintrustDataNative
             {
@@ -96,22 +89,20 @@ public static class AuthenticodeVerifier
                 dwUIChoice = 2,
                 fdwRevocationChecks = 0,
                 dwUnionChoice = 1,
-                pFile = fileInfo.StructPtr,
+                pFile = fileInfoPtr,
                 dwStateAction = 0,
                 hWVTStateData = IntPtr.Zero,
                 pwszURLReference = IntPtr.Zero,
                 dwProvFlags = 0x00000020,
                 dwUIContext = 0
             };
-            _structPtr = Marshal.AllocCoTaskMem(Marshal.SizeOf<WintrustDataNative>());
-            Marshal.StructureToPtr(value, _structPtr, false);
+            StructPtr = Marshal.AllocCoTaskMem(Marshal.SizeOf<WintrustDataNative>());
+            Marshal.StructureToPtr(value, StructPtr, false);
         }
-
-        public static implicit operator IntPtr(WintrustData data) => data._structPtr;
 
         public void Dispose()
         {
-            if (_structPtr != IntPtr.Zero) Marshal.FreeCoTaskMem(_structPtr);
+            if (StructPtr != IntPtr.Zero) Marshal.FreeCoTaskMem(StructPtr);
         }
     }
 
