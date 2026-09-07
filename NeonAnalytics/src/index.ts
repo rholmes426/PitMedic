@@ -21,6 +21,21 @@ const EVENTS = new Set([
   "internal_navigation",
 ]);
 const MAX_BODY_BYTES = 2_048;
+const SEO_CHANGE_DATE = "2026-09-07";
+const SEO_POST_START = "2026-09-08";
+const SEO_BASELINE_START = "2026-09-02";
+const SEO_BASELINE_END = "2026-09-05";
+const SEO_CHANGE_PAGES = [
+  ["Diagnostic Library", "https://pitmedic.com/diagnostic-library/"],
+  ["iRacing guide", "https://pitmedic.com/simulators/iracing/"],
+  ["LMU guide", "https://pitmedic.com/simulators/le-mans-ultimate/"],
+  ["Missing File Privileges", "https://pitmedic.com/diagnostic-library/iracing-missing-file-privileges/"],
+  ["Content File Locked", "https://pitmedic.com/diagnostic-library/iracing-content-file-locked/"],
+  ["Loading Error 3", "https://pitmedic.com/diagnostic-library/iracing-loading-error-3/"],
+  ["Car Loading Errors", "https://pitmedic.com/diagnostic-library/iracing-car-loading-errors/"],
+  ["EasyAntiCheat Error 73", "https://pitmedic.com/diagnostic-library/iracing-eac-error73/"],
+  ["MOZA clean recovery", "https://pitmedic.com/diagnostic-library/companion-moza-clean-recovery/"],
+] as const;
 
 type WebEvent = {
   protocol: 1;
@@ -252,27 +267,109 @@ function secureEqual(actual: string, expected: string): boolean {
 }
 
 async function dashboard(): Promise<Response> {
+  const seoValues = SEO_CHANGE_PAGES.map((_, index) => `($${index * 2 + 1}, $${index * 2 + 2})`).join(",");
   const [
     eventTotals,
+    webPeriods,
     webTrend,
     topPages,
     trafficSources,
     products,
+    navigationPaths,
     gscTrend,
+    gscPeriods,
+    gscFootprint,
     gscPages,
     gscQueries,
+    rankingOpportunities,
+    ctrOpportunities,
+    seoChangePages,
     gscCountries,
     gscDevices,
     metadata,
   ] = await Promise.all([
     pool.query(`SELECT event_type, SUM(event_count)::bigint AS total FROM web_daily_events WHERE day >= CURRENT_DATE - 29 GROUP BY event_type ORDER BY total DESC`),
+    pool.query(`SELECT
+      SUM(event_count) FILTER (WHERE day >= CURRENT_DATE - 6 AND event_type='page_view')::bigint AS current_views,
+      SUM(event_count) FILTER (WHERE day BETWEEN CURRENT_DATE - 13 AND CURRENT_DATE - 7 AND event_type='page_view')::bigint AS prior_views,
+      SUM(event_count) FILTER (WHERE day >= CURRENT_DATE - 6 AND event_type='engaged')::bigint AS current_engaged,
+      SUM(event_count) FILTER (WHERE day >= CURRENT_DATE - 6 AND event_type='download')::bigint AS current_downloads,
+      SUM(event_count) FILTER (WHERE day >= CURRENT_DATE - 6 AND event_type='page_view' AND traffic_type='search')::bigint AS search_entries
+      FROM web_daily_events WHERE day >= CURRENT_DATE - 13`),
     pool.query(`SELECT day::text, event_type, SUM(event_count)::bigint AS total FROM web_daily_events WHERE day >= CURRENT_DATE - 29 AND event_type IN ('page_view','engaged') GROUP BY day, event_type ORDER BY day`),
-    pool.query(`SELECT path, SUM(event_count)::bigint AS views FROM web_daily_events WHERE day >= CURRENT_DATE - 29 AND event_type='page_view' GROUP BY path ORDER BY views DESC, path LIMIT 20`),
+    pool.query(`SELECT path,
+      SUM(event_count) FILTER (WHERE event_type='page_view')::bigint AS views,
+      SUM(event_count) FILTER (WHERE event_type='engaged')::bigint AS engaged,
+      SUM(event_count) FILTER (WHERE event_type='download')::bigint AS downloads
+      FROM web_daily_events WHERE day >= CURRENT_DATE - 29 GROUP BY path
+      HAVING SUM(event_count) FILTER (WHERE event_type='page_view') > 0
+      ORDER BY views DESC, path LIMIT 20`),
     pool.query(`SELECT traffic_type, source, SUM(event_count)::bigint AS visits FROM web_daily_events WHERE day >= CURRENT_DATE - 29 AND event_type='page_view' GROUP BY traffic_type, source ORDER BY visits DESC, source LIMIT 20`),
-    pool.query(`SELECT section, product, SUM(event_count)::bigint AS views FROM web_daily_events WHERE day >= CURRENT_DATE - 29 AND event_type='page_view' GROUP BY section, product ORDER BY views DESC, product LIMIT 20`),
-    pool.query(`SELECT day::text, clicks, impressions, ctr, position FROM gsc_daily_metrics WHERE dimension_type='site' ORDER BY day`),
+    pool.query(`SELECT section, product,
+      SUM(event_count) FILTER (WHERE event_type='page_view')::bigint AS views,
+      SUM(event_count) FILTER (WHERE event_type='engaged')::bigint AS engaged,
+      SUM(event_count) FILTER (WHERE event_type='download')::bigint AS downloads
+      FROM web_daily_events WHERE day >= CURRENT_DATE - 29 GROUP BY section, product
+      HAVING SUM(event_count) FILTER (WHERE event_type='page_view') > 0
+      ORDER BY views DESC, product LIMIT 20`),
+    pool.query(`SELECT path, target, SUM(event_count)::bigint AS clicks
+      FROM web_daily_events WHERE day >= CURRENT_DATE - 29 AND event_type='internal_navigation'
+      GROUP BY path, target ORDER BY clicks DESC, path, target LIMIT 20`),
+    pool.query(`WITH bounds AS (
+        SELECT MIN(day) AS start_day,
+          COALESCE((SELECT value::date FROM analytics_metadata WHERE key='gsc_settled_through'),MAX(day)) AS end_day
+        FROM gsc_daily_metrics WHERE dimension_type='site'
+      ), days AS (
+        SELECT generate_series(start_day,end_day,INTERVAL '1 day')::date AS day FROM bounds
+      )
+      SELECT days.day::text, COALESCE(m.clicks,0)::bigint AS clicks, COALESCE(m.impressions,0)::bigint AS impressions,
+        COALESCE(m.ctr,0) AS ctr, m.position
+      FROM days LEFT JOIN gsc_daily_metrics m ON m.dimension_type='site' AND m.day=days.day ORDER BY days.day`),
+    pool.query(`WITH bounds AS (SELECT MAX(day) AS end_day FROM gsc_daily_metrics WHERE dimension_type='site')
+      SELECT
+        SUM(clicks) FILTER (WHERE day BETWEEN end_day - 6 AND end_day)::bigint AS current_clicks,
+        SUM(impressions) FILTER (WHERE day BETWEEN end_day - 6 AND end_day)::bigint AS current_impressions,
+        SUM(position*impressions) FILTER (WHERE day BETWEEN end_day - 6 AND end_day) / NULLIF(SUM(impressions) FILTER (WHERE day BETWEEN end_day - 6 AND end_day),0) AS current_position,
+        SUM(clicks) FILTER (WHERE day BETWEEN end_day - 13 AND end_day - 7)::bigint AS prior_clicks,
+        SUM(impressions) FILTER (WHERE day BETWEEN end_day - 13 AND end_day - 7)::bigint AS prior_impressions,
+        SUM(position*impressions) FILTER (WHERE day BETWEEN end_day - 13 AND end_day - 7) / NULLIF(SUM(impressions) FILTER (WHERE day BETWEEN end_day - 13 AND end_day - 7),0) AS prior_position,
+        end_day::text
+      FROM gsc_daily_metrics, bounds WHERE dimension_type='site' GROUP BY end_day`),
+    pool.query(`WITH bounds AS (SELECT MAX(day) AS end_day FROM gsc_daily_metrics WHERE dimension_type='site')
+      SELECT dimension_type, COUNT(DISTINCT dimension_value)::bigint AS total
+      FROM gsc_daily_metrics, bounds
+      WHERE day BETWEEN end_day - 27 AND end_day AND dimension_type IN ('page','query')
+      GROUP BY dimension_type`),
     pool.query(`SELECT dimension_value AS page, SUM(clicks)::bigint AS clicks, SUM(impressions)::bigint AS impressions, CASE WHEN SUM(impressions)>0 THEN SUM(clicks)::float/SUM(impressions) ELSE 0 END AS ctr, SUM(position*impressions)/NULLIF(SUM(impressions),0) AS position FROM gsc_daily_metrics WHERE dimension_type='page' GROUP BY dimension_value ORDER BY impressions DESC LIMIT 20`),
     pool.query(`SELECT dimension_value AS query, SUM(clicks)::bigint AS clicks, SUM(impressions)::bigint AS impressions, CASE WHEN SUM(impressions)>0 THEN SUM(clicks)::float/SUM(impressions) ELSE 0 END AS ctr, SUM(position*impressions)/NULLIF(SUM(impressions),0) AS position FROM gsc_daily_metrics WHERE dimension_type='query' GROUP BY dimension_value ORDER BY impressions DESC LIMIT 20`),
+    pool.query(`WITH bounds AS (SELECT MAX(day) AS end_day FROM gsc_daily_metrics WHERE dimension_type='site')
+      SELECT dimension_value AS query, SUM(clicks)::bigint AS clicks, SUM(impressions)::bigint AS impressions,
+      SUM(position*impressions)/NULLIF(SUM(impressions),0) AS position
+      FROM gsc_daily_metrics, bounds WHERE dimension_type='query' AND day BETWEEN end_day - 27 AND end_day
+      GROUP BY dimension_value
+      HAVING SUM(position*impressions)/NULLIF(SUM(impressions),0) > 3
+        AND SUM(position*impressions)/NULLIF(SUM(impressions),0) <= 20
+      ORDER BY impressions DESC, position LIMIT 20`),
+    pool.query(`WITH bounds AS (SELECT MAX(day) AS end_day FROM gsc_daily_metrics WHERE dimension_type='site')
+      SELECT dimension_value AS page, SUM(clicks)::bigint AS clicks, SUM(impressions)::bigint AS impressions,
+      SUM(position*impressions)/NULLIF(SUM(impressions),0) AS position
+      FROM gsc_daily_metrics, bounds WHERE dimension_type='page' AND day BETWEEN end_day - 27 AND end_day
+      GROUP BY dimension_value
+      HAVING SUM(clicks)=0 AND SUM(impressions)>=2
+        AND SUM(position*impressions)/NULLIF(SUM(impressions),0) <= 10
+      ORDER BY impressions DESC, position LIMIT 20`),
+    pool.query(`WITH pages(label,url) AS (VALUES ${seoValues})
+      SELECT pages.label, pages.url,
+        COALESCE(SUM(m.clicks) FILTER (WHERE m.day BETWEEN DATE '${SEO_BASELINE_START}' AND DATE '${SEO_BASELINE_END}'),0)::bigint AS baseline_clicks,
+        COALESCE(SUM(m.impressions) FILTER (WHERE m.day BETWEEN DATE '${SEO_BASELINE_START}' AND DATE '${SEO_BASELINE_END}'),0)::bigint AS baseline_impressions,
+        SUM(m.position*m.impressions) FILTER (WHERE m.day BETWEEN DATE '${SEO_BASELINE_START}' AND DATE '${SEO_BASELINE_END}') /
+          NULLIF(SUM(m.impressions) FILTER (WHERE m.day BETWEEN DATE '${SEO_BASELINE_START}' AND DATE '${SEO_BASELINE_END}'),0) AS baseline_position,
+        COALESCE(SUM(m.clicks) FILTER (WHERE m.day >= DATE '${SEO_POST_START}'),0)::bigint AS post_clicks,
+        COALESCE(SUM(m.impressions) FILTER (WHERE m.day >= DATE '${SEO_POST_START}'),0)::bigint AS post_impressions,
+        SUM(m.position*m.impressions) FILTER (WHERE m.day >= DATE '${SEO_POST_START}') /
+          NULLIF(SUM(m.impressions) FILTER (WHERE m.day >= DATE '${SEO_POST_START}'),0) AS post_position
+      FROM pages LEFT JOIN gsc_daily_metrics m ON m.dimension_type='page' AND m.dimension_value=pages.url
+      GROUP BY pages.label, pages.url ORDER BY baseline_impressions DESC, pages.label`, SEO_CHANGE_PAGES.flat()),
     pool.query(`SELECT dimension_value AS country, SUM(clicks)::bigint AS clicks, SUM(impressions)::bigint AS impressions, SUM(position*impressions)/NULLIF(SUM(impressions),0) AS position FROM gsc_daily_metrics WHERE dimension_type='country' GROUP BY dimension_value ORDER BY impressions DESC`),
     pool.query(`SELECT dimension_value AS device, SUM(clicks)::bigint AS clicks, SUM(impressions)::bigint AS impressions, SUM(position*impressions)/NULLIF(SUM(impressions),0) AS position FROM gsc_daily_metrics WHERE dimension_type='device' GROUP BY dimension_value ORDER BY impressions DESC`),
     pool.query(`SELECT key, value FROM analytics_metadata WHERE key IN ('gsc_settled_through','gsc_last_sync','privacy_model') ORDER BY key`),
@@ -280,22 +377,42 @@ async function dashboard(): Promise<Response> {
 
   const events = new Map(eventTotals.rows.map((row) => [String(row.event_type), Number(row.total)]));
   const pageViews = events.get("page_view") || 0;
-  const engaged = events.get("engaged") || 0;
   const downloads = events.get("download") || 0;
-  const nav = events.get("internal_navigation") || 0;
+  const webPeriod = webPeriods.rows[0] || {};
+  const currentViews = Number(webPeriod.current_views || 0);
+  const priorViews = Number(webPeriod.prior_views || 0);
+  const currentEngaged = Number(webPeriod.current_engaged || 0);
+  const currentDownloads = Number(webPeriod.current_downloads || 0);
+  const searchEntries = Number(webPeriod.search_entries || 0);
   const gsc = gscTrend.rows;
   const gscClicks = gsc.reduce((sum, row) => sum + Number(row.clicks), 0);
   const gscImpressions = gsc.reduce((sum, row) => sum + Number(row.impressions), 0);
   const weightedPosition = gscImpressions
     ? gsc.reduce((sum, row) => sum + Number(row.position) * Number(row.impressions), 0) / gscImpressions
     : 0;
+  const gscPeriod = gscPeriods.rows[0] || {};
+  const currentSearchImpressions = Number(gscPeriod.current_impressions || 0);
+  const priorSearchImpressions = Number(gscPeriod.prior_impressions || 0);
+  const currentSearchPosition = nullableNumber(gscPeriod.current_position);
+  const priorSearchPosition = nullableNumber(gscPeriod.prior_position);
+  const footprint = new Map(gscFootprint.rows.map((row) => [String(row.dimension_type), Number(row.total)]));
+  const seoRows = seoChangePages.rows;
+  const seoBaselineImpressions = seoRows.reduce((sum, row) => sum + Number(row.baseline_impressions), 0);
+  const seoBaselineClicks = seoRows.reduce((sum, row) => sum + Number(row.baseline_clicks), 0);
+  const seoPostImpressions = seoRows.reduce((sum, row) => sum + Number(row.post_impressions), 0);
+  const seoPostClicks = seoRows.reduce((sum, row) => sum + Number(row.post_clicks), 0);
+  const seoBaselinePosition = weightedMetric(seoRows, "baseline_position", "baseline_impressions");
+  const seoPostPosition = weightedMetric(seoRows, "post_position", "post_impressions");
   const meta = Object.fromEntries(metadata.rows.map((row) => [String(row.key), String(row.value)]));
+  const seoWaiting = !meta.gsc_settled_through || meta.gsc_settled_through < SEO_POST_START;
+  const seoPostDays = seoWaiting ? 0 : inclusiveDays(SEO_POST_START,meta.gsc_settled_through);
+  const lastSearchActivity = [...gsc].reverse().find((row) => Number(row.impressions)>0)?.day || "—";
 
   const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PitMedic Analytics</title>
 <style>
-:root{color-scheme:dark;--bg:#07111d;--panel:#0d1b2a;--line:#20384d;--text:#e8f1f8;--muted:#91a9ba;--cyan:#2dd4bf;--blue:#60a5fa;--amber:#fbbf24}
+:root{color-scheme:dark;--bg:#07111d;--panel:#0d1b2a;--line:#20384d;--text:#e8f1f8;--muted:#91a9ba;--cyan:#2dd4bf;--blue:#60a5fa;--amber:#fbbf24;--green:#4ade80;--red:#fb7185}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#10283e 0,#07111d 42%);color:var(--text);font:15px/1.45 Inter,system-ui,sans-serif}
 main{max-width:1280px;margin:auto;padding:32px 22px 60px}header{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:24px}
 h1{margin:0;font-size:30px}h2{font-size:18px;margin:0 0 14px}.sub,.muted{color:var(--muted)}
@@ -303,36 +420,51 @@ h1{margin:0;font-size:30px}h2{font-size:18px;margin:0 0 14px}.sub,.muted{color:v
 .view{display:none}.view.active{display:block}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.kpi,.panel{background:color-mix(in srgb,var(--panel) 94%,transparent);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px #0003}.kpi{padding:18px}.kpi b{display:block;font-size:28px;margin-top:5px}.panel{padding:18px;margin-top:14px;overflow:auto}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 table{border-collapse:collapse;width:100%;min-width:560px}th,td{text-align:left;border-bottom:1px solid var(--line);padding:9px 8px}th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}td.num,th.num{text-align:right}
 .bar{height:8px;background:#122638;border-radius:5px;overflow:hidden;min-width:100px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:5px}.empty{padding:34px;text-align:center;color:var(--muted)}
+.callout{border-left:4px solid var(--cyan);padding:12px 14px;background:#0a2230;border-radius:8px;margin-bottom:14px}.good{color:var(--green)}.bad{color:var(--red)}.neutral{color:var(--muted)}.compact{margin-top:8px}.compact .kpi{padding:14px}.compact .kpi b{font-size:22px}
 footer{color:var(--muted);margin-top:22px;font-size:13px}@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}header{align-items:start;flex-direction:column}}@media(max-width:460px){.grid{grid-template-columns:1fr}}
 </style></head><body><main>
 <header><div><h1>PitMedic Analytics</h1><div class="sub">Privacy-first website and Google Search performance</div></div><div class="muted">Last 30 days · refreshed on load</div></header>
 <div class="tabs"><button class="tab active" data-view="web">Website</button><button class="tab" data-view="search">Google Search</button></div>
 <section id="web" class="view active">
 <div class="grid">
-${kpi("Page views", pageViews)}${kpi("Engaged visits", engaged, pageViews ? pct(engaged/pageViews) + " engagement" : "No data yet")}${kpi("Downloads", downloads)}${kpi("Internal clicks", nav)}
+${kpi("Page views · 30d", pageViews, `${number(currentViews)} last 7d · ${growthLabel(currentViews,priorViews)}`)}${kpi("Engagement · 7d", currentViews?pct(currentEngaged/currentViews):"—", `${number(currentEngaged)} engaged views`)}${kpi("Download rate · 7d",currentViews?pct(currentDownloads/currentViews):"—",`${number(downloads)} downloads in 30d`)}${kpi("Search entries · 7d",searchEntries,currentViews?`${pct(searchEntries/currentViews)} of views`:"No views yet")}
 </div>
 <div class="panel"><h2>Daily activity</h2>${webTrend.rows.length ? webTrendTable(webTrend.rows) : empty("Collection starts when the updated website tracker is published.")}</div>
 <div class="two">
-<div class="panel"><h2>Top pages</h2>${rankTable(topPages.rows,"path","views","Views")}</div>
+<div class="panel"><h2>Top pages</h2>${pagePerformanceTable(topPages.rows)}</div>
 <div class="panel"><h2>Traffic sources</h2>${trafficTable(trafficSources.rows)}</div>
 </div>
+<div class="two">
 <div class="panel"><h2>Content and products</h2>${productTable(products.rows)}</div>
+<div class="panel"><h2>Internal navigation paths</h2>${navigationTable(navigationPaths.rows)}</div>
+</div>
 </section>
 <section id="search" class="view">
 <div class="grid">
-${kpi("Clicks",gscClicks)}${kpi("Impressions",gscImpressions)}${kpi("Search CTR",gscImpressions?pct(gscClicks/gscImpressions):"0%")}${kpi("Avg. position",weightedPosition?weightedPosition.toFixed(1):"—")}
+${kpi("Clicks",gscClicks,`${number(gscPeriod.current_clicks)} in latest 7d`)}${kpi("Impressions",gscImpressions,`${number(currentSearchImpressions)} latest 7d · ${growthLabel(currentSearchImpressions,priorSearchImpressions)}`)}${kpi("Search CTR",gscImpressions?pct(gscClicks/gscImpressions):"0%")}${kpi("Avg. position",weightedPosition?weightedPosition.toFixed(1):"—",positionChangeLabel(currentSearchPosition,priorSearchPosition))}
 </div>
+<div class="grid compact">
+${kpi("Visible pages · 28d",footprint.get("page") || 0)}${kpi("Visible queries · 28d",footprint.get("query") || 0)}${kpi("Ranking opportunities",rankingOpportunities.rows.length,"Queries in positions 4–20")}${kpi("CTR opportunities",ctrOpportunities.rows.length,"Top-10 pages without a click")}
+</div>
+<div class="panel"><h2>SEO change impact</h2>
+<div class="callout"><strong>Priority content expansion · ${SEO_CHANGE_DATE}</strong><br><span class="muted">Baseline ${SEO_BASELINE_START}–${SEO_BASELINE_END}; transition day excluded; post-change measurement begins ${SEO_POST_START}. ${seoWaiting?"Waiting for Google to settle the first post-change day.":`${seoPostDays} post-change day${seoPostDays===1?"":"s"} available.`}</span></div>
+<div class="grid compact">${kpi("Baseline impressions",seoBaselineImpressions,`${(seoBaselineImpressions/4).toFixed(1)} per day`)}${kpi("Post impressions",seoWaiting?"Pending":seoPostImpressions,seoWaiting?"No settled post-change data yet":`${seoPostDays? (seoPostImpressions/seoPostDays).toFixed(1):"0.0"} per day`)}${kpi("Baseline CTR",seoBaselineImpressions?pct(seoBaselineClicks/seoBaselineImpressions):"—")}${kpi("Position change",seoWaiting?"Pending":positionChangeValue(seoPostPosition,seoBaselinePosition),seoWaiting?"Lower is better":positionChangeLabel(seoPostPosition,seoBaselinePosition))}</div>
+${seoChangeTable(seoRows,seoWaiting)}</div>
 <div class="panel"><h2>Daily search performance</h2>${gscTrendTable(gsc)}</div>
 <div class="two">
 <div class="panel"><h2>Search landing pages</h2>${searchTable(gscPages.rows,"page")}</div>
 <div class="panel"><h2>Queries</h2>${searchTable(gscQueries.rows,"query")}</div>
 </div>
 <div class="two">
+<div class="panel"><h2>Striking-distance queries</h2><div class="muted">Queries ranking in positions 4–20, ordered by impressions.</div>${searchTable(rankingOpportunities.rows,"query")}</div>
+<div class="panel"><h2>CTR opportunities</h2><div class="muted">Pages averaging position 10 or better with at least two impressions and no clicks.</div>${searchTable(ctrOpportunities.rows,"page")}</div>
+</div>
+<div class="two">
 <div class="panel"><h2>Countries</h2>${searchTable(gscCountries.rows,"country")}</div>
 <div class="panel"><h2>Devices</h2>${searchTable(gscDevices.rows,"device")}</div>
 </div>
 </section>
-<footer>Search Console settled through ${escapeHtml(meta.gsc_settled_through || "—")} · Daily aggregates only · No cookies, IP addresses, visitor IDs, full referrer URLs, search terms from website visits, or raw user-agent strings are stored.</footer>
+<footer>Google data current through ${escapeHtml(meta.gsc_settled_through || "—")} · Last search activity ${escapeHtml(lastSearchActivity)} · Daily aggregates only · No cookies, IP addresses, visitor IDs, full referrer URLs, search terms from website visits, or raw user-agent strings are stored.</footer>
 </main><script>
 document.querySelectorAll(".tab").forEach(function(button){button.addEventListener("click",function(){document.querySelectorAll(".tab,.view").forEach(function(el){el.classList.remove("active")});button.classList.add("active");document.getElementById(button.dataset.view).classList.add("active")})});
 </script></body></html>`;
@@ -354,13 +486,39 @@ function kpi(label: string, value: string | number, note = ""): string {
 function empty(message: string): string { return `<div class="empty">${escapeHtml(message)}</div>`; }
 function pct(value: number): string { return `${(value*100).toFixed(1)}%`; }
 function number(value: unknown): string { return Number(value || 0).toLocaleString("en-US"); }
+function nullableNumber(value: unknown): number | null {
+  return value === null || value === undefined || value === "" ? null : Number(value);
+}
+function growthLabel(current: number, prior: number): string {
+  if (!prior) return current ? "new activity" : "no prior activity";
+  const change = (current-prior)/prior;
+  return `${change>=0?"+":""}${pct(change)} vs prior 7d`;
+}
+function positionChangeValue(current: number | null, prior: number | null): string {
+  if (current === null || prior === null) return "—";
+  const improvement = prior-current;
+  return `${improvement>=0?"+":""}${improvement.toFixed(1)}`;
+}
+function positionChangeLabel(current: number | null, prior: number | null): string {
+  if (current === null || prior === null) return "Not enough comparison data";
+  const improvement = prior-current;
+  if (Math.abs(improvement)<0.05) return "No material movement";
+  return `${Math.abs(improvement).toFixed(1)} position${Math.abs(improvement)>=1.5?"s":""} ${improvement>0?"better":"worse"} vs prior period`;
+}
+function weightedMetric(rows: any[], metric: string, weight: string): number | null {
+  const usable = rows.filter((row) => nullableNumber(row[metric]) !== null && Number(row[weight])>0);
+  const totalWeight = usable.reduce((sum,row)=>sum+Number(row[weight]),0);
+  return totalWeight ? usable.reduce((sum,row)=>sum+Number(row[metric])*Number(row[weight]),0)/totalWeight : null;
+}
+function inclusiveDays(start: string, end: string): number {
+  return Math.max(0,Math.floor((Date.parse(`${end}T00:00:00Z`)-Date.parse(`${start}T00:00:00Z`))/86_400_000)+1);
+}
 function escapeHtml(value: unknown): string {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[char] || char);
 }
-function rankTable(rows: any[], label: string, metric: string, title: string): string {
+function pagePerformanceTable(rows: any[]): string {
   if (!rows.length) return empty("No data yet.");
-  const max = Math.max(...rows.map((row) => Number(row[metric])));
-  return `<table><thead><tr><th>${escapeHtml(label)}</th><th class="num">${escapeHtml(title)}</th><th>Share</th></tr></thead><tbody>${rows.map((row)=>`<tr><td>${escapeHtml(row[label])}</td><td class="num">${number(row[metric])}</td><td><div class="bar"><i style="width:${max?Number(row[metric])/max*100:0}%"></i></div></td></tr>`).join("")}</tbody></table>`;
+  return `<table><thead><tr><th>Page</th><th class="num">Views</th><th class="num">Engaged</th><th class="num">Rate</th><th class="num">Downloads</th></tr></thead><tbody>${rows.map((row)=>`<tr><td>${escapeHtml(row.path)}</td><td class="num">${number(row.views)}</td><td class="num">${number(row.engaged)}</td><td class="num">${Number(row.views)?pct(Number(row.engaged)/Number(row.views)):"—"}</td><td class="num">${number(row.downloads)}</td></tr>`).join("")}</tbody></table>`;
 }
 function trafficTable(rows: any[]): string {
   if (!rows.length) return empty("No data yet.");
@@ -368,7 +526,11 @@ function trafficTable(rows: any[]): string {
 }
 function productTable(rows: any[]): string {
   if (!rows.length) return empty("No data yet.");
-  return `<table><thead><tr><th>Section</th><th>Product</th><th class="num">Views</th></tr></thead><tbody>${rows.map((row)=>`<tr><td>${escapeHtml(row.section)}</td><td>${escapeHtml(row.product)}</td><td class="num">${number(row.views)}</td></tr>`).join("")}</tbody></table>`;
+  return `<table><thead><tr><th>Section</th><th>Product</th><th class="num">Views</th><th class="num">Engagement</th><th class="num">Downloads</th></tr></thead><tbody>${rows.map((row)=>`<tr><td>${escapeHtml(row.section)}</td><td>${escapeHtml(row.product)}</td><td class="num">${number(row.views)}</td><td class="num">${Number(row.views)?pct(Number(row.engaged)/Number(row.views)):"—"}</td><td class="num">${number(row.downloads)}</td></tr>`).join("")}</tbody></table>`;
+}
+function navigationTable(rows: any[]): string {
+  if (!rows.length) return empty("No internal navigation clicks yet.");
+  return `<table><thead><tr><th>From</th><th>To</th><th class="num">Clicks</th></tr></thead><tbody>${rows.map((row)=>`<tr><td>${escapeHtml(row.path)}</td><td>${escapeHtml(row.target)}</td><td class="num">${number(row.clicks)}</td></tr>`).join("")}</tbody></table>`;
 }
 function webTrendTable(rows: any[]): string {
   const dates = new Map<string,{views:number;engaged:number}>();
@@ -382,11 +544,20 @@ function webTrendTable(rows: any[]): string {
 }
 function gscTrendTable(rows: any[]): string {
   if (!rows.length) return empty("No Search Console data yet.");
-  return `<table><thead><tr><th>Date</th><th class="num">Clicks</th><th class="num">Impressions</th><th class="num">CTR</th><th class="num">Position</th></tr></thead><tbody>${rows.map((row)=>`<tr><td>${escapeHtml(row.day)}</td><td class="num">${number(row.clicks)}</td><td class="num">${number(row.impressions)}</td><td class="num">${pct(Number(row.ctr))}</td><td class="num">${Number(row.position).toFixed(1)}</td></tr>`).join("")}</tbody></table>`;
+  return `<table><thead><tr><th>Date</th><th class="num">Clicks</th><th class="num">Impressions</th><th class="num">CTR</th><th class="num">Position</th></tr></thead><tbody>${rows.map((row)=>`<tr><td>${escapeHtml(row.day)}</td><td class="num">${number(row.clicks)}</td><td class="num">${number(row.impressions)}</td><td class="num">${pct(Number(row.ctr))}</td><td class="num">${!Number(row.impressions)||row.position===null?"—":Number(row.position).toFixed(1)}</td></tr>`).join("")}</tbody></table>`;
 }
 function searchTable(rows: any[], label: string): string {
   if (!rows.length) return empty("No data yet.");
   return `<table><thead><tr><th>${escapeHtml(label)}</th><th class="num">Clicks</th><th class="num">Impr.</th><th class="num">Position</th></tr></thead><tbody>${rows.map((row)=>`<tr><td>${escapeHtml(row[label])}</td><td class="num">${number(row.clicks)}</td><td class="num">${number(row.impressions)}</td><td class="num">${row.position===null?"—":Number(row.position).toFixed(1)}</td></tr>`).join("")}</tbody></table>`;
+}
+function seoChangeTable(rows: any[], waiting: boolean): string {
+  if (!rows.length) return empty("No experiment pages configured.");
+  return `<table><thead><tr><th>Changed page</th><th class="num">Baseline impr.</th><th class="num">Baseline CTR</th><th class="num">Baseline pos.</th><th class="num">Post impr.</th><th class="num">Post CTR</th><th class="num">Post pos.</th><th class="num">Rank change</th></tr></thead><tbody>${rows.map((row)=>{
+    const baselineImpressions=Number(row.baseline_impressions); const postImpressions=Number(row.post_impressions);
+    const baselinePosition=nullableNumber(row.baseline_position); const postPosition=nullableNumber(row.post_position);
+    const change=baselinePosition!==null&&postPosition!==null?baselinePosition-postPosition:null;
+    return `<tr><td><a href="${escapeHtml(row.url)}" rel="noreferrer">${escapeHtml(row.label)}</a></td><td class="num">${number(baselineImpressions)}</td><td class="num">${baselineImpressions?pct(Number(row.baseline_clicks)/baselineImpressions):"—"}</td><td class="num">${baselinePosition===null?"—":baselinePosition.toFixed(1)}</td><td class="num">${waiting?"—":number(postImpressions)}</td><td class="num">${waiting||!postImpressions?"—":pct(Number(row.post_clicks)/postImpressions)}</td><td class="num">${waiting||postPosition===null?"—":postPosition.toFixed(1)}</td><td class="num ${change===null?"neutral":change>=0?"good":"bad"}">${waiting||change===null?"—":`${change>=0?"+":""}${change.toFixed(1)}`}</td></tr>`;
+  }).join("")}</tbody></table>`;
 }
 
 function json(value: unknown, status = 200, headers: Record<string,string> = {}): Response {
