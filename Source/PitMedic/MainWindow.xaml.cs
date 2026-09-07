@@ -574,25 +574,17 @@ public partial class MainWindow : Window
         var running = _gameRunning.TryGetValue(_selectedGame, out var isRunning) && isRunning;
         ActivityTimeValue.Text = FormatMonitoredTime(activity.TimeMonitored);
 
-        var hasMileage = SimulatorDistanceTelemetryService.SupportsMileage(_selectedGame);
-        if (hasMileage)
+        _distanceTelemetryStatuses.TryGetValue(_selectedGame, out var distanceStatus);
+        var showDistance = SimulatorDistanceTelemetryService.SupportsMileage(_selectedGame)
+            && !(running && distanceStatus is { IsAvailable: false });
+        ActivityMilesCard.Visibility = showDistance ? Visibility.Visible : Visibility.Collapsed;
+        if (showDistance)
         {
             var miles = activity.MilesMonitored.GetValueOrDefault();
             ActivityMilesValue.Text = _settings.UseFahrenheit
                 ? $"{miles:N1} mi"
                 : $"{miles * 1.609344d:N1} km";
         }
-        else
-        {
-            ActivityMilesValue.Text = "Not available";
-        }
-
-        _distanceTelemetryStatuses.TryGetValue(_selectedGame, out var distanceStatus);
-        var showAms2Guidance = _selectedGame == GameKind.Automobilista2
-            && running
-            && distanceStatus is { IsAvailable: false };
-        ActivityDistanceDetail.Visibility = showAms2Guidance ? Visibility.Visible : Visibility.Collapsed;
-        ActivityDistanceDetail.Text = showAms2Guidance ? distanceStatus!.Message : string.Empty;
 
     }
 
