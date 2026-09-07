@@ -25,7 +25,6 @@
     <Compile Include="../PitMedic/Models/KnowledgeModels.cs" Link="KnowledgeModels.cs" />
     <Compile Include="../PitMedic/Models/LiveFaultEvidence.cs" Link="LiveFaultEvidence.cs" />
     <Compile Include="../PitMedic/Models/RepairModels.cs" Link="RepairModels.cs" />
-    <Compile Include="../PitMedic/Models/SimulatorActivitySnapshot.cs" Link="SimulatorActivitySnapshot.cs" />
     <Compile Include="../PitMedic/Models/TelemetrySample.cs" Link="TelemetrySample.cs" />
     <Compile Include="../PitMedic/Models/WindowsEventEvidence.cs" Link="WindowsEventEvidence.cs" />
   </ItemGroup>

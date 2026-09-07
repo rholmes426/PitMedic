@@ -29,10 +29,6 @@ THE v0.6 LINE ALSO INCLUDES
 - Cloudflare Worker/D1 aggregate usage service and private usage dashboard.
 - Once-daily update checks and a dismissible in-app Download banner; PitMedic
   never downloads or installs updates without the user choosing the action.
-- Simulator-specific monitored time and clean streaks, plus verified live
-  distance telemetry for iRacing, ACC, RaceRoom, and Automobilista 2.
-- Metric/Imperial display settings and persistent supported-simulator distance
-  cards.
 
 BUILD + RUN
 -----------

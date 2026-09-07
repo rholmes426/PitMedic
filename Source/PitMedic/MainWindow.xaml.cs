@@ -23,7 +23,6 @@ public partial class MainWindow : Window
     private readonly Dictionary<GameKind, RadioButton> _navButtons = new();
     private readonly Dictionary<GameKind, TextBlock> _navStatuses = new();
     private readonly Dictionary<GameKind, System.Windows.Shapes.Ellipse> _navDots = new();
-    private readonly Dictionary<GameKind, DistanceTelemetryStatus> _distanceTelemetryStatuses = new();
     private bool _allowClose;
     private AppSettings _settings;
     private RepairProgressWindow? _repairProgressWindow;
@@ -47,7 +46,6 @@ public partial class MainWindow : Window
 
         _monitoring.TelemetryUpdated += sample => Dispatcher.BeginInvoke(() => UpdateTelemetry(sample));
         _monitoring.GameStatusChanged += (game, running) => Dispatcher.BeginInvoke(() => UpdateGame(game, running));
-        _monitoring.DistanceTelemetryStatusChanged += status => Dispatcher.BeginInvoke(() => UpdateDistanceTelemetryStatus(status));
         _monitoring.CompanionSoftwareStatusChanged += _ => Dispatcher.BeginInvoke(() => RefreshHomePage());
         _monitoring.LiveFaultDetected += fault => Dispatcher.BeginInvoke(() => UpdateLiveFault(fault));
         _monitoring.IncidentCreated += incident => Dispatcher.BeginInvoke(() => AddIncident(incident));
@@ -144,8 +142,6 @@ public partial class MainWindow : Window
         HomeGpuDetail.Text = s.GpuLoadPct.HasValue ? $"{s.GpuLoadPct.Value:0}% load" : "Sensor active";
         HomeMemoryValue.Text = s.MemoryLoadPct.HasValue ? $"{s.MemoryLoadPct.Value:0}%" : "--%";
         HomeGpuPower.Text = Power(s.GpuPowerW);
-        RefreshSelectedActivity();
-
         DrawChart();
     }
 
@@ -562,43 +558,8 @@ public partial class MainWindow : Window
             SetHeaderStatus("WAITING FOR SIMULATOR", "Panel2Brush", "BorderBrush", "MutedBrush", "MutedBrush");
 
         RefreshSessionStory(active ?? latest, running, monitored);
-        RefreshSelectedActivity();
         RefreshSelectedFinding(active, latest);
         RefreshSelectedFooter(active ?? latest, running, monitored);
-    }
-
-    private void RefreshSelectedActivity()
-    {
-        if (ActivityTimeValue is null) return;
-        var activity = _monitoring.SimulatorActivity(_selectedGame);
-        var running = _gameRunning.TryGetValue(_selectedGame, out var isRunning) && isRunning;
-        ActivityTimeValue.Text = FormatMonitoredTime(activity.TimeMonitored);
-
-        _distanceTelemetryStatuses.TryGetValue(_selectedGame, out var distanceStatus);
-        var showDistance = SimulatorDistanceTelemetryService.SupportsMileage(_selectedGame)
-            && !(running && distanceStatus is { IsAvailable: false });
-        ActivityMilesCard.Visibility = showDistance ? Visibility.Visible : Visibility.Collapsed;
-        if (showDistance)
-        {
-            var miles = activity.MilesMonitored.GetValueOrDefault();
-            ActivityMilesValue.Text = _settings.UseFahrenheit
-                ? $"{miles:N1} mi"
-                : $"{miles * 1.609344d:N1} km";
-        }
-
-    }
-
-    private void UpdateDistanceTelemetryStatus(DistanceTelemetryStatus status)
-    {
-        _distanceTelemetryStatuses[status.Game] = status;
-        if (_selectedGame == status.Game) RefreshSelectedActivity();
-    }
-
-    private static string FormatMonitoredTime(TimeSpan duration)
-    {
-        if (duration.TotalHours >= 1)
-            return $"{(int)duration.TotalHours:N0}h {duration.Minutes:00}m";
-        return $"{Math.Max(0, (int)duration.TotalMinutes):N0}m";
     }
 
     private void SetHeaderStatus(string text, string background, string border, string dot, string foreground)

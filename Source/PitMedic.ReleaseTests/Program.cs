@@ -52,18 +52,14 @@ using var legacyDrivingStats = JsonDocument.Parse("""
     {"Games":{"IRacing":{"MonitoredSeconds":120,"LastSessionBestLap":{"LapSeconds":90},"BestLaps":{}}}}
     """);
 AssertTrue(
-    LegacyDrivingStatsPolicy.ContainsBestLapData(legacyDrivingStats.RootElement),
-    "An upgraded installation must detect and purge legacy best-lap data.");
+    LegacyDrivingStatsPolicy.ContainsDrivingStatsData(legacyDrivingStats.RootElement),
+    "An upgraded installation must detect and purge legacy per-simulator activity data.");
 using var currentDrivingStats = JsonDocument.Parse("""
-    {"Games":{"IRacing":{"MonitoredSeconds":120,"MilesMonitored":4.5,"MileageAvailable":true}}}
+    {"MonitoringSince":"2026-09-01T12:00:00Z","SessionsMonitored":4,"AutomaticRepairsResolved":1}
     """);
 AssertFalse(
-    LegacyDrivingStatsPolicy.ContainsBestLapData(currentDrivingStats.RootElement),
-    "Current monitored-time and distance data must not trigger the legacy best-lap migration.");
-AssertFalse(
-    typeof(SimulatorActivitySnapshot).GetProperties()
-        .Any(property => property.Name.Contains("Lap", StringComparison.OrdinalIgnoreCase)),
-    "Simulator activity exposed to the UI must not contain lap data.");
+    LegacyDrivingStatsPolicy.ContainsDrivingStatsData(currentDrivingStats.RootElement),
+    "Current global usage counters must not trigger the legacy driving-stats migration.");
 
 AssertTrue(
     RepairKnowledgeBase.Entries.Count == 53,

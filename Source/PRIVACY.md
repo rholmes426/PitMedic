@@ -1,6 +1,6 @@
 # PitMedic privacy statement
 
-Last updated: September 6, 2026
+Last updated: September 7, 2026
 
 PitMedic is designed to perform monitoring, diagnostics, and repairs locally on the user's Windows computer.
 
@@ -41,7 +41,7 @@ Turning anonymous usage off immediately deletes the local secret and last-send s
 
 Diagnostics, findings, repairs, hardware telemetry, and simulator activity are never sent to the PitMedic project. The installed read-only sensor service writes current CPU telemetry only to `%ProgramData%\PitMedic\sensor.json` on the same computer. Ordinary users can read but not change this service-owned file, and PitMedic ignores stale samples.
 
-PitMedic does not read, store, display, or transmit simulator lap times, track/layout identity, or car identity. Upgrading from a version that included best-lap tracking removes those legacy fields from the local activity-statistics file.
+PitMedic does not read, store, display, or transmit simulator lap times, monitored duration, distance, track/layout identity, car identity, or clean streaks. Upgrading from a version that included simulator driving stats removes those legacy per-simulator fields from the local statistics file.
 
 By default, PitMedic reads a small public version file from `pitmedic.com` when the app launches to check whether an update is available. The request has no body, app-usage token, diagnostic, or permanent identifier. Automatic checks can be turned off in Settings, and PitMedic never downloads or installs an update without the user choosing the Download button. As with any website request, the hosting providers necessarily process connection information such as the source IP address to deliver and protect the file.
 
