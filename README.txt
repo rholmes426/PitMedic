@@ -1,7 +1,8 @@
-PITMEDIC v0.6.0.4 - FULL DEVELOPMENT PACKAGE
-==============================================
+PITMEDIC v0.6.0.15 - FULL DEVELOPMENT PACKAGE
+===============================================
 
-PitMedic is a Windows sim-racing diagnostics and automated repair utility.
+PitMedic is a free, open-source Windows sim-racing diagnostics and automated
+repair utility.
 
 THIS PACKAGE IS COMPLETE
 ------------------------
@@ -9,51 +10,31 @@ This repository contains the full source tree, PitMedic assets, repair knowledge
 base, documentation, website, telemetry services, and Windows build/run command
 file. It is not a patch-only package.
 
-WHAT CHANGED IN v0.6.0.4
-------------------------
-- The in-app updater now keeps Cancel and Install now visible on smaller displays
-  and at increased Windows display scaling.
-- Install now explicitly requests Windows administrator approval before PitMedic
-  closes and records the verified installer handoff in the local diagnostic log.
-
-THE v0.6 LINE ALSO INCLUDES
----------------------------
-- Explicit one-time consent for anonymous app-usage counting; sharing is off
-  unless the user opts in.
-- Exact-data preview and Settings switch. Turning sharing off deletes the local
-  anonymous key and sending history.
-- A six-field privacy-preserving request limited to version, release channel,
-  installer/portable type, protocol, and rotating daily/monthly anonymous tokens.
-  Diagnostics, findings, repairs, hardware data, and simulator activity are never
-  sent.
-- Cloudflare Worker/D1 aggregate usage service and private usage dashboard.
-- Once-daily update checks and a dismissible in-app Download banner; PitMedic
-  never downloads or installs updates without the user choosing the action.
+WHAT CHANGED IN v0.6.0.15
+-------------------------
+- Removed simulator driving-stat collection and reporting, including best laps,
+  monitored time, distance, clean streaks, reference-lap lookups, and the entire
+  Driving Stats interface.
+- Added upgrade cleanup for legacy per-simulator activity fields while preserving
+  global session and repair counters.
+- Expanded the read-only Knowledge Scout from 13 to 26 trusted official and
+  vendor-operated sources. Scout findings always require human review.
 
 BUILD + RUN
 -----------
-Extract the entire package to a new folder and double-click:
+Extract the complete package and double-click:
     Build and Run PitMedic.cmd
 
-The script requires a stable .NET 10 SDK. It publishes a self-contained Windows
-x64 build to:
-    Output\PitMedic.exe
+The script requires a stable .NET 10 SDK and creates an unsigned development
+build. Official public installers are built, signed, timestamped, and verified
+by the protected GitHub release workflow.
 
-PUBLIC PREVIEW
+PUBLIC RELEASE
 --------------
-The public v0.6.0.4 test preview is intentionally unsigned while the PitMedic
-SignPath application is pending. Windows may display Unknown publisher or a
-SmartScreen warning. Release assets include a clearly labeled unsigned installer,
-portable ZIP, SHA-256 checksums, and release notes.
+Official releases include a signed Windows installer, portable ZIP, SHA-256
+checksums, and signature manifests. PitMedic remains free and open source;
+voluntary support unlocks nothing.
 
-The installed build registers the narrowly scoped read-only CPU sensor service
-during setup. Normal PitMedic launches remain unelevated. Protected repairs use
-the separate one-shot PitMedic.RepairHelper.exe only when a protected change is
-selected.
-
-OPEN-SOURCE RELEASE PREPARATION
--------------------------------
-The package includes the GPL license, public repository documentation, GitHub
-Actions build validation, unsigned-preview publishing, and SignPath
-submission/verification workflows. See CODE_SIGNING_POLICY.md and
-Source\CODE_SIGNING.md for the signed-release path.
+The ordinary app runs unelevated. The installer registers the narrowly scoped
+read-only CPU sensor service, and protected repairs use a separate one-shot
+repair helper only when a protected change is selected.

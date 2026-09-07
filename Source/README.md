@@ -1,12 +1,13 @@
-# PitMedic v0.6.0.12
+# PitMedic v0.6.0.15
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
 
-## Next release
+## v0.6.0.15
 
 - Removes simulator driving-stat collection and reporting, including best laps, monitored time, distance, and the complete Driving Stats interface.
 - Removes the simulator distance adapters and reference-lap network lookups.
 - Purges legacy per-simulator lap, time, distance, and clean-streak fields from the local statistics file when an existing installation starts the updated app.
+- Expands the read-only Knowledge Scout from 13 to 26 trusted official and vendor-operated sources while preserving human review for every repair change.
 
 ## v0.6.0.12
 
