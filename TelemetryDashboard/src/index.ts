@@ -11,6 +11,7 @@ import {
   loadSearchConsoleData,
   type SearchConsoleEnv,
 } from "./search-console";
+import { loadGitHubDownloadData } from "./github-downloads";
 import {
   authHeaders,
   handleLogin,
@@ -76,7 +77,11 @@ export default {
             generatedAt,
             dashboardStyles,
           )
-        : renderDashboard(await loadDashboardData(env.DB, generatedAt), generatedAt);
+        : renderDashboard(
+            await loadDashboardData(env.DB, generatedAt),
+            await loadGitHubDownloadData(),
+            generatedAt,
+          );
       return new Response(html, {
         status: 200,
         headers: securityHeaders({

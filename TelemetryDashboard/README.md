@@ -1,6 +1,6 @@
 # PitMedic private usage dashboard
 
-This Worker renders read-only aggregate counts from the `pitmedic-usage` D1 database. The **App usage** view shows opted-in active installations. The **Website** view shows page trends, engagement, organic entries, signed-installer clicks, top content, referring sites, simulator and companion-software interest, broad country/device totals, and internal navigation paths. It never selects or returns the raw daily or monthly rotating-token columns.
+This Worker renders read-only aggregate counts from the `pitmedic-usage` D1 database. The **App usage** view shows opted-in active installations and the public GitHub download count for PitMedic installer and portable ZIP assets. GitHub downloads are not unique-user counts. The **Website** view shows page trends, engagement, organic entries, signed-installer clicks, top content, referring sites, simulator and companion-software interest, broad country/device totals, and internal navigation paths. It never selects or returns the raw daily or monthly rotating-token columns.
 
 Website records are already daily aggregates. The dashboard has no visitor/session record and cannot display IP addresses, cookies, local-storage identifiers, full referrer URLs, search terms, or raw user-agent strings.
 
