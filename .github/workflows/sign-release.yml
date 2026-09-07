@@ -183,7 +183,9 @@ jobs:
 
           The installer and PitMedic-owned executables were built from this tag, signed and timestamped with Microsoft Azure Artifact Signing under Robert Holmes, and independently verified by the release workflow. SHA-256 checksums and signature manifests are included.
 
-          This reliability update prevents clean simulator shutdowns from being misclassified by stale or benign log messages. It also tightens current-session log matching across supported simulators while preserving confirmed failure detection.
+          This update removes simulator driving-stat collection and reporting, including best laps, monitored time, distance, clean streaks, reference-lap lookups, and the complete Driving Stats interface. Existing per-simulator activity fields are removed from local statistics during upgrade, while global session and repair counters remain intact.
+
+          The read-only Knowledge Scout now monitors 26 trusted official and vendor-operated sources. Findings remain review-only and never change repairs, merge code, or publish releases automatically.
 
           PitMedic remains free and open source. Voluntary support unlocks nothing.
           "@ | Set-Content -Encoding UTF8 ./Artifacts/signed-release-notes.txt
