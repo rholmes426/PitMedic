@@ -12,6 +12,7 @@ import {
   type SearchConsoleEnv,
 } from "./search-console";
 import { loadGitHubDownloadData } from "./github-downloads";
+import { renderOverviewDashboard } from "./overview-dashboard";
 import {
   authHeaders,
   handleLogin,
@@ -21,6 +22,7 @@ import {
 } from "./auth";
 
 const DASHBOARD_PATH = "/dashboard";
+const APP_PATH = "/app";
 const WEBSITE_PATH = "/website";
 export type DashboardEnv = Env & DashboardAuthEnv & SearchConsoleEnv;
 
@@ -61,7 +63,11 @@ export default {
       });
     }
 
-    if (url.pathname !== DASHBOARD_PATH && url.pathname !== WEBSITE_PATH) {
+    if (
+      url.pathname !== DASHBOARD_PATH &&
+      url.pathname !== APP_PATH &&
+      url.pathname !== WEBSITE_PATH
+    ) {
       return new Response("Not found", {
         status: 404,
         headers: securityHeaders(),
@@ -70,18 +76,36 @@ export default {
 
     try {
       const generatedAt = new Date();
-      const html = url.pathname === WEBSITE_PATH
-        ? renderWebsiteDashboard(
-            await loadWebsiteDashboardData(env.DB, generatedAt),
-            await loadSearchConsoleData(env, generatedAt),
-            generatedAt,
-            dashboardStyles,
-          )
-        : renderDashboard(
-            await loadDashboardData(env.DB, generatedAt),
-            await loadGitHubDownloadData(),
-            generatedAt,
-          );
+      let html: string;
+      if (url.pathname === APP_PATH) {
+        html = renderDashboard(
+          await loadDashboardData(env.DB, generatedAt),
+          await loadGitHubDownloadData(),
+          generatedAt,
+        );
+      } else if (url.pathname === WEBSITE_PATH) {
+        html = renderWebsiteDashboard(
+          await loadWebsiteDashboardData(env.DB, generatedAt),
+          await loadSearchConsoleData(env, generatedAt),
+          generatedAt,
+          dashboardStyles,
+        );
+      } else {
+        const [usage, website, search, downloads] = await Promise.all([
+          loadDashboardData(env.DB, generatedAt),
+          loadWebsiteDashboardData(env.DB, generatedAt),
+          loadSearchConsoleData(env, generatedAt),
+          loadGitHubDownloadData(),
+        ]);
+        html = renderOverviewDashboard(
+          usage,
+          website,
+          search,
+          downloads,
+          generatedAt,
+          dashboardStyles,
+        );
+      }
       return new Response(html, {
         status: 200,
         headers: securityHeaders({
