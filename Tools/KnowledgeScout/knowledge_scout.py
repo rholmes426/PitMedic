@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 import re
 import sys
+import zlib
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from urllib.parse import urljoin, urlsplit
@@ -19,7 +20,8 @@ from urllib.request import Request, build_opener, HTTPRedirectHandler
 
 
 MAX_BYTES = 2 * 1024 * 1024
-MAX_LINKS_PER_SOURCE = 12
+DEFAULT_MAX_LINKS_PER_SOURCE = 24
+MAX_LINKS_PER_SOURCE = 40
 STATE_PATTERN = re.compile(r"<!-- pitmedic-knowledge-state:([A-Za-z0-9_=-]+) -->")
 IMPLEMENTED_ID_PATTERN = re.compile(r'\bId\s*=\s*"([a-z0-9-]+)"')
 COMPANION_ID_PATTERN = re.compile(r'"(companion-[a-z0-9-]+)"')
@@ -40,6 +42,9 @@ HARM_TERMS = (
     "rollback",
 )
 VALID_STATES = {"active", "guidance", "disabled-for-safety", "version-gated", "superseded"}
+VALID_AUTHORITIES = {"official", "vendor-community"}
+VALID_PRODUCT_TYPES = {"simulator", "companion", "platform"}
+VALID_SOURCE_ROLES = {"support", "release-notes", "known-issues", "downloads"}
 
 
 class PageParser(HTMLParser):
@@ -153,8 +158,13 @@ def content_hash(text: str) -> str:
 
 
 def candidate_links(
-    links: list[tuple[str, str]], keywords: list[str], allowed_hosts: set[str]
+    links: list[tuple[str, str]],
+    keywords: list[str],
+    allowed_hosts: set[str],
+    limit: int = DEFAULT_MAX_LINKS_PER_SOURCE,
 ) -> list[dict[str, str]]:
+    if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= MAX_LINKS_PER_SOURCE:
+        raise ValueError(f"candidate link limit must be between 1 and {MAX_LINKS_PER_SOURCE}")
     found: dict[str, dict[str, str]] = {}
     lowered_keywords = [item.casefold() for item in keywords]
     for url, label in links:
@@ -166,7 +176,7 @@ def candidate_links(
             continue
         clean_url = parsed._replace(fragment="").geturl()
         found[clean_url] = {"url": clean_url, "title": label[:180] or parsed.path[-180:]}
-        if len(found) >= MAX_LINKS_PER_SOURCE:
+        if len(found) >= limit:
             break
     return list(found.values())
 
@@ -195,14 +205,19 @@ def load_prior_state(path: Path | None) -> dict[str, Any]:
     if not match:
         return {"version": 1, "sources": {}}
     try:
-        return json.loads(base64.urlsafe_b64decode(match.group(1)).decode("utf-8"))
-    except (ValueError, json.JSONDecodeError):
+        payload = base64.urlsafe_b64decode(match.group(1))
+        try:
+            payload = zlib.decompress(payload)
+        except zlib.error:
+            pass  # Compatibility with uncompressed state written before schema version 2.
+        return json.loads(payload.decode("utf-8"))
+    except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
         return {"version": 1, "sources": {}}
 
 
 def encode_state(state: dict[str, Any]) -> str:
     compact = json.dumps(state, separators=(",", ":"), sort_keys=True).encode("utf-8")
-    return base64.urlsafe_b64encode(compact).decode("ascii")
+    return base64.urlsafe_b64encode(zlib.compress(compact, level=9)).decode("ascii")
 
 
 def implemented_ids(repo_root: Path) -> set[str]:
@@ -250,6 +265,20 @@ def catalog_validation(repo_root: Path, registry: dict[str, Any], lifecycle: dic
             require_allowed_url(source.get("url", ""), allowed_hosts)
         except ValueError as error:
             problems.append(f"Invalid source {source_id or '<missing>'}: {error}")
+        if source.get("authority") not in VALID_AUTHORITIES:
+            problems.append(f"Invalid source authority for {source_id or '<missing>'}: {source.get('authority')}")
+        if source.get("productType") not in VALID_PRODUCT_TYPES:
+            problems.append(f"Invalid product type for {source_id or '<missing>'}: {source.get('productType')}")
+        if source.get("sourceRole") not in VALID_SOURCE_ROLES:
+            problems.append(f"Invalid source role for {source_id or '<missing>'}: {source.get('sourceRole')}")
+        max_links = source.get("maxLinks", DEFAULT_MAX_LINKS_PER_SOURCE)
+        if isinstance(max_links, bool) or not isinstance(max_links, int) or not 1 <= max_links <= MAX_LINKS_PER_SOURCE:
+            problems.append(
+                f"Invalid candidate link limit for {source_id or '<missing>'}: must be between 1 and {MAX_LINKS_PER_SOURCE}"
+            )
+        for boolean_field in ("discoverLinks", "reportTextChanges", "enabled"):
+            if not isinstance(source.get(boolean_field), bool):
+                problems.append(f"Invalid {boolean_field} flag for {source_id or '<missing>'}: expected boolean")
     reference_files = [
         repo_root / "Source/PitMedic/Services/RepairKnowledgeBase.cs",
         repo_root / "Source/PitMedic/Services/CompanionSoftwareKnowledgeBase.cs",
@@ -319,14 +348,16 @@ def build_report(
                 links,
                 source.get("keywords", default_keywords),
                 allowed_hosts,
+                source.get("maxLinks", DEFAULT_MAX_LINKS_PER_SOURCE),
             ) if source.get("discoverLinks") else []
             known_urls = set(previous.get("links", []))
             current_urls = [item["url"] for item in discovered]
             is_changed = bool(previous.get("hash") and previous.get("hash") != digest)
             if not previous.get("hash"):
                 baselines += 1
-            if is_changed:
+            if is_changed and source.get("reportTextChanges", True):
                 changes.append(f"**{source['product']}**: source text changed at {markdown_link(source_id, final_url)}")
+            if is_changed:
                 for snippet in term_snippets(text):
                     harms.append(f"**{source['product']}**: “{safe_report_text(snippet)}” — {markdown_link(source_id, final_url)}")
             if previous.get("hash"):
@@ -349,7 +380,10 @@ def build_report(
     problems = catalog_validation(repo_root, registry, lifecycle)
     reminders = review_reminders(lifecycle, now.date())
     actionable = bool(changes or harms or failures or problems or reminders)
-    next_state = {"version": 1, "generated": timestamp, "sources": next_sources}
+    next_state = {"version": 2, "generated": timestamp, "sources": next_sources}
+    enabled_sources = [source for source in registry.get("sources", []) if source.get("enabled", True)]
+    official_sources = sum(source.get("authority") == "official" for source in enabled_sources)
+    community_sources = sum(source.get("authority") == "vendor-community" for source in enabled_sources)
 
     lines = [
         "# PitMedic Knowledge Scout — rolling review",
@@ -360,7 +394,8 @@ def build_report(
         "",
         "## Summary",
         "",
-        f"- {len(next_sources)} configured sources checked or retained",
+        f"- {len(enabled_sources)} trusted sources configured ({official_sources} official, {community_sources} vendor-operated community)",
+        f"- {len(next_sources)} source results checked or retained",
         f"- {len(changes)} new or changed source findings",
         f"- {len(harms)} possible safety/harm signals",
         f"- {len(failures)} source availability issues",
