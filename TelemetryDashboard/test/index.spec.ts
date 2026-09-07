@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it } from "vitest";
 import worker, { type DashboardEnv } from "../src/index";
+import { summarizeGitHubReleases } from "../src/github-downloads";
 import { loadDashboardData } from "../src/usage-dashboard";
 import { loadWebsiteDashboardData } from "../src/website-dashboard";
 
@@ -36,6 +37,34 @@ beforeEach(async () => {
 });
 
 describe("private aggregate dashboard", () => {
+  it("counts only downloadable PitMedic app assets from GitHub releases", () => {
+    const downloads = summarizeGitHubReleases([
+      {
+        assets: [
+          { name: "PitMedic-Setup-x64.exe", download_count: 7 },
+          { name: "PitMedic-0.6.0.15-win-x64.zip", download_count: 3 },
+          { name: "SHA256SUMS.txt", download_count: 40 },
+          { name: "PitMedic-installer-manifest.json", download_count: 20 },
+        ],
+      },
+      {
+        assets: [
+          {
+            name: "PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe",
+            download_count: 2,
+          },
+          {
+            name: "PitMedic-0.6.0.9-win-x64-UNSIGNED-PREVIEW.zip",
+            download_count: 1,
+          },
+        ],
+      },
+    ]);
+
+    expect(downloads.available).toBe(true);
+    expect(downloads.totalDownloads).toBe(13);
+  });
+
   it("renders aggregate totals and never exposes raw rotating tokens", async () => {
     const today = new Date().toISOString().slice(0, 10);
     const month = today.slice(0, 7);
