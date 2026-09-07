@@ -91,7 +91,7 @@ describe("private aggregate dashboard", () => {
 
     const cookie = await authenticatedCookie();
     const response = await worker.fetch(
-      new IncomingRequest("https://stats.example/dashboard", {
+      new IncomingRequest("https://stats.example/app", {
         headers: { Cookie: cookie },
       }),
       dashboardEnv,
@@ -103,7 +103,8 @@ describe("private aggregate dashboard", () => {
     expect(response.headers.get("Content-Security-Policy")).toContain(
       "default-src 'none'",
     );
-    expect(html).toContain("PitMedic Usage Dashboard");
+    expect(html).toContain("PitMedic App Usage Analytics");
+    expect(html).toContain('aria-current="page" href="/app"');
     expect(html).toContain("0.6.0.0");
     expect(html).toContain("portable");
     expect(html).not.toContain(DAILY_TOKEN);
@@ -146,7 +147,7 @@ describe("private aggregate dashboard", () => {
 
     const cookie = await authenticatedCookie();
     const response = await worker.fetch(
-      new IncomingRequest("https://stats.example/dashboard", {
+      new IncomingRequest("https://stats.example/app", {
         headers: { Cookie: cookie },
       }),
       dashboardEnv,
@@ -214,8 +215,28 @@ describe("private aggregate dashboard", () => {
     expect(html).toContain("iRacing");
     expect(html).toContain("United States");
     expect(html).toContain("62.5%");
+    expect(html).toContain('aria-current="page" href="/website"');
     expect(html).not.toContain("dailyToken");
     expect(html).not.toContain("User-Agent");
+  });
+
+  it("combines app, download, website, and search summaries on the overview tab", async () => {
+    const cookie = await authenticatedCookie();
+    const response = await worker.fetch(
+      new IncomingRequest("https://stats.example/dashboard", {
+        headers: { Cookie: cookie },
+      }),
+      dashboardEnv,
+    );
+    const html = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(html).toContain("PitMedic Analytics Overview");
+    expect(html).toContain("Everything at a glance");
+    expect(html).toContain("GitHub downloads");
+    expect(html).toContain("Website views");
+    expect(html).toContain("Google clicks");
+    expect(html).toContain('aria-current="page" href="/dashboard"');
   });
 
   it("requires the private passcode and rejects forged sessions", async () => {

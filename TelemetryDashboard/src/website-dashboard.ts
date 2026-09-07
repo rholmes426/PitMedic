@@ -175,7 +175,7 @@ export function renderWebsiteDashboard(
 <body>
   <header>
     <a class="brand" href="/dashboard"><strong>PIT</strong><em>MEDIC</em><span>ANALYTICS</span></a>
-    <nav class="dashboard-nav" aria-label="Analytics views"><a href="/dashboard">App usage</a><a class="active" href="/website">Website</a></nav>
+    <nav class="dashboard-nav" aria-label="Dashboard tabs"><a href="/dashboard">Overview</a><a href="/app">App usage</a><a class="active" aria-current="page" href="/website">Website &amp; search</a></nav>
     <div class="header-actions"><span class="private-pill">PRIVATE</span><a class="refresh" href="/website">Refresh</a><form method="post" action="/logout"><button class="logout" type="submit">Log out</button></form></div>
   </header>
   <main>
