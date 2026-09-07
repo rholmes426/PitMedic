@@ -13,14 +13,10 @@ public sealed class MonitoringCoordinator : IDisposable
     private readonly CompanionSoftwareWatchService _companions;
     private readonly SettingsService _settings;
     private readonly UsageStatsService _usage = new();
-    private readonly SimulatorDistanceTelemetryService _distanceTelemetry = new();
-    private readonly SimulatorLapTelemetryService _lapTelemetry = new();
-    private DateTimeOffset _lastUsageFlush = DateTimeOffset.UtcNow;
     private Task? _loop;
 
     public event Action<TelemetrySample>? TelemetryUpdated;
     public event Action<GameKind, bool>? GameStatusChanged;
-    public event Action<DistanceTelemetryStatus>? DistanceTelemetryStatusChanged;
     public event Action<CompanionSoftwareStatus>? CompanionSoftwareStatusChanged;
     public event Action<LiveFaultEvidence>? LiveFaultDetected;
     public event Action<IncidentSummary>? IncidentCreated;
@@ -35,27 +31,13 @@ public sealed class MonitoringCoordinator : IDisposable
         _companions = new CompanionSoftwareWatchService(_buffer, _incidents, _settings);
         _games.GameStatusChanged += (g, running) =>
         {
-            if (running) _usage.RecordSessionStarted(g);
-            else
-            {
-                var finalMiles = _distanceTelemetry.Stop(g);
-                if (double.IsFinite(finalMiles) && finalMiles > 0)
-                    _usage.RecordMiles(g, finalMiles, persist: false);
-                if (_lapTelemetry.Stop(g) is { } finalLap)
-                    _usage.RecordBestLap(finalLap, persist: false);
-                _usage.Flush();
-            }
+            if (running) _usage.RecordSessionStarted();
             GameStatusChanged?.Invoke(g, running);
         };
-        _games.SessionCompleted += (g, ended, clean) => _usage.RecordSessionEnded(g, ended, clean);
-        _distanceTelemetry.StatusChanged += status => DistanceTelemetryStatusChanged?.Invoke(status);
         _games.LiveFaultDetected += fault => LiveFaultDetected?.Invoke(fault);
         _companions.StatusChanged += status => CompanionSoftwareStatusChanged?.Invoke(status);
         _incidents.IncidentCreated += i =>
         {
-            var game = GameDefinition.Supported.FirstOrDefault(g =>
-                g.DisplayName.Equals(i.Game, StringComparison.OrdinalIgnoreCase));
-            if (game is not null) _usage.RecordFinding(game.Kind);
             IncidentCreated?.Invoke(i);
         };
         _repairs.StatusChanged += s => RepairStatusChanged?.Invoke(s);
@@ -83,15 +65,6 @@ public sealed class MonitoringCoordinator : IDisposable
                 TelemetryUpdated?.Invoke(sample);
                 _games.Scan();
                 _companions.Scan();
-                foreach (var (game, miles) in _distanceTelemetry.Poll(_games.IsRunning))
-                    _usage.RecordMiles(game, miles, persist: false);
-                foreach (var lap in _lapTelemetry.Poll(_games.IsRunning))
-                    _usage.RecordBestLap(lap, persist: false);
-                if (DateTimeOffset.UtcNow - _lastUsageFlush >= TimeSpan.FromMinutes(1))
-                {
-                    _usage.Flush();
-                    _lastUsageFlush = DateTimeOffset.UtcNow;
-                }
                 await Task.Delay(TimeSpan.FromSeconds(settings.SamplingSeconds), _cts.Token);
             }
         }
@@ -126,7 +99,6 @@ public sealed class MonitoringCoordinator : IDisposable
     }
 
     public CapabilitiesSnapshot CapabilitiesStats() => _usage.Snapshot();
-    public SimulatorActivitySnapshot SimulatorActivity(GameKind game) => _usage.SimulatorSnapshot(game);
 
     public Task<IncidentSummary> CaptureSnapshotAsync()
     {
@@ -140,9 +112,6 @@ public sealed class MonitoringCoordinator : IDisposable
     {
         _cts.Cancel();
         try { _loop?.Wait(TimeSpan.FromSeconds(2)); } catch { }
-        _distanceTelemetry.Dispose();
-        _lapTelemetry.Dispose();
-        _usage.StopMonitoring();
         _repairs.Dispose();
         _companions.Dispose();
         _games.Dispose();

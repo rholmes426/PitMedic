@@ -20,6 +20,7 @@ The installer, PitMedic app, repair helper, and sensor service are signed and ti
 
 ## v0.6 highlights
 
+- The next release removes simulator driving-stat collection and reporting, including best laps, monitored time, distance, clean streaks, comparison lookups, and the complete Driving Stats interface.
 - v0.6.0.12 adds a public Diagnostic Library generated from the same records used by the app, formalizes 17 existing ACC and AMS2 repair paths, and adds a targeted iRacing Steam Missing File Privileges repair.
 - v0.6.0.11 is PitMedic's first signed and timestamped public release and carries forward the complete v0.6.0.10 companion-software and Knowledge Scout work.
 - v0.6.0.10 adds distinct vendor-specific recovery for all seven detected companion apps, including Logitech's updater-service recovery sequence, and publishes the complete monitored-software catalog in the app and on the website. It also adds a read-only Knowledge Scout that reviews allowlisted simulator and companion sources while preserving every fix unless reviewed evidence shows its use could cause harm.
@@ -30,9 +31,6 @@ The installer, PitMedic app, repair helper, and sensor service are signed and ti
 - v0.6.0.5 checks for updates at every app launch, exposes guided repair actions clearly, moves monitored distance and time beside recent findings, and adds exact-combination iRacing best laps with trustworthy benchmark-source comparison.
 - v0.6.0.4 keeps the updater's Cancel and Install now buttons visible on smaller displays and explicitly requests Windows administrator approval before closing PitMedic to install the verified package.
 - v0.6.0.3 streamlines System Tools to Power Mode, Startup Apps, Storage, and Graphics Settings; makes active-monitoring labels reflect real simulator activity; improves CPU sensor-service startup and recovery; and keeps the anonymous usage dashboard's version label current after an in-month upgrade without double-counting the installation.
-- Simulator-specific monitored time and distance.
-- Verified live distance telemetry for iRacing, Assetto Corsa Competizione, RaceRoom, and Automobilista 2.
-- Persistent simulator activity cards with Metric/Imperial display controls.
 - Lighter background sampling and UI work while PitMedic is hidden.
 - 48-hour recent-finding views and improved tray behavior.
 - Project contact details use `robert@pitmedic.com` rather than personal developer details.
