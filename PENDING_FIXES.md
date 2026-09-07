@@ -36,11 +36,10 @@
   - Prevent repeated “saved diagnosis no longer matches” failures where an EAC repair is reconstructed as `iracing-windows-integrity`.
   - Keep the elevated helper's independent validation and allowlist checks intact.
 
-- [x] Make Automobilista 2 distance telemetry reliable and diagnosable.
-  - Detect when AMS2 is running without its `Project CARS 2` shared-memory feed and show setup guidance instead of silently displaying `0.0` distance.
-  - Integrate AMS2's simulator-reported speed as a distance fallback when the shared-memory odometer is unavailable, invalid, or not advancing.
-  - Avoid double-counting when switching between odometer deltas and speed integration.
-  - Persist the final session increment before the AMS2 adapter is stopped.
+- [x] Remove simulator driving-stat collection and reporting before the next release.
+  - Remove best laps, monitored time, distance, clean streaks, and the complete Driving Stats interface.
+  - Remove all simulator distance adapters and reference-lap lookups.
+  - Purge legacy per-simulator driving-stat fields during upgrade while preserving global session and repair counters.
 
 - [x] Add detected-only companion-software reliability monitoring and approved automatic recovery.
   - Detect installed or running MOZA Pit House, Simucube True Drive, Fanatec software, Logitech G HUB, SIMAGIC SimPro Manager, Asetek RaceHub, and VRS DirectForce.

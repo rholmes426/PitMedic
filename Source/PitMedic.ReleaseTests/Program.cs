@@ -1,5 +1,6 @@
 using PitMedic.Models;
 using PitMedic.Services;
+using System.Text.Json;
 
 var now = new DateTimeOffset(2026, 9, 1, 12, 0, 0, TimeSpan.Zero);
 var day = "2026-09-01";
@@ -46,6 +47,19 @@ AssertTrue(
 AssertTrue(
     ElevatedRepairPolicy.RequiresElevation("iracing-release-file-privileges"),
     "The iRacing Helper Service file-release workflow must remain approval-gated and elevated.");
+
+using var legacyDrivingStats = JsonDocument.Parse("""
+    {"Games":{"IRacing":{"MonitoredSeconds":120,"LastSessionBestLap":{"LapSeconds":90},"BestLaps":{}}}}
+    """);
+AssertTrue(
+    LegacyDrivingStatsPolicy.ContainsDrivingStatsData(legacyDrivingStats.RootElement),
+    "An upgraded installation must detect and purge legacy per-simulator activity data.");
+using var currentDrivingStats = JsonDocument.Parse("""
+    {"MonitoringSince":"2026-09-01T12:00:00Z","SessionsMonitored":4,"AutomaticRepairsResolved":1}
+    """);
+AssertFalse(
+    LegacyDrivingStatsPolicy.ContainsDrivingStatsData(currentDrivingStats.RootElement),
+    "Current global usage counters must not trigger the legacy driving-stats migration.");
 
 AssertTrue(
     RepairKnowledgeBase.Entries.Count == 53,
