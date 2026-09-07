@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import importlib.util
 import json
 from pathlib import Path
@@ -57,12 +58,53 @@ class KnowledgeScoutTests(unittest.TestCase):
             registry,
             self.lifecycle,
             prior,
+            now=scout.datetime(2025, 1, 1, tzinfo=scout.timezone.utc),
             fetcher=fake_fetch,
         )
         self.assertTrue(actionable)
         self.assertIn("new candidate", report)
         self.assertIn("data loss", report)
         self.assertIn("Only reviewed, credible evidence", report)
+
+    def test_support_page_text_churn_is_quiet_without_a_new_candidate(self) -> None:
+        registry = self.one_source_registry()
+        source = registry["sources"][0]
+        source["reportTextChanges"] = False
+        prior = {
+            "version": 2,
+            "sources": {
+                source["id"]: {
+                    "hash": scout.content_hash("older support page"),
+                    "links": [],
+                    "status": "ok",
+                }
+            },
+        }
+
+        def fake_fetch(url: str, allowed_hosts: set[str]) -> tuple[str, str]:
+            return ("<html><body>Routine community conversation.</body></html>", url)
+
+        report, _, actionable = scout.build_report(
+            REPO_ROOT,
+            registry,
+            self.lifecycle,
+            prior,
+            fetcher=fake_fetch,
+        )
+        self.assertFalse(actionable)
+        self.assertNotIn("source text changed", report)
+
+    def test_per_source_candidate_limit_can_expand_to_hard_cap(self) -> None:
+        links = [(f"https://lemansultimate.com/fix-{index}", f"Fix {index}") for index in range(50)]
+        found = scout.candidate_links(
+            links,
+            ["fix"],
+            {"lemansultimate.com"},
+            scout.MAX_LINKS_PER_SOURCE,
+        )
+        self.assertEqual(scout.MAX_LINKS_PER_SOURCE, len(found))
+        with self.assertRaises(ValueError):
+            scout.candidate_links(links, ["fix"], {"lemansultimate.com"}, scout.MAX_LINKS_PER_SOURCE + 1)
 
     def test_first_run_captures_baseline_without_calling_every_link_new(self) -> None:
         registry = self.one_source_registry()
@@ -118,6 +160,20 @@ class KnowledgeScoutTests(unittest.TestCase):
             report = Path(temp_dir) / "prior.md"
             report.write_text(f"<!-- pitmedic-knowledge-state:{scout.encode_state(state)} -->", encoding="utf-8")
             self.assertEqual(state, scout.load_prior_state(report))
+
+    def test_uncompressed_legacy_state_still_loads(self) -> None:
+        state = {"version": 1, "sources": {"legacy": {"hash": "abc"}}}
+        encoded = base64.urlsafe_b64encode(json.dumps(state).encode("utf-8")).decode("ascii")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            report = Path(temp_dir) / "prior.md"
+            report.write_text(f"<!-- pitmedic-knowledge-state:{encoded} -->", encoding="utf-8")
+            self.assertEqual(state, scout.load_prior_state(report))
+
+    def test_registry_rejects_non_first_party_monitoring_authority(self) -> None:
+        registry = self.one_source_registry()
+        registry["sources"][0]["authority"] = "crowd-community"
+        problems = scout.catalog_validation(REPO_ROOT, registry, self.lifecycle)
+        self.assertTrue(any("Invalid source authority" in problem for problem in problems))
 
 
 if __name__ == "__main__":

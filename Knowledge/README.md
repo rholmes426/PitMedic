@@ -28,13 +28,33 @@ Only the first two states are assigned by adding ordinary knowledge. The final t
 `Tools/KnowledgeScout/knowledge_scout.py` performs a read-only review of the configured sources. It:
 
 1. validates that implemented repair IDs have lifecycle records;
-2. fetches only allowlisted HTTPS text sources with strict size and redirect limits;
+2. accepts monitored sources only from first-party sites or vendor-operated communities, then fetches only allowlisted HTTPS text with strict size and redirect limits;
 3. treats every fetched page as untrusted text and never executes content;
-4. compares source text and linked issue discussions with the prior run;
+4. compares source text and up to 40 keyword-matched links per source with the prior run;
 5. highlights possible safety/harm language, source failures, and scheduled review reminders; and
 6. writes one report for a rolling GitHub issue.
 
 The scheduled workflow runs on Tuesday and Friday and can also be started manually. It never commits, opens a pull request, changes a repair state, or publishes a release.
+
+The registry currently monitors 26 focused sources. Search results may help a maintainer locate a candidate, but the Scout monitors the direct vendor source rather than a search result, repost, or general social feed.
+
+| Product | Trusted coverage |
+|---|---|
+| Le Mans Ultimate | Official release/news index and the vendor-operated community |
+| iRacing | Official support center and official release-note collection |
+| Assetto Corsa EVO | Kunos-operated announcements and troubleshooting |
+| Assetto Corsa Competizione | Kunos-operated announcements and troubleshooting |
+| RaceRoom | KW Studios announcements and community support |
+| Automobilista 2 | Reiza announcements and help/support |
+| MOZA Pit House | Official support, Pit House known issues, and downloads |
+| Simucube Tuner / True Drive | Official Tuner information and downloads |
+| Fanatec software | Official downloads and the Fanatec-operated app release forum |
+| Logitech G HUB | Official recovery guidance and release notes |
+| SIMAGIC SimPro Manager | Official downloads and announcements |
+| Asetek RaceHub | Official knowledge base and RaceHub download page |
+| VRS DirectForce | Official downloads |
+
+Support and forum indexes report newly matched issue links without treating routine page churn as a finding. Version-bearing download, release, and single-article pages can also report an in-place text change. The rolling issue state is compressed so the broader link baseline remains within GitHub's issue-body limit, while state written by the earlier Scout remains readable.
 
 ## Human review outcome
 
