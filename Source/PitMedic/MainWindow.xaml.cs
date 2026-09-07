@@ -222,8 +222,14 @@ public partial class MainWindow : Window
 
     private void UpdateGame(GameKind game, bool running)
     {
+        var wasRunning = _gameRunning.TryGetValue(game, out var previousRunning) && previousRunning;
         _gameRunning[game] = running;
         if (running) _liveFaultGames.Remove(game);
+
+        var gameToOpen = SimulatorNavigationPolicy.SelectForStatusChange(game, wasRunning, running);
+        if (gameToOpen.HasValue && _navButtons.TryGetValue(gameToOpen.Value, out var navigationButton))
+            navigationButton.IsChecked = true;
+
         RefreshNavItem(game);
         if (game == _selectedGame) RefreshSelectedSimulatorPage();
         RefreshHomePage();

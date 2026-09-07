@@ -62,6 +62,19 @@ AssertFalse(
     "Current global usage counters must not trigger the legacy driving-stats migration.");
 
 AssertTrue(
+    SimulatorNavigationPolicy.SelectForStatusChange(GameKind.IRacing, wasRunning: false, isRunning: true)
+        == GameKind.IRacing,
+    "A newly detected simulator must select its simulator page.");
+AssertFalse(
+    SimulatorNavigationPolicy.SelectForStatusChange(GameKind.IRacing, wasRunning: true, isRunning: false)
+        .HasValue,
+    "A simulator exit must leave PitMedic on the last running simulator page.");
+AssertFalse(
+    SimulatorNavigationPolicy.SelectForStatusChange(GameKind.IRacing, wasRunning: true, isRunning: true)
+        .HasValue,
+    "Repeated running notifications must not keep overriding the user's navigation.");
+
+AssertTrue(
     RepairKnowledgeBase.Entries.Count == 53,
     "Every simulator repair implemented for this release must have a formal knowledge record.");
 AssertTrue(
