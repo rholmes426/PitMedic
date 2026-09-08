@@ -1,6 +1,13 @@
-# PitMedic v0.6.0.15
+# PitMedic v0.6.0.16
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.6.0.16
+
+- Automatically selects a simulator page when the simulator starts and reselects it when the session completes so the last-run simulator remains active.
+- Adds a Last Session summary at the bottom of each simulator page with the local start time, duration, and whether PitMedic observed an error.
+- Stores only the latest completed-session summary for each simulator locally; it is excluded from anonymous usage reporting.
+- Opens the main window centered at 1500×1000 so Home fits without scrollbars at normal Windows scaling.
 
 ## v0.6.0.15
 
