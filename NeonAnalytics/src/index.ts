@@ -58,6 +58,16 @@ export default {
       return handleWebEvent(request);
     }
 
+    if (url.pathname === "/v1/website-summary" && request.method === "GET") {
+      if (!isAuthorized(request)) {
+        return json({ error: "unauthorized" }, 401, {
+          "Cache-Control": "no-store",
+          "WWW-Authenticate": 'Basic realm="PitMedic Analytics", charset="UTF-8"',
+        });
+      }
+      return websiteSummary();
+    }
+
     if ((url.pathname === "/" || url.pathname === "/dashboard") && request.method === "GET") {
       if (!isAuthorized(request)) {
         return new Response("Authentication required", {
@@ -478,6 +488,106 @@ document.querySelectorAll(".tab").forEach(function(button){button.addEventListen
       "X-Frame-Options": "DENY",
     },
   });
+}
+
+async function websiteSummary(): Promise<Response> {
+  const [totals, daily, topPages, searchLandings, sources, products, countries, devices, journeys] =
+    await Promise.all([
+      pool.query(`
+        SELECT
+          COALESCE(SUM(event_count) FILTER (WHERE event_type='page_view' AND day=CURRENT_DATE), 0)::bigint AS today_views,
+          COALESCE(SUM(event_count) FILTER (WHERE event_type='page_view' AND day>=CURRENT_DATE-6), 0)::bigint AS seven_day_views,
+          COALESCE(SUM(event_count) FILTER (WHERE event_type='page_view'), 0)::bigint AS thirty_day_views,
+          COALESCE(SUM(event_count) FILTER (WHERE event_type='download'), 0)::bigint AS downloads,
+          COALESCE(SUM(event_count) FILTER (WHERE event_type='engaged'), 0)::bigint AS engaged,
+          COALESCE(SUM(event_count) FILTER (WHERE event_type='page_view' AND traffic_type='search'), 0)::bigint AS organic
+        FROM web_daily_events WHERE day>=CURRENT_DATE-29`),
+      pool.query(`
+        SELECT day::text,
+          COALESCE(SUM(event_count) FILTER (WHERE event_type='page_view'), 0)::bigint AS page_views,
+          COALESCE(SUM(event_count) FILTER (WHERE event_type='download'), 0)::bigint AS downloads
+        FROM web_daily_events WHERE day>=CURRENT_DATE-29 GROUP BY day ORDER BY day`),
+      pool.query(`
+        SELECT path,
+          COALESCE(SUM(event_count) FILTER (WHERE event_type='page_view'), 0)::bigint AS page_views,
+          COALESCE(SUM(event_count) FILTER (WHERE event_type='engaged'), 0)::bigint AS engaged_views,
+          COALESCE(SUM(event_count) FILTER (WHERE event_type='download'), 0)::bigint AS downloads
+        FROM web_daily_events WHERE day>=CURRENT_DATE-29 GROUP BY path
+        HAVING SUM(event_count) FILTER (WHERE event_type='page_view') > 0
+        ORDER BY page_views DESC, path LIMIT 15`),
+      pool.query(`SELECT path AS label, SUM(event_count)::bigint AS total
+        FROM web_daily_events WHERE day>=CURRENT_DATE-29 AND event_type='page_view' AND traffic_type='search'
+        GROUP BY path ORDER BY total DESC, path LIMIT 10`),
+      pool.query(`SELECT source AS label, SUM(event_count)::bigint AS total, traffic_type AS secondary
+        FROM web_daily_events WHERE day>=CURRENT_DATE-29 AND event_type='page_view' AND traffic_type!='internal'
+        GROUP BY source, traffic_type ORDER BY total DESC, source LIMIT 12`),
+      pool.query(`SELECT product AS label, SUM(event_count)::bigint AS total
+        FROM web_daily_events WHERE day>=CURRENT_DATE-29 AND event_type='page_view'
+          AND section IN ('Simulator guide','Simulator diagnostic','Companion diagnostic')
+        GROUP BY product ORDER BY total DESC, product LIMIT 14`),
+      pool.query(`SELECT country AS label, SUM(event_count)::bigint AS total
+        FROM web_daily_events WHERE day>=CURRENT_DATE-29 AND event_type='page_view'
+        GROUP BY country ORDER BY total DESC, country LIMIT 12`),
+      pool.query(`SELECT device_type AS label, SUM(event_count)::bigint AS total
+        FROM web_daily_events WHERE day>=CURRENT_DATE-29 AND event_type='page_view'
+        GROUP BY device_type ORDER BY total DESC, device_type`),
+      pool.query(`SELECT path AS source, target, SUM(event_count)::bigint AS total
+        FROM web_daily_events WHERE day>=CURRENT_DATE-29 AND event_type='internal_navigation'
+        GROUP BY path, target ORDER BY total DESC, path, target LIMIT 12`),
+    ]);
+
+  const total = totals.rows[0] ?? {};
+  const pageViews = Number(total.thirty_day_views || 0);
+  const engaged = Number(total.engaged || 0);
+  const now = new Date();
+  const byDay = new Map(
+    daily.rows.map((row) => [
+      String(row.day),
+      { pageViews: Number(row.page_views || 0), downloads: Number(row.downloads || 0) },
+    ]),
+  );
+
+  return json({
+    protocol: 1,
+    generatedAt: now.toISOString(),
+    data: {
+      todayPageViews: Number(total.today_views || 0),
+      sevenDayPageViews: Number(total.seven_day_views || 0),
+      thirtyDayPageViews: pageViews,
+      downloads: Number(total.downloads || 0),
+      engagementRate: pageViews ? Math.round((engaged / pageViews) * 1000) / 10 : 0,
+      organicEntries: Number(total.organic || 0),
+      daily: Array.from({ length: 30 }, (_, index) => {
+        const day = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 29 + index))
+          .toISOString().slice(0, 10);
+        return { day, ...(byDay.get(day) ?? { pageViews: 0, downloads: 0 }) };
+      }),
+      topPages: topPages.rows.map((row) => ({
+        path: String(row.path),
+        pageViews: Number(row.page_views || 0),
+        engagedViews: Number(row.engaged_views || 0),
+        downloads: Number(row.downloads || 0),
+      })),
+      searchLandings: summaryDimensions(searchLandings.rows),
+      sources: summaryDimensions(sources.rows),
+      products: summaryDimensions(products.rows),
+      countries: summaryDimensions(countries.rows),
+      devices: summaryDimensions(devices.rows),
+      journeys: journeys.rows.map((row) => ({
+        source: String(row.source),
+        target: String(row.target),
+        count: Number(row.total || 0),
+      })),
+    },
+  }, 200, { "Cache-Control": "no-store" });
+}
+
+function summaryDimensions(rows: any[]): Array<{ label: string; count: number; secondary?: string }> {
+  return rows.map((row) => ({
+    label: String(row.label),
+    count: Number(row.total || 0),
+    ...(row.secondary ? { secondary: String(row.secondary) } : {}),
+  }));
 }
 
 function kpi(label: string, value: string | number, note = ""): string {

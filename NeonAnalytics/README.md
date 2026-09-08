@@ -8,6 +8,7 @@ the aggregate-only schema documented in `../TelemetryWorker/migrations/0003_webs
 
 - `GET /health` — database-backed health check
 - `POST /v1/web-event` — CORS-restricted aggregate website event collector
+- `GET /v1/website-summary` — HTTP Basic-authenticated aggregate JSON for the private combined dashboard
 - `GET /dashboard` — HTTP Basic-authenticated dashboard
 
 The dashboard includes rolling website conversion metrics, page engagement,

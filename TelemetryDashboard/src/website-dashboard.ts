@@ -42,120 +42,27 @@ export type WebsiteDashboardData = {
   journeys: WebJourneyRow[];
 };
 
-type QueryRow = Record<string, unknown>;
+export type WebsiteAnalyticsEnv = {
+  NEON_ANALYTICS_URL: string;
+  NEON_ANALYTICS_CREDENTIALS: string;
+};
 
 export async function loadWebsiteDashboardData(
-  db: D1Database,
-  now = new Date(),
+  env: WebsiteAnalyticsEnv,
+  fetcher: typeof fetch = fetch,
 ): Promise<WebsiteDashboardData> {
-  const today = isoDay(now);
-  const sevenDaysAgo = isoDay(addDays(now, -6));
-  const thirtyDaysAgo = isoDay(addDays(now, -29));
+  const baseUrl = env.NEON_ANALYTICS_URL?.replace(/\/+$/, "");
+  const credentials = env.NEON_ANALYTICS_CREDENTIALS?.trim();
+  if (!baseUrl || !credentials) throw new Error("Website analytics source is not configured");
 
-  const results = await db.batch<QueryRow>([
-    db.prepare(`
-      SELECT
-        SUM(CASE WHEN event_type = 'page_view' AND day = ? THEN event_count ELSE 0 END) AS today_views,
-        SUM(CASE WHEN event_type = 'page_view' AND day >= ? THEN event_count ELSE 0 END) AS seven_day_views,
-        SUM(CASE WHEN event_type = 'page_view' THEN event_count ELSE 0 END) AS thirty_day_views,
-        SUM(CASE WHEN event_type = 'download' THEN event_count ELSE 0 END) AS downloads,
-        SUM(CASE WHEN event_type = 'engaged' THEN event_count ELSE 0 END) AS engaged,
-        SUM(CASE WHEN event_type = 'page_view' AND traffic_type = 'search' THEN event_count ELSE 0 END) AS organic
-      FROM web_daily_events WHERE day >= ?`).bind(
-        today,
-        sevenDaysAgo,
-        thirtyDaysAgo,
-      ),
-    db.prepare(`
-      SELECT day,
-        SUM(CASE WHEN event_type = 'page_view' THEN event_count ELSE 0 END) AS page_views,
-        SUM(CASE WHEN event_type = 'download' THEN event_count ELSE 0 END) AS downloads
-      FROM web_daily_events WHERE day >= ? GROUP BY day ORDER BY day`).bind(
-        thirtyDaysAgo,
-      ),
-    db.prepare(`
-      SELECT path,
-        SUM(CASE WHEN event_type = 'page_view' THEN event_count ELSE 0 END) AS page_views,
-        SUM(CASE WHEN event_type = 'engaged' THEN event_count ELSE 0 END) AS engaged_views,
-        SUM(CASE WHEN event_type = 'download' THEN event_count ELSE 0 END) AS downloads
-      FROM web_daily_events WHERE day >= ? GROUP BY path
-      HAVING page_views > 0 ORDER BY page_views DESC, path LIMIT 15`).bind(
-        thirtyDaysAgo,
-      ),
-    db.prepare(`
-      SELECT path AS label, SUM(event_count) AS total
-      FROM web_daily_events
-      WHERE day >= ? AND event_type = 'page_view' AND traffic_type = 'search'
-      GROUP BY path ORDER BY total DESC, path LIMIT 10`).bind(thirtyDaysAgo),
-    db.prepare(`
-      SELECT source AS label, SUM(event_count) AS total, traffic_type AS secondary
-      FROM web_daily_events
-      WHERE day >= ? AND event_type = 'page_view' AND traffic_type != 'internal'
-      GROUP BY source, traffic_type ORDER BY total DESC, source LIMIT 12`).bind(
-        thirtyDaysAgo,
-      ),
-    db.prepare(`
-      SELECT product AS label, SUM(event_count) AS total
-      FROM web_daily_events
-      WHERE day >= ? AND event_type = 'page_view'
-        AND section IN ('Simulator guide', 'Simulator diagnostic', 'Companion diagnostic')
-      GROUP BY product ORDER BY total DESC, product LIMIT 14`).bind(
-        thirtyDaysAgo,
-      ),
-    db.prepare(`
-      SELECT country AS label, SUM(event_count) AS total
-      FROM web_daily_events
-      WHERE day >= ? AND event_type = 'page_view'
-      GROUP BY country ORDER BY total DESC, country LIMIT 12`).bind(thirtyDaysAgo),
-    db.prepare(`
-      SELECT device_type AS label, SUM(event_count) AS total
-      FROM web_daily_events
-      WHERE day >= ? AND event_type = 'page_view'
-      GROUP BY device_type ORDER BY total DESC, device_type`).bind(thirtyDaysAgo),
-    db.prepare(`
-      SELECT path AS source, target, SUM(event_count) AS total
-      FROM web_daily_events
-      WHERE day >= ? AND event_type = 'internal_navigation'
-      GROUP BY path, target ORDER BY total DESC, path, target LIMIT 12`).bind(
-        thirtyDaysAgo,
-      ),
-  ]);
+  const response = await fetcher(`${baseUrl}/v1/website-summary`, {
+    headers: { Authorization: `Basic ${credentials}` },
+  });
+  if (!response.ok) throw new Error(`Website analytics source returned ${response.status}`);
 
-  const totals = results[0]?.results?.[0] ?? {};
-  const pageViews = number(totals.thirty_day_views);
-  const engaged = number(totals.engaged);
-
-  return {
-    todayPageViews: number(totals.today_views),
-    sevenDayPageViews: number(totals.seven_day_views),
-    thirtyDayPageViews: pageViews,
-    downloads: number(totals.downloads),
-    engagementRate: pageViews > 0 ? Math.round((engaged / pageViews) * 1000) / 10 : 0,
-    organicEntries: number(totals.organic),
-    daily: fillDays(results[1]?.results ?? [], now),
-    topPages: (results[2]?.results ?? []).map((row) => ({
-      path: string(row.path),
-      pageViews: number(row.page_views),
-      engagedViews: number(row.engaged_views),
-      downloads: number(row.downloads),
-    })),
-    searchLandings: dimensionRows(results[3]?.results ?? []),
-    sources: dimensionRows(results[4]?.results ?? []),
-    products: dimensionRows(results[5]?.results ?? []),
-    countries: dimensionRows(results[6]?.results ?? []).map((row) => ({
-      ...row,
-      label: countryName(row.label),
-    })),
-    devices: dimensionRows(results[7]?.results ?? []).map((row) => ({
-      ...row,
-      label: titleCase(row.label),
-    })),
-    journeys: (results[8]?.results ?? []).map((row) => ({
-      source: string(row.source),
-      target: string(row.target),
-      count: number(row.total),
-    })),
-  };
+  const payload = await response.json() as { protocol?: unknown; data?: unknown };
+  if (payload.protocol !== 1) throw new Error("Unsupported website analytics protocol");
+  return validateWebsiteData(payload.data);
 }
 
 export function renderWebsiteDashboard(
@@ -266,26 +173,78 @@ function renderSearchRows(
     .join("")}</tbody></table></div></article>`;
 }
 
-function fillDays(rows: QueryRow[], now: Date): WebTrendPoint[] {
-  const byDay = new Map(
-    rows.map((row) => [
-      string(row.day),
-      { pageViews: number(row.page_views), downloads: number(row.downloads) },
-    ]),
-  );
-  return Array.from({ length: 30 }, (_, index) => {
-    const day = isoDay(addDays(now, index - 29));
-    const values = byDay.get(day) ?? { pageViews: 0, downloads: 0 };
-    return { day, ...values };
-  });
+function validateWebsiteData(value: unknown): WebsiteDashboardData {
+  const data = record(value, "website analytics data");
+  const dimensions = (key: string, mapLabel = (label: string) => label): WebDimensionRow[] =>
+    array(data[key], key).map((item) => {
+      const row = record(item, key);
+      return {
+        label: mapLabel(text(row.label, `${key}.label`)),
+        count: metric(row.count, `${key}.count`),
+        ...(row.secondary === undefined ? {} : { secondary: text(row.secondary, `${key}.secondary`) }),
+      };
+    });
+
+  return {
+    todayPageViews: metric(data.todayPageViews, "todayPageViews"),
+    sevenDayPageViews: metric(data.sevenDayPageViews, "sevenDayPageViews"),
+    thirtyDayPageViews: metric(data.thirtyDayPageViews, "thirtyDayPageViews"),
+    downloads: metric(data.downloads, "downloads"),
+    engagementRate: metric(data.engagementRate, "engagementRate"),
+    organicEntries: metric(data.organicEntries, "organicEntries"),
+    daily: array(data.daily, "daily").map((item) => {
+      const row = record(item, "daily");
+      const day = text(row.day, "daily.day");
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) throw new Error("Invalid daily.day");
+      return {
+        day,
+        pageViews: metric(row.pageViews, "daily.pageViews"),
+        downloads: metric(row.downloads, "daily.downloads"),
+      };
+    }),
+    topPages: array(data.topPages, "topPages").map((item) => {
+      const row = record(item, "topPages");
+      return {
+        path: text(row.path, "topPages.path"),
+        pageViews: metric(row.pageViews, "topPages.pageViews"),
+        engagedViews: metric(row.engagedViews, "topPages.engagedViews"),
+        downloads: metric(row.downloads, "topPages.downloads"),
+      };
+    }),
+    searchLandings: dimensions("searchLandings"),
+    sources: dimensions("sources"),
+    products: dimensions("products"),
+    countries: dimensions("countries", countryName),
+    devices: dimensions("devices", titleCase),
+    journeys: array(data.journeys, "journeys").map((item) => {
+      const row = record(item, "journeys");
+      return {
+        source: text(row.source, "journeys.source"),
+        target: text(row.target, "journeys.target"),
+        count: metric(row.count, "journeys.count"),
+      };
+    }),
+  };
 }
 
-function dimensionRows(rows: QueryRow[]): WebDimensionRow[] {
-  return rows.map((row) => ({
-    label: string(row.label),
-    count: number(row.total),
-    secondary: typeof row.secondary === "string" ? row.secondary : undefined,
-  }));
+function record(value: unknown, label: string): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`Invalid ${label}`);
+  return value as Record<string, unknown>;
+}
+
+function array(value: unknown, label: string): unknown[] {
+  if (!Array.isArray(value)) throw new Error(`Invalid ${label}`);
+  return value;
+}
+
+function metric(value: unknown, label: string): number {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) throw new Error(`Invalid ${label}`);
+  return value;
+}
+
+function text(value: unknown, label: string): string {
+  if (typeof value !== "string") throw new Error(`Invalid ${label}`);
+  return value;
 }
 
 function renderTrend(points: WebTrendPoint[]): string {
@@ -360,28 +319,12 @@ function titleCase(value: string): string {
 }
 
 function countryName(code: string): string {
-  if (code === "XX") return "Unknown";
+  if (code === "XX" || code === "ZZ") return "Unknown";
   try {
     return new Intl.DisplayNames(["en"], { type: "region" }).of(code) ?? code;
   } catch {
     return code;
   }
-}
-
-function number(value: unknown): number {
-  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0;
-}
-
-function string(value: unknown): string {
-  return typeof value === "string" ? value : "";
-}
-
-function addDays(value: Date, days: number): Date {
-  return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate() + days));
-}
-
-function isoDay(value: Date): string {
-  return value.toISOString().slice(0, 10);
 }
 
 function formatNumber(value: number): string {
