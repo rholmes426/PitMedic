@@ -62,6 +62,62 @@ AssertFalse(
     "Current global usage counters must not trigger the legacy driving-stats migration.");
 
 AssertTrue(
+    SimulatorNavigationPolicy.SelectForStatusChange(GameKind.IRacing, wasRunning: false, isRunning: true)
+        == GameKind.IRacing,
+    "A newly detected simulator must select its simulator page.");
+AssertFalse(
+    SimulatorNavigationPolicy.SelectForStatusChange(GameKind.IRacing, wasRunning: true, isRunning: false)
+        .HasValue,
+    "A simulator exit must leave PitMedic on the last running simulator page.");
+AssertFalse(
+    SimulatorNavigationPolicy.SelectForStatusChange(GameKind.IRacing, wasRunning: true, isRunning: true)
+        .HasValue,
+    "Repeated running notifications must not keep overriding the user's navigation.");
+AssertTrue(
+    SimulatorNavigationPolicy.SelectForSessionCompleted(GameKind.IRacing) == GameKind.IRacing,
+    "A completed iRacing session must leave the iRacing page selected.");
+
+AssertTrue(
+    SimulatorSessionPolicy.OutcomeFor(null) == SimulatorSessionOutcome.NoErrorObserved,
+    "A normal simulator exit must be shown as having no observed error.");
+var unconfirmedSession = new IncidentRecord
+{
+    Classification = new CrashClassification("Unconfirmed simulator exit", 45, "Review needed", Array.Empty<string>())
+};
+AssertTrue(
+    SimulatorSessionPolicy.OutcomeFor(unconfirmedSession) == SimulatorSessionOutcome.ReviewNeeded,
+    "An ambiguous captured exit must request review instead of claiming an error.");
+var failedSession = new IncidentRecord
+{
+    Classification = new CrashClassification("Application fault", 90, "Error captured", Array.Empty<string>())
+};
+AssertTrue(
+    SimulatorSessionPolicy.OutcomeFor(failedSession) == SimulatorSessionOutcome.ErrorObserved,
+    "A classified finding must be shown as an observed error.");
+
+var sessionStoreFolder = Path.Combine(Path.GetTempPath(), $"PitMedic-session-tests-{Guid.NewGuid():N}");
+try
+{
+    var sessionStorePath = Path.Combine(sessionStoreFolder, "last-sessions.json");
+    var storedSession = new SimulatorSessionSummary
+    {
+        Game = GameKind.IRacing,
+        Started = now.AddMinutes(-42),
+        Ended = now,
+        Outcome = SimulatorSessionOutcome.NoErrorObserved
+    };
+    new SimulatorSessionStore(sessionStorePath).Save(storedSession);
+    var reloadedSession = new SimulatorSessionStore(sessionStorePath).Get(GameKind.IRacing);
+    AssertTrue(
+        reloadedSession == storedSession && reloadedSession.Duration == TimeSpan.FromMinutes(42),
+        "The last completed session must survive an app restart with its date, duration, and result intact.");
+}
+finally
+{
+    try { if (Directory.Exists(sessionStoreFolder)) Directory.Delete(sessionStoreFolder, true); } catch { }
+}
+
+AssertTrue(
     RepairKnowledgeBase.Entries.Count == 53,
     "Every simulator repair implemented for this release must have a formal knowledge record.");
 AssertTrue(

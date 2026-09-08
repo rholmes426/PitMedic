@@ -46,6 +46,7 @@ public partial class MainWindow : Window
 
         _monitoring.TelemetryUpdated += sample => Dispatcher.BeginInvoke(() => UpdateTelemetry(sample));
         _monitoring.GameStatusChanged += (game, running) => Dispatcher.BeginInvoke(() => UpdateGame(game, running));
+        _monitoring.SessionCompleted += session => Dispatcher.BeginInvoke(() => CompleteSession(session));
         _monitoring.CompanionSoftwareStatusChanged += _ => Dispatcher.BeginInvoke(() => RefreshHomePage());
         _monitoring.LiveFaultDetected += fault => Dispatcher.BeginInvoke(() => UpdateLiveFault(fault));
         _monitoring.IncidentCreated += incident => Dispatcher.BeginInvoke(() => AddIncident(incident));
@@ -222,11 +223,26 @@ public partial class MainWindow : Window
 
     private void UpdateGame(GameKind game, bool running)
     {
+        var wasRunning = _gameRunning.TryGetValue(game, out var previousRunning) && previousRunning;
         _gameRunning[game] = running;
         if (running) _liveFaultGames.Remove(game);
+
+        var gameToOpen = SimulatorNavigationPolicy.SelectForStatusChange(game, wasRunning, running);
+        if (gameToOpen.HasValue && _navButtons.TryGetValue(gameToOpen.Value, out var navigationButton))
+            navigationButton.IsChecked = true;
+
         RefreshNavItem(game);
         if (game == _selectedGame) RefreshSelectedSimulatorPage();
         RefreshHomePage();
+    }
+
+    private void CompleteSession(SimulatorSessionSummary session)
+    {
+        var gameToOpen = SimulatorNavigationPolicy.SelectForSessionCompleted(session.Game);
+        if (_navButtons.TryGetValue(gameToOpen, out var navigationButton))
+            navigationButton.IsChecked = true;
+
+        if (session.Game == _selectedGame) RefreshSelectedSimulatorPage();
     }
 
     private void UpdateLiveFault(LiveFaultEvidence fault)
@@ -558,8 +574,48 @@ public partial class MainWindow : Window
             SetHeaderStatus("WAITING FOR SIMULATOR", "Panel2Brush", "BorderBrush", "MutedBrush", "MutedBrush");
 
         RefreshSessionStory(active ?? latest, running, monitored);
+        RefreshLastSession(_monitoring.LastSession(_selectedGame));
         RefreshSelectedFinding(active, latest);
         RefreshSelectedFooter(active ?? latest, running, monitored);
+    }
+
+    private void RefreshLastSession(SimulatorSessionSummary? session)
+    {
+        if (session is null)
+        {
+            LastSessionDateTime.Text = "—";
+            LastSessionDuration.Text = "—";
+            LastSessionOutcome.Text = "No completed session yet";
+            LastSessionOutcome.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
+            LastSessionOutcomeDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "MutedBrush");
+            return;
+        }
+
+        LastSessionDateTime.Text = session.Started.ToLocalTime().ToString("MMM d, yyyy · h:mm tt");
+        LastSessionDuration.Text = FormatSessionDuration(session.Duration);
+        var (label, brush) = session.Outcome switch
+        {
+            SimulatorSessionOutcome.NoErrorObserved => ("No error observed", "GoodTextBrush"),
+            SimulatorSessionOutcome.ErrorObserved => ("Error observed", "WarnTextBrush"),
+            SimulatorSessionOutcome.ReviewNeeded => ("Review needed", "WarnTextBrush"),
+            _ => ("Result unavailable", "MutedBrush")
+        };
+        LastSessionOutcome.Text = label;
+        LastSessionOutcome.SetResourceReference(TextBlock.ForegroundProperty, brush);
+        LastSessionOutcomeDot.SetResourceReference(
+            System.Windows.Shapes.Shape.FillProperty,
+            session.Outcome == SimulatorSessionOutcome.NoErrorObserved ? "GoodBrush"
+                : session.Outcome is SimulatorSessionOutcome.ErrorObserved or SimulatorSessionOutcome.ReviewNeeded ? "AccentBrush"
+                : "MutedBrush");
+    }
+
+    internal static string FormatSessionDuration(TimeSpan duration)
+    {
+        var totalMinutes = Math.Max(1, (int)Math.Round(duration.TotalMinutes));
+        if (totalMinutes < 60) return $"{totalMinutes} min";
+        var hours = totalMinutes / 60;
+        var minutes = totalMinutes % 60;
+        return minutes == 0 ? $"{hours} hr" : $"{hours} hr {minutes} min";
     }
 
     private void SetHeaderStatus(string text, string background, string border, string dot, string foreground)

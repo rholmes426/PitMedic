@@ -17,7 +17,12 @@
     <Compile Include="../PitMedic/Services/LmuLogEvidenceParser.cs" Link="LmuLogEvidenceParser.cs" />
     <Compile Include="../PitMedic/Services/LegacyDrivingStatsPolicy.cs" Link="LegacyDrivingStatsPolicy.cs" />
     <Compile Include="../PitMedic/Services/RepairKnowledgeBase.cs" Link="RepairKnowledgeBase.cs" />
+    <Compile Include="../PitMedic/Services/SimulatorNavigationPolicy.cs" Link="SimulatorNavigationPolicy.cs" />
+    <Compile Include="../PitMedic/Services/SimulatorSessionPolicy.cs" Link="SimulatorSessionPolicy.cs" />
+    <Compile Include="../PitMedic/Services/SimulatorSessionStore.cs" Link="SimulatorSessionStore.cs" />
     <Compile Include="../PitMedic/Services/SimulatorLiveLogMonitor.cs" Link="SimulatorLiveLogMonitor.cs" />
+    <Compile Include="../PitMedic/Services/AppLog.cs" Link="AppLog.cs" />
+    <Compile Include="../PitMedic/Services/AppPaths.cs" Link="AppPaths.cs" />
     <Compile Include="../PitMedic/Models/CollectedEvidence.cs" Link="CollectedEvidence.cs" />
     <Compile Include="../PitMedic/Models/CompanionSoftwareDefinition.cs" Link="CompanionSoftwareDefinition.cs" />
     <Compile Include="../PitMedic/Models/GameDefinition.cs" Link="GameDefinition.cs" />
@@ -25,6 +30,7 @@
     <Compile Include="../PitMedic/Models/KnowledgeModels.cs" Link="KnowledgeModels.cs" />
     <Compile Include="../PitMedic/Models/LiveFaultEvidence.cs" Link="LiveFaultEvidence.cs" />
     <Compile Include="../PitMedic/Models/RepairModels.cs" Link="RepairModels.cs" />
+    <Compile Include="../PitMedic/Models/SimulatorSessionSummary.cs" Link="SimulatorSessionSummary.cs" />
     <Compile Include="../PitMedic/Models/TelemetrySample.cs" Link="TelemetrySample.cs" />
     <Compile Include="../PitMedic/Models/WindowsEventEvidence.cs" Link="WindowsEventEvidence.cs" />
   </ItemGroup>
