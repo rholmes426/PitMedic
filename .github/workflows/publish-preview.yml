@@ -11,7 +11,6 @@ on:
       - "Build/**"
       - "Installer/**"
       - "Build and Run PitMedic.cmd"
-      - ".github/workflows/publish-preview.yml"
 
 permissions:
   contents: write
