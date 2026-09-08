@@ -2,7 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        Title="PitMedic" Icon="Assets/PitMedic.ico" Width="1440" Height="900" MinWidth="1180" MinHeight="720"
+        Title="PitMedic" Icon="Assets/PitMedic.ico" Width="1500" Height="1000" MinWidth="1180" MinHeight="720"
+        WindowStartupLocation="CenterScreen"
         Background="{DynamicResource BgBrush}" Foreground="{DynamicResource TextBrush}" FontSize="14"
         FontFamily="Segoe UI Variable Text" WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="False">
     <shell:WindowChrome.WindowChrome>
@@ -270,7 +271,7 @@
 
                 <ScrollViewer x:Name="SimulatorPage" Grid.Row="1" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <Grid Margin="32,28,32,30">
-                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
 
                         <Grid Grid.Row="0" Margin="0,0,0,26">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -338,6 +339,31 @@
                                 <Button Grid.Row="3" Content="OPEN ALL FINDINGS" Click="OpenIncidents_Click" Margin="0,24,0,0"/>
                             </Grid>
                         </Grid>
+
+                        <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0,28,0,0" BorderBrush="{DynamicResource AccentBorderBrush}" BorderThickness="4,1,1,1">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <TextBlock Text="LAST SESSION" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                                <Grid Grid.Row="1" Margin="0,15,0,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="1.2*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="1.2*"/></Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="STARTED" Foreground="{DynamicResource MutedBrush}" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock x:Name="LastSessionDateTime" Text="—" FontFamily="Segoe UI Variable Display" FontSize="18" FontWeight="SemiBold" Margin="0,7,18,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="20,0" >
+                                        <TextBlock Text="DURATION" Foreground="{DynamicResource MutedBrush}" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock x:Name="LastSessionDuration" Text="—" FontFamily="Segoe UI Variable Display" FontSize="18" FontWeight="SemiBold" Margin="0,7,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Margin="20,0,0,0">
+                                        <TextBlock Text="RESULT" Foreground="{DynamicResource MutedBrush}" FontSize="11" FontWeight="Bold"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,7,0,0">
+                                            <Ellipse x:Name="LastSessionOutcomeDot" Width="10" Height="10" Fill="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock x:Name="LastSessionOutcome" Text="No completed session yet" Foreground="{DynamicResource MutedBrush}" FontFamily="Segoe UI Variable Display" FontSize="18" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
                     </Grid>
                 </ScrollViewer>
 

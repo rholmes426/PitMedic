@@ -15,7 +15,7 @@ public sealed class GameWatchService : IDisposable
     private DateTimeOffset _lastHelperServiceFault;
 
     public event Action<GameKind, bool>? GameStatusChanged;
-    public event Action<GameKind, DateTimeOffset, bool>? SessionCompleted;
+    public event Action<SimulatorSessionSummary>? SessionCompleted;
     public event Action<LiveFaultEvidence>? LiveFaultDetected;
 
     public GameWatchService(TelemetryBuffer buffer, IncidentRecorder recorder, SettingsService settings)
@@ -201,7 +201,7 @@ public sealed class GameWatchService : IDisposable
             _iracingGlobalMonitor.StartSession(ended);
         AppLog.Write($"{tracked.Game.DisplayName} exited: PID {pid}, exitCode={(exitCode.HasValue ? $"0x{unchecked((uint)exitCode.Value):X8}" : "unknown")}");
 
-        var cleanSession = false;
+        var outcome = SimulatorSessionOutcome.ResultUnavailable;
         try
         {
             PollLiveFaults(tracked);
@@ -210,7 +210,7 @@ public sealed class GameWatchService : IDisposable
             lock (tracked.FaultGate) liveFaults = tracked.LiveFaults.ToArray();
             var incident = await _recorder.RecordAsync(tracked.Game, pid, tracked.Started, ended, exitCode,
                 _buffer.Snapshot(settings.BufferMinutes), settings.CaptureEveryGameExit, liveFaults);
-            cleanSession = incident is null;
+            outcome = SimulatorSessionPolicy.OutcomeFor(incident);
         }
         catch (Exception ex)
         {
@@ -218,7 +218,13 @@ public sealed class GameWatchService : IDisposable
         }
         finally
         {
-            SessionCompleted?.Invoke(tracked.Game.Kind, ended, cleanSession);
+            SessionCompleted?.Invoke(new SimulatorSessionSummary
+            {
+                Game = tracked.Game.Kind,
+                Started = tracked.Started,
+                Ended = ended,
+                Outcome = outcome
+            });
             tracked.Process.Dispose();
         }
     }

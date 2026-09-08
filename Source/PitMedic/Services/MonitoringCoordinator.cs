@@ -13,6 +13,7 @@ public sealed class MonitoringCoordinator : IDisposable
     private readonly CompanionSoftwareWatchService _companions;
     private readonly SettingsService _settings;
     private readonly UsageStatsService _usage = new();
+    private readonly SimulatorSessionStore _lastSessions = new();
     private Task? _loop;
 
     public event Action<TelemetrySample>? TelemetryUpdated;
@@ -22,6 +23,7 @@ public sealed class MonitoringCoordinator : IDisposable
     public event Action<IncidentSummary>? IncidentCreated;
     public event Action<RepairStatus>? RepairStatusChanged;
     public event Action<AppSettings>? SettingsChanged;
+    public event Action<SimulatorSessionSummary>? SessionCompleted;
 
     public MonitoringCoordinator(SettingsService settings)
     {
@@ -35,6 +37,11 @@ public sealed class MonitoringCoordinator : IDisposable
             GameStatusChanged?.Invoke(g, running);
         };
         _games.LiveFaultDetected += fault => LiveFaultDetected?.Invoke(fault);
+        _games.SessionCompleted += session =>
+        {
+            _lastSessions.Save(session);
+            SessionCompleted?.Invoke(session);
+        };
         _companions.StatusChanged += status => CompanionSoftwareStatusChanged?.Invoke(status);
         _incidents.IncidentCreated += i =>
         {
@@ -76,6 +83,7 @@ public sealed class MonitoringCoordinator : IDisposable
     }
 
     public bool IsGameRunning(GameKind kind) => _games.IsRunning(kind);
+    public SimulatorSessionSummary? LastSession(GameKind kind) => _lastSessions.Get(kind);
     public IReadOnlyList<CompanionSoftwareStatus> CompanionSoftwareStatuses() => _companions.StatusSnapshot();
     public IReadOnlyList<IncidentSummary> RecentIncidents() => _incidents.LoadRecent();
     public IReadOnlyList<IncidentSummary> IncidentHistory() => _incidents.LoadHistory();
