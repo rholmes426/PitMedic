@@ -19,6 +19,8 @@ export default defineConfig({
               .digest("hex"),
             SESSION_SIGNING_KEY:
               "pitmedic-test-session-signing-key-with-more-than-32-characters",
+            NEON_ANALYTICS_URL: "https://neon-analytics.example",
+            NEON_ANALYTICS_CREDENTIALS: "dGVzdDp0ZXN0",
           },
         },
       };

@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import worker, { type DashboardEnv } from "../src/index";
 import { summarizeGitHubReleases } from "../src/github-downloads";
 import { loadDashboardData } from "../src/usage-dashboard";
@@ -9,6 +9,26 @@ const DAILY_TOKEN = "a".repeat(64);
 const MONTHLY_TOKEN = "b".repeat(64);
 const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
 const dashboardEnv = env as unknown as DashboardEnv;
+const websiteSummary = {
+  protocol: 1,
+  generatedAt: new Date().toISOString(),
+  data: {
+    todayPageViews: 8,
+    sevenDayPageViews: 8,
+    thirtyDayPageViews: 8,
+    downloads: 2,
+    engagementRate: 62.5,
+    organicEntries: 8,
+    daily: [{ day: new Date().toISOString().slice(0, 10), pageViews: 8, downloads: 2 }],
+    topPages: [{ path: "/diagnostic-library/iracing-helper-service/", pageViews: 8, engagedViews: 5, downloads: 2 }],
+    searchLandings: [{ label: "/diagnostic-library/iracing-helper-service/", count: 8 }],
+    sources: [{ label: "Google", count: 8, secondary: "search" }],
+    products: [{ label: "iRacing", count: 8 }],
+    countries: [{ label: "US", count: 8 }],
+    devices: [{ label: "desktop", count: 8 }],
+    journeys: [{ source: "/diagnostic-library/", target: "/diagnostic-library/iracing-helper-service/", count: 3 }],
+  },
+};
 
 async function authenticatedCookie(): Promise<string> {
   const response = await worker.fetch(
@@ -27,6 +47,14 @@ async function authenticatedCookie(): Promise<string> {
 }
 
 beforeEach(async () => {
+  vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    if (url === "https://neon-analytics.example/v1/website-summary") {
+      expect(new Headers(init?.headers).get("Authorization")).toBe("Basic dGVzdDp0ZXN0");
+      return Response.json(websiteSummary);
+    }
+    return new Response("Unavailable", { status: 503 });
+  });
   await env.DB.batch([
     env.DB.prepare("DELETE FROM daily_active"),
     env.DB.prepare("DELETE FROM monthly_active"),
@@ -182,20 +210,7 @@ describe("private aggregate dashboard", () => {
   });
 
   it("renders detailed aggregate website analytics in a separate private view", async () => {
-    const today = new Date().toISOString().slice(0, 10);
-    const insert = env.DB.prepare(
-      `INSERT INTO web_daily_events
-        (day, event_type, path, target, section, product, traffic_type, source, country, device_type, event_count)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    );
-    await env.DB.batch([
-      insert.bind(today, "page_view", "/diagnostic-library/iracing-helper-service/", "", "Simulator diagnostic", "iRacing", "search", "Google", "US", "desktop", 8),
-      insert.bind(today, "engaged", "/diagnostic-library/iracing-helper-service/", "", "Simulator diagnostic", "iRacing", "search", "Google", "US", "desktop", 5),
-      insert.bind(today, "download", "/diagnostic-library/iracing-helper-service/", "release:v0.6.0.12", "Simulator diagnostic", "iRacing", "search", "Google", "US", "desktop", 2),
-      insert.bind(today, "internal_navigation", "/diagnostic-library/", "/diagnostic-library/iracing-helper-service/", "Diagnostic Library", "All software", "internal", "PitMedic", "US", "desktop", 3),
-    ]);
-
-    const data = await loadWebsiteDashboardData(env.DB);
+    const data = await loadWebsiteDashboardData(dashboardEnv);
     expect(data.thirtyDayPageViews).toBe(8);
     expect(data.downloads).toBe(2);
     expect(data.engagementRate).toBe(62.5);
@@ -218,6 +233,17 @@ describe("private aggregate dashboard", () => {
     expect(html).toContain('aria-current="page" href="/website"');
     expect(html).not.toContain("dailyToken");
     expect(html).not.toContain("User-Agent");
+  });
+
+  it("fails closed instead of rendering false zeros when Neon is unavailable", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(new Response("Unavailable", { status: 503 }));
+    const cookie = await authenticatedCookie();
+    const response = await worker.fetch(
+      new IncomingRequest("https://stats.example/website", { headers: { Cookie: cookie } }),
+      dashboardEnv,
+    );
+    expect(response.status).toBe(503);
+    expect(await response.text()).toContain("temporarily unavailable");
   });
 
   it("combines app, download, website, and search summaries on the overview tab", async () => {

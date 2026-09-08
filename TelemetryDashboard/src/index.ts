@@ -6,6 +6,7 @@ import {
 import {
   loadWebsiteDashboardData,
   renderWebsiteDashboard,
+  type WebsiteAnalyticsEnv,
 } from "./website-dashboard";
 import {
   loadSearchConsoleData,
@@ -24,7 +25,7 @@ import {
 const DASHBOARD_PATH = "/dashboard";
 const APP_PATH = "/app";
 const WEBSITE_PATH = "/website";
-export type DashboardEnv = Env & DashboardAuthEnv & SearchConsoleEnv;
+export type DashboardEnv = Env & DashboardAuthEnv & SearchConsoleEnv & WebsiteAnalyticsEnv;
 
 export default {
   async fetch(request, env): Promise<Response> {
@@ -85,7 +86,7 @@ export default {
         );
       } else if (url.pathname === WEBSITE_PATH) {
         html = renderWebsiteDashboard(
-          await loadWebsiteDashboardData(env.DB, generatedAt),
+          await loadWebsiteDashboardData(env),
           await loadSearchConsoleData(env, generatedAt),
           generatedAt,
           dashboardStyles,
@@ -93,7 +94,7 @@ export default {
       } else {
         const [usage, website, search, downloads] = await Promise.all([
           loadDashboardData(env.DB, generatedAt),
-          loadWebsiteDashboardData(env.DB, generatedAt),
+          loadWebsiteDashboardData(env),
           loadSearchConsoleData(env, generatedAt),
           loadGitHubDownloadData(),
         ]);

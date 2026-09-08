@@ -1,10 +1,12 @@
 # PitMedic private usage dashboard
 
-This Worker renders one private, read-only analytics dashboard with three tabs. **Overview** combines the headline app, download, website, and Google Search Console totals. **App usage** shows opted-in active installations and the public GitHub download count for PitMedic installer and portable ZIP assets. GitHub downloads are not unique-user counts. **Website & search** shows page trends, engagement, organic entries, signed-installer clicks, top content, referring sites, simulator and companion-software interest, broad country/device totals, internal navigation paths, and Search Console performance. It never selects or returns the raw daily or monthly rotating-token columns.
+This Worker renders one private, read-only analytics dashboard with three tabs. **Overview** combines the headline app, download, website, and Google Search Console totals. **App usage** reads opted-in active installations from Cloudflare D1 and the public GitHub download count for PitMedic installer and portable ZIP assets. GitHub downloads are not unique-user counts. **Website & search** reads the website aggregates from the Neon collector that receives pitmedic.com events, and shows page trends, engagement, organic entries, signed-installer clicks, top content, referring sites, simulator and companion-software interest, broad country/device totals, internal navigation paths, and Search Console performance. It never selects or returns the raw daily or monthly rotating-token columns.
 
 Website records are already daily aggregates. The dashboard has no visitor/session record and cannot display IP addresses, cookies, local-storage identifiers, full referrer URLs, search terms, or raw user-agent strings.
 
 The Website view can also read aggregate search-performance data directly from the Google Search Console API: clicks, impressions, click-through rate, average position, top queries, and top Google landing pages. This connection is read-only and does not store Search Console rows in D1.
+
+The server-to-server website request uses the Neon dashboard's existing HTTP Basic credentials. Store only the base64 encoding of `username:password` as the dashboard Worker secret `NEON_ANALYTICS_CREDENTIALS`; never commit it. If Neon is unavailable or rejects the credentials, the dashboard returns an error instead of presenting misleading zero totals.
 
 ## Google Search Console connection
 

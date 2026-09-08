@@ -11,7 +11,8 @@
     "head_sampling_rate": 1,
   },
   "vars": {
-    "SEARCH_CONSOLE_PROPERTY": "https://pitmedic.com/"
+    "SEARCH_CONSOLE_PROPERTY": "https://pitmedic.com/",
+    "NEON_ANALYTICS_URL": "https://br-billowing-bar-ayh10nfr-analytics.compute.c-5.us-east-2.aws.neon.tech"
   },
   "d1_databases": [
     {
