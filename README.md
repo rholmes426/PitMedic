@@ -2,10 +2,10 @@
 
 PitMedic is a free, ad-free, open-source Windows simulator reliability monitor and repair assistant. It watches supported racing simulators, captures useful evidence when something goes wrong, explains the finding in plain language, and offers safe, reversible repairs when a known automatic fix is available.
 
-Current signed release: **0.6.0.15**
+Current signed release: **0.6.0.16**
 
-- [Download the v0.6.0.15 signed Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.15/PitMedic-Setup-x64.exe)
-- [View the v0.6.0.15 release and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.15)
+- [Download the v0.6.0.16 signed Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.16/PitMedic-Setup-x64.exe)
+- [View the v0.6.0.16 release and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.16)
 
 The installer, PitMedic app, repair helper, and sensor service are signed and timestamped.
 
@@ -20,6 +20,7 @@ The installer, PitMedic app, repair helper, and sensor service are signed and ti
 
 ## v0.6 highlights
 
+- v0.6.0.16 automatically opens the detected simulator page and reselects it when the session ends, keeps the last-run simulator active afterward, opens the main window at 1500×1000, and adds a local Last Session summary with start time, duration, and observed result at the bottom of every simulator page.
 - v0.6.0.15 removes simulator driving-stat collection and reporting, including best laps, monitored time, distance, clean streaks, comparison lookups, and the complete Driving Stats interface. It also expands the read-only Knowledge Scout from 13 to 26 trusted official and vendor-operated sources.
 - v0.6.0.12 adds a public Diagnostic Library generated from the same records used by the app, formalizes 17 existing ACC and AMS2 repair paths, and adds a targeted iRacing Steam Missing File Privileges repair.
 - v0.6.0.11 is PitMedic's first signed and timestamped public release and carries forward the complete v0.6.0.10 companion-software and Knowledge Scout work.

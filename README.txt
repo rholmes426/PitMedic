@@ -1,4 +1,4 @@
-PITMEDIC v0.6.0.15 - FULL DEVELOPMENT PACKAGE
+PITMEDIC v0.6.0.16 - FULL DEVELOPMENT PACKAGE
 ===============================================
 
 PitMedic is a free, open-source Windows sim-racing diagnostics and automated
@@ -10,15 +10,16 @@ This repository contains the full source tree, PitMedic assets, repair knowledge
 base, documentation, website, telemetry services, and Windows build/run command
 file. It is not a patch-only package.
 
-WHAT CHANGED IN v0.6.0.15
+WHAT CHANGED IN v0.6.0.16
 -------------------------
-- Removed simulator driving-stat collection and reporting, including best laps,
-  monitored time, distance, clean streaks, reference-lap lookups, and the entire
-  Driving Stats interface.
-- Added upgrade cleanup for legacy per-simulator activity fields while preserving
-  global session and repair counters.
-- Expanded the read-only Knowledge Scout from 13 to 26 trusted official and
-  vendor-operated sources. Scout findings always require human review.
+- PitMedic automatically opens the detected simulator page and selects it again
+  when the session ends, leaving the last-run simulator active afterward.
+- Every simulator page now shows the last completed session's local start time,
+  duration, and observed result in a summary at the bottom of the page.
+- Only the latest session summary for each simulator is stored locally. It is not
+  included in anonymous usage reporting.
+- The main window opens centered at 1500 by 1000 pixels so Home fits without
+  scrollbars at normal Windows scaling.
 
 BUILD + RUN
 -----------

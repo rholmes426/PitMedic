@@ -88,9 +88,9 @@ jobs:
 
           It is intentionally unsigned while the PitMedic SignPath application is pending. Windows may show an Unknown publisher or SmartScreen warning. The package must not be described as an official signed release.
 
-          v0.6.0.15 removes simulator driving-stat collection and reporting, including best laps, monitored time, distance, clean streaks, reference-lap lookups, and the complete Driving Stats interface. Existing per-simulator activity fields are removed from local statistics during upgrade, while global session and repair counters remain intact.
+          v0.6.0.16 automatically opens the detected simulator page and selects it again when the session completes, leaving the last-run simulator active afterward. The main window now opens centered at 1500 by 1000 pixels.
 
-          The read-only Knowledge Scout now monitors 26 trusted official and vendor-operated sources. Findings remain review-only and never change repairs, merge code, or publish releases automatically.
+          Every simulator page includes a Last Session summary at the bottom with the local start time, duration, and whether PitMedic observed an error. Only the latest summary for each simulator is stored locally; it is not included in anonymous usage reporting.
 
           PitMedic remains free and open source. Voluntary support unlocks nothing.
           "@ | Set-Content -Encoding UTF8 ./Artifacts/preview/RELEASE-NOTES-UNSIGNED-PREVIEW.txt
