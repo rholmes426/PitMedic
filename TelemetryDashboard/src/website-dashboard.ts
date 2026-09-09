@@ -175,7 +175,7 @@ function renderSearchDaily(rows: SearchConsoleData["daily"]): string {
     .map((row) => {
       const ctr = row.impressions > 0 ? (row.clicks / row.impressions) * 100 : 0;
       const pending = row.status === "pending";
-      return `<tr><td>${escapeHtml(formatDay(row.date))}</td><td class="number">${metricLink(pending?"—":row.clicks,detailUrl("google-clicks",row.date,row.date))}</td><td class="number">${metricLink(pending?"—":row.impressions,detailUrl("google-impressions",row.date,row.date))}</td><td class="number">${pending?"—":`${formatNumber(ctr)}%`}</td><td>${pending?"Awaiting data":row.status==='preliminary'?"Preliminary":"Finalized"}</td></tr>`;
+      return `<tr><td>${escapeHtml(formatDay(row.date))}</td><td class="number">${metricLink(pending?"—":row.clicks,detailUrl("google-clicks",row.date,row.date))}</td><td class="number">${metricLink(pending?"—":row.impressions,detailUrl("google-impressions",row.date,row.date))}</td><td class="number">${metricLink(pending?"—":`${formatNumber(ctr)}%`,detailUrl("google-ctr",row.date,row.date))}</td><td>${pending?"Awaiting data":row.status==='preliminary'?"Preliminary":"Finalized"}</td></tr>`;
     })
     .join("")}</tbody></table></div></div>`;
 }
@@ -191,7 +191,7 @@ function renderSearchRows(
   }
   return `<article><h3>${escapeHtml(title)}</h3><div class="table-wrap"><table class="search-table"><thead><tr><th>${paths ? "Page" : "Query"}</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Pos.</th></tr></thead><tbody>${rows
     .map(
-      (row) => `<tr><td>${escapeHtml(paths ? pageLabel(row.label) : row.label)}${paths ? `<small class="path">${escapeHtml(row.label)}</small>` : ""}</td><td class="number">${metricLink(row.clicks,detailUrl("google-clicks",range.periodStart,range.periodEnd,{[paths?"page":"query"]:row.label}))}</td><td class="number">${metricLink(row.impressions,detailUrl("google-impressions",range.periodStart,range.periodEnd,{[paths?"page":"query"]:row.label}))}</td><td class="number">${formatNumber(row.ctr * 100)}%</td><td class="number">${row.position > 0 ? formatNumber(row.position) : "—"}</td></tr>`,
+      (row) => `<tr><td>${escapeHtml(paths ? pageLabel(row.label) : row.label)}${paths ? `<small class="path">${escapeHtml(row.label)}</small>` : ""}</td><td class="number">${metricLink(row.clicks,detailUrl("google-clicks",range.periodStart,range.periodEnd,{[paths?"page":"query"]:row.label}))}</td><td class="number">${metricLink(row.impressions,detailUrl("google-impressions",range.periodStart,range.periodEnd,{[paths?"page":"query"]:row.label}))}</td><td class="number">${metricLink(`${formatNumber(row.ctr * 100)}%`,detailUrl("google-ctr",range.periodStart,range.periodEnd,{[paths?"page":"query"]:row.label}))}</td><td class="number">${metricLink(row.position > 0 ? formatNumber(row.position) : "—",detailUrl("google-position",range.periodStart,range.periodEnd,{[paths?"page":"query"]:row.label}))}</td></tr>`,
     )
     .join("")}</tbody></table></div></article>`;
 }

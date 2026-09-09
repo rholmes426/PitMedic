@@ -56,7 +56,7 @@ let cachedToken: { value: string; expiresAt: number } | null = null;
 export async function loadSearchConsoleData(
   env: SearchConsoleEnv,
   now = new Date(),
-  range?: { start: string; end: string; page?: string; query?: string },
+  range?: { start: string; end: string; page?: string; query?: string; country?: string; device?: string },
 ): Promise<SearchConsoleData> {
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
   const pacificDay = new Date(`${today}T12:00:00Z`);
@@ -87,6 +87,9 @@ export async function loadSearchConsoleData(
       ...(range?.page ? [{ dimension: "page", operator: "equals", expression: `https://pitmedic.com${range.page}` }] : []),
       ...(range?.query ? [{ dimension: "query", operator: "equals", expression: range.query }] : []),
     ];
+    for (const dimension of ["country", "device"] as const) {
+      if (range?.[dimension]) filters.push({ dimension, operator: "equals", expression: range[dimension]! });
+    }
     const filterBody = filters.length ? { dimensionFilterGroups: [{ groupType: "and", filters }] } : {};
     const [totalsResponse, dailyResponse, queryResponse, pageResponse, countryResponse, deviceResponse, maturityResponse] =
       await Promise.all([
@@ -104,7 +107,7 @@ export async function loadSearchConsoleData(
           dimensions: ["date"],
           type: "web",
           dataState: "all",
-          rowLimit: 100,
+          rowLimit: 400,
         }),
         querySearchConsole(env.SEARCH_CONSOLE_PROPERTY, token, {
           ...filterBody,
@@ -130,16 +133,23 @@ export async function loadSearchConsoleData(
         })),
         querySearchConsole(env.SEARCH_CONSOLE_PROPERTY, token, {
           startDate: isoDay(addDays(pacificDay, -10)), endDate: today,
-          dimensions: ["date"], type: "web", dataState: "all", rowLimit: 100,
+          dimensions: ["date"], type: "web", dataState: "all", rowLimit: 400,
         }),
       ]);
 
     const firstIncompleteDate = maturityResponse?.metadata?.first_incomplete_date;
+    // Some Google responses omit maturity metadata. Confirm the watermark with
+    // final-only data instead of marking the entire history preliminary.
+    const finalResponse = firstIncompleteDate ? undefined : await querySearchConsole(env.SEARCH_CONSOLE_PROPERTY, token, {
+      startDate: isoDay(addDays(pacificDay, -30)), endDate: today,
+      dimensions: ["date"], type: "web", dataState: "final", rowLimit: 400,
+    });
+    const finalThrough = metricRows(finalResponse?.rows).map(row => row.label).sort().at(-1);
     const dailyByDate = new Map(metricRows(dailyResponse.rows).map((row) => [row.label, row]));
     const daily: SearchTrendPoint[] = [];
     for (let date = periodStart; date <= periodEnd; date = isoDay(addDays(new Date(`${date}T12:00:00Z`), 1))) {
       const row = dailyByDate.get(date);
-      const finalized = firstIncompleteDate ? date < firstIncompleteDate : false;
+      const finalized = firstIncompleteDate ? date < firstIncompleteDate : !!finalThrough && date <= finalThrough;
       daily.push({ date, clicks: row?.clicks ?? 0, impressions: row?.impressions ?? 0,
         status: finalized ? "final" : row ? "preliminary" : "pending" });
     }
