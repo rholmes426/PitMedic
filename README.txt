@@ -1,4 +1,4 @@
-PITMEDIC v0.6.0.16 - FULL DEVELOPMENT PACKAGE
+PITMEDIC v0.6.0.17 - FULL DEVELOPMENT PACKAGE
 ===============================================
 
 PitMedic is a free, open-source Windows sim-racing diagnostics and automated
@@ -10,7 +10,12 @@ This repository contains the full source tree, PitMedic assets, repair knowledge
 base, documentation, website, telemetry services, and Windows build/run command
 file. It is not a patch-only package.
 
-WHAT CHANGED IN v0.6.0.16
+WHAT CHANGED IN v0.6.0.17
+-------------------------
+- New racing-line P branding across the app, installer, website and browser icons.
+- Matching horizontal wordmark and multi-resolution Windows icons.
+
+PREVIOUS UPDATE v0.6.0.16
 -------------------------
 - PitMedic automatically opens the detected simulator page and selects it again
   when the session ends, leaving the last-run simulator active afterward.
