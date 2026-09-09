@@ -5,12 +5,30 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.scope.outputs.build }}
+      knowledge: ${{ steps.scope.outputs.knowledge }}
+      worker: ${{ steps.scope.outputs.worker }}
+      dashboard: ${{ steps.scope.outputs.dashboard }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: scope
+        run: python Build/ci-scope.py
+      - name: Release automation regression tests
+        run: python -m unittest discover -s Build/tests -v
   repair-knowledge:
+    needs: changes
+    if: needs.changes.outputs.knowledge == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
@@ -27,6 +45,8 @@ jobs:
         run: python -m unittest discover -s Tools/KnowledgeScout/tests -v
 
   telemetry-worker:
+    needs: changes
+    if: needs.changes.outputs.worker == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -48,6 +68,8 @@ jobs:
         run: npm run deploy:dry-run
 
   telemetry-dashboard:
+    needs: changes
+    if: needs.changes.outputs.dashboard == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -69,6 +91,8 @@ jobs:
         run: npm run deploy:dry-run
 
   build:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     runs-on: windows-latest
     steps:
       - name: Check out source
@@ -112,13 +136,17 @@ jobs:
   build-validation:
     name: Build Validation
     if: ${{ always() }}
-    needs: [repair-knowledge, telemetry-worker, telemetry-dashboard, build]
+    needs: [changes, repair-knowledge, telemetry-worker, telemetry-dashboard, build]
     runs-on: ubuntu-latest
     steps:
       - name: Require every validation job to pass
         shell: bash
         run: |
-          test "${{ needs.repair-knowledge.result }}" = "success"
-          test "${{ needs.telemetry-worker.result }}" = "success"
-          test "${{ needs.telemetry-dashboard.result }}" = "success"
-          test "${{ needs.build.result }}" = "success"
+          test "${{ needs.changes.result }}" = "success"
+          check() {
+            if [ "$1" = "true" ]; then test "$2" = "success"; else test "$2" = "skipped"; fi
+          }
+          check "${{ needs.changes.outputs.knowledge }}" "${{ needs.repair-knowledge.result }}"
+          check "${{ needs.changes.outputs.worker }}" "${{ needs.telemetry-worker.result }}"
+          check "${{ needs.changes.outputs.dashboard }}" "${{ needs.telemetry-dashboard.result }}"
+          check "${{ needs.changes.outputs.build }}" "${{ needs.build.result }}"

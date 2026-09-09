@@ -1,0 +1,49 @@
+name: Publish approved signed release
+
+on:
+  workflow_dispatch:
+    inputs:
+      approved_version:
+        description: 'Explicitly approved version (X.X.X.X); must match main'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pitmedic-public-release
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    uses: ./.github/workflows/ci.yml
+  prepare:
+    needs: validate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create exact approved tag and draft
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APPROVED_VERSION: ${{ inputs.approved_version }}
+        run: |
+          python Build/prepare-release.py
+  sign:
+    needs: prepare
+    uses: ./.github/workflows/sign-release.yml
+    permissions:
+      contents: write
+      id-token: write
+      actions: write
+      pull-requests: write
+    with:
+      release_tag: ${{ needs.prepare.outputs.tag }}

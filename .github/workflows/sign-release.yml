@@ -1,12 +1,6 @@
 name: Sign release with Azure Artifact Signing
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_tag:
-        description: Existing protected tag for this release, for example v0.6.0.10
-        required: true
-        type: string
   workflow_call:
     inputs:
       release_tag:
@@ -148,8 +142,9 @@ jobs:
     needs: build-sign-verify
     runs-on: windows-2025
     permissions:
-      actions: read
+      actions: write
       contents: write
+      pull-requests: write
     steps:
       - name: Download verified signed release
         uses: actions/download-artifact@v4
@@ -157,107 +152,74 @@ jobs:
           name: PitMedic-${{ inputs.release_tag }}-signed-release
           path: Artifacts/release
 
-      - name: Promote verified files to the public GitHub release
+      - name: Check out release metadata
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag }}
+          path: source
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Promote without overwriting signed assets
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
-          $releaseTag = "${{ inputs.release_tag }}"
-          $version = $releaseTag.TrimStart("v")
-          $previewAssets = @(
-            "PitMedic-Setup-x64-UNSIGNED-PREVIEW.exe",
-            "PitMedic-$version-win-x64-UNSIGNED-PREVIEW.zip",
-            "SHA256SUMS-UNSIGNED-PREVIEW.txt",
-            "RELEASE-NOTES-UNSIGNED-PREVIEW.txt"
-          )
-          foreach ($asset in $previewAssets) {
-            gh release delete-asset $releaseTag $asset --repo "${{ github.repository }}" --yes 2>$null
-          }
-
-          $files = (Get-ChildItem ./Artifacts/release -File).FullName
-          if (-not $files) { throw "No verified signed release files were downloaded." }
-          gh release upload $releaseTag $files --repo "${{ github.repository }}" --clobber
-
-          @"
-          PitMedic $version is the verified signed Windows release.
-
-          The installer and PitMedic-owned executables were built from this tag, signed and timestamped with Microsoft Azure Artifact Signing under Robert Holmes, and independently verified by the release workflow. SHA-256 checksums and signature manifests are included.
-
-          This update automatically opens the detected simulator page and selects it again when the session completes, leaving the last-run simulator active afterward. The main window now opens centered at 1500 by 1000 pixels.
-
-          Every simulator page includes a Last Session summary at the bottom with the local start time, duration, and whether PitMedic observed an error. Only the latest summary for each simulator is stored locally; it is not included in anonymous usage reporting.
-
-          PitMedic remains free and open source. Voluntary support unlocks nothing.
-          "@ | Set-Content -Encoding UTF8 ./Artifacts/signed-release-notes.txt
-
-          gh release edit $releaseTag `
-            --repo "${{ github.repository }}" `
-            --title "PitMedic $version" `
-            --notes-file ./Artifacts/signed-release-notes.txt `
-            --prerelease=false `
-            --draft=false
-
-      - name: Check out main for website publication
+          New-Item -ItemType Directory -Force source/Artifacts | Out-Null
+          Move-Item Artifacts/release source/Artifacts/release
+          python source/Build/release.py promote --tag $env:RELEASE_TAG
+          if ($LASTEXITCODE -ne 0) { throw "Signed asset promotion failed." }
+      - name: Check out main for publication PR
         uses: actions/checkout@v4
         with:
           ref: main
-          path: repo
-          fetch-depth: 0
-
-      - name: Prepare protected website publication
+          path: site
+      - name: Generate signed website metadata
         shell: pwsh
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
-          $version = "${{ inputs.release_tag }}".TrimStart("v")
-          $tag = "${{ inputs.release_tag }}"
-          $installer = Resolve-Path ./Artifacts/release/PitMedic-Setup-x64.exe
-          $sha256 = (Get-FileHash -Algorithm SHA256 $installer).Hash.ToLowerInvariant()
-          $repo = Join-Path $PWD "repo"
-
-          $currentManifestPath = Join-Path $repo "website/update.json"
-          $currentManifest = Get-Content -Raw $currentManifestPath | ConvertFrom-Json
-          $currentVersion = [string]$currentManifest.latestVersion
-          if ([string]::IsNullOrWhiteSpace($currentVersion)) { throw "The current website release version could not be determined." }
-
-          $indexPath = Join-Path $repo "website/index.html"
-          $index = Get-Content -Raw $indexPath
-          $index = $index.Replace("v$currentVersion/PitMedic-Setup-x64.exe", "$tag/PitMedic-Setup-x64.exe")
-          $index = $index.Replace($currentVersion, $version)
-          Set-Content -Encoding UTF8 $indexPath $index
-
-          $generatorPath = Join-Path $repo "Tools/DiagnosticLibrary/generate.py"
-          $generator = Get-Content -Raw $generatorPath
-          $generator = $generator -replace 'v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/PitMedic-Setup-x64\.exe', "$tag/PitMedic-Setup-x64.exe"
-          Set-Content -Encoding UTF8 $generatorPath $generator
-
-          Push-Location $repo
-          python Tools/DiagnosticLibrary/generate.py
-          Pop-Location
-
-          $manifest = [ordered]@{
-            schemaVersion = 1
-            latestVersion = $version
-            title = "PitMedic $version signed release"
-            downloadUrl = "https://github.com/${{ github.repository }}/releases/download/$tag/PitMedic-Setup-x64.exe"
-            releaseUrl = "https://github.com/${{ github.repository }}/releases/tag/$tag"
-            sha256 = $sha256
+          python site/Build/release.py prepare --tag $env:RELEASE_TAG --installer source/Artifacts/release/PitMedic-Setup-x64.exe
+          if ($LASTEXITCODE -ne 0) { throw "Website generation failed." }
+      - name: Open protected publication PR and start its checks
+        shell: pwsh
+        working-directory: site
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          $branch = "release-metadata/$env:RELEASE_TAG"
+          git fetch origin "refs/heads/$branch" 2>$null
+          $existingBranch = $LASTEXITCODE -eq 0
+          if ($existingBranch) {
+            # Compare regenerated publication files before reusing an earlier branch.
+            git add website Tools/DiagnosticLibrary/generate.py
+            git diff --cached FETCH_HEAD --exit-code -- website Tools/DiagnosticLibrary/generate.py
+            if ($LASTEXITCODE -ne 0) { throw "Existing publication branch differs; human review required." }
           }
-          $manifest | ConvertTo-Json | Set-Content -Encoding UTF8 $currentManifestPath
-
-          $publication = [ordered]@{
-            releaseTag = $tag
-            version = $version
-            sha256 = $sha256
-            sourceCommit = "${{ github.sha }}"
+          git switch -c $branch
+          git add website Tools/DiagnosticLibrary/generate.py
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0 -and -not $existingBranch) {
+            "Website metadata already matches the signed release." >> $env:GITHUB_STEP_SUMMARY
+            exit 0
           }
-          $publication | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $repo "release-publication.json")
-
-      - name: Upload protected website publication input
-        uses: actions/upload-artifact@v4
-        with:
-          name: PitMedic-${{ inputs.release_tag }}-website-publication
-          path: |
-            repo/website/
-            repo/Tools/DiagnosticLibrary/generate.py
-            repo/release-publication.json
-          if-no-files-found: error
-          retention-days: 14
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if (-not $existingBranch) {
+            git commit -m "Publish signed $env:RELEASE_TAG website metadata"
+            git push origin "HEAD:refs/heads/$branch"
+            if ($LASTEXITCODE -ne 0) { throw "Publication branch push failed." }
+          }
+          $url = gh pr list --repo $env:GITHUB_REPOSITORY --head $branch --base main --state open --json url --jq '.[0].url'
+          if ($LASTEXITCODE -ne 0) { throw "Could not inspect publication PRs." }
+          if (-not $url) {
+            $url = gh pr create --repo $env:GITHUB_REPOSITORY --head $branch --base main --title "Publish signed $env:RELEASE_TAG website metadata" --body "Generated from verified signed assets. Merge only after Build Validation passes."
+            if ($LASTEXITCODE -ne 0) { throw "Actions pull-request creation is blocked; check repository settings before resuming." }
+          }
+          gh workflow run ci.yml --repo $env:GITHUB_REPOSITORY --ref $branch
+          if ($LASTEXITCODE -ne 0) { throw "Could not dispatch required checks." }
+          "Publication PR: $url" >> $env:GITHUB_STEP_SUMMARY
