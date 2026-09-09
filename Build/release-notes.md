@@ -1,3 +1,3 @@
-Automatically opens the detected simulator page and selects it again when the session completes, leaving the last-run simulator active afterward. The main window opens centered at 1500 by 1000 pixels.
+PitMedic has a new racing-line P logo in navy, white, and orange. The app, window icons, installer, and desktop shortcuts now use the new identity.
 
-Every simulator page includes a Last Session summary at the bottom with local start time, duration, and observed-error status. Only the latest summary per simulator is stored locally; it is not included in anonymous usage reporting.
+The website, simulator pages, Diagnostic Library, and browser icons use matching branding. Existing simulator detection, last-session summaries, diagnostics, and repair behavior are unchanged.

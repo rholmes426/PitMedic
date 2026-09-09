@@ -22,7 +22,7 @@ RELEASE_VERSION_MATCH = re.search(r"/v([^/]+)/PitMedic-Setup-x64\.exe$", RELEASE
 if not RELEASE_VERSION_MATCH:
     raise RuntimeError("Diagnostic Library release URL does not contain a valid PitMedic version")
 RELEASE_VERSION = RELEASE_VERSION_MATCH.group(1)
-LOGO_URL = "https://raw.githubusercontent.com/rholmes426/PitMedic/main/Source/PitMedic/Assets/PitMedic_256.png"
+LOGO_URL = "https://pitmedic.com/assets/brand/pitmedic-icon-v2.png"
 TODAY = "2026-09-03"
 
 GAME_SLUGS = {
@@ -293,7 +293,8 @@ def page_header(title: str, description: str, canonical: str, structured_data: d
   <meta property="og:description" content="{esc(description)}" />
   <meta property="og:url" content="{esc(canonical)}" />
   <meta property="og:image" content="{LOGO_URL}" />
-  <link rel="icon" href="{LOGO_URL}" />
+  <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
   <script type="application/ld+json">{json.dumps(structured_data, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")}</script>
 </head>
