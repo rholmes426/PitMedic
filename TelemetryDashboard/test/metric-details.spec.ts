@@ -26,7 +26,7 @@ describe("metric drilldowns and search freshness",()=>{
     expect(html).toContain('Exact external referring-page URLs are not collected');
     fetcher.mockRestore();
   });
-  it("requests yesterday in Pacific time and separates preliminary, pending, and finalized zero days",async()=>{
+  it.each([true, false])("requests yesterday and identifies settled dates (metadata present: %s)",async(withMetadata)=>{
     const pair=await crypto.subtle.generateKey({name:'RSASSA-PKCS1-v1_5',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,['sign','verify']) as CryptoKeyPair;
     const bytes=new Uint8Array(await crypto.subtle.exportKey('pkcs8',pair.privateKey) as ArrayBuffer);
     const key=`-----BEGIN PRIVATE KEY-----\n${btoa(String.fromCharCode(...bytes))}\n-----END PRIVATE KEY-----`;
@@ -34,7 +34,8 @@ describe("metric drilldowns and search freshness",()=>{
     const fetcher=vi.spyOn(globalThis,'fetch').mockImplementation(async(input,init)=>{
       if(String(input).includes('oauth2')) return Response.json({access_token:'test-only',expires_in:3600});
       const body=JSON.parse(String(init?.body));bodies.push(body);
-      if(body.dimensions?.[0]==='date') return Response.json({metadata:{first_incomplete_date:'2026-09-07'},rows:[{keys:['2026-09-06'],clicks:1,impressions:71,ctr:1/71,position:8.2},{keys:['2026-09-08'],clicks:2,impressions:80,ctr:2/80,position:8}]});
+      if(body.dataState==='final') return Response.json({rows:[{keys:['2026-09-06'],clicks:1,impressions:71,ctr:1/71,position:8.2}]});
+      if(body.dimensions?.[0]==='date') return Response.json({...(withMetadata?{metadata:{first_incomplete_date:'2026-09-07'}}:{}),rows:[{keys:['2026-09-06'],clicks:1,impressions:71,ctr:1/71,position:8.2},{keys:['2026-09-08'],clicks:2,impressions:80,ctr:2/80,position:8}]});
       return Response.json({rows:[]});
     });
     // UTC has rolled to Sept 10, but it is still Sept 9 in California.
