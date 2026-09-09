@@ -192,8 +192,14 @@ jobs:
           RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           $branch = "release-metadata/$env:RELEASE_TAG"
-          git fetch origin "refs/heads/$branch" 2>$null
-          $existingBranch = $LASTEXITCODE -eq 0
+          git ls-remote --exit-code --heads origin "refs/heads/$branch" | Out-Null
+          $branchStatus = $LASTEXITCODE
+          if ($branchStatus -notin 0, 2) { throw "Could not inspect publication branch." }
+          $existingBranch = $branchStatus -eq 0
+          if ($existingBranch) {
+            git fetch origin "refs/heads/$branch"
+            if ($LASTEXITCODE -ne 0) { throw "Could not fetch publication branch." }
+          }
           if ($existingBranch) {
             # Compare regenerated publication files before reusing an earlier branch.
             git add website Tools/DiagnosticLibrary/generate.py

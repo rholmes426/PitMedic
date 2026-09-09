@@ -1,4 +1,5 @@
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -16,9 +17,36 @@ def load(name, file):
 
 release = load('release', 'release.py')
 ci = load('ci_scope', 'ci-scope.py')
+recovery = load('recovery', 'verify-signed-run.py')
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_finds_draft_across_release_pages(self):
+        draft = dict(tag_name='v0.6.0.17', draft=True, assets=[])
+        with patch.object(release, 'gh', return_value=json.dumps([
+                [dict(tag_name='v0.6.0.16')], [draft]])) as api:
+            self.assertEqual(release.find_release('v0.6.0.17', 'owner/repo'), draft)
+            self.assertEqual(api.call_args.args,
+                             ('api', '--paginate', '--slurp', 'repos/owner/repo/releases'))
+        with patch.object(release, 'gh', return_value='[[]]'), self.assertRaises(RuntimeError):
+            release.find_release('v0.6.0.17', 'owner/repo')
+
+    def test_recovery_requires_exact_successful_signing(self):
+        run = dict(path='.github/workflows/publish-release.yml', event='workflow_dispatch',
+                   head_branch='main', status='completed', head_sha='approved')
+        ref = dict(object=dict(sha='approved'))
+        jobs = [dict(name='sign / build-sign-verify', conclusion='success')]
+        artifacts = [dict(name='PitMedic-v0.6.0.17-signed-release', expired=False)]
+        recovery.validate('v0.6.0.17', run, ref, jobs, artifacts)
+        for changed in [dict(head_sha='other'), dict(event='pull_request'),
+                        dict(path='.github/workflows/ci.yml')]:
+            with self.assertRaises(RuntimeError):
+                recovery.validate('v0.6.0.17', run | changed, ref, jobs, artifacts)
+        with self.assertRaises(RuntimeError):
+            recovery.validate('v0.6.0.17', run, ref, [], artifacts)
+        with self.assertRaises(RuntimeError):
+            recovery.validate('v0.6.0.17', run, ref, jobs, [artifacts[0] | dict(expired=True)])
+
     def test_metadata_only_skips_windows(self):
         self.assertEqual(ci.scope(['website/update.json']), dict(build=False, knowledge=True, worker=False, dashboard=False))
 
