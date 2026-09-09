@@ -1,0 +1,130 @@
+name: Resume verified signed publication
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Already approved and signed tag (vX.X.X.X)'
+        required: true
+        type: string
+      signed_run_id:
+        description: 'Original Publish approved signed release run ID with successful signing'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pitmedic-public-release
+  cancel-in-progress: false
+
+jobs:
+  publish-release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-2025
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out corrected publication tools
+        uses: actions/checkout@v4
+        with:
+          path: tooling
+          persist-credentials: false
+      - name: Validate original signing run and artifact
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          SIGNED_RUN_ID: ${{ inputs.signed_run_id }}
+        run: |
+          python tooling/Build/verify-signed-run.py
+          if ($LASTEXITCODE -ne 0) { throw "Signing provenance validation failed." }
+      - name: Download verified signed release
+        uses: actions/download-artifact@v4
+        with:
+          name: PitMedic-${{ inputs.release_tag }}-signed-release
+          path: Artifacts/release
+          run-id: ${{ inputs.signed_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Check out release metadata
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag }}
+          path: source
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Promote without overwriting signed assets
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          New-Item -ItemType Directory -Force source/Artifacts | Out-Null
+          Move-Item Artifacts/release source/Artifacts/release
+          Copy-Item tooling/Build/release.py source/Build/release.py
+          python source/Build/release.py promote --tag $env:RELEASE_TAG
+          if ($LASTEXITCODE -ne 0) { throw "Signed asset promotion failed." }
+      - name: Check out main for publication PR
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+      - name: Generate signed website metadata
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          python site/Build/release.py prepare --tag $env:RELEASE_TAG --installer source/Artifacts/release/PitMedic-Setup-x64.exe
+          if ($LASTEXITCODE -ne 0) { throw "Website generation failed." }
+      - name: Open protected publication PR and start its checks
+        shell: pwsh
+        working-directory: site
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          $branch = "release-metadata/$env:RELEASE_TAG"
+          git ls-remote --exit-code --heads origin "refs/heads/$branch" | Out-Null
+          $branchStatus = $LASTEXITCODE
+          if ($branchStatus -notin 0, 2) { throw "Could not inspect publication branch." }
+          $existingBranch = $branchStatus -eq 0
+          if ($existingBranch) {
+            git fetch origin "refs/heads/$branch"
+            if ($LASTEXITCODE -ne 0) { throw "Could not fetch publication branch." }
+          }
+          if ($existingBranch) {
+            # Compare regenerated publication files before reusing an earlier branch.
+            git add website Tools/DiagnosticLibrary/generate.py
+            git diff --cached FETCH_HEAD --exit-code -- website Tools/DiagnosticLibrary/generate.py
+            if ($LASTEXITCODE -ne 0) { throw "Existing publication branch differs; human review required." }
+          }
+          git switch -c $branch
+          git add website Tools/DiagnosticLibrary/generate.py
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0 -and -not $existingBranch) {
+            "Website metadata already matches the signed release." >> $env:GITHUB_STEP_SUMMARY
+            exit 0
+          }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if (-not $existingBranch) {
+            git commit -m "Publish signed $env:RELEASE_TAG website metadata"
+            git push origin "HEAD:refs/heads/$branch"
+            if ($LASTEXITCODE -ne 0) { throw "Publication branch push failed." }
+          }
+          $url = gh pr list --repo $env:GITHUB_REPOSITORY --head $branch --base main --state open --json url --jq '.[0].url'
+          if ($LASTEXITCODE -ne 0) { throw "Could not inspect publication PRs." }
+          if (-not $url) {
+            $url = gh pr create --repo $env:GITHUB_REPOSITORY --head $branch --base main --title "Publish signed $env:RELEASE_TAG website metadata" --body "Generated from verified signed assets. Merge only after Build Validation passes."
+            if ($LASTEXITCODE -ne 0) { throw "Actions pull-request creation is blocked; check repository settings before resuming." }
+          }
+          gh workflow run ci.yml --repo $env:GITHUB_REPOSITORY --ref $branch
+          if ($LASTEXITCODE -ne 0) { throw "Could not dispatch required checks." }
+          "Publication PR: $url" >> $env:GITHUB_STEP_SUMMARY

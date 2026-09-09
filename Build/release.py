@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def gh(*args):
-    return subprocess.check_output(['gh', *args], text=True).strip()
+    return subprocess.check_output(['gh', *args], text=True, encoding='utf-8').strip()
 
 
 def digest(path):
@@ -32,9 +32,18 @@ def check_assets(files, release):
     return existing
 
 
+def find_release(tag, repo):
+    # The release-by-tag endpoint excludes drafts, even with write permission.
+    pages = json.loads(gh('api', '--paginate', '--slurp', f'repos/{repo}/releases'))
+    matches = [r for page in pages for r in page if r['tag_name'] == tag]
+    if len(matches) != 1:
+        raise RuntimeError('Expected exactly one existing release for ' + tag)
+    return matches[0]
+
+
 def promote(tag, repo):
     payload = ROOT / 'Artifacts/release'
-    release = json.loads(gh('api', f'repos/{repo}/releases/tags/{tag}'))
+    release = find_release(tag, repo)
     files = sorted(p for p in payload.iterdir() if p.is_file())
     if not files or not (payload / 'PitMedic-Setup-x64.exe').exists():
         raise RuntimeError('Verified installer is missing')
@@ -44,7 +53,7 @@ def promote(tag, repo):
             gh('release', 'upload', tag, str(path), '--repo', repo)
     notes = ROOT / 'Artifacts/signed-release-notes.txt'
     notes.write_text(f'PitMedic {tag[1:]} — verified signed Windows release.\n\n'
-                     + (ROOT / 'Build/release-notes.md').read_text()
+                     + (ROOT / 'Build/release-notes.md').read_text(encoding='utf-8')
                      + '\nApp, helpers and installer signed, timestamped and verified. SHA-256 manifests included.\n',
                      encoding='utf-8')
     if release['draft']:
@@ -54,15 +63,15 @@ def promote(tag, repo):
 
 def prepare(tag, repo, installer):
     manifest_path = ROOT / 'website/update.json'
-    old = json.loads(manifest_path.read_text())['latestVersion']
+    old = json.loads(manifest_path.read_text(encoding='utf-8'))['latestVersion']
     new = tag[1:]
     if tuple(map(int, new.split('.'))) < tuple(map(int, old.split('.'))):
         raise RuntimeError('Refusing updater downgrade')
     index = ROOT / 'website/index.html'
-    index.write_text(index.read_text().replace(old, new), encoding='utf-8', newline='\n')
+    index.write_text(index.read_text(encoding='utf-8').replace(old, new), encoding='utf-8', newline='\n')
     generator = ROOT / 'Tools/DiagnosticLibrary/generate.py'
     generator.write_text(re.sub(r'v\d+\.\d+\.\d+\.\d+/PitMedic-Setup-x64.exe',
-                               tag + '/PitMedic-Setup-x64.exe', generator.read_text()),
+                               tag + '/PitMedic-Setup-x64.exe', generator.read_text(encoding='utf-8')),
                          encoding='utf-8', newline='\n')
     subprocess.run(['python', str(generator)], check=True, cwd=ROOT)
     manifest = dict(schemaVersion=1, latestVersion=new, title=f'PitMedic {new} signed release',
@@ -72,7 +81,7 @@ def prepare(tag, repo, installer):
 
 
 def verify():
-    expected = json.loads((ROOT / 'website/update.json').read_text())
+    expected = json.loads((ROOT / 'website/update.json').read_text(encoding='utf-8'))
     for attempt in range(12):
         try:
             query = f'?release-check={time.time_ns()}'

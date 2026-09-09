@@ -34,6 +34,14 @@ Already-uploaded identical assets are reused; differing assets are rejected.
 An existing publication branch is reused only if regenerated files match.
 Published releases cannot be replaced or augmented by this workflow.
 
+If the publication code itself needs correction, merge its fix through a PR,
+then dispatch **Resume verified signed publication** on main with the existing
+release tag and original approved-release run ID. It checks the exact tagged
+commit, successful signing job and retained artifact before downloading the
+original bytes. It applies the corrected publication script to the tagged
+release notes, then opens the usual protected website PR. It never creates a
+new tag or runs signing again.
+
 For a Pages verification failure, rerun the failed deployment after diagnosing
 the mismatch; never change the checksum to conceal a failed check.
 
