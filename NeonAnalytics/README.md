@@ -20,3 +20,16 @@ starts September 8 as Search Console days settle.
 
 The deployment requires `DASHBOARD_USER` and `DASHBOARD_PASSWORD` environment
 variables. Never commit their values.
+
+`GET /v1/website-details?metric=views&start=YYYY-MM-DD&end=YYYY-MM-DD`
+is protected by the same Basic authentication as the summary endpoint. It returns
+only daily aggregates with reconciled totals, pages, sources, devices, countries,
+and internal link clicks. Optional bound filters: page, source, traffic, device,
+country, product, target. Supported website metrics: views, organic, engaged,
+downloads, navigation. Website dates are UTC, matching the collector.
+
+The combined Cloudflare dashboard exposes `/website/details` behind its existing
+private session login. Google details use live read-only Search Console queries,
+include yesterday in Pacific time, and show preliminary/pending status. The Neon
+settled-data sync remains separate and should store CTR as clicks/impressions
+(0–1), with the existing `all` key for site totals.

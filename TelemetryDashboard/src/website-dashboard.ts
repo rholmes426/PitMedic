@@ -1,3 +1,4 @@
+import { detailUrl, metricLink, webRange } from "./metric-details";
 import type { SearchConsoleData, SearchMetricRow } from "./search-console";
 
 export type WebTrendPoint = {
@@ -17,6 +18,7 @@ export type WebDimensionRow = {
   label: string;
   count: number;
   secondary?: string;
+  key?: string;
 };
 
 export type WebJourneyRow = {
@@ -71,6 +73,8 @@ export function renderWebsiteDashboard(
   generatedAt: Date,
   styles: string,
 ): string {
+  const range = webRange(generatedAt);
+  const href = (metric: string, days = 30) => { const r = webRange(generatedAt, days); return detailUrl(metric, r.start, r.end); };
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -92,12 +96,12 @@ export function renderWebsiteDashboard(
     </section>
 
     <section class="cards six" aria-label="Website totals">
-      ${metricCard("Today", data.todayPageViews, "Page views")}
-      ${metricCard("Last 7 days", data.sevenDayPageViews, "Page views")}
-      ${metricCard("Last 30 days", data.thirtyDayPageViews, "Page views")}
-      ${metricCard("Engagement", `${formatNumber(data.engagementRate)}%`, "30 seconds or 50% scroll")}
-      ${metricCard("Organic entries", data.organicEntries, "Search-referred page views")}
-      ${metricCard("Downloads", data.downloads, "Signed installer clicks")}
+      ${metricCard("Today", data.todayPageViews, "Page views · UTC", href("views",1))}
+      ${metricCard("Last 7 days", data.sevenDayPageViews, "Page views", href("views",7))}
+      ${metricCard("Last 30 days", data.thirtyDayPageViews, "Page views", href("views"))}
+      ${metricCard("Engagement", `${formatNumber(data.engagementRate)}%`, "30 seconds or 50% scroll", href("engaged"))}
+      ${metricCard("Organic entries", data.organicEntries, "Search-referred page views", href("organic"))}
+      ${metricCard("Downloads", data.downloads, "Signed installer clicks", href("downloads"))}
     </section>
 
     ${renderSearchConsole(search)}
@@ -105,27 +109,28 @@ export function renderWebsiteDashboard(
     <section class="panel trend-panel">
       <div class="panel-head"><div><span class="eyebrow">DAILY TREND</span><h2>Page views and downloads</h2></div><div class="legend"><span><i class="views"></i>Views</span><span><i class="downloads"></i>Downloads</span></div></div>
       ${renderTrend(data.daily)}
+      <div class="table-wrap"><table><thead><tr><th>Date (UTC)</th><th>Views</th><th>Downloads</th></tr></thead><tbody>${[...data.daily].reverse().map(row=>`<tr><td>${escapeHtml(formatDay(row.day))}</td><td>${metricLink(row.pageViews,detailUrl("views",row.day,row.day))}</td><td>${metricLink(row.downloads,detailUrl("downloads",row.day,row.day))}</td></tr>`).join("")}</tbody></table></div>
     </section>
 
     <section class="panel">
       <div class="panel-head"><div><span class="eyebrow">CONTENT PERFORMANCE</span><h2>Top pages</h2></div><span class="aggregate">30 DAYS</span></div>
-      ${renderPages(data.topPages)}
+      ${renderPages(data.topPages, range)}
     </section>
 
     <section class="web-grid two">
-      ${dimensionPanel("SEARCH DISCOVERY", "Organic landing pages", data.searchLandings, "No search-referred visits recorded yet.")}
-      ${dimensionPanel("ACQUISITION", "Traffic sources", data.sources, "No external entries recorded yet.")}
+      ${dimensionPanel("SEARCH DISCOVERY", "Organic landing pages", data.searchLandings, "No search-referred visits recorded yet.", range, "page", "organic")}
+      ${dimensionPanel("ACQUISITION", "Traffic sources", data.sources, "No external entries recorded yet.", range, "source")}
     </section>
 
     <section class="web-grid three">
-      ${dimensionPanel("INTEREST", "Simulators and software", data.products, "Product interest will appear after page views arrive.")}
-      ${dimensionPanel("AUDIENCE", "Countries", data.countries, "Country totals will appear after page views arrive.")}
-      ${dimensionPanel("EXPERIENCE", "Device classes", data.devices, "Device totals will appear after page views arrive.")}
+      ${dimensionPanel("INTEREST", "Simulators and software", data.products, "Product interest will appear after page views arrive.", range, "product")}
+      ${dimensionPanel("AUDIENCE", "Countries", data.countries, "Country totals will appear after page views arrive.", range, "country")}
+      ${dimensionPanel("EXPERIENCE", "Device classes", data.devices, "Device totals will appear after page views arrive.", range, "device")}
     </section>
 
     <section class="panel">
       <div class="panel-head"><div><span class="eyebrow">CONTENT JOURNEYS</span><h2>Most-used internal links</h2></div><span class="aggregate">30 DAYS</span></div>
-      ${renderJourneys(data.journeys)}
+      ${renderJourneys(data.journeys, range)}
     </section>
 
     <footer><strong>Aggregate-only analytics.</strong> No IP addresses, cookies, local-storage identifiers, full referrer URLs, search terms, or raw user-agent strings are stored. Cloudflare Web Analytics remains enabled separately for unique-visitor and Core Web Vitals reporting.</footer>
@@ -142,21 +147,22 @@ function renderSearchConsole(data: SearchConsoleData): string {
   return `<section class="panel search-console">
     <div class="panel-head"><div><span class="eyebrow">GOOGLE SEARCH CONSOLE · ${escapeHtml(data.periodStart)} TO ${escapeHtml(data.periodEnd)}</span><h2>Search visibility</h2></div><span class="aggregate">READ ONLY</span></div>
     <div class="search-metrics">
-      ${compactMetric("Clicks", formatNumber(data.clicks))}
-      ${compactMetric("Impressions", formatNumber(data.impressions))}
-      ${compactMetric("CTR", `${formatNumber(data.ctr * 100)}%`)}
-      ${compactMetric("Average position", data.position > 0 ? formatNumber(data.position) : "—")}
+      ${compactMetric("Clicks", formatNumber(data.clicks),detailUrl("google-clicks",data.periodStart,data.periodEnd))}
+      ${compactMetric("Impressions", formatNumber(data.impressions),detailUrl("google-impressions",data.periodStart,data.periodEnd))}
+      ${compactMetric("CTR", `${formatNumber(data.ctr * 100)}%`,detailUrl("google-ctr",data.periodStart,data.periodEnd))}
+      ${compactMetric("Average position", data.position > 0 ? formatNumber(data.position) : "—",detailUrl("google-position",data.periodStart,data.periodEnd))}
     </div>
+    <p>Includes yesterday when Google reports it. Preliminary figures can change; “Awaiting data” does not mean zero. Google dates use Pacific time.</p>
     ${renderSearchDaily(data.daily)}
     <div class="search-grid">
-      ${renderSearchRows("Top queries", data.queries, false)}
-      ${renderSearchRows("Top Google pages", data.pages, true)}
+      ${renderSearchRows("Top queries", data.queries, false, data)}
+      ${renderSearchRows("Top Google pages", data.pages, true, data)}
     </div>
   </section>`;
 }
 
-function compactMetric(label: string, value: string): string {
-  return `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`;
+function compactMetric(label: string, value: string, href: string): string {
+  return `<div><span>${escapeHtml(label)}</span><strong>${metricLink(value, href)}</strong></div>`;
 }
 
 function renderSearchDaily(rows: SearchConsoleData["daily"]): string {
@@ -165,10 +171,11 @@ function renderSearchDaily(rows: SearchConsoleData["daily"]): string {
   }
 
   const sorted = [...rows].sort((a, b) => b.date.localeCompare(a.date));
-  return `<div style="margin-bottom:22px"><div class="panel-head"><div><span class="eyebrow">DAILY GOOGLE PERFORMANCE</span><h2>Clicks and impressions by date</h2></div></div><div class="table-wrap"><table class="search-table"><thead><tr><th>Date</th><th>Clicks</th><th>Impressions</th><th>CTR</th></tr></thead><tbody>${sorted
+  return `<div style="margin-bottom:22px"><div class="panel-head"><div><span class="eyebrow">DAILY GOOGLE PERFORMANCE</span><h2>Clicks and impressions by date</h2></div></div><div class="table-wrap"><table class="search-table"><thead><tr><th>Date</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Status</th></tr></thead><tbody>${sorted
     .map((row) => {
       const ctr = row.impressions > 0 ? (row.clicks / row.impressions) * 100 : 0;
-      return `<tr><td>${escapeHtml(formatDay(row.date))}</td><td class="number">${formatNumber(row.clicks)}</td><td class="number">${formatNumber(row.impressions)}</td><td class="number">${formatNumber(ctr)}%</td></tr>`;
+      const pending = row.status === "pending";
+      return `<tr><td>${escapeHtml(formatDay(row.date))}</td><td class="number">${metricLink(pending?"—":row.clicks,detailUrl("google-clicks",row.date,row.date))}</td><td class="number">${metricLink(pending?"—":row.impressions,detailUrl("google-impressions",row.date,row.date))}</td><td class="number">${pending?"—":`${formatNumber(ctr)}%`}</td><td>${pending?"Awaiting data":row.status==='preliminary'?"Preliminary":"Finalized"}</td></tr>`;
     })
     .join("")}</tbody></table></div></div>`;
 }
@@ -177,13 +184,14 @@ function renderSearchRows(
   title: string,
   rows: SearchMetricRow[],
   paths: boolean,
+  range: SearchConsoleData,
 ): string {
   if (rows.length === 0) {
     return `<article><h3>${escapeHtml(title)}</h3>${empty("Search Console has not reported matching data yet.")}</article>`;
   }
   return `<article><h3>${escapeHtml(title)}</h3><div class="table-wrap"><table class="search-table"><thead><tr><th>${paths ? "Page" : "Query"}</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Pos.</th></tr></thead><tbody>${rows
     .map(
-      (row) => `<tr><td>${escapeHtml(paths ? pageLabel(row.label) : row.label)}${paths ? `<small class="path">${escapeHtml(row.label)}</small>` : ""}</td><td class="number">${formatNumber(row.clicks)}</td><td class="number">${formatNumber(row.impressions)}</td><td class="number">${formatNumber(row.ctr * 100)}%</td><td class="number">${row.position > 0 ? formatNumber(row.position) : "—"}</td></tr>`,
+      (row) => `<tr><td>${escapeHtml(paths ? pageLabel(row.label) : row.label)}${paths ? `<small class="path">${escapeHtml(row.label)}</small>` : ""}</td><td class="number">${metricLink(row.clicks,detailUrl("google-clicks",range.periodStart,range.periodEnd,{[paths?"page":"query"]:row.label}))}</td><td class="number">${metricLink(row.impressions,detailUrl("google-impressions",range.periodStart,range.periodEnd,{[paths?"page":"query"]:row.label}))}</td><td class="number">${formatNumber(row.ctr * 100)}%</td><td class="number">${row.position > 0 ? formatNumber(row.position) : "—"}</td></tr>`,
     )
     .join("")}</tbody></table></div></article>`;
 }
@@ -195,6 +203,7 @@ function validateWebsiteData(value: unknown): WebsiteDashboardData {
       const row = record(item, key);
       return {
         label: mapLabel(text(row.label, `${key}.label`)),
+        key: text(row.label, `${key}.label`),
         count: metric(row.count, `${key}.count`),
         ...(row.secondary === undefined ? {} : { secondary: text(row.secondary, `${key}.secondary`) }),
       };
@@ -273,12 +282,12 @@ function renderTrend(points: WebTrendPoint[]): string {
     .join("")}</div>`;
 }
 
-function renderPages(rows: WebPageRow[]): string {
+function renderPages(rows: WebPageRow[], range: {start:string;end:string}): string {
   if (rows.length === 0) return empty("No website activity recorded yet.");
   return `<div class="table-wrap"><table><thead><tr><th>Page</th><th>Views</th><th>Engaged</th><th>Rate</th><th>Downloads</th></tr></thead><tbody>${rows
     .map((row) => {
       const rate = row.pageViews > 0 ? (row.engagedViews / row.pageViews) * 100 : 0;
-      return `<tr><td><a class="path-link" href="https://pitmedic.com${escapeHtml(row.path)}" target="_blank" rel="noreferrer">${escapeHtml(pageLabel(row.path))}</a><small class="path">${escapeHtml(row.path)}</small></td><td class="number">${row.pageViews}</td><td class="number">${row.engagedViews}</td><td class="number">${formatNumber(rate)}%</td><td class="number">${row.downloads}</td></tr>`;
+      return `<tr><td><a class="path-link" href="https://pitmedic.com${escapeHtml(row.path)}" target="_blank" rel="noreferrer">${escapeHtml(pageLabel(row.path))}</a><small class="path">${escapeHtml(row.path)}</small></td><td class="number">${metricLink(row.pageViews,detailUrl("views",range.start,range.end,{page:row.path}))}</td><td class="number">${metricLink(row.engagedViews,detailUrl("engaged",range.start,range.end,{page:row.path}))}</td><td class="number">${metricLink(`${formatNumber(rate)}%`,detailUrl("engaged",range.start,range.end,{page:row.path}))}</td><td class="number">${metricLink(row.downloads,detailUrl("downloads",range.start,range.end,{page:row.path}))}</td></tr>`;
     })
     .join("")}</tbody></table></div>`;
 }
@@ -288,6 +297,9 @@ function dimensionPanel(
   title: string,
   rows: WebDimensionRow[],
   emptyMessage: string,
+  range: {start:string;end:string},
+  dimension: string,
+  metric = "views",
 ): string {
   const maximum = Math.max(1, ...rows.map((row) => row.count));
   const content = rows.length
@@ -297,7 +309,7 @@ function dimensionPanel(
             const isPath = row.label.startsWith("/");
             const primary = isPath ? pageLabel(row.label) : row.label;
             const secondary = row.secondary ? titleCase(row.secondary) : isPath ? row.label : "";
-            return `<div class="rank-row"><div><strong>${escapeHtml(primary)}</strong>${secondary ? `<small>${escapeHtml(secondary)}</small>` : ""}</div><div class="rank-track"><i style="width:${((row.count / maximum) * 100).toFixed(2)}%"></i></div><span>${row.count}</span></div>`;
+            return `<div class="rank-row"><div><strong>${escapeHtml(primary)}</strong>${secondary ? `<small>${escapeHtml(secondary)}</small>` : ""}</div><div class="rank-track"><i style="width:${((row.count / maximum) * 100).toFixed(2)}%"></i></div><span>${metricLink(row.count,detailUrl(metric,range.start,range.end,{[dimension]:row.key??row.label,...(dimension==="source" && row.secondary?{traffic:row.secondary}:{})}))}</span></div>`;
           },
         )
         .join("")}</div>`
@@ -305,17 +317,17 @@ function dimensionPanel(
   return `<article class="panel"><div class="panel-head"><div><span class="eyebrow">${escapeHtml(eyebrow)}</span><h2>${escapeHtml(title)}</h2></div></div>${content}</article>`;
 }
 
-function renderJourneys(rows: WebJourneyRow[]): string {
+function renderJourneys(rows: WebJourneyRow[], range:{start:string;end:string}): string {
   if (rows.length === 0) return empty("Internal navigation paths will appear after visitors use site links.");
   return `<div class="journeys">${rows
     .map(
-      (row) => `<div class="journey"><span>${escapeHtml(pageLabel(row.source))}</span><i>→</i><strong>${escapeHtml(pageLabel(row.target))}</strong><b>${row.count}</b></div>`,
+      (row) => `<div class="journey"><span>${escapeHtml(pageLabel(row.source))}</span><i>→</i><strong>${escapeHtml(pageLabel(row.target))}</strong><b>${metricLink(row.count,detailUrl("navigation",range.start,range.end,{page:row.source,target:row.target}))}</b></div>`,
     )
     .join("")}</div>`;
 }
 
-function metricCard(label: string, value: number | string, description: string): string {
-  return `<article class="metric"><span>${escapeHtml(label)}</span><strong>${typeof value === "number" ? formatNumber(value) : escapeHtml(value)}</strong><small>${escapeHtml(description)}</small></article>`;
+function metricCard(label: string, value: number | string, description: string, href: string): string {
+  return `<article class="metric"><span>${escapeHtml(label)}</span><strong>${metricLink(value, href)}</strong><small>${escapeHtml(description)}</small></article>`;
 }
 
 function empty(message: string): string {

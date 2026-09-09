@@ -1,3 +1,4 @@
+import { renderMetricDetails, InvalidDetailRequest } from "./metric-details";
 import {
   dashboardStyles,
   loadDashboardData,
@@ -76,7 +77,8 @@ export default {
     if (
       url.pathname !== DASHBOARD_PATH &&
       url.pathname !== APP_PATH &&
-      url.pathname !== WEBSITE_PATH
+      url.pathname !== WEBSITE_PATH &&
+      url.pathname !== "/website/details"
     ) {
       return new Response("Not found", {
         status: 404,
@@ -87,7 +89,9 @@ export default {
     try {
       const generatedAt = new Date();
       let html: string;
-      if (url.pathname === APP_PATH) {
+      if (url.pathname === "/website/details") {
+        html = await renderMetricDetails(url, env, generatedAt, WEBSITE_DASHBOARD_STYLES);
+      } else if (url.pathname === APP_PATH) {
         html = renderDashboard(
           await loadDashboardData(env.DB, generatedAt),
           await loadGitHubDownloadData(),
@@ -123,6 +127,7 @@ export default {
         }),
       });
     } catch (error) {
+      if (error instanceof InvalidDetailRequest) return new Response(error.message, {status:400,headers:securityHeaders()});
       console.error(
         JSON.stringify({
           event: "usage_dashboard_failed",

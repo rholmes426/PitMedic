@@ -1,3 +1,4 @@
+import { websiteDetails } from "./website-details";
 import { timingSafeEqual } from "node:crypto";
 import { attachDatabasePool } from "@neon/functions";
 import pg from "pg";
@@ -58,14 +59,14 @@ export default {
       return handleWebEvent(request);
     }
 
-    if (url.pathname === "/v1/website-summary" && request.method === "GET") {
+    if (["/v1/website-summary", "/v1/website-details"].includes(url.pathname) && request.method === "GET") {
       if (!isAuthorized(request)) {
         return json({ error: "unauthorized" }, 401, {
           "Cache-Control": "no-store",
           "WWW-Authenticate": 'Basic realm="PitMedic Analytics", charset="UTF-8"',
         });
       }
-      return websiteSummary();
+      return url.pathname === "/v1/website-details" ? websiteDetails(pool, url) : websiteSummary();
     }
 
     if ((url.pathname === "/" || url.pathname === "/dashboard") && request.method === "GET") {
