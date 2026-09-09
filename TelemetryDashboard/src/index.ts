@@ -25,6 +25,15 @@ import {
 const DASHBOARD_PATH = "/dashboard";
 const APP_PATH = "/app";
 const WEBSITE_PATH = "/website";
+const WEBSITE_DASHBOARD_STYLES = `${dashboardStyles}
+.search-console .search-table th:not(:first-child){text-align:right}
+.search-console .search-table td.number{font-variant-numeric:tabular-nums}
+.search-console .search-table:has(th:nth-child(4):last-child){table-layout:fixed}
+.search-console .search-table:has(th:nth-child(4):last-child) th:first-child{width:40%}
+.search-console .search-table:has(th:nth-child(4):last-child) th:nth-child(2){width:18%}
+.search-console .search-table:has(th:nth-child(4):last-child) th:nth-child(3){width:24%}
+.search-console .search-table:has(th:nth-child(4):last-child) th:nth-child(4){width:18%}
+`;
 export type DashboardEnv = Env & DashboardAuthEnv & SearchConsoleEnv & WebsiteAnalyticsEnv;
 
 export default {
@@ -89,7 +98,7 @@ export default {
           await loadWebsiteDashboardData(env),
           await loadSearchConsoleData(env, generatedAt),
           generatedAt,
-          dashboardStyles,
+          WEBSITE_DASHBOARD_STYLES,
         );
       } else {
         const [usage, website, search, downloads] = await Promise.all([
