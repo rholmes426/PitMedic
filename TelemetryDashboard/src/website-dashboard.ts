@@ -147,6 +147,7 @@ function renderSearchConsole(data: SearchConsoleData): string {
       ${compactMetric("CTR", `${formatNumber(data.ctr * 100)}%`)}
       ${compactMetric("Average position", data.position > 0 ? formatNumber(data.position) : "—")}
     </div>
+    ${renderSearchDaily(data.daily)}
     <div class="search-grid">
       ${renderSearchRows("Top queries", data.queries, false)}
       ${renderSearchRows("Top Google pages", data.pages, true)}
@@ -158,6 +159,20 @@ function compactMetric(label: string, value: string): string {
   return `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`;
 }
 
+function renderSearchDaily(rows: SearchConsoleData["daily"]): string {
+  if (rows.length === 0) {
+    return `<div style="margin-bottom:22px"><div class="panel-head"><div><span class="eyebrow">DAILY GOOGLE PERFORMANCE</span><h2>Clicks and impressions by date</h2></div></div>${empty("Search Console has not reported daily data yet.")}</div>`;
+  }
+
+  const sorted = [...rows].sort((a, b) => b.date.localeCompare(a.date));
+  return `<div style="margin-bottom:22px"><div class="panel-head"><div><span class="eyebrow">DAILY GOOGLE PERFORMANCE</span><h2>Clicks and impressions by date</h2></div></div><div class="table-wrap"><table class="search-table"><thead><tr><th>Date</th><th>Clicks</th><th>Impressions</th><th>CTR</th></tr></thead><tbody>${sorted
+    .map((row) => {
+      const ctr = row.impressions > 0 ? (row.clicks / row.impressions) * 100 : 0;
+      return `<tr><td>${escapeHtml(formatDay(row.date))}</td><td class="number">${formatNumber(row.clicks)}</td><td class="number">${formatNumber(row.impressions)}</td><td class="number">${formatNumber(ctr)}%</td></tr>`;
+    })
+    .join("")}</tbody></table></div></div>`;
+}
+
 function renderSearchRows(
   title: string,
   rows: SearchMetricRow[],
@@ -166,7 +181,7 @@ function renderSearchRows(
   if (rows.length === 0) {
     return `<article><h3>${escapeHtml(title)}</h3>${empty("Search Console has not reported matching data yet.")}</article>`;
   }
-  return `<article><h3>${escapeHtml(title)}</h3><div class="table-wrap"><table class="search-table"><thead><tr><th>${paths ? "Page" : "Query"}</th><th>Clicks</th><th>Views</th><th>CTR</th><th>Pos.</th></tr></thead><tbody>${rows
+  return `<article><h3>${escapeHtml(title)}</h3><div class="table-wrap"><table class="search-table"><thead><tr><th>${paths ? "Page" : "Query"}</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Pos.</th></tr></thead><tbody>${rows
     .map(
       (row) => `<tr><td>${escapeHtml(paths ? pageLabel(row.label) : row.label)}${paths ? `<small class="path">${escapeHtml(row.label)}</small>` : ""}</td><td class="number">${formatNumber(row.clicks)}</td><td class="number">${formatNumber(row.impressions)}</td><td class="number">${formatNumber(row.ctr * 100)}%</td><td class="number">${row.position > 0 ? formatNumber(row.position) : "—"}</td></tr>`,
     )

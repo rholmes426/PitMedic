@@ -2,6 +2,13 @@ name: Deploy PitMedic analytics
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "TelemetryDashboard/**"
+      - "TelemetryWorker/**"
+      - ".github/workflows/deploy-analytics.yml"
 
 permissions:
   contents: read
