@@ -94,7 +94,7 @@ export default {
       } else if (url.pathname === APP_PATH) {
         html = renderDashboard(
           await loadDashboardData(env.DB, generatedAt),
-          await loadGitHubDownloadData(),
+          await loadGitHubDownloadData(fetch, caches.default, generatedAt),
           generatedAt,
         );
       } else if (url.pathname === WEBSITE_PATH) {
@@ -109,7 +109,7 @@ export default {
           loadDashboardData(env.DB, generatedAt),
           loadWebsiteDashboardData(env),
           loadSearchConsoleData(env, generatedAt),
-          loadGitHubDownloadData(),
+          loadGitHubDownloadData(fetch, caches.default, generatedAt),
         ]);
         html = renderOverviewDashboard(
           usage,
