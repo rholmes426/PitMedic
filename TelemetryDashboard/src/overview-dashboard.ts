@@ -1,3 +1,4 @@
+import { detailUrl, metricLink, webRange } from "./metric-details";
 import type { GitHubDownloadData } from "./github-downloads";
 import type { SearchConsoleData } from "./search-console";
 import type { DashboardData } from "./usage-dashboard";
@@ -11,6 +12,7 @@ export function renderOverviewDashboard(
   generatedAt: Date,
   styles: string,
 ): string {
+  const range = webRange(generatedAt);
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -32,12 +34,12 @@ export function renderOverviewDashboard(
     </section>
 
     <section class="cards six" aria-label="Combined analytics totals">
-      ${metricCard("Active today", usage.today, "Opted-in installations")}
-      ${metricCard("Active this month", usage.thisMonth, "Opted-in installations")}
-      ${metricCard("GitHub downloads", downloads.available ? downloads.totalDownloads : "—", downloads.available ? "Installer and portable ZIPs" : "Count temporarily unavailable")}
-      ${metricCard("Website views", website.thirtyDayPageViews, "Last 30 days")}
-      ${metricCard("Google clicks", search.available ? search.clicks : "—", search.available ? "Search Console period" : "Connection unavailable")}
-      ${metricCard("Google impressions", search.available ? search.impressions : "—", search.available ? "Search Console period" : "Connection unavailable")}
+      ${metricCard("Active today", usage.today, "Opted-in installations", "/app")}
+      ${metricCard("Active this month", usage.thisMonth, "Opted-in installations", "/app")}
+      ${metricCard("GitHub downloads", downloads.available ? downloads.totalDownloads : "—", downloads.available ? "Installer and portable ZIPs" : "Count temporarily unavailable", "/app")}
+      ${metricCard("Website views", website.thirtyDayPageViews, "Last 30 days", detailUrl("views",range.start,range.end))}
+      ${metricCard("Google clicks", search.available ? search.clicks : "—", search.available ? "Search Console period" : "Connection unavailable", detailUrl("google-clicks",search.periodStart,search.periodEnd))}
+      ${metricCard("Google impressions", search.available ? search.impressions : "—", search.available ? "Search Console period" : "Connection unavailable", detailUrl("google-impressions",search.periodStart,search.periodEnd))}
     </section>
 
     <section class="overview-grid">
@@ -48,7 +50,7 @@ export function renderOverviewDashboard(
       </article>
       <article class="panel overview-card">
         <div class="panel-head"><div><span class="eyebrow">WEBSITE &amp; SEARCH</span><h2>Reach and discovery</h2></div><a class="panel-link" href="/website">Open website &amp; search</a></div>
-        <div class="overview-stats"><div><span>7-day views</span><strong>${formatNumber(website.sevenDayPageViews)}</strong></div><div><span>Engagement</span><strong>${formatNumber(website.engagementRate)}%</strong></div><div><span>Organic entries</span><strong>${formatNumber(website.organicEntries)}</strong></div></div>
+        <div class="overview-stats"><div><span>7-day views</span><strong>${metricLink(website.sevenDayPageViews,detailUrl("views",webRange(generatedAt,7).start,range.end))}</strong></div><div><span>Engagement</span><strong>${metricLink(`${formatNumber(website.engagementRate)}%`,detailUrl("engaged",webRange(generatedAt,30).start,range.end))}</strong></div><div><span>Organic entries</span><strong>${metricLink(website.organicEntries,detailUrl("organic",webRange(generatedAt,30).start,range.end))}</strong></div></div>
         <p>${search.available ? `Google reported ${formatNumber(search.clicks)} clicks from ${formatNumber(search.impressions)} impressions.` : escapeHtml(search.message)}</p>
       </article>
     </section>
@@ -59,8 +61,8 @@ export function renderOverviewDashboard(
 </html>`;
 }
 
-function metricCard(label: string, value: number | string, description: string): string {
-  return `<article class="metric"><span>${escapeHtml(label)}</span><strong>${typeof value === "number" ? formatNumber(value) : escapeHtml(value)}</strong><small>${escapeHtml(description)}</small></article>`;
+function metricCard(label: string, value: number | string, description: string, href:string): string {
+  return `<article class="metric"><span>${escapeHtml(label)}</span><strong>${metricLink(value,href)}</strong><small>${escapeHtml(description)}</small></article>`;
 }
 
 function formatNumber(value: number): string {

@@ -18,10 +18,14 @@ export type SearchTrendPoint = {
   date: string;
   clicks: number;
   impressions: number;
+  status?: "final" | "preliminary" | "pending";
 };
 
 export type SearchConsoleData = {
   available: boolean;
+  firstIncompleteDate?: string;
+  countries?: SearchMetricRow[];
+  devices?: SearchMetricRow[];
   message: string;
   periodStart: string;
   periodEnd: string;
@@ -52,9 +56,12 @@ let cachedToken: { value: string; expiresAt: number } | null = null;
 export async function loadSearchConsoleData(
   env: SearchConsoleEnv,
   now = new Date(),
+  range?: { start: string; end: string; page?: string; query?: string },
 ): Promise<SearchConsoleData> {
-  const periodEnd = isoDay(addDays(now, -2));
-  const periodStart = isoDay(addDays(now, -29));
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+  const pacificDay = new Date(`${today}T12:00:00Z`);
+  const periodEnd = range?.end ?? isoDay(addDays(pacificDay, -1));
+  const periodStart = range?.start ?? isoDay(addDays(pacificDay, -30));
   const unavailable = (message: string): SearchConsoleData => ({
     available: false,
     message,
@@ -76,15 +83,22 @@ export async function loadSearchConsoleData(
   try {
     const serviceAccount = parseServiceAccount(env.GOOGLE_SERVICE_ACCOUNT_JSON);
     const token = await accessToken(serviceAccount);
-    const [totalsResponse, dailyResponse, queryResponse, pageResponse] =
+    const filters = [
+      ...(range?.page ? [{ dimension: "page", operator: "equals", expression: `https://pitmedic.com${range.page}` }] : []),
+      ...(range?.query ? [{ dimension: "query", operator: "equals", expression: range.query }] : []),
+    ];
+    const filterBody = filters.length ? { dimensionFilterGroups: [{ groupType: "and", filters }] } : {};
+    const [totalsResponse, dailyResponse, queryResponse, pageResponse, countryResponse, deviceResponse, maturityResponse] =
       await Promise.all([
         querySearchConsole(env.SEARCH_CONSOLE_PROPERTY, token, {
+          ...filterBody,
           startDate: periodStart,
           endDate: periodEnd,
           type: "web",
           dataState: "all",
         }),
         querySearchConsole(env.SEARCH_CONSOLE_PROPERTY, token, {
+          ...filterBody,
           startDate: periodStart,
           endDate: periodEnd,
           dimensions: ["date"],
@@ -93,38 +107,56 @@ export async function loadSearchConsoleData(
           rowLimit: 100,
         }),
         querySearchConsole(env.SEARCH_CONSOLE_PROPERTY, token, {
+          ...filterBody,
           startDate: periodStart,
           endDate: periodEnd,
           dimensions: ["query"],
           type: "web",
           dataState: "all",
-          rowLimit: 15,
+          rowLimit: range ? 25000 : 15,
         }),
         querySearchConsole(env.SEARCH_CONSOLE_PROPERTY, token, {
+          ...filterBody,
           startDate: periodStart,
           endDate: periodEnd,
           dimensions: ["page"],
           type: "web",
           dataState: "all",
-          rowLimit: 15,
+          rowLimit: range ? 25000 : 15,
+        }),
+        ...["country", "device"].map((dimension) => querySearchConsole(env.SEARCH_CONSOLE_PROPERTY!, token, {
+          ...filterBody, startDate: periodStart, endDate: periodEnd,
+          dimensions: [dimension], type: "web", dataState: "all", rowLimit: 25000,
+        })),
+        querySearchConsole(env.SEARCH_CONSOLE_PROPERTY, token, {
+          startDate: isoDay(addDays(pacificDay, -10)), endDate: today,
+          dimensions: ["date"], type: "web", dataState: "all", rowLimit: 100,
         }),
       ]);
 
+    const firstIncompleteDate = maturityResponse?.metadata?.first_incomplete_date;
+    const dailyByDate = new Map(metricRows(dailyResponse.rows).map((row) => [row.label, row]));
+    const daily: SearchTrendPoint[] = [];
+    for (let date = periodStart; date <= periodEnd; date = isoDay(addDays(new Date(`${date}T12:00:00Z`), 1))) {
+      const row = dailyByDate.get(date);
+      const finalized = firstIncompleteDate ? date < firstIncompleteDate : false;
+      daily.push({ date, clicks: row?.clicks ?? 0, impressions: row?.impressions ?? 0,
+        status: finalized ? "final" : row ? "preliminary" : "pending" });
+    }
     const totals = metricRows(totalsResponse.rows)[0];
     return {
       available: true,
       message: "",
+      firstIncompleteDate,
+      countries: metricRows(countryResponse.rows),
+      devices: metricRows(deviceResponse?.rows),
       periodStart,
       periodEnd,
       clicks: totals?.clicks ?? 0,
       impressions: totals?.impressions ?? 0,
       ctr: totals?.ctr ?? 0,
       position: totals?.position ?? 0,
-      daily: metricRows(dailyResponse.rows).map((row) => ({
-        date: row.label,
-        clicks: row.clicks,
-        impressions: row.impressions,
-      })),
+      daily,
       queries: metricRows(queryResponse.rows),
       pages: metricRows(pageResponse.rows).map((row) => ({
         ...row,
@@ -219,7 +251,7 @@ async function querySearchConsole(
   property: string,
   token: string,
   body: Record<string, unknown>,
-): Promise<{ rows?: ApiRow[] }> {
+): Promise<{ rows?: ApiRow[]; metadata?: { first_incomplete_date?: string } }> {
   const endpoint = `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(property)}/searchAnalytics/query`;
   const response = await fetch(endpoint, {
     method: "POST",
@@ -232,7 +264,7 @@ async function querySearchConsole(
   });
   if (!response.ok) throw new Error(`Search Console query failed: ${response.status}`);
   const result: unknown = await response.json();
-  return result && typeof result === "object" ? (result as { rows?: ApiRow[] }) : {};
+  return result && typeof result === "object" ? (result as { rows?: ApiRow[]; metadata?: { first_incomplete_date?: string } }) : {};
 }
 
 function metricRows(rows: ApiRow[] | undefined): SearchMetricRow[] {

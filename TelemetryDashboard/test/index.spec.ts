@@ -65,6 +65,15 @@ beforeEach(async () => {
 });
 
 describe("private aggregate dashboard", () => {
+  it("protects metric details and rejects invalid filters after login", async () => {
+    const url = "https://stats.example/website/details?metric=views&start=bad&end=2026-09-09";
+    const unauthenticated = await worker.fetch(new IncomingRequest(url), dashboardEnv);
+    expect(unauthenticated.status).toBe(303);
+    const cookie = await authenticatedCookie();
+    const response = await worker.fetch(new IncomingRequest(url, {headers:{Cookie:cookie}}), dashboardEnv);
+    expect(response.status).toBe(400);
+  });
+
   it("counts only downloadable PitMedic app assets from GitHub releases", () => {
     const downloads = summarizeGitHubReleases([
       {
