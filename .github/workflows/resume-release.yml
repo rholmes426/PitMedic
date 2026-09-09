@@ -43,7 +43,7 @@ jobs:
           python tooling/Build/verify-signed-run.py
           if ($LASTEXITCODE -ne 0) { throw "Signing provenance validation failed." }
       - name: Download verified signed release
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: PitMedic-${{ inputs.release_tag }}-signed-release
           path: Artifacts/release
