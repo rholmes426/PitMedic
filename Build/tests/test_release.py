@@ -79,6 +79,28 @@ class ReleaseTests(unittest.TestCase):
                 release.prepare('v0.6.0.15', 'owner/repo', root / 'missing.exe')
             self.assertEqual(manifest.read_text(), '{"latestVersion":"0.6.0.16"}')
 
+    def test_prepare_updates_static_simulator_links_and_preserves_unicode(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            sim = root / 'website/simulators/iracing/index.html'
+            sim.parent.mkdir(parents=True)
+            sim.write_text('Won’t launch? <a href="https://github.com/owner/repo/releases/download/'
+                           'v0.6.0.15/PitMedic-Setup-x64.exe">Download v0.6.0.15</a>', encoding='utf-8')
+            (root / 'website/update.json').write_text('{"latestVersion":"0.6.0.16"}')
+            (root / 'website/index.html').write_text('Current 0.6.0.16 · Download v0.6.0.16', encoding='utf-8')
+            generator = root / 'Tools/DiagnosticLibrary/generate.py'
+            generator.parent.mkdir(parents=True)
+            generator.write_text('v0.6.0.16/PitMedic-Setup-x64.exe')
+            installer = root / 'signed.exe'
+            installer.write_bytes(b'verified signed installer')
+            with patch.object(release, 'ROOT', root), patch.object(release.subprocess, 'run'):
+                release.prepare('v0.6.0.17', 'owner/repo', installer)
+            self.assertIn('Won’t launch?', sim.read_text(encoding='utf-8'))
+            self.assertNotIn('0.6.0.15', sim.read_text(encoding='utf-8'))
+            self.assertIn('Download v0.6.0.17', sim.read_text(encoding='utf-8'))
+            self.assertEqual(json.loads((root / 'website/update.json').read_text())['sha256'],
+                             release.digest(installer))
+
 
 if __name__ == '__main__':
     unittest.main()
