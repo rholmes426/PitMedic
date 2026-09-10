@@ -1,5 +1,5 @@
 import { detailUrl, metricLink, webRange } from "./metric-details";
-import type { GitHubDownloadData } from "./github-downloads";
+import { downloadDescription, type GitHubDownloadData } from "./github-downloads";
 import type { SearchConsoleData } from "./search-console";
 import type { DashboardData } from "./usage-dashboard";
 import type { WebsiteDashboardData } from "./website-dashboard";
@@ -36,7 +36,7 @@ export function renderOverviewDashboard(
     <section class="cards six" aria-label="Combined analytics totals">
       ${metricCard("Active today", usage.today, "Opted-in installations", "/app")}
       ${metricCard("Active this month", usage.thisMonth, "Opted-in installations", "/app")}
-      ${metricCard("GitHub downloads", downloads.available ? downloads.totalDownloads : "—", downloads.available ? "Installer and portable ZIPs" : "Count temporarily unavailable", "/app")}
+      ${metricCard("GitHub downloads", downloads.available ? downloads.totalDownloads : "—", downloadDescription(downloads), "/app")}
       ${metricCard("Website views", website.thirtyDayPageViews, "Last 30 days", detailUrl("views",range.start,range.end))}
       ${metricCard("Google clicks", search.available ? search.clicks : "—", search.available ? "Search Console period" : "Connection unavailable", detailUrl("google-clicks",search.periodStart,search.periodEnd))}
       ${metricCard("Google impressions", search.available ? search.impressions : "—", search.available ? "Search Console period" : "Connection unavailable", detailUrl("google-impressions",search.periodStart,search.periodEnd))}
@@ -45,7 +45,7 @@ export function renderOverviewDashboard(
     <section class="overview-grid">
       <article class="panel overview-card">
         <div class="panel-head"><div><span class="eyebrow">APP</span><h2>Usage and distribution</h2></div><a class="panel-link" href="/app">Open app usage</a></div>
-        <div class="overview-stats"><div><span>30-day daily average</span><strong>${formatNumber(usage.thirtyDayAverage)}</strong></div><div><span>Active versions</span><strong>${formatNumber(usage.currentVersions)}</strong></div><div><span>Package downloads</span><strong>${downloads.available ? formatNumber(downloads.totalDownloads) : "—"}</strong></div></div>
+        <div class="overview-stats"><div><span>30-day daily average</span><strong>${formatNumber(usage.thirtyDayAverage)}</strong></div><div><span>Active versions</span><strong>${formatNumber(usage.currentVersions)}</strong></div><div><span>Package downloads</span><strong>${downloads.available ? formatNumber(downloads.totalDownloads) : "—"}</strong><small>${escapeHtml(downloadDescription(downloads))}</small></div></div>
         <p>Review daily and monthly adoption, active versions, release channels, and installation types.</p>
       </article>
       <article class="panel overview-card">

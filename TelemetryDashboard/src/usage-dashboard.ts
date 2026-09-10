@@ -1,4 +1,4 @@
-import type { GitHubDownloadData } from "./github-downloads";
+import { downloadDescription, type GitHubDownloadData } from "./github-downloads";
 
 export type TrendPoint = {
   period: string;
@@ -162,12 +162,11 @@ export function renderDashboard(
       ${metricCard(
         "GitHub downloads",
         downloads.available ? downloads.totalDownloads : "—",
-        downloads.available
-          ? "Installer and portable ZIP downloads · not unique users"
-          : "GitHub count temporarily unavailable",
+        downloadDescription(downloads),
       )}
     </section>
 
+    <p>GitHub counts installer and portable ZIP downloads, including repeat downloads; these are not unique users or confirmed installations.</p>
     <section class="grid">
       <article class="panel daily-panel">
         <div class="panel-head"><div><span class="eyebrow">LAST 14 DAYS</span><h2>Daily active installations</h2></div></div>
