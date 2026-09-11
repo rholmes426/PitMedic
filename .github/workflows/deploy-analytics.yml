@@ -8,6 +8,7 @@ on:
     paths:
       - "TelemetryDashboard/**"
       - "TelemetryWorker/**"
+      - "NeonAnalytics/**"
       - ".github/workflows/deploy-analytics.yml"
 
 permissions:
@@ -38,6 +39,7 @@ jobs:
           cache-dependency-path: |
             TelemetryWorker/package-lock.json
             TelemetryDashboard/package-lock.json
+            NeonAnalytics/package-lock.json
 
       - name: Validate deployment credentials
         shell: bash
@@ -63,6 +65,10 @@ jobs:
         working-directory: TelemetryDashboard
         run: npm ci && npm run check
 
+      - name: Build Neon analytics function
+        working-directory: NeonAnalytics
+        run: npm ci && npm run build
+
       - name: Configure Search Console credentials
         working-directory: TelemetryDashboard
         shell: bash
@@ -76,3 +82,13 @@ jobs:
       - name: Deploy private dashboard
         working-directory: TelemetryDashboard
         run: npm run deploy
+
+      - name: Run settled Search Console sync
+        env:
+          SYNC_URL: https://pitmedic-usage-dashboard.pitmedic-usage-telemetry.workers.dev/internal/gsc-sync
+        shell: bash
+        run: |
+          curl --fail-with-body --retry 3 --retry-all-errors \
+            --request POST \
+            --header "Authorization: Basic $NEON_ANALYTICS_CREDENTIALS" \
+            "$SYNC_URL"
