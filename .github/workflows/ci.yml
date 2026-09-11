@@ -90,6 +90,31 @@ jobs:
       - name: Validate the private dashboard Worker bundle
         run: npm run deploy:dry-run
 
+  neon-analytics:
+    needs: changes
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: NeonAnalytics
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: NeonAnalytics/package-lock.json
+      - name: Install and build the Neon analytics function
+        run: npm ci && npm run build
+      - name: Upload tested function bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: neon-analytics-function
+          path: NeonAnalytics/dist/
+          if-no-files-found: error
+          retention-days: 7
+
   build:
     needs: changes
     if: needs.changes.outputs.build == 'true'
@@ -136,7 +161,7 @@ jobs:
   build-validation:
     name: Build Validation
     if: ${{ always() }}
-    needs: [changes, repair-knowledge, telemetry-worker, telemetry-dashboard, build]
+    needs: [changes, repair-knowledge, telemetry-worker, telemetry-dashboard, neon-analytics, build]
     runs-on: ubuntu-latest
     steps:
       - name: Require every validation job to pass
@@ -149,4 +174,5 @@ jobs:
           check "${{ needs.changes.outputs.knowledge }}" "${{ needs.repair-knowledge.result }}"
           check "${{ needs.changes.outputs.worker }}" "${{ needs.telemetry-worker.result }}"
           check "${{ needs.changes.outputs.dashboard }}" "${{ needs.telemetry-dashboard.result }}"
+          test "${{ needs.neon-analytics.result }}" = "success"
           check "${{ needs.changes.outputs.build }}" "${{ needs.build.result }}"
