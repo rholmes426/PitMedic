@@ -77,7 +77,9 @@ internal sealed class ProtectedSensorClient : IDisposable
                 else if (!string.IsNullOrWhiteSpace(message.Error))
                     _status = $"Installed sensor service error: {message.Error}";
                 else if (!CpuSensorPolicy.PositiveReading(message.CpuTempC).HasValue)
-                    _status = "Installed sensor service is active; CPU temperature was not exposed by this system";
+                    _status = DriverPrerequisites.PawnIORegistered()
+                        ? "Sensor service is active but CPU temperature is unavailable. Generate a sensor report in Settings."
+                        : "CPU sensor driver is missing or incomplete. Rerun the PitMedic installer to set up PawnIO.";
                 else
                     _status = "Installed read-only sensor service active";
             }

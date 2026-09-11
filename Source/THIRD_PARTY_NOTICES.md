@@ -14,7 +14,7 @@ Recipients may obtain the corresponding LibreHardwareMonitor source, including t
 
 ## PawnIO
 
-LibreHardwareMonitor 0.9.6 can use PawnIO for low-level hardware sensor access on supported systems when PawnIO is already installed. PitMedic does not bundle or install PawnIO.
+LibreHardwareMonitor 0.9.6 can use PawnIO for low-level hardware sensor access on supported systems when PawnIO is already installed. PitMedic setup detects PawnIO registration and downloads the official signed 2.2.0 installer when missing or incomplete, verifying its pinned SHA-256 before installation. The driver is obtained directly from its publisher, not bundled or removed with PitMedic. Setup requires internet access only when this prerequisite is missing.
 
 Project source and license information: https://github.com/namazso/PawnIO
 

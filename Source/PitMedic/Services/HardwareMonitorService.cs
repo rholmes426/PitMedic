@@ -99,6 +99,7 @@ public sealed class HardwareMonitorService : IDisposable
         {
             var sb = new StringBuilder();
             sb.AppendLine("PITMEDIC SENSOR REPORT");
+            sb.AppendLine(DriverPrerequisites.GetReport());
             sb.AppendLine($"Generated: {DateTimeOffset.Now:O}");
             sb.AppendLine($"LibreHardwareMonitor: 0.9.6");
             sb.AppendLine($"PawnIO: {ReadPawnIoVersion() ?? "Not detected"}");

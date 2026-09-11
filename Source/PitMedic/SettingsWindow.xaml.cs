@@ -21,6 +21,7 @@ public partial class SettingsWindow : Window
         _anonymousUsage = anonymousUsage;
         _updates = updates;
         LoadSettings(_settings.Current);
+        Loaded += async (_, _) => DriverStatus.Text = await System.Threading.Tasks.Task.Run(DriverPrerequisites.GetReport);
     }
 
     private void LoadSettings(AppSettings s)
@@ -105,6 +106,12 @@ public partial class SettingsWindow : Window
 
     private void Defaults_Click(object sender, RoutedEventArgs e) => LoadSettings(new AppSettings());
     private void Cancel_Click(object sender, RoutedEventArgs e) => Close();
+
+    private void WindowsUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        try { Process.Start(new ProcessStartInfo("ms-settings:windowsupdate") { UseShellExecute = true }); }
+        catch (Exception ex) { DriverStatus.Text = $"Could not open Windows Update: {ex.Message}"; }
+    }
 
     private void SensorReport_Click(object sender, RoutedEventArgs e)
     {

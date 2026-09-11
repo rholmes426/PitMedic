@@ -27,7 +27,7 @@ This inventory records the packages resolved by the v0.6.0.0 .NET 10 projects. I
 
 ## External prerequisite
 
-LibreHardwareMonitor may use PawnIO for supported low-level sensors when PawnIO is already installed. PitMedic does not bundle or install PawnIO.
+LibreHardwareMonitor may use PawnIO for supported low-level sensors when PawnIO is already installed. PitMedic setup detects PawnIO registration and downloads the official signed 2.2.0 installer when missing or incomplete, verifying its pinned SHA-256 before installation. The driver is obtained directly from its publisher, not bundled or removed with PitMedic. Setup requires internet access only when this prerequisite is missing.
 
 ## Public-release requirement
 

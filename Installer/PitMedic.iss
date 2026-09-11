@@ -79,8 +79,52 @@ Type: files; Name: "{localappdata}\PitMedic\update-check-state.json"
 
 [Code]
 const
+  PawnIOUrl = 'https://github.com/namazso/PawnIO.Setup/releases/download/2.2.0/PawnIO_setup.exe';
+  PawnIOHash = '1f519a22e47187f70a1379a48ca604981c4fcf694f4e65b734aaa74a9fba3032';
   SensorServiceName = 'PitMedicSensor';
   PitMedicMutexName = 'PitMedic-E805E797-5FEF-4D91-8B72-0E20C53D2E09';
+
+function PawnIOInstalled(): Boolean;
+var
+  Version: String;
+begin
+  Result := (RegQueryStringValue(HKLM64,
+    'Software\Microsoft\Windows\CurrentVersion\Uninstall\PawnIO',
+    'DisplayVersion', Version) or RegQueryStringValue(HKLM32,
+    'Software\Microsoft\Windows\CurrentVersion\Uninstall\PawnIO',
+    'DisplayVersion', Version)) and
+    RegKeyExists(HKLM64, 'SYSTEM\CurrentControlSet\Services\PawnIO');
+end;
+
+function EnsurePawnIO(var NeedsRestart: Boolean): String;
+var
+  ExitCode: Integer;
+begin
+  Result := '';
+  if PawnIOInstalled() then
+  begin
+    Log('PawnIO prerequisite already registered; preserving the existing installation.');
+    Exit;
+  end;
+  WizardForm.StatusLabel.Caption := 'Setting up the CPU sensor driver...';
+  try
+    DownloadTemporaryFile(PawnIOUrl, 'PawnIO_setup.exe', PawnIOHash, nil);
+    if not Exec(ExpandConstant('{tmp}\PawnIO_setup.exe'), '-install -silent',
+      '', SW_HIDE, ewWaitUntilTerminated, ExitCode) then
+      RaiseException('Could not start the CPU sensor driver installer.');
+    Log(Format('PawnIO setup exit code: %d', [ExitCode]));
+    if ExitCode = 3010 then
+      NeedsRestart := True
+    else if ExitCode <> 0 then
+      RaiseException(Format('CPU sensor driver setup failed (code %d).', [ExitCode]));
+    if not PawnIOInstalled() then
+      RaiseException('CPU sensor driver registration was not found after setup.');
+  except
+    Result := GetExceptionMessage + #13#10 +
+      'PitMedic setup cannot finish its CPU monitoring prerequisites. Check your internet connection and retry, or install the signed driver from https://pawnio.eu/ and rerun setup.';
+    Log(Result);
+  end;
+end;
 
 function ShouldCreateDesktopShortcut(): Boolean;
 begin
@@ -210,15 +254,59 @@ end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
+  Result := EnsurePawnIO(NeedsRestart);
+  if Result <> '' then Exit;
   StopSensorService();
   RemoveLegacyStartupTasks();
-  Result := '';
+end;
+
+procedure CheckDeviceDrivers();
+var
+  Wmi, Devices, Device: Variant;
+  Index: Integer;
+  Warnings: String;
+begin
+  { Read-only detection: hardware-specific packages remain with Windows/OEMs. }
+  try
+    Wmi := CreateOleObject('WbemScripting.SWbemLocator');
+    Wmi := Wmi.ConnectServer('', 'root\CIMV2');
+    Devices := Wmi.ExecQuery('SELECT Name, ConfigManagerErrorCode FROM Win32_PnPEntity WHERE ConfigManagerErrorCode <> 0');
+    Warnings := '';
+    for Index := 0 to Devices.Count - 1 do
+    begin
+      Device := Devices.ItemIndex(Index);
+      Warnings := Warnings + VarToStr(Device.Name) + ' (Windows code ' +
+        VarToStr(Device.ConfigManagerErrorCode) + ')' + #13#10;
+    end;
+    Devices := Wmi.ExecQuery('SELECT Name FROM Win32_VideoController');
+    for Index := 0 to Devices.Count - 1 do
+    begin
+      Device := Devices.ItemIndex(Index);
+      if Pos('Microsoft Basic Display', VarToStr(Device.Name)) > 0 then
+        Warnings := Warnings + 'Generic display driver detected.' + #13#10;
+    end;
+    if Warnings <> '' then
+    begin
+      Log('Device driver attention required: ' + Warnings);
+      SaveStringToFile(ExpandConstant('{commonappdata}\PitMedic\driver-setup.txt'),
+        Warnings + 'Check Windows Update or your PC manufacturer for the matching drivers.', False);
+      if not WizardSilent() then
+        MsgBox('PitMedic is installed. Windows reports devices that need attention:' +
+          #13#10 + Warnings + #13#10 +
+          'Open Settings in PitMedic for driver guidance and Windows Update.', mbInformation, MB_OK);
+    end;
+  except
+    Log('Device driver checks could not finish: ' + GetExceptionMessage);
+  end;
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then
+  begin
     InstallSensorService();
+    CheckDeviceDrivers();
+  end;
 end;
 
 function InitializeUninstall(): Boolean;
