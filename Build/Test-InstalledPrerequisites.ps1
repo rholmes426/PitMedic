@@ -12,7 +12,8 @@ foreach ($attempt in 1..2) {
     $log = Join-Path $logRoot "setup-$attempt.log"
     $process = Start-Process -FilePath $installer -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/LOG=`"$log`"") -Wait -PassThru
     if ($process.ExitCode -notin @(0, 3010)) { Get-Content $log -Tail 80; throw "Setup failed: $($process.ExitCode)" }
-    $driver = Get-Service PawnIO -ErrorAction Stop
+    $driver = Get-CimInstance Win32_SystemDriver -Filter "Name='PawnIO'"
+    if (-not $driver) { throw 'PawnIO kernel driver registration missing.' }
     $version = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PawnIO').DisplayVersion
     if (-not $version) { throw 'PawnIO version registration missing.' }
     if ($attempt -eq 1) { $firstVersion = $version }
@@ -37,5 +38,5 @@ foreach ($attempt in 1..2) {
 $uninstaller = Join-Path $installRoot 'unins000.exe'
 $process = Start-Process $uninstaller -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait -PassThru
 if ($process.ExitCode -ne 0) { throw 'Uninstall failed.' }
-if (-not (Get-Service PawnIO -ErrorAction SilentlyContinue)) { throw 'PitMedic uninstall removed shared PawnIO driver.' }
+if (-not (Get-CimInstance Win32_SystemDriver -Filter "Name='PawnIO'")) { throw 'PitMedic uninstall removed shared PawnIO driver.' }
 Write-Host 'Fresh install, reinstall, fresh sensor publishing, and shared-driver preservation passed.'
