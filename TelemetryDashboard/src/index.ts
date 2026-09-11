@@ -14,6 +14,7 @@ import {
   type SearchConsoleEnv,
 } from "./search-console";
 import { loadGitHubDownloadData } from "./github-downloads";
+import { syncSettledSearchConsole } from "./direct-gsc-sync";
 import { renderOverviewDashboard } from "./overview-dashboard";
 import {
   authHeaders,
@@ -40,6 +41,29 @@ export type DashboardEnv = Env & DashboardAuthEnv & SearchConsoleEnv & WebsiteAn
 export default {
   async fetch(request, env): Promise<Response> {
     const url = new URL(request.url);
+
+    if (url.pathname === "/internal/gsc-sync") {
+      if (request.method !== "POST") {
+        return new Response("Method not allowed", { status: 405, headers: securityHeaders({ Allow: "POST" }) });
+      }
+      if (!internalSyncAuthorized(request, env)) {
+        return new Response("Unauthorized", { status: 401, headers: securityHeaders() });
+      }
+      try {
+        return Response.json(await syncSettledSearchConsole(env), {
+          headers: securityHeaders({ "Cache-Control": "no-store" }),
+        });
+      } catch (error) {
+        console.error(JSON.stringify({
+          event: "settled_gsc_sync_failed",
+          errorType: error instanceof Error ? error.name : "UnknownError",
+        }));
+        return Response.json({ error: "settled_gsc_sync_failed" }, {
+          status: 503,
+          headers: securityHeaders({ "Cache-Control": "no-store" }),
+        });
+      }
+    }
 
     if (url.pathname === "/login") return handleLogin(request, env);
 
@@ -140,7 +164,25 @@ export default {
       });
     }
   },
+  async scheduled(controller, env, ctx): Promise<void> {
+    const localHour = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Los_Angeles", hour: "2-digit", hourCycle: "h23",
+    }).format(new Date(controller.scheduledTime));
+    if (localHour !== "09") return;
+    ctx.waitUntil(syncSettledSearchConsole(env, new Date(controller.scheduledTime)).then(
+      (result) => console.log(JSON.stringify({ event: "settled_gsc_sync_completed", ...result })),
+      (error) => console.error(JSON.stringify({
+        event: "settled_gsc_sync_failed",
+        errorType: error instanceof Error ? error.name : "UnknownError",
+      })),
+    ));
+  },
 } satisfies ExportedHandler<DashboardEnv>;
+
+function internalSyncAuthorized(request: Request, env: DashboardEnv): boolean {
+  const credentials = env.NEON_ANALYTICS_CREDENTIALS?.trim();
+  return !!credentials && request.headers.get("Authorization") === "Basic " + credentials;
+}
 
 function securityHeaders(additional: Record<string, string> = {}): Headers {
   return new Headers({

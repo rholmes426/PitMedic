@@ -9,6 +9,7 @@ the aggregate-only schema documented in `../TelemetryWorker/migrations/0003_webs
 - `GET /health` — database-backed health check
 - `POST /v1/web-event` — CORS-restricted aggregate website event collector
 - `GET /v1/website-summary` — HTTP Basic-authenticated aggregate JSON for the private combined dashboard
+- `POST /v1/gsc-sync` — authenticated finalized Search Console aggregate upsert and validation
 - `GET /dashboard` — HTTP Basic-authenticated dashboard
 
 The dashboard includes rolling website conversion metrics, page engagement,
@@ -33,3 +34,9 @@ private session login. Google details use live read-only Search Console queries,
 include yesterday in Pacific time, and show preliminary/pending status. The Neon
 settled-data sync remains separate and should store CTR as clicks/impressions
 (0–1), with the existing `all` key for site totals.
+
+
+The Search Console sync is initiated by the Cloudflare dashboard Worker. It uses
+Google's official read-only API and stores only daily site, page, query, country,
+and device aggregates. CTR is recomputed as clicks divided by impressions, and
+incomplete Google dates are rejected.
