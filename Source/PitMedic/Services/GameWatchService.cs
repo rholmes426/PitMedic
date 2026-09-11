@@ -125,7 +125,8 @@ public sealed class GameWatchService : IDisposable
         // starting, and some UI builds do not reliably write the dialog text to a log. Detect
         // the condition directly whenever the iRacing UI is open but the helper service is absent.
         var now = DateTimeOffset.Now;
-        if (IsAnyProcessRunning("iRacingUI", "iRacingUI64")
+        if (!IRacingUpdateGuard.IsBusy()
+            && IsAnyProcessRunning("iRacingUI", "iRacingUI64")
             && !IsAnyProcessRunning("iRacingService64", "iRacingService")
             && now - _lastHelperServiceFault > TimeSpan.FromSeconds(75))
         {
