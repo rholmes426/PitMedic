@@ -296,8 +296,8 @@ begin
       SaveStringToFile(ExpandConstant('{commonappdata}\PitMedic\driver-setup.txt'),
         Warnings + 'Check Windows Update or your PC manufacturer for the matching drivers.', False);
       if not WizardSilent() then
-        MsgBox('PitMedic is installed. Windows reports devices that need attention:' +
-          #13#10 + Warnings + #13#10 +
+        MsgBox('PitMedic is installed. Windows reports devices that need attention:' + #13#10 +
+          Warnings + #13#10 +
           'Open Settings in PitMedic for driver guidance and Windows Update.', mbInformation, MB_OK);
     end;
   except
