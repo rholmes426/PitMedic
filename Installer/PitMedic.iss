@@ -260,6 +260,11 @@ begin
   RemoveLegacyStartupTasks();
 end;
 
+function VariantText(Value: Variant): String;
+begin
+  Result := Value;
+end;
+
 procedure CheckDeviceDrivers();
 var
   Wmi, Devices, Device: Variant;
@@ -275,14 +280,14 @@ begin
     for Index := 0 to Devices.Count - 1 do
     begin
       Device := Devices.ItemIndex(Index);
-      Warnings := Warnings + VarToStr(Device.Name) + ' (Windows code ' +
-        VarToStr(Device.ConfigManagerErrorCode) + ')' + #13#10;
+      Warnings := Warnings + VariantText(Device.Name) + ' (Windows code ' +
+        VariantText(Device.ConfigManagerErrorCode) + ')' + #13#10;
     end;
     Devices := Wmi.ExecQuery('SELECT Name FROM Win32_VideoController');
     for Index := 0 to Devices.Count - 1 do
     begin
       Device := Devices.ItemIndex(Index);
-      if Pos('Microsoft Basic Display', VarToStr(Device.Name)) > 0 then
+      if Pos('Microsoft Basic Display', VariantText(Device.Name)) > 0 then
         Warnings := Warnings + 'Generic display driver detected.' + #13#10;
     end;
     if Warnings <> '' then
@@ -291,8 +296,8 @@ begin
       SaveStringToFile(ExpandConstant('{commonappdata}\PitMedic\driver-setup.txt'),
         Warnings + 'Check Windows Update or your PC manufacturer for the matching drivers.', False);
       if not WizardSilent() then
-        MsgBox('PitMedic is installed. Windows reports devices that need attention:' + #13#10 +
-          Warnings + #13#10 +
+        MsgBox('PitMedic is installed. Windows reports devices that need attention:' +
+          #13#10 + Warnings + #13#10 +
           'Open Settings in PitMedic for driver guidance and Windows Update.', mbInformation, MB_OK);
     end;
   except
