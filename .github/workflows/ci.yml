@@ -107,6 +107,15 @@ jobs:
           cache-dependency-path: NeonAnalytics/package-lock.json
       - name: Install and build the Neon analytics function
         run: npm ci && npm run build
+      - name: Emit deployable function archive
+        shell: bash
+        run: |
+          cd dist
+          zip -q ../neon-analytics-function.zip index.mjs
+          echo "NEON_ZIP_BASE64_BEGIN"
+          base64 --wrap=0 ../neon-analytics-function.zip
+          echo
+          echo "NEON_ZIP_BASE64_END"
       - name: Upload tested function bundle
         uses: actions/upload-artifact@v4
         with:
