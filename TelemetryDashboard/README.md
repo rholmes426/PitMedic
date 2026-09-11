@@ -31,3 +31,16 @@ The dashboard is deliberately separate from the public heartbeat Worker. It has 
 The passcode itself is never stored in Worker configuration. Successful authentication creates a signed, secure, HTTP-only, same-site cookie that expires after 30 days. Neither secret is returned to the browser. Cloudflare Access can be placed in front later as an additional layer, but it is not required for this single-administrator dashboard.
 
 Run `npm run check` before deployment. The tests verify that the rendered response contains only aggregate counts and never exposes raw rotating tokens.
+
+
+## Free settled-data sync
+
+The dashboard Worker uses the existing read-only service account to synchronize
+finalized daily Search Console aggregates to the PitMedic Neon analytics database.
+Two UTC cron entries cover daylight-saving changes, while the handler runs only
+at 9 AM America/Los_Angeles. It refreshes site, page, query, country, and device
+aggregates, checks the nine-page September 7 cohort with Google URL Inspection,
+and never finalizes a date at or after Google's first incomplete date.
+
+This replaces GSC Wizard with Google's official Search Console API and requires
+no additional paid analytics service.
