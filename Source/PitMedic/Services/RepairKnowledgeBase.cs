@@ -222,8 +222,8 @@ public static class RepairKnowledgeBase
             Id = "iracing-update-verification",
             Game = "iRacing",
             Issue = "Update verification failure",
-            Detection = "Updater reports verification failure or repeatedly requests the same update.",
-            RepairStrategy = "Rename version_system.txt, retry update; if needed clear the downloads folder. CDN/network changes are advisory rather than automatic.",
+            Detection = "A fresh verification failure is reported after the iRacing updater has closed and its 30-second settling period has ended. Transient verification checks during an active update are not repair findings.",
+            RepairStrategy = "Let any running update finish first. If verification still fails, back up and reset version_system.txt and the downloads cache, then restart the updater. PitMedic blocks iRacing repairs while an update is active; CDN/network changes remain advisory.",
             Safety = "Reversible / one-click for local files",
             Signatures = new[] { "Verification Failure", "version_system.txt", "downloads" },
             References = new[]

@@ -13,6 +13,17 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
     private readonly Dictionary<string, long> _offsets = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, DateTimeOffset> _seenSignatures = new(StringComparer.OrdinalIgnoreCase);
     private DateTimeOffset _sessionStarted;
+    private readonly Func<bool> _isUpdating;
+    private readonly Func<IEnumerable<string>> _candidateFiles;
+    private readonly Func<DateTimeOffset> _now;
+
+    public IRacingLiveLogMonitor(Func<bool>? isUpdating = null,
+        Func<IEnumerable<string>>? candidateFiles = null, Func<DateTimeOffset>? now = null)
+    {
+        _isUpdating = isUpdating ?? IRacingUpdateGuard.IsBusy;
+        _candidateFiles = candidateFiles ?? CandidateFiles;
+        _now = now ?? (() => DateTimeOffset.Now);
+    }
 
     public void StartSession(DateTimeOffset started)
     {
@@ -20,7 +31,7 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
         _offsets.Clear();
         _seenSignatures.Clear();
 
-        foreach (var file in CandidateFiles())
+        foreach (var file in _candidateFiles())
         {
             try
             {
@@ -38,7 +49,8 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
     public IReadOnlyList<LiveFaultEvidence> Poll()
     {
         var found = new List<LiveFaultEvidence>();
-        foreach (var file in CandidateFiles())
+        var updating = _isUpdating();
+        foreach (var file in _candidateFiles())
         {
             try
             {
@@ -63,8 +75,10 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
                 foreach (var line in text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     if (!TryMatch(line, out var id, out var category, out var message)) continue;
+                    // Consume update-time lines without replaying them as failures afterward.
+                    if (IRacingUpdateGuard.SuppressDiagnostic(id, updating)) continue;
                     // Avoid duplicate UI/log lines while still allowing the same fault to be retested after a repair.
-                    var now = DateTimeOffset.Now;
+                    var now = _now();
                     if (_seenSignatures.TryGetValue(id, out var last) && now - last < TimeSpan.FromSeconds(75)) continue;
                     _seenSignatures[id] = now;
                     found.Add(new LiveFaultEvidence(now, id, category, message, Path.GetFileName(file), GameKind.IRacing));

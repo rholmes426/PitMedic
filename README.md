@@ -4,10 +4,10 @@
 
 PitMedic is a free, ad-free, open-source Windows simulator reliability monitor and repair assistant. It watches supported racing simulators, captures useful evidence when something goes wrong, explains the finding in plain language, and offers safe, reversible repairs when a known automatic fix is available.
 
-Current signed release: **0.6.0.17**
+Current signed release: **0.6.0.18**
 
-- [Download the v0.6.0.17 signed Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.17/PitMedic-Setup-x64.exe)
-- [View the v0.6.0.17 release and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.17)
+- [Download the v0.6.0.18 signed Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.18/PitMedic-Setup-x64.exe)
+- [View the v0.6.0.18 release and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.18)
 
 The installer, PitMedic app, repair helper, and sensor service are signed and timestamped.
 
@@ -22,6 +22,7 @@ The installer, PitMedic app, repair helper, and sensor service are signed and ti
 
 ## v0.6 highlights
 
+- v0.6.0.18 suppresses misleading iRacing update-related findings during an active update, defers iRacing repairs until the updater has settled, and refreshes desktop, Start menu, and tray icons reliably.
 - v0.6.0.17 introduces the racing-line P logo throughout the app, installer, website and browser icons.
 - v0.6.0.16 automatically opens the detected simulator page and reselects it when the session ends, keeps the last-run simulator active afterward, opens the main window at 1500×1000, and adds a local Last Session summary with start time, duration, and observed result at the bottom of every simulator page.
 - v0.6.0.15 removes simulator driving-stat collection and reporting, including best laps, monitored time, distance, clean streaks, comparison lookups, and the complete Driving Stats interface. It also expands the read-only Knowledge Scout from 13 to 26 trusted official and vendor-operated sources.

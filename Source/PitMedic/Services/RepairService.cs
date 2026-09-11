@@ -67,10 +67,21 @@ public sealed class RepairService : IDisposable
             };
         }
         Publish(Current!);
+        if (DeferIRacingRepair(incident, plan)) return true;
         _ = Task.Run(() =>
             ElevatedRepairPolicy.RequiresElevation(plan.Id) && !_executeElevatedRepairsLocally
                 ? RunElevatedViaHelperAsync(incident, plan, settings, automatic, _activeCts!.Token)
                 : RunAsync(incident, plan, settings, automatic, _activeCts!.Token));
+        return true;
+    }
+
+    private bool DeferIRacingRepair(IncidentRecord incident, RepairPlan plan)
+    {
+        if (!plan.Id.StartsWith("iracing-", StringComparison.OrdinalIgnoreCase)
+            || !IRacingUpdateGuard.BlocksRepair(plan.Id, IRacingUpdateGuard.IsBusy())) return false;
+        Update(incident, plan, 100, "Waiting for iRacing update", IRacingUpdateGuard.WaitMessage,
+            "This repair has not changed any iRacing files or stopped any iRacing processes.",
+            1, Math.Max(1, plan.Steps.Count), false, true, false, null);
         return true;
     }
 
@@ -92,6 +103,7 @@ public sealed class RepairService : IDisposable
     {
         try
         {
+            if (DeferIRacingRepair(incident, plan)) return;
             Update(
                 incident,
                 plan,
@@ -169,6 +181,8 @@ public sealed class RepairService : IDisposable
         IDisposable? steamUiSuppression = null;
         try
         {
+            // Recheck in the helper too, after any delay at the Windows approval prompt.
+            if (DeferIRacingRepair(incident, plan)) return;
             if (ElevatedRepairPolicy.RequiresElevation(plan.Id) && !IsAdministrator())
                 throw new InvalidOperationException("The allowlisted repair helper is not running with administrator permissions.");
 
@@ -627,9 +641,11 @@ public sealed class RepairService : IDisposable
         var root = IRacingLocator.FindRoot() ?? throw new DirectoryNotFoundException("iRacing installation could not be located.");
         var versionFile = Path.Combine(root, "version_system.txt");
         if (File.Exists(versionFile)) await BackupPathAsync(versionFile, backupRoot, root, token);
+        IRacingUpdateGuard.EnsureIdle();
         UpdateSimple(incident, plan, 34, "Resetting update state", "Removing stale iRacing update metadata and temporary downloads...", 2, 4, backupRoot);
         if (File.Exists(versionFile)) await DeleteFileWithRetryAsync(versionFile, token);
         var downloads = Path.Combine(root, "downloads");
+        IRacingUpdateGuard.EnsureIdle();
         if (Directory.Exists(downloads)) await RemoveInstalledContentAsync(downloads, token);
         UpdateSimple(incident, plan, 72, "Launching updater", "Starting iRacingUpdater to reacquire required update files...", 3, 4, backupRoot);
         await LaunchIRacingUpdaterAsync(root, string.Empty, token);
@@ -1177,6 +1193,7 @@ public sealed class RepairService : IDisposable
 
     private static void EnsureGameNotRunning(GameKind kind, string displayName)
     {
+        if (kind == GameKind.IRacing) IRacingUpdateGuard.EnsureIdle();
         var game = GameDefinition.Supported.First(g => g.Kind == kind);
         foreach (var alias in game.ProcessNames)
         {

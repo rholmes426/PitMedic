@@ -12,6 +12,7 @@
     <Compile Include="../PitMedic/Services/ElevatedRepairPolicy.cs" Link="ElevatedRepairPolicy.cs" />
     <Compile Include="../PitMedic/Services/ExitLogEvidencePolicy.cs" Link="ExitLogEvidencePolicy.cs" />
     <Compile Include="../PitMedic/Services/ILiveLogMonitor.cs" Link="ILiveLogMonitor.cs" />
+    <Compile Include="../PitMedic/Services/IRacingUpdateGuard.cs" Link="IRacingUpdateGuard.cs" />
     <Compile Include="../PitMedic/Services/IRacingLiveLogMonitor.cs" Link="IRacingLiveLogMonitor.cs" />
     <Compile Include="../PitMedic/Services/IRacingRepairSignaturePolicy.cs" Link="IRacingRepairSignaturePolicy.cs" />
     <Compile Include="../PitMedic/Services/LmuLogEvidenceParser.cs" Link="LmuLogEvidenceParser.cs" />

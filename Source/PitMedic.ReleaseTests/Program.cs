@@ -48,6 +48,45 @@ AssertTrue(
     ElevatedRepairPolicy.RequiresElevation("iracing-release-file-privileges"),
     "The iRacing Helper Service file-release workflow must remain approval-gated and elevated.");
 
+// Normal update activity must not become a cache-reset or stopped-service repair.
+var updateState = new IRacingUpdateState();
+AssertFalse(updateState.Observe(false, now), "Ordinary startup must not suppress iRacing diagnostics.");
+AssertTrue(updateState.Observe(true, now), "An active updater must suspend maintenance diagnostics.");
+AssertTrue(updateState.Observe(false, now.AddSeconds(20)), "Updater process handoffs need a settling interval.");
+AssertFalse(updateState.Observe(false, now.AddSeconds(31)), "Monitoring must resume after update settling.");
+AssertTrue(IRacingUpdateGuard.IsUpdateProcess("iRacingUpdater", ""), "The standalone updater must be recognized.");
+AssertTrue(IRacingUpdateGuard.IsUpdateProcess("iRacingUpdater64", ""), "The 64-bit updater must be recognized.");
+AssertTrue(IRacingUpdateGuard.IsUpdateProcess("iRacingUI", "Updating"), "The iRacing UI updating window must be recognized.");
+AssertFalse(IRacingUpdateGuard.IsUpdateProcess("iRacingUI", "iRacing"), "An ordinary open UI must not hide failures.");
+AssertFalse(IRacingUpdateGuard.IsUpdateProcess("OtherApp", "Updating"), "Another application's update must not affect iRacing.");
+AssertTrue(IRacingUpdateGuard.SuppressDiagnostic("helper-service", true), "Service replacement during an update is not a stopped-service finding.");
+AssertFalse(IRacingUpdateGuard.SuppressDiagnostic("helper-service", false), "A stopped service outside an update must remain detectable.");
+AssertTrue(IRacingUpdateGuard.BlocksRepair("iracing-reset-update-cache", true), "Old cache-reset findings must not interrupt an active update.");
+AssertTrue(IRacingUpdateGuard.BlocksRepair("iracing-release-file-privileges", true), "Elevated service repairs must also wait for updates.");
+AssertFalse(IRacingUpdateGuard.BlocksRepair("iracing-reset-update-cache", false), "A real post-update failure must remain repairable.");
+AssertFalse(IRacingUpdateGuard.BlocksRepair("lmu-shader-cache", true), "An iRacing update must not block unrelated repairs.");
+
+var updateLogRoot = Path.Combine(Path.GetTempPath(), "PitMedic-update-test-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(updateLogRoot);
+try
+{
+    var log = Path.Combine(updateLogRoot, "updater.log");
+    File.WriteAllText(log, "old verification failure\n");
+    var updating = true;
+    var monitor = new IRacingLiveLogMonitor(() => updating, () => new[] { log }, () => now);
+    monitor.StartSession(now);
+    AssertTrue(monitor.Poll().Count == 0, "Old log contents must remain baselined.");
+    File.AppendAllText(log, "verification failure: version 1 check failed\nwaiting for iracingservice\n");
+    AssertTrue(monitor.Poll().Count == 0, "Live update checks must not create repair findings.");
+    File.AppendAllText(log, "DXGI_ERROR_DEVICE_REMOVED\n");
+    AssertTrue(monitor.Poll().Single().SignatureId == "dxgi-device-failure", "Independent graphics faults must remain detectable during updates.");
+    updating = false;
+    AssertTrue(monitor.Poll().Count == 0, "Suppressed update lines must never be replayed after the update.");
+    File.AppendAllText(log, "verification failure: update could not be verified\n");
+    AssertTrue(monitor.Poll().Single().SignatureId == "verification-failure", "A fresh failure after updating must bypass any suppressed-line cooldown.");
+}
+finally { Directory.Delete(updateLogRoot, recursive: true); }
+
 using var legacyDrivingStats = JsonDocument.Parse("""
     {"Games":{"IRacing":{"MonitoredSeconds":120,"LastSessionBestLap":{"LapSeconds":90},"BestLaps":{}}}}
     """);

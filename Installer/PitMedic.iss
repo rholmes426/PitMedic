@@ -56,14 +56,15 @@ Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription:
 
 [Files]
 Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\Source\PitMedic\Assets\PitMedic.ico"; DestDir: "{app}\Assets"; DestName: "PitMedic-brand-v2.ico"; Flags: ignoreversion
 
 [Dirs]
 Name: "{commonappdata}\PitMedic"; Permissions: admins-full users-readexec; Flags: uninsneveruninstall
 Name: "{commonappdata}\PitMedic\RepairBackups"; Permissions: admins-full users-readexec; Flags: uninsneveruninstall
 
 [Icons]
-Name: "{autoprograms}\PitMedic"; Filename: "{app}\PitMedic.exe"; WorkingDir: "{app}"
-Name: "{autodesktop}\PitMedic"; Filename: "{app}\PitMedic.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{autoprograms}\PitMedic"; Filename: "{app}\PitMedic.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Assets\PitMedic-brand-v2.ico"
+Name: "{autodesktop}\PitMedic"; Filename: "{app}\PitMedic.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Assets\PitMedic-brand-v2.ico"; Check: ShouldCreateDesktopShortcut
 
 [Run]
 Filename: "{app}\PitMedic.exe"; Description: "Launch PitMedic"; WorkingDir: "{app}"; Flags: nowait skipifsilent runasoriginaluser
@@ -80,6 +81,13 @@ Type: files; Name: "{localappdata}\PitMedic\update-check-state.json"
 const
   SensorServiceName = 'PitMedicSensor';
   PitMedicMutexName = 'PitMedic-E805E797-5FEF-4D91-8B72-0E20C53D2E09';
+
+function ShouldCreateDesktopShortcut(): Boolean;
+begin
+  { Refresh an existing installer shortcut even if the task is not selected. }
+  Result := WizardIsTaskSelected('desktopicon') or
+    FileExists(ExpandConstant('{autodesktop}\PitMedic.lnk'));
+end;
 
 function RestartPitMedicRequested(): Boolean;
 var
