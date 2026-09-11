@@ -1,4 +1,5 @@
 import { websiteDetails } from "./website-details";
+import { gscSync } from "./gsc-sync";
 import { timingSafeEqual } from "node:crypto";
 import { attachDatabasePool } from "@neon/functions";
 import pg from "pg";
@@ -57,6 +58,11 @@ export default {
 
     if (url.pathname === "/v1/web-event") {
       return handleWebEvent(request);
+    }
+
+    if (url.pathname === "/v1/gsc-sync" && request.method === "POST") {
+      if (!isAuthorized(request)) return json({ error: "unauthorized" }, 401);
+      return gscSync(pool, request);
     }
 
     if (["/v1/website-summary", "/v1/website-details"].includes(url.pathname) && request.method === "GET") {
