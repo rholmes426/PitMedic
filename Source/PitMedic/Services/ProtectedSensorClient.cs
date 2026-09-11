@@ -76,7 +76,7 @@ internal sealed class ProtectedSensorClient : IDisposable
                     _status = "Installed sensor service is not currently reporting";
                 else if (!string.IsNullOrWhiteSpace(message.Error))
                     _status = $"Installed sensor service error: {message.Error}";
-                else if (!message.CpuTempC.HasValue)
+                else if (!CpuSensorPolicy.PositiveReading(message.CpuTempC).HasValue)
                     _status = "Installed sensor service is active; CPU temperature was not exposed by this system";
                 else
                     _status = "Installed read-only sensor service active";

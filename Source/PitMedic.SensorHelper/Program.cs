@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using LibreHardwareMonitor.Hardware;
+using PitMedic.Services;
 
 namespace PitMedic.SensorHelper;
 
@@ -124,7 +125,7 @@ internal static class Program
                             Timestamp = DateTimeOffset.UtcNow,
                             CpuTempC = BestCpuTemp(cpu, all),
                             CpuLoadPct = Named(cpu, SensorType.Load, "CPU Total") ?? Max(cpu, SensorType.Load),
-                            CpuClockMhz = Max(cpu, SensorType.Clock),
+                            CpuClockMhz = CpuSensorPolicy.PositiveReading(Max(cpu, SensorType.Clock)),
                             CpuPowerW = Named(cpu, SensorType.Power, "CPU Package") ?? Max(cpu, SensorType.Power)
                         };
                     }
@@ -238,7 +239,8 @@ internal static class Program
 
     private static float? BestCpuTemp(IEnumerable<IHardware> cpu, IEnumerable<IHardware> all)
     {
-        var cpuTemps = Sensors(cpu, SensorType.Temperature).ToList();
+        var cpuTemps = Sensors(cpu, SensorType.Temperature)
+            .Where(s => CpuSensorPolicy.PositiveReading(s.Value).HasValue).ToList();
         var preferredNames = new[] { "CPU Package", "Package", "Tctl/Tdie", "Tctl", "Tdie", "Core Max", "Core Average" };
         foreach (var preferred in preferredNames)
         {
@@ -248,7 +250,8 @@ internal static class Program
         }
         if (cpuTemps.Count > 0) return cpuTemps.Max(s => s.Value!.Value);
 
-        return Sensors(all, SensorType.Temperature)
+        return Sensors(all.Where(h => h.HardwareType is HardwareType.Motherboard or HardwareType.SuperIO), SensorType.Temperature)
+            .Where(s => CpuSensorPolicy.PositiveReading(s.Value).HasValue)
             .Where(s => s.Name.Contains("CPU", StringComparison.OrdinalIgnoreCase)
                      || s.Name.Contains("Tctl", StringComparison.OrdinalIgnoreCase)
                      || s.Name.Contains("Tdie", StringComparison.OrdinalIgnoreCase)

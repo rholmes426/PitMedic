@@ -2,6 +2,16 @@ using PitMedic.Models;
 using PitMedic.Services;
 using System.Text.Json;
 
+foreach (var invalid in new float?[] { null, 0, -1, float.NaN, float.PositiveInfinity, float.NegativeInfinity })
+{
+    AssertFalse(CpuSensorPolicy.PositiveReading(invalid).HasValue, "Invalid CPU readings must be unavailable.");
+    AssertTrue(CpuSensorPolicy.PreferValid(invalid, 47) == 47, "Invalid local readings must allow the service fallback.");
+    AssertFalse(CpuSensorPolicy.PreferValid(invalid, 0).HasValue, "Invalid service readings must not display as 32 F.");
+}
+AssertTrue(CpuSensorPolicy.PreferValid(52, 47) == 52, "Valid primary CPU readings must be preserved.");
+AssertTrue(CpuSensorPolicy.PreferValid(0, 4200) == 4200, "Zero MHz must allow the service clock fallback.");
+AssertTrue(CpuSensorPolicy.PositiveReading(110) == 110, "Real overheating readings must not be hidden.");
+
 var now = new DateTimeOffset(2026, 9, 1, 12, 0, 0, TimeSpan.Zero);
 var day = "2026-09-01";
 var retryDelay = TimeSpan.FromHours(1);
