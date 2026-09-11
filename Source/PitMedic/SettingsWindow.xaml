@@ -151,8 +151,10 @@
 
                 <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
                     <StackPanel>
-                        <TextBlock Text="SENSOR DIAGNOSTICS" Style="{StaticResource SectionHeader}"/>
+                        <TextBlock Text="DRIVERS AND SENSOR DIAGNOSTICS" Style="{StaticResource SectionHeader}"/>
                         <TextBlock Text="Generate a hardware sensor report if a reading is unavailable." TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" FontSize="13" Margin="0,0,0,12"/>
+                        <TextBlock x:Name="DriverStatus" Text="Checking driver prerequisites..." TextWrapping="Wrap" Margin="0,0,0,12"/>
+                        <Button Content="Open Windows Update" HorizontalAlignment="Left" Click="WindowsUpdate_Click" Margin="0,0,0,12"/>
                         <Button Content="Generate sensor report" HorizontalAlignment="Left" Click="SensorReport_Click"/>
                         <TextBlock x:Name="SensorReportStatus" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" FontSize="12" Margin="0,10,0,0"/>
                     </StackPanel>
