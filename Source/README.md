@@ -1,6 +1,13 @@
-# PitMedic v0.6.0.17
+# PitMedic v0.6.0.18
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v0.6.0.18
+
+- Suppresses update-related iRacing findings while the updater is active and for a 30-second settling period.
+- Defers iRacing repairs, including elevated and previously saved repair requests, until the update has finished.
+- Loads the bundled tray icon directly and installs a dedicated icon file for desktop and Start menu shortcuts, refreshing existing desktop shortcuts during upgrades.
+- Keeps the iRacing Diagnostic Library guidance synchronized with the app.
 
 ## v0.6.0.17
 
