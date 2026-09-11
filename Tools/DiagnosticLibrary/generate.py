@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 WEBSITE = ROOT / "website"
 OUTPUT = WEBSITE / "diagnostic-library"
 BASE_URL = "https://pitmedic.com"
-RELEASE_URL = "https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.18/PitMedic-Setup-x64.exe"
+RELEASE_URL = "https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.19/PitMedic-Setup-x64.exe"
 RELEASE_VERSION_MATCH = re.search(r"/v([^/]+)/PitMedic-Setup-x64\.exe$", RELEASE_URL)
 if not RELEASE_VERSION_MATCH:
     raise RuntimeError("Diagnostic Library release URL does not contain a valid PitMedic version")
