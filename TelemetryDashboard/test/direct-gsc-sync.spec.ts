@@ -10,7 +10,7 @@ describe("free direct Search Console sync", () => {
       true,
       ["sign", "verify"]
     ) as CryptoKeyPair;
-    const bytes = new Uint8Array(await crypto.subtle.exportKey("pkcs8", pair.privateKey));
+    const bytes = new Uint8Array(await crypto.subtle.exportKey("pkcs8", pair.privateKey) as ArrayBuffer);
     const key = "-----BEGIN PRIVATE KEY-----\n" + btoa(String.fromCharCode(...bytes)) + "\n-----END PRIVATE KEY-----";
     let payload: any;
 
