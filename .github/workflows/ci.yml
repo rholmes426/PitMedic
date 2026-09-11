@@ -19,7 +19,7 @@ jobs:
       worker: ${{ steps.scope.outputs.worker }}
       dashboard: ${{ steps.scope.outputs.dashboard }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - id: scope
@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -53,7 +53,7 @@ jobs:
         working-directory: TelemetryWorker
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Node.js 24
         uses: actions/setup-node@v4
         with:
@@ -76,7 +76,7 @@ jobs:
         working-directory: TelemetryDashboard
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Node.js 24
         uses: actions/setup-node@v4
         with:
@@ -98,7 +98,7 @@ jobs:
         working-directory: NeonAnalytics
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Node.js 24
         uses: actions/setup-node@v4
         with:
@@ -130,7 +130,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up .NET 10
         uses: actions/setup-dotnet@v4
         with:
