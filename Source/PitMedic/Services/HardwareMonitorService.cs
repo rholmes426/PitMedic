@@ -65,7 +65,7 @@ public sealed class HardwareMonitorService : IDisposable
                     Timestamp = DateTimeOffset.Now,
                     CpuTempC = settings.MonitorCpuTemperature ? BestCpuTemp(cpu, all) : null,
                     CpuLoadPct = settings.MonitorCpuLoad ? (Named(cpu, SensorType.Load, "CPU Total") ?? Max(cpu, SensorType.Load)) : null,
-                    CpuClockMhz = settings.MonitorCpuClock ? Max(cpu, SensorType.Clock) : null,
+                    CpuClockMhz = settings.MonitorCpuClock ? CpuSensorPolicy.PositiveReading(Max(cpu, SensorType.Clock)) : null,
                     CpuPowerW = settings.MonitorCpuPower ? (Named(cpu, SensorType.Power, "CPU Package") ?? Max(cpu, SensorType.Power)) : null,
                     GpuTempC = settings.MonitorGpuTemperature ? (Named(gpu, SensorType.Temperature, "GPU Core") ?? Max(gpu, SensorType.Temperature)) : null,
                     GpuHotspotC = settings.MonitorGpuHotspot ? NameContains(gpu, SensorType.Temperature, "hot spot", "hotspot") : null,
@@ -173,7 +173,8 @@ public sealed class HardwareMonitorService : IDisposable
 
     private static float? BestCpuTemp(IEnumerable<IHardware> cpu, IEnumerable<IHardware> all)
     {
-        var cpuTemps = Sensors(cpu, SensorType.Temperature).ToList();
+        var cpuTemps = Sensors(cpu, SensorType.Temperature)
+            .Where(s => CpuSensorPolicy.PositiveReading(s.Value).HasValue).ToList();
         var preferredNames = new[] { "CPU Package", "Package", "Tctl/Tdie", "Tctl", "Tdie", "Core Max", "Core Average" };
         foreach (var preferred in preferredNames)
         {
@@ -184,7 +185,8 @@ public sealed class HardwareMonitorService : IDisposable
         if (cpuTemps.Count > 0) return cpuTemps.Max(s => s.Value!.Value);
 
         // Some boards expose CPU temperature through the Super I/O / motherboard tree instead of the CPU node.
-        var fallback = Sensors(all, SensorType.Temperature)
+        var fallback = Sensors(all.Where(h => h.HardwareType is HardwareType.Motherboard or HardwareType.SuperIO), SensorType.Temperature)
+            .Where(s => CpuSensorPolicy.PositiveReading(s.Value).HasValue)
             .Where(s => s.Name.Contains("CPU", StringComparison.OrdinalIgnoreCase)
                      || s.Name.Contains("Tctl", StringComparison.OrdinalIgnoreCase)
                      || s.Name.Contains("Tdie", StringComparison.OrdinalIgnoreCase)
@@ -223,9 +225,9 @@ public sealed class HardwareMonitorService : IDisposable
         if (!_protectedSensors.TryGetRecent(out var protectedSample)) return sample;
         return sample with
         {
-            CpuTempC = sample.CpuTempC ?? protectedSample.CpuTempC,
+            CpuTempC = CpuSensorPolicy.PreferValid(sample.CpuTempC, protectedSample.CpuTempC),
             CpuLoadPct = sample.CpuLoadPct ?? protectedSample.CpuLoadPct,
-            CpuClockMhz = sample.CpuClockMhz ?? protectedSample.CpuClockMhz,
+            CpuClockMhz = CpuSensorPolicy.PreferValid(sample.CpuClockMhz, protectedSample.CpuClockMhz),
             CpuPowerW = sample.CpuPowerW ?? protectedSample.CpuPowerW
         };
     }

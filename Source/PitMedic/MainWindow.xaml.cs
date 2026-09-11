@@ -110,7 +110,7 @@ public partial class MainWindow : Window
         CpuTemp.Text = Temp(s.CpuTempC);
         CpuSub.Text = s.CpuTempC.HasValue
             ? SubLine(s.CpuLoadPct, s.CpuClockMhz)
-            : "—";
+            : "CPU temperature unavailable";
 
         GpuTemp.Text = Temp(s.GpuTempC);
         GpuSub.Text = SubLine(s.GpuLoadPct, s.GpuClockMhz);

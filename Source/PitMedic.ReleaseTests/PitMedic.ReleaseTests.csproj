@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../PitMedic/Services/CpuSensorPolicy.cs" Link="CpuSensorPolicy.cs" />
     <Compile Include="../PitMedic/Services/AnonymousUsageThrottlePolicy.cs" Link="AnonymousUsageThrottlePolicy.cs" />
     <Compile Include="../PitMedic/Services/CrashClassifier.cs" Link="CrashClassifier.cs" />
     <Compile Include="../PitMedic/Services/CompanionRecoveryPolicy.cs" Link="CompanionRecoveryPolicy.cs" />
