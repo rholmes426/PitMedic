@@ -14,6 +14,9 @@
     "SEARCH_CONSOLE_PROPERTY": "https://pitmedic.com/",
     "NEON_ANALYTICS_URL": "https://br-billowing-bar-ayh10nfr-analytics.compute.c-5.us-east-2.aws.neon.tech"
   },
+  "triggers": {
+    "crons": ["15 16 * * *", "15 17 * * *"]
+  },
   "d1_databases": [
     {
       "binding": "DB",
