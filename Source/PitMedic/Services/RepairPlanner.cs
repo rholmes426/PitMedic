@@ -115,6 +115,8 @@ public static class RepairPlanner
 
     public static RepairPlan? TryCreateFromIncident(IncidentRecord record)
     {
+        // Reassess old findings before accepting even a serialized repair plan.
+        if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(record)) return null;
         if (record.RecommendedRepair is not null
             && !record.RecommendedRepair.Id.Equals("companion-app-restart", StringComparison.OrdinalIgnoreCase))
             return record.RecommendedRepair;

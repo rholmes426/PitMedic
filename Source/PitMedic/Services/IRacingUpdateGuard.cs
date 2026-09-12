@@ -35,7 +35,8 @@ public static class IRacingUpdateGuard
     public static bool SuppressDiagnostic(string signature, bool updating) => updating && signature is
         "verification-failure" or "helper-service" or "waiting-service" or "digital-signature"
         or "content-file-locked" or "missing-file-privileges" or "could-not-find-sim"
-        or "ui-welcome" or "ui-render-failure";
+        or "ui-welcome" or "ui-render-failure"
+        or "eac-failure" or "eac-error-73" or "eac-error-10011";
 
     public static bool BlocksRepair(string repairId, bool updating) =>
         updating && repairId.StartsWith("iracing-", StringComparison.OrdinalIgnoreCase);

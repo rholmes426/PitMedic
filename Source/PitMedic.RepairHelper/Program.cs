@@ -121,6 +121,7 @@ internal static class Program
     private static IncidentRecord PrepareIncidentForValidation(IncidentRecord incident)
     {
         var untrustedPlanRemoved = incident with { RecommendedRepair = null };
+        if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(incident)) return untrustedPlanRemoved;
         if (!incident.Game.Equals("iRacing", StringComparison.OrdinalIgnoreCase))
             return untrustedPlanRemoved;
 

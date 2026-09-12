@@ -43,6 +43,7 @@ public sealed class RepairService : IDisposable
 
     public bool Begin(IncidentRecord incident, RepairPlan plan, AppSettings settings, bool automatic = false)
     {
+        if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(incident)) return false;
         lock (_gate)
         {
             if (_current?.IsActive == true) return false;

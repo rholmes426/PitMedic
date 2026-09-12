@@ -228,8 +228,10 @@ public sealed class IncidentRecorder
             if (record is null) return null;
             if (string.IsNullOrWhiteSpace(record.IncidentFolder) || !Path.GetFullPath(record.IncidentFolder).Equals(Path.GetFullPath(folder), StringComparison.OrdinalIgnoreCase))
                 record = record with { IncidentFolder = folder };
+            var reassessed = IRacingDiagnosticPolicy.Reassess(record);
+            var changed = !ReferenceEquals(reassessed, record);
+            record = reassessed;
             var plan = RepairPlanner.TryCreateFromIncident(record);
-            var changed = false;
             if (plan is not null
                 && (record.RecommendedRepair is null
                     || !record.RecommendedRepair.Id.Equals(plan.Id, StringComparison.OrdinalIgnoreCase)))

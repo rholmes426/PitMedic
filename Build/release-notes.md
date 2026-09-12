@@ -1,7 +1,5 @@
-PitMedic 1.0 adds installation-time driver checks to prevent missing CPU temperature readings on new PCs.
+Fix an iRacing update false positive: the status-only CheckIfAntiCheatInstalledForIRacing message no longer creates a failed-launch finding. EAC diagnostic signatures are suppressed while the updater is active and during its existing settling interval; update-time lines are consumed without being replayed later. Fresh launch failures after updating remain detectable.
 
-Setup detects missing or incomplete PawnIO registration, downloads the pinned official signed driver installer, verifies its SHA-256, and installs it before starting PitMedic's sensor service. Download or installation failures stop setup with retry guidance; restart-required results are respected. Existing registered installations are preserved, and uninstalling PitMedic leaves this shared driver installed.
+Saved iRacing findings supported solely by this installation probe are reassessed as status checks, with their original evidence retained and obsolete repair recommendations removed. Both repair entry points reject these status-only findings. Findings with independent fault evidence are preserved.
 
-Setup and Settings also identify Windows-reported device problems and the generic Microsoft display driver. Settings provides Windows Update access and hardware-specific driver guidance. Sensor reports distinguish a missing CPU driver from unavailable readings with a registered driver. PitMedic continues to include its .NET runtime.
-
-Includes the previous CPU reading validation, iRacing updater repair guard, and refreshed desktop/tray icons.
+Regression coverage includes the reported message, missed updater detection, active updates, post-update failures, log rotation, unrelated graphics faults, and saved-finding reassessment.
