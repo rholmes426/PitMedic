@@ -88,6 +88,10 @@ class ReleaseTests(unittest.TestCase):
                            'v0.6.0.15/PitMedic-Setup-x64.exe">Download v0.6.0.15</a>', encoding='utf-8')
             (root / 'website/update.json').write_text('{"latestVersion":"0.6.0.16"}')
             (root / 'website/index.html').write_text('Current 0.6.0.16 · Download v0.6.0.16', encoding='utf-8')
+            stale_readme = release.readme_release(dict(latestVersion='0.6.0.12',
+                downloadUrl='https://github.com/owner/repo/releases/download/v0.6.0.12/PitMedic-Setup-x64.exe',
+                releaseUrl='https://github.com/owner/repo/releases/tag/v0.6.0.12'))
+            (root / 'README.md').write_text('# PitMedic\n\n' + stale_readme + '\n\nHistory: v0.6.0.11\n')
             generator = root / 'Tools/DiagnosticLibrary/generate.py'
             generator.parent.mkdir(parents=True)
             generator.write_text('v0.6.0.16/PitMedic-Setup-x64.exe')
@@ -100,6 +104,19 @@ class ReleaseTests(unittest.TestCase):
             self.assertIn('Download v0.6.0.17', sim.read_text(encoding='utf-8'))
             self.assertEqual(json.loads((root / 'website/update.json').read_text())['sha256'],
                              release.digest(installer))
+            manifest = json.loads((root / 'website/update.json').read_text())
+            readme = (root / 'README.md').read_text()
+            release.check_readme(readme, manifest)
+            self.assertIn('Current signed release: **0.6.0.17**', readme)
+            self.assertIn('History: v0.6.0.11', readme)
+            self.assertNotIn('0.6.0.12', readme)
+            for broken in [stale_readme, readme.replace('download/v0.6.0.17/', 'download/v0.6.0.12/'),
+                           readme.replace('tag/v0.6.0.17', 'tag/v0.6.0.12'), '', readme + readme]:
+                with self.subTest(readme=broken), self.assertRaises(RuntimeError):
+                    release.check_readme(broken, manifest)
+            with patch.object(release, 'ROOT', root), patch.object(release.subprocess, 'run'):
+                release.prepare('v0.6.0.17', 'owner/repo', installer)
+            self.assertEqual((root / 'README.md').read_text(), readme)
 
 
 if __name__ == '__main__':

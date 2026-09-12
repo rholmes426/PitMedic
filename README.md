@@ -4,12 +4,14 @@
 
 PitMedic is a free, ad-free, open-source Windows simulator reliability monitor and repair assistant. It watches supported racing simulators, captures useful evidence when something goes wrong, explains the finding in plain language, and offers safe, reversible repairs when a known automatic fix is available.
 
-Current signed release: **0.6.0.18**
+<!-- current-release:start -->
+Current signed release: **1.0.0.1**
 
-- [Download the v0.6.0.18 signed Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v0.6.0.18/PitMedic-Setup-x64.exe)
-- [View the v0.6.0.18 release and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v0.6.0.18)
+- [Download the v1.0.0.1 signed Windows installer](https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.1/PitMedic-Setup-x64.exe)
+- [View the v1.0.0.1 release and checksums](https://github.com/rholmes426/PitMedic/releases/tag/v1.0.0.1)
 
 The installer, PitMedic app, repair helper, and sensor service are signed and timestamped.
+<!-- current-release:end -->
 
 ## Supported simulators
 
@@ -20,31 +22,13 @@ The installer, PitMedic app, repair helper, and sensor service are signed and ti
 - Assetto Corsa Competizione
 - Automobilista 2
 
-## v0.6 highlights
+## Release highlights
 
-- v0.6.0.18 suppresses misleading iRacing update-related findings during an active update, defers iRacing repairs until the updater has settled, and refreshes desktop, Start menu, and tray icons reliably.
-- v0.6.0.17 introduces the racing-line P logo throughout the app, installer, website and browser icons.
-- v0.6.0.16 automatically opens the detected simulator page and reselects it when the session ends, keeps the last-run simulator active afterward, opens the main window at 1500×1000, and adds a local Last Session summary with start time, duration, and observed result at the bottom of every simulator page.
-- v0.6.0.15 removes simulator driving-stat collection and reporting, including best laps, monitored time, distance, clean streaks, comparison lookups, and the complete Driving Stats interface. It also expands the read-only Knowledge Scout from 13 to 26 trusted official and vendor-operated sources.
-- v0.6.0.12 adds a public Diagnostic Library generated from the same records used by the app, formalizes 17 existing ACC and AMS2 repair paths, and adds a targeted iRacing Steam Missing File Privileges repair.
-- v0.6.0.11 is PitMedic's first signed and timestamped public release and carries forward the complete v0.6.0.10 companion-software and Knowledge Scout work.
-- v0.6.0.10 adds distinct vendor-specific recovery for all seven detected companion apps, including Logitech's updater-service recovery sequence, and publishes the complete monitored-software catalog in the app and on the website. It also adds a read-only Knowledge Scout that reviews allowlisted simulator and companion sources while preserving every fix unless reviewed evidence shows its use could cause harm.
-- v0.6.0.9 adds detected-only wheelbase and companion-app monitoring with approval-gated restart recovery, makes AMS2 distance tracking diagnosable and resilient to a stalled odometer, preserves narrow iRacing repairs through elevated validation, promotes Check for updates in Settings, and corrects same-day usage-version refreshes.
-- v0.6.0.8 refreshes the anonymous usage dashboard immediately after an app version, release channel, or installation-type change without double-counting the installation.
-- v0.6.0.7 captures exact session-best laps and track/layout/car identity for all six supported simulators, and stops benign ACC shutdown diagnostics from offering an unnecessary game-file repair.
-- v0.6.0.6 keeps recent findings and history actions together, separates driving stats from the 48-hour findings window, and adds exact-source lap comparisons with watchable source links.
-- v0.6.0.5 checks for updates at every app launch, exposes guided repair actions clearly, moves monitored distance and time beside recent findings, and adds exact-combination iRacing best laps with trustworthy benchmark-source comparison.
-- v0.6.0.4 keeps the updater's Cancel and Install now buttons visible on smaller displays and explicitly requests Windows administrator approval before closing PitMedic to install the verified package.
-- v0.6.0.3 streamlines System Tools to Power Mode, Startup Apps, Storage, and Graphics Settings; makes active-monitoring labels reflect real simulator activity; improves CPU sensor-service startup and recovery; and keeps the anonymous usage dashboard's version label current after an in-month upgrade without double-counting the installation.
-- Lighter background sampling and UI work while PitMedic is hidden.
-- 48-hour recent-finding views and improved tray behavior.
-- Project contact details use `robert@pitmedic.com` rather than personal developer details.
-- A smoother upgrade path from v0.5, including automatic shutdown for maintenance and cleanup of legacy startup tasks.
-- Upgrades and reinstalls silently reuse the existing PitMedic installation directory instead of showing an unnecessary folder-exists confirmation.
-- Optional once-daily anonymous active-installation counting remains off until the user explicitly opts in.
-- v0.6.0.1 fixes the anonymous usage heartbeat so the transmitted six-field payload exactly matches the user-visible preview and strict service allowlist, and failed sends can retry later instead of being suppressed for the rest of the UTC day.
-- v0.6.0.1 preserves iRacing live diagnostic signatures so elevated automatic repairs can independently reconstruct the same narrow repair plan selected by the normal app. Legacy v0.6.0.0 findings prefer specific saved evidence before falling back to a broader category, and any genuine mismatch records both repair IDs before stopping safely.
-- A quiet startup update check reads only the public PitMedic update manifest and never downloads or installs an update automatically.
+- CPU monitoring setup detects missing sensor prerequisites and explains unavailable readings.
+- iRacing installation status checks no longer create failed-launch findings; saved findings based solely on that probe lose their obsolete repair recommendation.
+- The Diagnostic Library explains the evidence and available repairs for supported simulators and companion software.
+
+See the current release above for its changes and verification details, or browse the [release history](https://github.com/rholmes426/PitMedic/releases).
 
 ## Build on Windows
 
