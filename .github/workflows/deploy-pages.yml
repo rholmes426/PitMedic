@@ -37,5 +37,5 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-      - name: Verify live version and downloaded installer checksum
+      - name: Verify GitHub README, latest release, live version and installer checksum
         run: python Build/release.py verify

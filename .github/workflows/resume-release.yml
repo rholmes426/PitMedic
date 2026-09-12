@@ -101,12 +101,12 @@ jobs:
           }
           if ($existingBranch) {
             # Compare regenerated publication files before reusing an earlier branch.
-            git add website Tools/DiagnosticLibrary/generate.py
-            git diff --cached FETCH_HEAD --exit-code -- website Tools/DiagnosticLibrary/generate.py
+            git add README.md website Tools/DiagnosticLibrary/generate.py
+            git diff --cached FETCH_HEAD --exit-code -- README.md website Tools/DiagnosticLibrary/generate.py
             if ($LASTEXITCODE -ne 0) { throw "Existing publication branch differs; human review required." }
           }
           git switch -c $branch
-          git add website Tools/DiagnosticLibrary/generate.py
+          git add README.md website Tools/DiagnosticLibrary/generate.py
           git diff --cached --quiet
           if ($LASTEXITCODE -eq 0 -and -not $existingBranch) {
             "Website metadata already matches the signed release." >> $env:GITHUB_STEP_SUMMARY

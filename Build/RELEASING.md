@@ -15,11 +15,17 @@ do not put credentials or confidential data in them.
    creates an exact lightweight tag and draft, then calls protected Azure signing.
 4. Signing verifies binaries and installer, retains the signed artifact, uploads
    without replacing existing files, and publishes only once uploads succeed.
-5. The generated website PR is opened automatically. Its required CI is explicitly
+5. The generated publication PR updates the GitHub README version and download/
+   release links together with the website and updater. It is opened automatically.
+   Its required CI is explicitly
    dispatched because events authored with GITHUB_TOKEN do not start ordinary CI.
    Review and merge through normal branch protection. No bypass or auto-approval.
-6. Pages verifies the actual public homepage, updater, installer URL and downloaded
-   SHA-256, with bounded propagation retries and an Actions summary.
+6. Confirm the GitHub README current-release block, GitHub latest release, homepage,
+   and updater all identify the approved version. CI rejects a README/updater mismatch.
+   Pages automatically verifies the public GitHub README and latest release alongside
+   the homepage, updater, installer URL, and downloaded SHA-256, with bounded
+   propagation retries and an Actions summary. Publication is complete only when
+   these checks pass.
 
 ## Setup and recovery
 

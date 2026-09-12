@@ -10,6 +10,27 @@ import time
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
+README_RELEASE = re.compile(r'<!-- current-release:start -->.*?<!-- current-release:end -->', re.S)
+
+
+def readme_release(manifest):
+    version = manifest['latestVersion']
+    return (f'<!-- current-release:start -->\nCurrent signed release: **{version}**\n\n'
+            f'- [Download the v{version} signed Windows installer]({manifest["downloadUrl"]})\n'
+            f'- [View the v{version} release and checksums]({manifest["releaseUrl"]})\n\n'
+            'The installer, PitMedic app, repair helper, and sensor service are signed and timestamped.\n'
+            '<!-- current-release:end -->')
+
+
+def check_readme(readme, manifest):
+    blocks = README_RELEASE.findall(readme)
+    if blocks != [readme_release(manifest)]:
+        raise RuntimeError('GitHub README release version or links do not match the updater')
+
+
+def check_metadata():
+    manifest = json.loads((ROOT / 'website/update.json').read_text(encoding='utf-8'))
+    check_readme((ROOT / 'README.md').read_text(encoding='utf-8'), manifest)
 
 
 def gh(*args):
@@ -85,11 +106,20 @@ def prepare(tag, repo, installer):
     manifest = dict(schemaVersion=1, latestVersion=new, title=f'PitMedic {new} signed release',
                     downloadUrl=f'https://github.com/{repo}/releases/download/{tag}/PitMedic-Setup-x64.exe',
                     releaseUrl=f'https://github.com/{repo}/releases/tag/{tag}', sha256=digest(installer))
+    readme_path = ROOT / 'README.md'
+    readme = readme_path.read_text(encoding='utf-8')
+    if len(README_RELEASE.findall(readme)) != 1:
+        raise RuntimeError('README must contain exactly one current-release block')
+    readme_path.write_text(README_RELEASE.sub(lambda _: readme_release(manifest), readme),
+                           encoding='utf-8', newline='\n')
     manifest_path.write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8', newline='\n')
+    check_metadata()
 
 
 def verify():
     expected = json.loads((ROOT / 'website/update.json').read_text(encoding='utf-8'))
+    check_metadata()
+    repo = expected['releaseUrl'].removeprefix('https://github.com/').split('/releases/')[0]
     for attempt in range(12):
         try:
             query = f'?release-check={time.time_ns()}'
@@ -99,6 +129,18 @@ def verify():
                 home = r.read().decode()
             if actual != expected or f'Download v{expected["latestVersion"]}' not in home or expected['downloadUrl'] not in home:
                 raise RuntimeError('Live website/updater does not match deployment')
+            with urllib.request.urlopen(f'https://raw.githubusercontent.com/{repo}/main/README.md' + query, timeout=30) as r:
+                check_readme(r.read().decode('utf-8'), expected)
+            request = urllib.request.Request(f'https://api.github.com/repos/{repo}/releases/latest',
+                                             headers={'User-Agent': 'PitMedic-release-verification'})
+            with urllib.request.urlopen(request, timeout=30) as r:
+                latest = json.load(r)
+            installer = next((a for a in latest.get('assets', []) if a['name'] == 'PitMedic-Setup-x64.exe'), {})
+            if (latest.get('tag_name') != 'v' + expected['latestVersion']
+                    or latest.get('draft') or latest.get('prerelease')
+                    or installer.get('browser_download_url') != expected['downloadUrl']
+                    or installer.get('digest') != 'sha256:' + expected['sha256']):
+                raise RuntimeError('GitHub latest release or installer does not match the updater')
             break
         except Exception:
             if attempt == 11:
@@ -110,7 +152,7 @@ def verify():
             h.update(block)
     if h.hexdigest() != expected['sha256']:
         raise RuntimeError('Downloaded installer checksum differs')
-    summary = f'Verified {expected["latestVersion"]}: homepage, updater, download and SHA-256 all match.\n'
+    summary = f'Verified {expected["latestVersion"]}: GitHub README, latest release, homepage, updater, download and SHA-256 all match.\n'
     print(summary)
     if os.environ.get('GITHUB_STEP_SUMMARY'):
         with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
@@ -119,16 +161,18 @@ def verify():
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('action', choices=['promote', 'prepare', 'verify'])
+    parser.add_argument('action', choices=['promote', 'prepare', 'verify', 'check-metadata'])
     parser.add_argument('--tag')
     parser.add_argument('--repo', default=os.environ.get('GITHUB_REPOSITORY'))
     parser.add_argument('--installer', type=Path)
     args = parser.parse_args()
-    if args.action != 'verify' and not re.fullmatch(r'v\d+\.\d+\.\d+\.\d+', args.tag or ''):
+    if args.action in ('promote', 'prepare') and not re.fullmatch(r'v\d+\.\d+\.\d+\.\d+', args.tag or ''):
         parser.error('An exact vX.X.X.X tag is required')
     if args.action == 'promote':
         promote(args.tag, args.repo)
     elif args.action == 'prepare':
         prepare(args.tag, args.repo, args.installer)
+    elif args.action == 'check-metadata':
+        check_metadata()
     else:
         verify()

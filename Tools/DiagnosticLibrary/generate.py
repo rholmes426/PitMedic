@@ -479,19 +479,19 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
       <div class="library-count"><strong>{len(entries)}</strong><span>active diagnostic and repair records</span></div>
     </header>
     <nav class="library-topics" aria-label="Browse troubleshooting guides by simulator">
-      <a href="/simulators/iracing/"><strong>iRacing troubleshooting</strong><span>Loading errors, updates, UI, services, and anti-cheat</span></a>
-      <a href="/simulators/le-mans-ultimate/"><strong>Le Mans Ultimate troubleshooting</strong><span>Startup, content, memory, plugins, and overlays</span></a>
-      <a href="/simulators/assetto-corsa-competizione/"><strong>ACC troubleshooting</strong><span>Controls, force feedback, profiles, and Steam files</span></a>
-      <a href="/simulators/automobilista-2/"><strong>Automobilista 2 troubleshooting</strong><span>Graphics, VR, controllers, force feedback, and profiles</span></a>
-      <a href="/simulators/raceroom/"><strong>RaceRoom troubleshooting</strong><span>Error 503, startup, graphics, cache, and configuration</span></a>
-      <a href="/simulators/assetto-corsa-evo/"><strong>Assetto Corsa EVO troubleshooting</strong><span>Startup, video settings, profiles, and Steam content</span></a>
+      <a href="?software=iracing#library-results" data-product-filter="iracing"><strong>iRacing troubleshooting</strong><span>Loading errors, updates, UI, services, and anti-cheat</span></a>
+      <a href="?software=le%20mans%20ultimate#library-results" data-product-filter="le mans ultimate"><strong>Le Mans Ultimate troubleshooting</strong><span>Startup, content, memory, plugins, and overlays</span></a>
+      <a href="?software=assetto%20corsa%20competizione#library-results" data-product-filter="assetto corsa competizione"><strong>ACC troubleshooting</strong><span>Controls, force feedback, profiles, and Steam files</span></a>
+      <a href="?software=automobilista%202#library-results" data-product-filter="automobilista 2"><strong>Automobilista 2 troubleshooting</strong><span>Graphics, VR, controllers, force feedback, and profiles</span></a>
+      <a href="?software=raceroom%20racing%20experience#library-results" data-product-filter="raceroom racing experience"><strong>RaceRoom troubleshooting</strong><span>Error 503, startup, graphics, cache, and configuration</span></a>
+      <a href="?software=assetto%20corsa%20evo#library-results" data-product-filter="assetto corsa evo"><strong>Assetto Corsa EVO troubleshooting</strong><span>Startup, video settings, profiles, and Steam content</span></a>
     </nav>
     <section class="library-controls" aria-label="Filter diagnostics">
       <label><span>Search</span><input id="library-search" type="search" placeholder="Error message, symptom, or software" autocomplete="off" /></label>
       <label><span>Software</span><select id="library-product"><option value="">All software</option>{product_options}</select></label>
       <label><span>Coverage</span><select id="library-repair"><option value="">All coverage</option><option value="automatic repair available">Automatic repair available</option><option value="approval required">Approval required</option><option value="guided diagnosis">Guided diagnosis</option></select></label>
     </section>
-    <p class="library-results"><strong id="library-visible-count">{len(entries)}</strong> records shown</p>
+    <p class="library-results" id="library-results" role="status" aria-live="polite" tabindex="-1"><strong id="library-visible-count">{len(entries)}</strong> records shown</p>
     <div class="library-grid" id="library-grid">{''.join(cards)}</div>
     <p class="library-empty" id="library-empty" hidden>No matching diagnostic records. Try a broader search or clear a filter.</p>
   </section>
@@ -503,11 +503,25 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
       const cards = [...document.querySelectorAll('.library-card')];
       const count = document.querySelector('#library-visible-count');
       const empty = document.querySelector('#library-empty');
-      const requestedProduct = new URLSearchParams(window.location.search).get('software');
-      if (requestedProduct) {{
-        const normalized = requestedProduct.replaceAll('-', ' ').toLowerCase();
-        if ([...product.options].some(option => option.value === normalized)) product.value = normalized;
-      }}
+      const topics = [...document.querySelectorAll('[data-product-filter]')];
+      const results = document.querySelector('#library-results');
+      const readFilters = () => {{
+        const params = new URLSearchParams(window.location.search);
+        const requestedProduct = (params.get('software') || '').replaceAll('-', ' ').toLowerCase();
+        product.value = [...product.options].some(option => option.value === requestedProduct) ? requestedProduct : '';
+        const requestedRepair = params.get('coverage') || '';
+        repair.value = [...repair.options].some(option => option.value === requestedRepair) ? requestedRepair : '';
+        search.value = params.get('q') || '';
+      }};
+      const writeFilters = (push = false) => {{
+        const url = new URL(window.location.href);
+        for (const [key, value] of [['software', product.value], ['coverage', repair.value], ['q', search.value.trim()]]) {{
+          if (value) url.searchParams.set(key, value);
+          else url.searchParams.delete(key);
+        }}
+        if (push) url.hash = 'library-results';
+        window.history[push ? 'pushState' : 'replaceState'](null, '', url);
+      }};
       const filter = () => {{
         const query = search.value.trim().toLowerCase();
         let visible = 0;
@@ -518,10 +532,28 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
         }});
         count.textContent = visible;
         empty.hidden = visible !== 0;
+        topics.forEach(topic => {{
+          if (topic.dataset.productFilter === product.value) topic.setAttribute('aria-current', 'true');
+          else topic.removeAttribute('aria-current');
+        }});
       }};
-      search.addEventListener('input', filter);
-      product.addEventListener('change', filter);
-      repair.addEventListener('change', filter);
+      const update = () => {{ filter(); writeFilters(); }};
+      search.addEventListener('input', update);
+      product.addEventListener('change', update);
+      repair.addEventListener('change', update);
+      topics.forEach(topic => topic.addEventListener('click', event => {{
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        product.value = topic.dataset.productFilter;
+        search.value = '';
+        repair.value = '';
+        filter();
+        writeFilters(true);
+        results.focus({{preventScroll: true}});
+        results.scrollIntoView({{block: 'start'}});
+      }}));
+      window.addEventListener('popstate', () => {{ readFilters(); filter(); }});
+      readFilters();
       filter();
     }})();
   </script>
