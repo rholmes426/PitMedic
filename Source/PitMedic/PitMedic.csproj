@@ -10,10 +10,10 @@
     <Platforms>AnyCPU;x64</Platforms>
     <AssemblyName>PitMedic</AssemblyName>
     <RootNamespace>PitMedic</RootNamespace>
-    <Version>1.0.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <InformationalVersion>1.0.0.0</InformationalVersion>
+    <Version>1.0.0.1</Version>
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <FileVersion>1.0.0.1</FileVersion>
+    <InformationalVersion>1.0.0.1</InformationalVersion>
     <ReleaseChannel Condition="'$(ReleaseChannel)' == ''">preview</ReleaseChannel>
     <AssemblyTitle>PitMedic</AssemblyTitle>
     <Product>PitMedic Sim Racing Diagnostics &amp; Repair</Product>

@@ -97,6 +97,61 @@ try
 }
 finally { Directory.Delete(updateLogRoot, recursive: true); }
 
+// Regression: installation checks seen during real iRacing updates are not failed launches.
+const string installationProbe = "CheckIfAntiCheatInstalledForIRacing: AntiCheat is not installed for iRacing";
+AssertTrue(IRacingDiagnosticPolicy.IsInstallationProbe(installationProbe), "The reported status-only message must be recognized.");
+AssertTrue(IRacingDiagnosticPolicy.IsInstallationProbe("2026-09-11 INFO " + installationProbe.ToUpperInvariant()), "Timestamp prefixes and casing must not change probe handling.");
+AssertFalse(IRacingDiagnosticPolicy.IsInstallationProbe(installationProbe + "; simulator launch failed"), "Additional launch failure evidence must not be discarded as a status check.");
+AssertFalse(IRacingDiagnosticPolicy.IsInstallationProbe("Launch failed: AntiCheat is not installed for iRacing"), "An actual missing-installation launch failure must remain detectable.");
+foreach (var signature in new[] { "eac-failure", "eac-error-73", "eac-error-10011" })
+{
+    AssertTrue(IRacingUpdateGuard.SuppressDiagnostic(signature, true), "EAC startup checks during updates must be suppressed.");
+    AssertFalse(IRacingUpdateGuard.SuppressDiagnostic(signature, false), "Post-update EAC failures must remain detectable.");
+}
+var eacLogRoot = Path.Combine(Path.GetTempPath(), "PitMedic-eac-update-test-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(eacLogRoot);
+try
+{
+    var log = Path.Combine(eacLogRoot, "main-ui.log");
+    File.WriteAllText(log, "");
+    var updating = false;
+    var clock = now;
+    var monitor = new IRacingLiveLogMonitor(() => updating, () => new[] { log }, () => clock);
+    monitor.StartSession(clock);
+    File.AppendAllText(log, installationProbe + "\n");
+    AssertTrue(monitor.Poll().Count == 0, "A probe must not create a finding even if the updater process was not observed.");
+    updating = true;
+    File.AppendAllText(log, installationProbe + "\nEasy Anti-Cheat failed\nError 73\nLaunch error (10011)\n");
+    AssertTrue(monitor.Poll().Count == 0, "Update-time EAC lines must all be consumed without a repair finding.");
+    updating = false;
+    AssertTrue(monitor.Poll().Count == 0, "EAC update lines must not replay when the updater exits.");
+    File.AppendAllText(log, "Launch failed: AntiCheat is not installed for iRacing\nError 73\nLaunch error (10011)\n");
+    var realFailures = monitor.Poll().Select(f => f.SignatureId).ToArray();
+    AssertTrue(realFailures.SequenceEqual(new[] { "eac-failure", "eac-error-73", "eac-error-10011" }), "New post-update failures must remain detectable without suppressed-line cooldowns.");
+    clock = now.AddMinutes(2);
+    File.WriteAllText(log, installationProbe + "\n");
+    AssertTrue(monitor.Poll().Count == 0, "A rotated UI log must not resurrect the probe as a failure.");
+    File.AppendAllText(log, "DXGI_ERROR_DEVICE_REMOVED\n");
+    AssertTrue(monitor.Poll().Single().SignatureId == "dxgi-device-failure", "An unrelated genuine graphics failure must remain detectable.");
+}
+finally { Directory.Delete(eacLogRoot, recursive: true); }
+var savedProbe = new IncidentRecord
+{
+    Game = "iRacing",
+    Classification = new CrashClassification("Easy Anti-Cheat failure", 90, "Old false positive",
+        new[] { new LiveFaultEvidence(now, "eac-failure", "Easy Anti-Cheat failure", installationProbe, "main-ui.log", GameKind.IRacing).ToEvidenceText() }),
+    RecommendedRepair = new RepairPlan { Id = "iracing-eac-reinstall" }
+};
+var reassessedProbe = IRacingDiagnosticPolicy.Reassess(savedProbe);
+AssertTrue(reassessedProbe.RecommendedRepair is null, "The obsolete serialized repair must be removed.");
+AssertTrue(reassessedProbe.Classification.Category == IRacingDiagnosticPolicy.StatusOnlyCategory, "A saved status-only finding must stop claiming launch failure.");
+AssertTrue(reassessedProbe.Classification.Evidence.SequenceEqual(savedProbe.Classification.Evidence), "Reassessment must retain the original evidence.");
+AssertTrue(ReferenceEquals(reassessedProbe, IRacingDiagnosticPolicy.Reassess(reassessedProbe)), "Reassessment should be idempotent.");
+AssertFalse(IRacingDiagnosticPolicy.IsStatusOnlyFinding(savedProbe with { ExitCode = -1 }), "An abnormal process exit must not be silently reclassified.");
+AssertFalse(IRacingDiagnosticPolicy.IsStatusOnlyFinding(savedProbe with { Game = "Le Mans Ultimate" }), "Other simulators must not be affected.");
+var corroborated = savedProbe with { Classification = savedProbe.Classification with { Evidence = new[] { savedProbe.Classification.Evidence[0], "Windows Application Error event 1000 matched the issue window." } } };
+AssertTrue(ReferenceEquals(corroborated, IRacingDiagnosticPolicy.Reassess(corroborated)), "A finding with independent fault evidence must be preserved.");
+
 using var legacyDrivingStats = JsonDocument.Parse("""
     {"Games":{"IRacing":{"MonitoredSeconds":120,"LastSessionBestLap":{"LapSeconds":90},"BestLaps":{}}}}
     """);

@@ -93,7 +93,7 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
     {
         id = category = message = string.Empty;
         var line = rawLine.Trim();
-        if (line.Length == 0) return false;
+        if (line.Length == 0 || IRacingDiagnosticPolicy.IsInstallationProbe(line)) return false;
         var lower = line.ToLowerInvariant();
 
         if (lower.Contains("could not find sim"))
