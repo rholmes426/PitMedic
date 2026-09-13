@@ -356,6 +356,8 @@ AssertTrue(
         StringComparison.Ordinal),
     "A real RaceRoom HTTP 503 failure must remain detectable.");
 
+SteamValidationWindowTests.Run();
+
 Console.WriteLine("PitMedic release policy tests passed.");
 
 static void AssertTrue(bool value, string message)
