@@ -36,6 +36,6 @@ jobs:
           path: website
       - name: Deploy
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
       - name: Verify GitHub README, latest release, live version and installer checksum
         run: python Build/release.py verify
