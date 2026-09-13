@@ -4,6 +4,15 @@ Routine merges never tag, sign, or publish releases. CI retains complete unsigne
 validation packages for testing. Artifacts on a public repository are not private;
 do not put credentials or confidential data in them.
 
+## Standing development authorization
+
+The owner has given standing approval to push requested PitMedic fixes to GitHub,
+open their validation pull requests, and run Windows build validation and unsigned
+test packaging. Do not ask for this approval again for routine requested fixes.
+Branch protection and required checks still apply. This approval does not authorize
+tagging, signing, or publishing a public release; obtain explicit release approval
+before following the release procedure below.
+
 ## Approved release
 
 1. Obtain the owner's explicit approval for a signed public release.

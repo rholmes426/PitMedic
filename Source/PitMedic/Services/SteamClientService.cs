@@ -6,15 +6,15 @@ namespace PitMedic.Services;
 public static class SteamClientService
 {
     private const int SwHide = 0;
-    private const int SwShow = 5;
+    private const int SwShowNoActivate = 8;
 
     public static async Task<IDisposable> StartValidationAsync(string appId, CancellationToken token)
     {
-        // Begin suppressing Steam's top-level windows BEFORE invoking the validation URI. Modern
-        // Steam renders much of its UI in steamwebhelper.exe, so watching only steam.exe is not enough.
-        var suppression = new SteamUiSuppressionSession(token);
+        token.ThrowIfCancellationRequested();
+        var windowSession = new SteamValidationWindowSession(new NativeSteamWindowAccess());
         try
         {
+            windowSession.HideStartupWindows(token);
             var steamExe = FindSteamExe();
             if (!string.IsNullOrWhiteSpace(steamExe) && File.Exists(steamExe))
             {
@@ -27,12 +27,12 @@ public static class SteamClientService
                     WindowStyle = ProcessWindowStyle.Hidden,
                     WorkingDirectory = Path.GetDirectoryName(steamExe) ?? string.Empty
                 };
-                var process = Process.Start(info);
+                using var process = Process.Start(info);
                 if (process is null) throw new InvalidOperationException("Steam could not be started for validation.");
             }
             else
             {
-                var process = Process.Start(new ProcessStartInfo($"steam://validate/{appId}")
+                using var process = Process.Start(new ProcessStartInfo($"steam://validate/{appId}")
                 {
                     UseShellExecute = true,
                     WindowStyle = ProcessWindowStyle.Hidden
@@ -40,13 +40,20 @@ public static class SteamClientService
                 if (process is null) throw new InvalidOperationException("Steam could not be opened to start validation.");
             }
 
-            await suppression.PulseAsync(token);
+            // Steam can create its Chromium UI shortly after receiving the URI.
+            // Only handle the launch interval, never the rest of the repair.
+            try
+            {
+                while (windowSession.HideStartupWindows(token))
+                    await Task.Delay(100, token);
+            }
+            finally { windowSession.CompleteStartup(); }
             await Task.Delay(900, token);
-            return suppression;
+            return windowSession;
         }
         catch
         {
-            suppression.Dispose();
+            windowSession.Dispose();
             throw;
         }
     }
@@ -71,85 +78,60 @@ public static class SteamClientService
         return null;
     }
 
-    private sealed class SteamUiSuppressionSession : IDisposable
+    private sealed class NativeSteamWindowAccess : ISteamWindowAccess
     {
-        private readonly CancellationTokenSource _cts;
-        private readonly Task _worker;
-        private readonly HashSet<IntPtr> _originallyVisible;
-        private int _disposed;
-
-        public SteamUiSuppressionSession(CancellationToken repairToken)
+        public uint? GetLastInputTime()
         {
-            _originallyVisible = CaptureVisibleSteamWindows();
-            _cts = CancellationTokenSource.CreateLinkedTokenSource(repairToken);
-            HideAllSteamWindows();
-            _worker = Task.Run(() => SuppressLoopAsync(_cts.Token), CancellationToken.None);
+            var info = new LastInputInfo { Size = (uint)Marshal.SizeOf<LastInputInfo>() };
+            return GetLastInputInfo(ref info) ? info.Time : null;
         }
 
-        public async Task PulseAsync(CancellationToken token)
+        public IReadOnlyList<SteamWindow> CaptureVisibleWindows()
         {
-            // Steam can create its Chromium window a moment after receiving the URI. Pulse for the
-            // first few seconds so the repair UI remains the user's visible foreground experience.
-            for (var i = 0; i < 20; i++)
+            var windows = new List<SteamWindow>();
+            var pids = GetSteamUiProcessIds();
+            EnumWindows((hWnd, _) =>
             {
-                token.ThrowIfCancellationRequested();
-                HideAllSteamWindows();
-                await Task.Delay(100, token);
-            }
+                if (!IsWindowVisible(hWnd)) return true;
+                GetWindowThreadProcessId(hWnd, out var pid);
+                if (pids.Contains((int)pid)) windows.Add(new SteamWindow(hWnd, pid));
+                return true;
+            }, IntPtr.Zero);
+            return windows;
         }
 
-        private static async Task SuppressLoopAsync(CancellationToken token)
+        public void Hide(SteamWindow window)
         {
-            while (!token.IsCancellationRequested)
-            {
-                HideAllSteamWindows();
-                try { await Task.Delay(250, token); }
-                catch (OperationCanceledException) { break; }
-            }
+            if (StillBelongsToProcess(window) && IsWindowVisible(window.Handle))
+                ShowWindow(window.Handle, SwHide);
         }
 
-        public void Dispose()
+        public void Restore(SteamWindow window)
         {
-            if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
-            try { _cts.Cancel(); } catch { }
-            try { _worker.Wait(TimeSpan.FromSeconds(1)); } catch { }
+            // Do not activate Steam or act on a recycled handle from another process.
+            if (StillBelongsToProcess(window) && !IsWindowVisible(window.Handle)
+                && GetSteamUiProcessIds().Contains((int)window.ProcessId))
+                ShowWindow(window.Handle, SwShowNoActivate);
+        }
 
-            // If the user had Steam visible before PitMedic began the repair, restore only those
-            // original windows. Newly created validation windows stay hidden.
-            foreach (var handle in _originallyVisible)
-            {
-                try { if (IsWindow(handle)) ShowWindow(handle, SwShow); } catch { }
-            }
-            _cts.Dispose();
+        private static bool StillBelongsToProcess(SteamWindow window)
+        {
+            if (!IsWindow(window.Handle)) return false;
+            GetWindowThreadProcessId(window.Handle, out var pid);
+            return pid == window.ProcessId;
         }
     }
 
-    private static HashSet<IntPtr> CaptureVisibleSteamWindows()
+    [StructLayout(LayoutKind.Sequential)]
+    private struct LastInputInfo
     {
-        var handles = new HashSet<IntPtr>();
-        var pids = GetSteamUiProcessIds();
-        EnumWindows((hWnd, _) =>
-        {
-            if (!IsWindowVisible(hWnd)) return true;
-            GetWindowThreadProcessId(hWnd, out var pid);
-            if (pids.Contains((int)pid)) handles.Add(hWnd);
-            return true;
-        }, IntPtr.Zero);
-        return handles;
+        public uint Size;
+        public uint Time;
     }
 
-    private static void HideAllSteamWindows()
-    {
-        var pids = GetSteamUiProcessIds();
-        if (pids.Count == 0) return;
-        EnumWindows((hWnd, _) =>
-        {
-            GetWindowThreadProcessId(hWnd, out var pid);
-            if (pids.Contains((int)pid) && IsWindowVisible(hWnd))
-                ShowWindow(hWnd, SwHide);
-            return true;
-        }, IntPtr.Zero);
-    }
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetLastInputInfo(ref LastInputInfo info);
 
     private static HashSet<int> GetSteamUiProcessIds()
     {

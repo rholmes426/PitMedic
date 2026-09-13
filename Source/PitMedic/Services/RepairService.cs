@@ -179,7 +179,7 @@ public sealed class RepairService : IDisposable
     {
         string? backupRoot = null;
         var backedUp = new List<(string Original, string Backup)>();
-        IDisposable? steamUiSuppression = null;
+        IDisposable? steamWindowSession = null;
         try
         {
             // Recheck in the helper too, after any delay at the Windows approval prompt.
@@ -260,9 +260,9 @@ public sealed class RepairService : IDisposable
             }
 
             Update(incident, plan, 27, "Starting Steam validation", "Affected content isolated. Asking Steam to validate LMU in the background...", "PitMedic requests silent/minimized Steam operation and continues monitoring the game files directly.", 3, 5, true, false, false, backupRoot);
-            steamUiSuppression = await SteamClientService.StartValidationAsync(plan.SteamAppId, token);
+            steamWindowSession = await SteamClientService.StartValidationAsync(plan.SteamAppId, token);
             AppLog.Write($"Repair launched background Steam validation for app {plan.SteamAppId}.");
-            Update(incident, plan, 34, "Reacquiring clean content", "Steam validation is running silently. PitMedic is watching for clean replacement content...", "Steam and Steam WebHelper windows are temporarily hidden while validation runs. PitMedic remains visible and owns the repair experience.", 4, 5, true, false, false, backupRoot);
+            Update(incident, plan, 34, "Reacquiring clean content", "Steam validation is running. PitMedic is watching for clean replacement content...", "Steam is hidden initially. You can open Steam at any time while PitMedic continues monitoring the repair.", 4, 5, true, false, false, backupRoot);
 
             var started = DateTimeOffset.Now;
             var deadline = started.AddMinutes(35);
@@ -319,7 +319,7 @@ public sealed class RepairService : IDisposable
         }
         finally
         {
-            steamUiSuppression?.Dispose();
+            steamWindowSession?.Dispose();
         }
     }
 
@@ -454,9 +454,9 @@ public sealed class RepairService : IDisposable
     private async Task<string> RepairLmuSteamVerifyAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
     {
         EnsureGameNotRunning(GameKind.LeMansUltimate, "Le Mans Ultimate");
-        UpdateSimple(incident, plan, 25, "Starting Steam validation", "Asking Steam to validate LMU while keeping Steam UI suppressed...", 1, 3, backupRoot);
-        using var suppression = await SteamClientService.StartValidationAsync("2399420", token);
-        UpdateSimple(incident, plan, 62, "Steam validation started", "Steam accepted the LMU validation request. PitMedic is keeping Steam in the background during repair startup...", 2, 3, backupRoot);
+        UpdateSimple(incident, plan, 25, "Starting Steam validation", "Asking Steam to validate LMU in the background. You can open Steam at any time...", 1, 3, backupRoot);
+        using var steamWindowSession = await SteamClientService.StartValidationAsync("2399420", token);
+        UpdateSimple(incident, plan, 62, "Steam validation started", "Steam accepted the LMU validation request. You can open Steam while validation continues...", 2, 3, backupRoot);
         await Task.Delay(TimeSpan.FromSeconds(20), token);
         return "Steam validation for Le Mans Ultimate was started successfully. Steam will reacquire any files it determines are missing or damaged.";
     }
@@ -684,10 +684,10 @@ public sealed class RepairService : IDisposable
         foreach (var file in metadata) await DeleteFileWithRetryAsync(file, token);
         if (steam)
         {
-            UpdateSimple(incident, plan, 70, "Starting Steam validation", "Asking Steam to validate iRacing while keeping Steam UI suppressed...", affectedFolders.Count > 0 ? 4 : 3, 5, backupRoot);
-            using var suppression = await SteamClientService.StartValidationAsync("266410", token);
+            UpdateSimple(incident, plan, 70, "Starting Steam validation", "Asking Steam to validate iRacing in the background. You can open Steam at any time...", affectedFolders.Count > 0 ? 4 : 3, 5, backupRoot);
+            using var steamWindowSession = await SteamClientService.StartValidationAsync("266410", token);
             await Task.Delay(TimeSpan.FromSeconds(20), token);
-            return "iRacing track metadata was reset and Steam validation was started. PitMedic kept Steam in the background during repair startup.";
+            return "iRacing track metadata was reset and Steam validation was started. You can open Steam while validation continues.";
         }
         UpdateSimple(incident, plan, 72, "Launching updater", "Starting iRacingUpdater to restore track metadata/content...", affectedFolders.Count > 0 ? 4 : 3, 4, backupRoot);
         await LaunchIRacingUpdaterAsync(root, string.Empty, token);
@@ -729,7 +729,7 @@ public sealed class RepairService : IDisposable
         try
         {
             UpdateSimple(incident, plan, 52, "Starting Steam validation", "Starting Steam validation with iRacing's service stopped...", 2, 4, backupRoot);
-            using var suppression = await SteamClientService.StartValidationAsync("266410", token);
+            using var steamWindowSession = await SteamClientService.StartValidationAsync("266410", token);
             await Task.Delay(TimeSpan.FromSeconds(20), token);
         }
         finally
@@ -920,9 +920,9 @@ public sealed class RepairService : IDisposable
     private async Task<string> RepairAceSteamVerifyAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
     {
         EnsureGameNotRunning(GameKind.AssettoCorsaEvo, "Assetto Corsa EVO");
-        UpdateSimple(incident, plan, 25, "Starting Steam validation", "Asking Steam to validate Assetto Corsa EVO while keeping Steam UI suppressed...", 1, 3, backupRoot);
-        using var suppression = await SteamClientService.StartValidationAsync("3058630", token);
-        UpdateSimple(incident, plan, 62, "Steam validation started", "Steam accepted the Assetto Corsa EVO validation request. PitMedic is keeping Steam in the background during repair startup...", 2, 3, backupRoot);
+        UpdateSimple(incident, plan, 25, "Starting Steam validation", "Asking Steam to validate Assetto Corsa EVO in the background. You can open Steam at any time...", 1, 3, backupRoot);
+        using var steamWindowSession = await SteamClientService.StartValidationAsync("3058630", token);
+        UpdateSimple(incident, plan, 62, "Steam validation started", "Steam accepted the Assetto Corsa EVO validation request. You can open Steam while validation continues...", 2, 3, backupRoot);
         await Task.Delay(TimeSpan.FromSeconds(20), token);
         return "Steam validation for Assetto Corsa EVO was started successfully. Steam will reacquire files it determines are missing or damaged.";
     }
@@ -1026,9 +1026,9 @@ public sealed class RepairService : IDisposable
     private async Task<string> RepairRaceRoomSteamVerifyAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
     {
         EnsureGameNotRunning(GameKind.RaceRoom, "RaceRoom Racing Experience");
-        UpdateSimple(incident, plan, 25, "Starting Steam validation", "Asking Steam to validate RaceRoom Racing Experience while keeping Steam UI suppressed...", 1, 3, backupRoot);
-        using var suppression = await SteamClientService.StartValidationAsync("211500", token);
-        UpdateSimple(incident, plan, 62, "Steam validation started", "Steam accepted the RaceRoom validation request. PitMedic is keeping Steam in the background during repair startup...", 2, 3, backupRoot);
+        UpdateSimple(incident, plan, 25, "Starting Steam validation", "Asking Steam to validate RaceRoom Racing Experience in the background. You can open Steam at any time...", 1, 3, backupRoot);
+        using var steamWindowSession = await SteamClientService.StartValidationAsync("211500", token);
+        UpdateSimple(incident, plan, 62, "Steam validation started", "Steam accepted the RaceRoom validation request. You can open Steam while validation continues...", 2, 3, backupRoot);
         await Task.Delay(TimeSpan.FromSeconds(20), token);
         return "Steam validation for RaceRoom Racing Experience was started successfully. Steam will reacquire files it determines are missing or damaged.";
     }
@@ -1182,8 +1182,8 @@ public sealed class RepairService : IDisposable
         GameKind kind, string displayName, string appId)
     {
         EnsureGameNotRunning(kind, displayName);
-        UpdateSimple(incident, plan, 25, "Starting Steam validation", $"Asking Steam to validate {displayName} while keeping Steam UI suppressed...", 1, 3, backupRoot);
-        using var suppression = await SteamClientService.StartValidationAsync(appId, token);
+        UpdateSimple(incident, plan, 25, "Starting Steam validation", $"Asking Steam to validate {displayName} in the background. You can open Steam at any time...", 1, 3, backupRoot);
+        using var steamWindowSession = await SteamClientService.StartValidationAsync(appId, token);
         UpdateSimple(incident, plan, 62, "Steam validation started", $"Steam accepted the {displayName} validation request...", 2, 3, backupRoot);
         await Task.Delay(TimeSpan.FromSeconds(20), token);
         return $"Steam validation for {displayName} was started successfully.";
