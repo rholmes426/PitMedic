@@ -151,12 +151,13 @@ public static class RepairKnowledgeBase
             Game = "Le Mans Ultimate",
             Issue = "Unable to join online sessions",
             Detection = "RaceControl connection/join failure without local loading crash; compare Windows time settings and EAC launch state.",
-            RepairStrategy = "Validate automatic Windows time/time-zone and detect EAC launch path; targeted content verification is a later step.",
+            RepairStrategy = "For online warping or phantom collisions, check Studio 397's network updates before changing local settings. Its September 11 announcement planned a September 15 fix; that announcement alone does not confirm release or explain a local crash. Validate automatic Windows time/time-zone and detect EAC launch path; targeted content verification is a later step.",
             Safety = "Diagnostic first; changes require confirmation",
             Signatures = new[] { "join", "RaceControl", "Easy Anti-Cheat", "EAC" },
             References = new[]
             {
                 Ref("Connection Issues", "Le Mans Ultimate Support", "https://guide.lemansultimate.com/hc/en-gb/articles/13192678574095-Connection-Issues", "Official guidance identifies incorrect Windows date/time as a common connection cause and describes file/EAC checks."),
+                Ref("September 2026 network update", "Studio 397", "https://lemansultimate.com/community-update-september-2026/", "Vendor acknowledges online collision issues and describes planned network work. Check subsequent release notes for availability."),
             }
         },
         new KnowledgeEntry
@@ -412,13 +413,15 @@ public static class RepairKnowledgeBase
             Game = "iRacing",
             Issue = "Graphics configuration / renderer settings corruption",
             Detection = "Graphics Config crashes or rendererDX11 settings are implicated without stronger GPU driver evidence.",
-            RepairStrategy = "Back up rendererDX11*.ini, regenerate graphics config, then compare/restore user monitor settings if needed.",
+            RepairStrategy = "If the crash occurs when minimizing or using replay controls, check the installed iRacing version first: 2026.09.11.01 fixes these cases. The 2026.09.09.01 release also fixes AI server-transition and Porsche Mission R fuel-related crashes. Unknown versions or unmatched symptoms do not establish the cause. Back up rendererDX11*.ini, regenerate graphics config, then compare/restore user monitor settings if needed.",
             Safety = "Reversible / one-click",
             Signatures = new[] { "rendererDX11", "Graphics Config" },
             References = new[]
             {
                 Ref("Graphics Config crash discussion", "iRacing Reddit community", "https://www.reddit.com/r/iRacing/comments/1lb3obu/", "Community troubleshooting commonly regenerates rendererDX11 files; treat as corroboration until a matching official article is available.", false),
                 Ref("Crash report collection", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000133598-how-to-get-a-crash-report-to-submit-to-iracing", "Official support confirms Documents\\iRacing crash logs and Windows Application events are key evidence for simulator crashes."),
+                Ref("2026 Season 4 Hotfix 1", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000179637-2026-season-4-hotfix-1-release-notes-2026-09-11-01-", "Official fixes for minimize and replay-control crashes; check version and symptoms before resetting graphics."),
+                Ref("2026 Season 4 initial release", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000179517-2026-season-4-initial-release-notes-2026-09-09-01-", "Official fixes include AI server-transition and Porsche Mission R crashes."),
             }
         },
         new KnowledgeEntry
@@ -658,13 +661,14 @@ public static class RepairKnowledgeBase
             Game = "Automobilista 2",
             Issue = "Broken graphics or display configuration",
             Detection = "AMS2 evidence identifies graphicsconfigdx11.xml near a display, startup, or settings failure.",
-            RepairStrategy = "Preserve graphicsconfigdx11.xml and remove the active copy so AMS2 can regenerate clean display settings.",
+            RepairStrategy = "For weather-transition hitches, check Reiza's current release notes first. The September 2026 development update announces performance improvements and multiplayer crash fixes; it does not establish an installed-version threshold or prove local configuration damage. Preserve graphicsconfigdx11.xml and remove the active copy so AMS2 can regenerate clean display settings.",
             Safety = "Automatic / reversible / one-click",
             Signatures = new[] { "graphicsconfigdx11.xml", "graphics configuration", "display settings" },
             References = new[]
             {
                 Ref("Graphics settings reset on launch", "Reiza Studios Forum", "https://forum.reizastudios.com/threads/graphics-setting-are-not-saved-reset-on-game-launch.35342/", "Reiza staff and users document regenerating AMS2 Documents configuration while investigating graphics-state failures.", false),
                 Ref("Can't access Options", "AMS2 Steam Community", "https://steamcommunity.com/app/1066890/discussions/0/586181727714649000/", "A resolved report confirms that removing only graphicsconfigdx11.xml allowed AMS2 to regenerate the correct display state.", false),
+                Ref("September 2026 development update", "Reiza Studios", "https://forum.reizastudios.com/threads/automobilista-2-september-2026-development-update.36665/", "Official announcement covers weather-transition performance and multiplayer stability. Confirm shipped release details before treating these as resolved."),
             }
         },
         new KnowledgeEntry
@@ -772,7 +776,7 @@ public static class RepairKnowledgeBase
             Game = "Automobilista 2",
             Issue = "Missing or damaged Automobilista 2 game files",
             Detection = "AMS2 evidence explicitly reports a missing, corrupt, or unreadable game file or package.",
-            RepairStrategy = "Ask Steam to verify Automobilista 2 and reacquire missing or damaged game files.",
+            RepairStrategy = "For multiplayer crashes without missing-file evidence, check Reiza's current release notes before attempting content repair. Its September 2026 announcement describes upcoming crash fixes, not proof of damaged local files. Ask Steam to verify Automobilista 2 and reacquire missing or damaged game files.",
             Safety = "Reversible / approval required when expected over two minutes",
             Signatures = new[] { "missing file", "corrupt package", "failed to load" },
             References = new[]

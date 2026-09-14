@@ -1,0 +1,80 @@
+[
+  {
+    "url": "https://support.iracing.com/support/solutions/articles/31000179637-2026-season-4-hotfix-1-release-notes-2026-09-11-01-",
+    "status": "queued",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Reviewed guidance: Official fixes for minimize and replay-control crashes; check version and symptoms before resetting graphics."
+  },
+  {
+    "url": "https://support.iracing.com/support/solutions/articles/31000179517-2026-season-4-initial-release-notes-2026-09-09-01-",
+    "status": "queued",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Reviewed guidance: Official fixes include AI server-transition and Porsche Mission R crashes."
+  },
+  {
+    "url": "https://lemansultimate.com/community-update-september-2026/",
+    "status": "queued",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Reviewed guidance: Vendor acknowledges online collision issues and describes planned network work. Check subsequent release notes for availability."
+  },
+  {
+    "url": "https://forum.reizastudios.com/threads/automobilista-2-september-2026-development-update.36665/",
+    "status": "queued",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Reviewed guidance: Official announcement covers weather-transition performance and multiplayer stability. Confirm shipped release details before treating these as resolved."
+  },
+  {
+    "url": "https://www.fanatec.com/ca/en/s/download-apps-driver",
+    "status": "queued",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Reviewed guidance: Official compatibility guidance distinguishes the Fanatec App from legacy Driver/Control Panel and FanaLab."
+  },
+  {
+    "url": "https://forum.fanatec.com/topic/20482-fanatec-app-v1541-hotfix/",
+    "status": "queued",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Reviewed guidance: Official CSL DD and GT DD Pro fix for oscillation after returning from menus in RaceRoom and other named titles. Hardware updates remain manual."
+  },
+  {
+    "url": "https://community.lemansultimate.com/index.php?threads/logitech-g29-lmuffb.17859/post-99353",
+    "status": "needs-evidence",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Actual thread unavailable to reviewer. Do not infer a repair from the title."
+  },
+  {
+    "url": "https://community.lemansultimate.com/index.php?threads/other-cars-warping-steering-makes-you-crash-and-game-keeps-crashing.18894/post-99384",
+    "status": "needs-evidence",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Actual thread unavailable. Official LMU network announcement does not establish this crash cause."
+  },
+  {
+    "url": "https://forum.reizastudios.com/threads/automobilista-2-september-2026-development-update.36665/page-2",
+    "status": "needs-evidence",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Pagination belongs to the reviewed parent thread; page 2 comments remain unverified."
+  },
+  {
+    "url": "https://community.lemansultimate.com/index.php?threads/driver-reporting-megathread-practice-server-only.8590/post-99387",
+    "status": "no-change",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Title-only exclusion: driver conduct, not software drivers. Post unavailable; no remedy verified."
+  },
+  {
+    "url": "https://support.logi.com/hc/en-ca/articles/360036179173-G-HUB-freezes-while-loading-and-logo-animation-loops",
+    "status": "no-change",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Existing G HUB recovery matches official guidance. Generic other-product retirement notices do not justify disabling recovery."
+  },
+  {
+    "url": "https://forum.fanatec.com/forum/82-fanatec-app/",
+    "status": "needs-evidence",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Browser access succeeds; runner 403 recovery is unverified. Retain source and existing repairs."
+  },
+  {
+    "url": "https://community.lemansultimate.com/index.php",
+    "status": "no-change",
+    "reviewedAt": "2026-09-14T19:00:00Z",
+    "note": "Unsafe-rejoin wording describes driving conduct, not harmful repair behavior."
+  }
+]

@@ -47,7 +47,7 @@ public static class CompanionRecoveryPolicy
             "companion-fanatec-process-recovery",
             "Recover Fanatec software",
             "Confirmed app fault and process-set recovery",
-            "PitMedic closes the Fanatec app, Control Panel, and FanaLab process set, relaunches the validated installed app, and verifies that it stays running.",
+            "Fanatec instructs removing the Fanatec App before choosing legacy Driver/Control Panel and FanaLab; follow vendor instructions manually. For CSL DD or GT DD Pro oscillation after leaving RaceRoom menus, consult the official 1.5.4.1 hotfix notes and current supported update. PitMedic does not uninstall software or change drivers, firmware, or profiles. PitMedic closes the Fanatec app, Control Panel, and FanaLab process set, relaunches the validated installed app, and verifies that it stays running.",
             new[]
             {
                 "Confirm every supported simulator is closed",

@@ -17,7 +17,7 @@
   <url><loc>https://pitmedic.com/diagnostic-library/lmu-memory-allocation/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/lmu-eac/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/lmu-reshade-runtime/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://pitmedic.com/diagnostic-library/lmu-online-clock-eac/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/lmu-online-clock-eac/</loc><lastmod>2026-09-14</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/iracing-helper-service/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/iracing-ui-cache/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/iracing-ui-safe/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
@@ -35,7 +35,7 @@
   <url><loc>https://pitmedic.com/diagnostic-library/iracing-updater-autoinstall/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/iracing-digital-signature/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/iracing-windows-integrity/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://pitmedic.com/diagnostic-library/iracing-renderer-config/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/iracing-renderer-config/</loc><lastmod>2026-09-14</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/ace-video-settings/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/ace-user-profile/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/ace-steam-content/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
@@ -52,7 +52,7 @@
   <url><loc>https://pitmedic.com/diagnostic-library/acc-control-presets/</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/acc-user-profile/</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/acc-steam-content/</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://pitmedic.com/diagnostic-library/ams2-graphics-config/</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/ams2-graphics-config/</loc><lastmod>2026-09-14</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/ams2-vr-config/</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/ams2-controller-config/</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/ams2-ffb-custom/</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
@@ -60,10 +60,10 @@
   <url><loc>https://pitmedic.com/diagnostic-library/ams2-championship-state/</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/ams2-default-profile/</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/ams2-user-profile/</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://pitmedic.com/diagnostic-library/ams2-steam-content/</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/ams2-steam-content/</loc><lastmod>2026-09-14</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/companion-moza-clean-recovery/</loc><lastmod>2026-09-07</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/companion-simucube-clean-recovery/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://pitmedic.com/diagnostic-library/companion-fanatec-process-recovery/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/companion-fanatec-process-recovery/</loc><lastmod>2026-09-14</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/companion-logitech-ghub-service-recovery/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/companion-simagic-clean-recovery/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/companion-asetek-clean-recovery/</loc><lastmod>2026-09-01</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>

@@ -285,7 +285,7 @@
       "product": "Le Mans Ultimate",
       "issue": "Unable to join online sessions",
       "detection": "RaceControl connection/join failure without local loading crash; compare Windows time settings and EAC launch state.",
-      "repair": "Validate automatic Windows time/time-zone and detect EAC launch path; targeted content verification is a later step.",
+      "repair": "For online warping or phantom collisions, check Studio 397's network updates before changing local settings. Its September 11 announcement planned a September 15 fix; that announcement alone does not confirm release or explain a local crash. Validate automatic Windows time/time-zone and detect EAC launch path; targeted content verification is a later step.",
       "safety": "Diagnostic first; changes require confirmation",
       "signatures": [
         "join",
@@ -300,11 +300,18 @@
           "url": "https://guide.lemansultimate.com/hc/en-gb/articles/13192678574095-Connection-Issues",
           "note": "Official guidance identifies incorrect Windows date/time as a common connection cause and describes file/EAC checks.",
           "official": true
+        },
+        {
+          "note": "Vendor acknowledges online collision issues and describes planned network work. Check subsequent release notes for availability.",
+          "source": "Studio 397",
+          "title": "September 2026 network update",
+          "url": "https://lemansultimate.com/community-update-september-2026/",
+          "official": true
         }
       ],
       "kind": "simulator-repair",
       "status": "active",
-      "lastVerified": "2026-09-01",
+      "lastVerified": "2026-09-14",
       "reviewCadenceDays": 180
     },
     {
@@ -824,7 +831,7 @@
       "product": "iRacing",
       "issue": "Graphics configuration / renderer settings corruption",
       "detection": "Graphics Config crashes or rendererDX11 settings are implicated without stronger GPU driver evidence.",
-      "repair": "Back up rendererDX11*.ini, regenerate graphics config, then compare/restore user monitor settings if needed.",
+      "repair": "If the crash occurs when minimizing or using replay controls, check the installed iRacing version first: 2026.09.11.01 fixes these cases. The 2026.09.09.01 release also fixes AI server-transition and Porsche Mission R fuel-related crashes. Unknown versions or unmatched symptoms do not establish the cause. Back up rendererDX11*.ini, regenerate graphics config, then compare/restore user monitor settings if needed.",
       "safety": "Reversible / one-click",
       "signatures": [
         "rendererDX11",
@@ -844,11 +851,25 @@
           "url": "https://support.iracing.com/support/solutions/articles/31000133598-how-to-get-a-crash-report-to-submit-to-iracing",
           "note": "Official support confirms Documents\\iRacing crash logs and Windows Application events are key evidence for simulator crashes.",
           "official": true
+        },
+        {
+          "note": "Official fixes for minimize and replay-control crashes; check version and symptoms before resetting graphics.",
+          "source": "iRacing Support",
+          "title": "2026 Season 4 Hotfix 1",
+          "url": "https://support.iracing.com/support/solutions/articles/31000179637-2026-season-4-hotfix-1-release-notes-2026-09-11-01-",
+          "official": true
+        },
+        {
+          "note": "Official fixes include AI server-transition and Porsche Mission R crashes.",
+          "source": "iRacing Support",
+          "title": "2026 Season 4 initial release",
+          "url": "https://support.iracing.com/support/solutions/articles/31000179517-2026-season-4-initial-release-notes-2026-09-09-01-",
+          "official": true
         }
       ],
       "kind": "simulator-repair",
       "status": "active",
-      "lastVerified": "2026-09-01",
+      "lastVerified": "2026-09-14",
       "reviewCadenceDays": 180
     },
     {
@@ -1344,7 +1365,7 @@
       "product": "Automobilista 2",
       "issue": "Broken graphics or display configuration",
       "detection": "AMS2 evidence identifies graphicsconfigdx11.xml near a display, startup, or settings failure.",
-      "repair": "Preserve graphicsconfigdx11.xml and remove the active copy so AMS2 can regenerate clean display settings.",
+      "repair": "For weather-transition hitches, check Reiza's current release notes first. The September 2026 development update announces performance improvements and multiplayer crash fixes; it does not establish an installed-version threshold or prove local configuration damage. Preserve graphicsconfigdx11.xml and remove the active copy so AMS2 can regenerate clean display settings.",
       "safety": "Automatic / reversible / one-click",
       "signatures": [
         "graphicsconfigdx11.xml",
@@ -1365,11 +1386,18 @@
           "url": "https://steamcommunity.com/app/1066890/discussions/0/586181727714649000/",
           "note": "A resolved report confirms that removing only graphicsconfigdx11.xml allowed AMS2 to regenerate the correct display state.",
           "official": false
+        },
+        {
+          "note": "Official announcement covers weather-transition performance and multiplayer stability. Confirm shipped release details before treating these as resolved.",
+          "source": "Reiza Studios",
+          "title": "September 2026 development update",
+          "url": "https://forum.reizastudios.com/threads/automobilista-2-september-2026-development-update.36665/",
+          "official": true
         }
       ],
       "kind": "simulator-repair",
       "status": "active",
-      "lastVerified": "2026-09-03",
+      "lastVerified": "2026-09-14",
       "reviewCadenceDays": 180
     },
     {
@@ -1575,7 +1603,7 @@
       "product": "Automobilista 2",
       "issue": "Missing or damaged Automobilista 2 game files",
       "detection": "AMS2 evidence explicitly reports a missing, corrupt, or unreadable game file or package.",
-      "repair": "Ask Steam to verify Automobilista 2 and reacquire missing or damaged game files.",
+      "repair": "For multiplayer crashes without missing-file evidence, check Reiza's current release notes before attempting content repair. Its September 2026 announcement describes upcoming crash fixes, not proof of damaged local files. Ask Steam to verify Automobilista 2 and reacquire missing or damaged game files.",
       "safety": "Reversible / approval required when expected over two minutes",
       "signatures": [
         "missing file",
@@ -1600,7 +1628,7 @@
       ],
       "kind": "simulator-repair",
       "status": "active",
-      "lastVerified": "2026-09-03",
+      "lastVerified": "2026-09-14",
       "reviewCadenceDays": 180
     },
     {
@@ -1681,7 +1709,7 @@
       "product": "Fanatec software",
       "issue": "Recover Fanatec software",
       "detection": "Confirmed app fault and process-set recovery",
-      "repair": "PitMedic closes the Fanatec app, Control Panel, and FanaLab process set, relaunches the validated installed app, and verifies that it stays running.",
+      "repair": "Fanatec instructs removing the Fanatec App before choosing legacy Driver/Control Panel and FanaLab; follow vendor instructions manually. For CSL DD or GT DD Pro oscillation after leaving RaceRoom menus, consult the official 1.5.4.1 hotfix notes and current supported update. PitMedic does not uninstall software or change drivers, firmware, or profiles. PitMedic closes the Fanatec app, Control Panel, and FanaLab process set, relaunches the validated installed app, and verifies that it stays running.",
       "safety": "Ask first / controlled restart",
       "signatures": [],
       "steps": [
@@ -1697,11 +1725,25 @@
           "url": "https://help.fanatec.com/hc/en-us/articles/47862678424593-The-game-telemetry-function-of-the-Fanatec-app-is-no-longer-working",
           "note": "Fanatec documents restarting the app as the first recovery when its telemetry feed stops or the app crashes.",
           "official": true
+        },
+        {
+          "note": "Official compatibility guidance distinguishes the Fanatec App from legacy Driver/Control Panel and FanaLab.",
+          "source": "Fanatec Support",
+          "title": "Fanatec App and legacy downloads",
+          "url": "https://www.fanatec.com/ca/en/s/download-apps-driver",
+          "official": true
+        },
+        {
+          "note": "Official CSL DD and GT DD Pro fix for oscillation after returning from menus in RaceRoom and other named titles. Hardware updates remain manual.",
+          "source": "Fanatec Team",
+          "title": "Fanatec App 1.5.4.1 hotfix",
+          "url": "https://forum.fanatec.com/topic/20482-fanatec-app-v1541-hotfix/",
+          "official": true
         }
       ],
       "kind": "companion-repair",
       "status": "active",
-      "lastVerified": "2026-09-01",
+      "lastVerified": "2026-09-14",
       "reviewCadenceDays": 180
     },
     {

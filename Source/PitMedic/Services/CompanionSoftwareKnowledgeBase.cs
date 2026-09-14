@@ -23,7 +23,9 @@ public static class CompanionSoftwareKnowledgeBase
         CompanionSoftwareKind.FanatecSoftware => new[]
         {
             Official("Fanatec app telemetry no longer working", "Fanatec Support", "https://help.fanatec.com/hc/en-us/articles/47862678424593-The-game-telemetry-function-of-the-Fanatec-app-is-no-longer-working",
-                "Fanatec documents restarting the app as the first recovery when its telemetry feed stops or the app crashes.")
+                "Fanatec documents restarting the app as the first recovery when its telemetry feed stops or the app crashes."),
+            Official("Fanatec App and legacy downloads", "Fanatec Support", "https://www.fanatec.com/ca/en/s/download-apps-driver", "Official compatibility guidance distinguishes the Fanatec App from legacy Driver/Control Panel and FanaLab."),
+            Official("Fanatec App 1.5.4.1 hotfix", "Fanatec Team", "https://forum.fanatec.com/topic/20482-fanatec-app-v1541-hotfix/", "Official CSL DD and GT DD Pro fix for oscillation after returning from menus in RaceRoom and other named titles. Hardware updates remain manual.")
         },
         CompanionSoftwareKind.LogitechGHub => new[]
         {

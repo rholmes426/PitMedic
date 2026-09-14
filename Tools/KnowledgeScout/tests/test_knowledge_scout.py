@@ -176,5 +176,53 @@ class KnowledgeScoutTests(unittest.TestCase):
         self.assertTrue(any("Invalid source authority" in problem for problem in problems))
 
 
+    def test_forum_canonicalization_groups_pages_and_preserves_query(self) -> None:
+        self.assertEqual(
+            "https://forum.reizastudios.com/threads/update.36665/",
+            scout.canonical_candidate_url("https://forum.reizastudios.com/forums/news.41/threads/update.36665/page-3"),
+        )
+        self.assertEqual(
+            "https://community.lemansultimate.com/index.php?threads/wheel.17859/",
+            scout.canonical_candidate_url("https://community.lemansultimate.com/index.php?threads/wheel.17859/post-99353"),
+        )
+
+    def test_unrelated_safety_notices_do_not_hide_real_product_harm(self) -> None:
+        self.assertEqual([], scout.relevant_harm_snippets(
+            "Important Notice: The Presentation software is no longer supported or maintained by Logitech.",
+            "Logitech G HUB",
+        ))
+        self.assertEqual([], scout.relevant_harm_snippets("penalties for unsafe rejoin", "Le Mans Ultimate"))
+        self.assertTrue(scout.relevant_harm_snippets("G HUB update causes data loss.", "Logitech G HUB"))
+
+    def test_cross_source_duplicates_and_disappearing_findings_are_retained_once(self) -> None:
+        registry = self.one_source_registry()
+        source = registry["sources"][0]
+        other = dict(source, id="second-source")
+        registry["sources"] = [source, other]
+        prior = {"sources": {item["id"]: {"hash": "old", "links": []} for item in registry["sources"]}}
+        def fetch(url, hosts):
+            return ('<a href="https://lemansultimate.com/new-crash">Crash workaround</a>', url)
+        report, state, _ = scout.build_report(REPO_ROOT, registry, self.lifecycle, prior, fetcher=fetch)
+        self.assertIn("- 1 new or changed source findings", report)
+        self.assertEqual(1, len(state["pendingFindings"]))
+        def empty(url, hosts):
+            return ("No current links", url)
+        _, later, _ = scout.build_report(REPO_ROOT, registry, self.lifecycle, state, fetcher=empty)
+        self.assertEqual(state["pendingFindings"], later["pendingFindings"])
+
+    def test_review_resolution_does_not_suppress_later_changes(self) -> None:
+        from unittest.mock import patch
+        registry = self.one_source_registry()
+        url = registry["sources"][0]["url"]
+        record = {"url": url, "status": "queued", "reviewedAt": "2026-09-14T19:00:00Z", "note": "Reviewed"}
+        old = {"text": "Earlier finding", "url": url, "firstSeen": "2026-09-11T19:00:00Z"}
+        newer = {"text": "Later finding", "url": url, "firstSeen": "2026-09-15T19:00:00Z"}
+        prior = {"sources": {}, "pendingFindings": {"old": old, "new": newer}}
+        with patch.object(scout, "review_records", return_value=[record]):
+            _, state, _ = scout.build_report(REPO_ROOT, registry, self.lifecycle, prior, offline=True)
+        self.assertNotIn("old", state["pendingFindings"])
+        self.assertIn("new", state["pendingFindings"])
+
+
 if __name__ == "__main__":
     unittest.main()

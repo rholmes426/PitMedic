@@ -157,6 +157,47 @@ def content_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def canonical_candidate_url(url: str) -> str:
+    """Group forum pages/posts without changing XenForo query routing."""
+    parsed = urlsplit(url)
+    path, query = parsed.path, parsed.query
+    if parsed.hostname == "forum.reizastudios.com":
+        path = re.sub(r"^/forums/[^/]+/(?=threads/)", "/", path)
+        path = re.sub(r"/(?:page-\d+|post-\d+)/?$", "/", path)
+    if parsed.hostname == "community.lemansultimate.com" and query.startswith("threads/"):
+        query = re.sub(r"/(?:page-\d+|post-\d+)/?$", "/", query)
+    return parsed._replace(path=path, query=query, fragment="").geturl()
+
+
+def relevant_harm_snippets(text: str, product: str) -> list[str]:
+    # Remove only unrelated Logitech notices; retain notices about G HUB itself.
+    if product == "Logitech G HUB":
+        text = re.sub(
+            r"Important Notice: The (?:Presentation software|Firmware Update Tool|"
+            r"Logitech Preference Manager|Logitech Control Center|Logitech Connection Utility|"
+            r"Unifying Software|SetPoint software) is no longer supported[^.]*\.",
+            "", text, flags=re.IGNORECASE,
+        )
+    return [snippet for snippet in term_snippets(text)
+            if not re.search(r"unsafe rejoin|rear.end spin|driver reporting", snippet, re.IGNORECASE)
+            or any(term in snippet.casefold() for term in ("data loss", "bricked", "corruption"))]
+
+
+def review_records(repo_root: Path) -> list[dict[str, str]]:
+    path = repo_root / "Knowledge/scout-reviews.json"
+    if not path.exists():
+        return []
+    records = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(records, list):
+        raise ValueError("Scout reviews must be a list")
+    for record in records:
+        if record.get("status") not in {"queued", "no-change", "duplicate", "needs-evidence"}:
+            raise ValueError("Invalid Scout review status")
+        require_allowed_url(record["url"], {urlsplit(record["url"]).hostname})
+        datetime.fromisoformat(record["reviewedAt"].replace("Z", "+00:00"))
+    return records
+
+
 def candidate_links(
     links: list[tuple[str, str]],
     keywords: list[str],
@@ -174,8 +215,9 @@ def candidate_links(
         searchable = f"{label} {parsed.path} {parsed.query}".casefold()
         if not any(term in searchable for term in lowered_keywords):
             continue
-        clean_url = parsed._replace(fragment="").geturl()
-        found[clean_url] = {"url": clean_url, "title": label[:180] or parsed.path[-180:]}
+        clean_url = canonical_candidate_url(url)
+        if clean_url not in found:
+            found[clean_url] = {"url": clean_url, "title": label[:180] or parsed.path[-180:]}
         if len(found) >= limit:
             break
     return list(found.values())
@@ -330,6 +372,12 @@ def build_report(
     harms: list[str] = []
     failures: list[str] = []
     baselines = 0
+    globally_known = {
+        canonical_candidate_url(url)
+        for previous in previous_sources.values()
+        for url in previous.get("links", [])
+    }
+    reported_urls: set[str] = set()
 
     for source in registry.get("sources", []):
         if not source.get("enabled", True):
@@ -350,7 +398,7 @@ def build_report(
                 allowed_hosts,
                 source.get("maxLinks", DEFAULT_MAX_LINKS_PER_SOURCE),
             ) if source.get("discoverLinks") else []
-            known_urls = set(previous.get("links", []))
+            known_urls = {canonical_candidate_url(url) for url in previous.get("links", [])}
             current_urls = [item["url"] for item in discovered]
             is_changed = bool(previous.get("hash") and previous.get("hash") != digest)
             if not previous.get("hash"):
@@ -358,11 +406,12 @@ def build_report(
             if is_changed and source.get("reportTextChanges", True):
                 changes.append(f"**{source['product']}**: source text changed at {markdown_link(source_id, final_url)}")
             if is_changed:
-                for snippet in term_snippets(text):
+                for snippet in relevant_harm_snippets(text, source["product"]):
                     harms.append(f"**{source['product']}**: “{safe_report_text(snippet)}” — {markdown_link(source_id, final_url)}")
             if previous.get("hash"):
                 for item in discovered:
-                    if item["url"] not in known_urls:
+                    if item["url"] not in known_urls and item["url"] not in globally_known and item["url"] not in reported_urls:
+                        reported_urls.add(item["url"])
                         changes.append(f"**{source['product']}**: new candidate {markdown_link(item['title'], item['url'])}")
             next_sources[source_id] = {
                 "hash": digest,
@@ -380,7 +429,28 @@ def build_report(
     problems = catalog_validation(repo_root, registry, lifecycle)
     reminders = review_reminders(lifecycle, now.date())
     actionable = bool(changes or harms or failures or problems or reminders)
-    next_state = {"version": 2, "generated": timestamp, "sources": next_sources}
+
+    records = review_records(repo_root)
+    pending = dict(prior_state.get("pendingFindings", {}))
+    for finding in changes:
+        key = content_hash(finding)
+        if key not in pending:
+            match = re.search(r"\]\((https://[^\s]+)\)$", finding)
+            pending[key] = {
+                "text": finding, "firstSeen": timestamp,
+                "url": canonical_candidate_url(match.group(1)) if match else "",
+            }
+    for key, finding in list(pending.items()):
+        for record in records:
+            if (record["status"] != "needs-evidence"
+                    and canonical_candidate_url(record["url"]) == finding.get("url")
+                    and record["reviewedAt"] >= finding["firstSeen"]):
+                del pending[key]
+                break
+    next_state = {"version": 3, "generated": timestamp, "sources": next_sources,
+                  "pendingFindings": pending}
+    actionable = actionable or bool(pending)
+
     enabled_sources = [source for source in registry.get("sources", []) if source.get("enabled", True)]
     official_sources = sum(source.get("authority") == "official" for source in enabled_sources)
     community_sources = sum(source.get("authority") == "vendor-community" for source in enabled_sources)
@@ -414,7 +484,16 @@ def build_report(
 
     section("Potential safety/harm signals", harms, "No new safety language detected in changed sources.")
     section("New or changed source material", changes, "No new candidate discussions or changed guidance detected.")
+
+    section("Unreviewed findings retained across scans",
+            [item["text"] for item in pending.values()],
+            "No retained unreviewed findings.")
+    section("Recorded review decisions",
+            [f"{markdown_link(record['status'], record['url'])}: {safe_report_text(record['note'])}"
+             for record in records],
+            "No recorded review decisions.")
     section("Source availability", failures, "All checked sources were available.")
+
     section("Review reminders (never automatic retirement)", reminders, "No lifecycle reviews are due.")
     section("Catalog validation", problems, "Implemented repairs, lifecycle records, policy, and source allowlists are consistent.")
     lines.extend([
