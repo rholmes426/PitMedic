@@ -302,10 +302,10 @@
           "official": true
         },
         {
-          "note": "Vendor acknowledges online collision issues and describes planned network work. Check subsequent release notes for availability.",
-          "source": "Studio 397",
           "title": "September 2026 network update",
+          "source": "Studio 397",
           "url": "https://lemansultimate.com/community-update-september-2026/",
+          "note": "Vendor acknowledges online collision issues and describes planned network work. Check subsequent release notes for availability.",
           "official": true
         }
       ],
@@ -853,17 +853,17 @@
           "official": true
         },
         {
-          "note": "Official fixes for minimize and replay-control crashes; check version and symptoms before resetting graphics.",
-          "source": "iRacing Support",
           "title": "2026 Season 4 Hotfix 1",
+          "source": "iRacing Support",
           "url": "https://support.iracing.com/support/solutions/articles/31000179637-2026-season-4-hotfix-1-release-notes-2026-09-11-01-",
+          "note": "Official fixes for minimize and replay-control crashes; check version and symptoms before resetting graphics.",
           "official": true
         },
         {
-          "note": "Official fixes include AI server-transition and Porsche Mission R crashes.",
-          "source": "iRacing Support",
           "title": "2026 Season 4 initial release",
+          "source": "iRacing Support",
           "url": "https://support.iracing.com/support/solutions/articles/31000179517-2026-season-4-initial-release-notes-2026-09-09-01-",
+          "note": "Official fixes include AI server-transition and Porsche Mission R crashes.",
           "official": true
         }
       ],
@@ -1388,10 +1388,10 @@
           "official": false
         },
         {
-          "note": "Official announcement covers weather-transition performance and multiplayer stability. Confirm shipped release details before treating these as resolved.",
-          "source": "Reiza Studios",
           "title": "September 2026 development update",
+          "source": "Reiza Studios",
           "url": "https://forum.reizastudios.com/threads/automobilista-2-september-2026-development-update.36665/",
+          "note": "Official announcement covers weather-transition performance and multiplayer stability. Confirm shipped release details before treating these as resolved.",
           "official": true
         }
       ],
@@ -1727,17 +1727,17 @@
           "official": true
         },
         {
-          "note": "Official compatibility guidance distinguishes the Fanatec App from legacy Driver/Control Panel and FanaLab.",
-          "source": "Fanatec Support",
           "title": "Fanatec App and legacy downloads",
+          "source": "Fanatec Support",
           "url": "https://www.fanatec.com/ca/en/s/download-apps-driver",
+          "note": "Official compatibility guidance distinguishes the Fanatec App from legacy Driver/Control Panel and FanaLab.",
           "official": true
         },
         {
-          "note": "Official CSL DD and GT DD Pro fix for oscillation after returning from menus in RaceRoom and other named titles. Hardware updates remain manual.",
-          "source": "Fanatec Team",
           "title": "Fanatec App 1.5.4.1 hotfix",
+          "source": "Fanatec Team",
           "url": "https://forum.fanatec.com/topic/20482-fanatec-app-v1541-hotfix/",
+          "note": "Official CSL DD and GT DD Pro fix for oscillation after returning from menus in RaceRoom and other named titles. Hardware updates remain manual.",
           "official": true
         }
       ],
