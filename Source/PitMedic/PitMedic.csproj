@@ -32,6 +32,6 @@
     <Resource Include="Assets\PitMedic.png" />
     <EmbeddedResource Include="Assets\RaceRoomCars.json" />
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
-    <PackageReference Include="System.Diagnostics.EventLog" Version="10.0.11" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="10.0.12" />
   </ItemGroup>
 </Project>
