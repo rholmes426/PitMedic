@@ -70,4 +70,28 @@ or peer overrides to hide this conflict.
 - Production-only Pages deployment and signed-artifact promotion are held for
   their next explicitly approved deployment; they are not invoked as a test.
 
+## Knowledge Scout review — September 14, 2026
+
+[Full dispositions and evidence](Research/KnowledgeScoutReview-2026-09-14.md) cover the
+September 11 rolling report. Review/triage is complete; the following changes are
+**queued for implementation**, not implemented or ready to release.
+
+| Group | Queued work | Acceptance criteria |
+| --- | --- | --- |
+| iRacing | Add update-first guidance for vendor-fixed minimize/replay crashes and the Season 4 AI-transition/Porsche Mission R crashes. | Cite exact vendor releases; establish symptom/version relevance; unknown versions get conditional guidance. Preserve genuine crash evidence and existing updater guards. |
+| Le Mans Ultimate | Add vendor-known network/phantom-collision guidance. | Distinguish announced from shipped fixes; verify September 15 patch status before publication. Do not map generic crashes to this issue or make broad network changes. |
+| Automobilista 2 | Add vendor-update guidance for weather-transition hitches and multiplayer crashes. | Confirm shipped release/version before asserting fixed status; resolve inconsistent version strings in the announcement. Do not reset profiles for a vendor bug. |
+| Fanatec / RaceRoom | Explain App-versus-legacy compatibility; add CSL DD/GT DD Pro menu-return oscillation guidance backed by the official 1.5.4.1 hotfix. | Show relevant hardware/software context; link vendor instructions; keep uninstall, driver and firmware changes manual. Do not retire legacy repairs merely because development ended. |
+| Scout maintenance | Deduplicate across sources, group forum pagination, validate canonical URLs, scope safety text to relevant products, retain review dispositions between scans, and check source health from the actual runner. | Regression examples: repeated iRacing URLs, malformed Reiza paths, unrelated driver-conduct/Logitech banners. Retain unresolved items across rolling report replacement; no auto-promotion to code or release. |
+
+### Evidence still needed
+
+- LMU G29/LmuFFB thread: reader returned forum index; obtain actual discussion before considering a remedy.
+- LMU warping/crash thread: obtain actual discussion; official networking announcement alone does not prove the reported crash cause.
+- AMS2 development thread page 2: inaccessible in this review; grouped with its parent without claiming its comments were verified.
+- Fanatec forum: accessible through browser, but the Scout runner's 403 has not been retested.
+
+Two unrelated safety signals were dismissed. G HUB service recovery is already
+covered. No new automatic repair or repair-state change was approved by this review.
+
 Keep this file current as queue items are validated, deployed, or released.
