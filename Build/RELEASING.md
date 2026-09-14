@@ -13,6 +13,18 @@ Branch protection and required checks still apply. This approval does not author
 tagging, signing, or publishing a public release; obtain explicit release approval
 before following the release procedure below.
 
+## Queue routine updates
+
+Record accepted fixes and updates in `PENDING-UPDATES.md`, with implementation,
+validation, and compatibility-blocker status. Batch changes into the next version
+when the owner requests a build. Do not deliver a new ZIP or installer for each
+individual fix. Required CI checks may retain their internal validation artifacts.
+
+Changes that trigger website or analytics deployment on merge must stay on a
+queued branch until the owner approves that deployment. Public app releases still
+require the separate approval below. Never force incompatible dependency versions
+or bypass required checks to mark a queue item complete.
+
 ## Approved release
 
 1. Obtain the owner's explicit approval for a signed public release.

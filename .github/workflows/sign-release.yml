@@ -21,7 +21,7 @@ jobs:
       id-token: write
     steps:
       - name: Check out requested release tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.release_tag }}
           fetch-depth: 0
@@ -147,13 +147,13 @@ jobs:
       pull-requests: write
     steps:
       - name: Download verified signed release
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: PitMedic-${{ inputs.release_tag }}-signed-release
           path: Artifacts/release
 
       - name: Check out release metadata
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.release_tag }}
           path: source
@@ -173,7 +173,7 @@ jobs:
           python source/Build/release.py promote --tag $env:RELEASE_TAG
           if ($LASTEXITCODE -ne 0) { throw "Signed asset promotion failed." }
       - name: Check out main for publication PR
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: main
           path: site
