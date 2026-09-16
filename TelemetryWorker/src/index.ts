@@ -1,3 +1,4 @@
+import { validateFirstLaunch } from "./first-launch";
 import { rollUpExpiredTokens, validatePayload } from "./usage";
 import {
   allowedWebsiteOrigin,
@@ -19,8 +20,6 @@ const HEALTH_PATH = "/health";
 const BENCHMARK_PATH = "/v1/lap-benchmark";
 const WEB_EVENT_PATH = "/v1/web-event";
 const MAX_BODY_BYTES = 2_048;
-const INSTALL_ALERT_TO = "bobbyholmes@gmail.com";
-const INSTALL_ALERT_FROM = "notifications@pitmedic.com";
 
 type WorkerEnv = Env & { YOUTUBE_API_KEY?: string };
 
@@ -41,7 +40,7 @@ const worker = {
       return handleWebEventRequest(request, env);
     }
 
-    if (url.pathname !== ACTIVE_PATH) {
+    if (url.pathname !== ACTIVE_PATH && url.pathname !== "/v1/first-launch") {
       return jsonResponse({ error: "not_found" }, 404);
     }
 
@@ -57,6 +56,13 @@ const worker = {
 
     try {
       const rawPayload = await readBoundedJson(request, MAX_BODY_BYTES);
+      if (url.pathname === "/v1/first-launch") {
+        if (!validateFirstLaunch(rawPayload)) return jsonResponse({ error: "invalid_payload" }, 400);
+        // The trigger and receipt insert commit atomically. Lost acknowledgements are safe to retry.
+        await env.DB.prepare("INSERT OR IGNORE INTO first_launch_receipts (event_token, day, app_version, channel, install_type) VALUES (?, ?, ?, ?, ?)")
+          .bind(rawPayload.eventToken, rawPayload.day, rawPayload.appVersion, rawPayload.channel, rawPayload.installType).run();
+        return jsonResponse({ accepted: true }, 202);
+      }
       const validation = validatePayload(rawPayload);
       if (!validation.ok) {
         return jsonResponse(
@@ -70,9 +76,7 @@ const worker = {
       const month = day.slice(0, 7);
       const payload = validation.value;
 
-      // Keep the same privacy-preserving de-duplication model. The result of the
-      // monthly INSERT tells us whether this anonymous installation is newly
-      // counted this month; the rotating token itself is never included in email.
+      // Rotating tokens deduplicate active installations, not new installs.
       await env.DB.batch([
         env.DB.prepare(
           "INSERT OR IGNORE INTO daily_active (day, token, app_version, channel, install_type) VALUES (?, ?, ?, ?, ?)",
@@ -94,7 +98,7 @@ const worker = {
         ),
       ]);
 
-      const monthlyInsert = await env.DB.prepare(
+      await env.DB.prepare(
         "INSERT OR IGNORE INTO monthly_active (month, token, app_version, channel, install_type) VALUES (?, ?, ?, ?, ?)",
       )
         .bind(
@@ -108,7 +112,7 @@ const worker = {
 
       // A rotating token identifies the same anonymous installation only for
       // this month. Keep its current version/channel/install type up to date
-      // without adding another installation or sending another install alert.
+      // without adding another active installation.
       await env.DB.prepare(
         "UPDATE monthly_active SET app_version = ?, channel = ?, install_type = ? WHERE month = ? AND token = ?",
       )
@@ -120,26 +124,6 @@ const worker = {
           payload.monthlyToken,
         )
         .run();
-
-      if ((monthlyInsert.meta.changes ?? 0) > 0) {
-        const total = await env.DB.prepare(
-          "SELECT COUNT(*) AS total FROM monthly_active WHERE month = ?",
-        )
-          .bind(month)
-          .first<{ total: number }>();
-
-        // Alert delivery is deliberately best-effort. A mail-service outage must
-        // never make a valid anonymous heartbeat fail or cause extra client data
-        // to be collected.
-        await sendInstallAlert(env, {
-          appVersion: payload.appVersion,
-          channel: payload.channel,
-          installType: payload.installType,
-          month,
-          monthlyTotal: Number(total?.total ?? 0),
-          detectedAt: now,
-        });
-      }
 
       return jsonResponse({ accepted: true }, 202);
     } catch (error) {
@@ -165,6 +149,8 @@ const worker = {
       Promise.all([
         rollUpExpiredTokens(env.DB),
         pruneWebAnalytics(env.DB),
+        env.DB.prepare("DELETE FROM first_launch_receipts WHERE day < ?")
+          .bind(new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10)).run(),
       ]).then(() => undefined),
     );
   },
@@ -421,51 +407,6 @@ function benchmarkResponse(body: Record<string, unknown>): Response {
       "X-Content-Type-Options": "nosniff",
     },
   });
-}
-
-async function sendInstallAlert(
-  env: Env,
-  alert: {
-    appVersion: string;
-    channel: string;
-    installType: string;
-    month: string;
-    monthlyTotal: number;
-    detectedAt: Date;
-  },
-): Promise<void> {
-  try {
-    const binding = env.INSTALL_ALERT_EMAIL;
-    if (!binding) return;
-
-    const detected = alert.detectedAt.toISOString();
-    const subject = `PitMedic install detected · v${alert.appVersion}`;
-    const text = [
-      "A new anonymous PitMedic installation was counted on the Usage Dashboard.",
-      "",
-      `Version: ${alert.appVersion}`,
-      `Channel: ${alert.channel}`,
-      `Install type: ${alert.installType}`,
-      `Detected: ${detected}`,
-      `Monthly active installations (${alert.month}): ${alert.monthlyTotal}`,
-      "",
-      "No rotating token, IP address, hardware information, simulator activity, findings, or diagnostics are included in this email.",
-    ].join("\n");
-
-    await binding.send({
-      from: INSTALL_ALERT_FROM,
-      to: INSTALL_ALERT_TO,
-      subject,
-      text,
-    });
-  } catch (error) {
-    console.error(
-      JSON.stringify({
-        event: "install_alert_email_failed",
-        errorType: error instanceof Error ? error.name : "UnknownError",
-      }),
-    );
-  }
 }
 
 class PayloadTooLargeError extends Error {

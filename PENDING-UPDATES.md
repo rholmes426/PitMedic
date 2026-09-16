@@ -1,7 +1,17 @@
 # PitMedic pending updates
 
-Public app baseline: **1.0.0.1**. Next app release: **1.0.0.2**. The owner authorized publishing all queued changes on
-September 14, 2026. Signed app publication is pending the protected release workflow.
+Public app baseline: **1.0.0.2**, published September 14, 2026. The signed release,
+website, README, updater and installer checksum were verified by the publication workflow.
+The September 14 items below are release history; the two blocked Vitest 5 upgrades remain deferred.
+
+## Queued after 1.0.0.2 — optional usage reliability
+
+- Check reporting every 15 minutes while running, including while minimized to the tray; retry failed unchanged reports hourly.
+- Add a separate opt-in first-launch report for new local profiles. Preserve state across upgrades; exclude existing profiles; deduplicate retries with a one-time receipt retained for at most the 90-day reporting window.
+- Show first launches separately from active profiles and downloads; remove misleading monthly-first-seen install emails.
+- Shorten the first-launch consent dialog and Settings explanation; retain No thanks, the payload preview, privacy details and all existing choices.
+- Backward-compatible collector route and database migration must deploy before the next app build. No signed app release is authorized by this request.
+- Windows visual smoke check remains for the next requested build.
 
 The owner approves development pushes and validation for requested changes. Keep
 fixes and updates queued together; deliver a build only when requested, without a

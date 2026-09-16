@@ -52,6 +52,7 @@ public partial class App : System.Windows.Application
             executeOnlyOnce: false);
 
         AppPaths.EnsureCreated();
+        FirstLaunchReport.Initialize();
         _settings = new SettingsService();
         _settings.RefreshStartupRegistration();
 
