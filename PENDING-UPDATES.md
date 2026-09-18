@@ -100,7 +100,7 @@ Keep this file current as queue items are validated, deployed, or released.
 
 ## Proposed Knowledge Scout follow-up — September 18, 2026
 
-**Pending human review; not approved, implemented or release-authorized.**
+**Pending human review; not approved or release-authorized.**
 [Evidence, dates and all dispositions](Research/KnowledgeScoutReview-2026-09-18.md).
 Four guidance proposals from 30 retained sources; seven need evidence and nineteen
 require no new entry. Four older unresolved records remain open. These are newly
@@ -113,10 +113,10 @@ reviewed sources, not four newly released fixes.
 | KS-20260918-GHUB | Extend existing G HUB guidance with the reviewed July/August 2026 vendor escalation options. | Version-aware, manual vendor path; preserve settings and restart policy; no inferred crash signature. |
 | KS-20260918-SIMPRO | Add conditional SimPro display/game-data update guidance. | Match issue, build and hardware; preserve generation compatibility; no firmware or profile mutation. |
 | KS-20260918-SIMPRO-FIRMWARE | Safety-review-required: assess recovery while firmware flashing is active or uncertain. | Audit execution guards and test state handling; no proven PitMedic incident and no repair-state change authorized here. |
-| KS-20260918-SCOUT-INTEGRATION | Consolidate evidence review into the discovery run, per owner request; no separate recurring review task. | Documentation proposal only. Verify runner/auth/cost, reuse evidence, deduplicate by canonical URL/content, retain unresolved items and human decisions, update one draft docs-only PR. No releases or weakened protections. |
+| KS-20260918-SCOUT-INTEGRATION | **Implemented in merged [PR #79](https://github.com/rholmes426/PitMedic/pull/79).** Evidence triage now runs inside each Scout scan; no separate recurring review task. | Deterministic triage only: bounded fetches, canonical deduplication, cache reuse, deferred/inaccessible retention and explicit pending status. No semantic approval, repair-state change or release action. |
 
 Historical AMS2 CPU-thread workaround stays in investigation until current-build
 and hardware-specific A/B validation; it is not a queued automatic optimization.
 Fanatec runner 403 and inaccessible LMU/Kunos/KW discussions remain visible.
-Separate review schedule is being paused at the owner's request; integrated
-evidence review is **not yet active**. GitHub discovery remains unchanged.
+The separate review automation remains disabled. GitHub discovery and inline
+evidence triage are both active; human review and release approval remain separate.
