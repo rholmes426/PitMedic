@@ -353,6 +353,85 @@ def markdown_link(title: str, url: str) -> str:
     return f"[{safe_title}]({safe_url})"
 
 
+
+# A bounded, deterministic evidence pass: no model, API key, or paid service.
+INLINE_REVIEW_LIMIT = 32
+INLINE_REVIEW_DAYS = 7
+REMEDY_PATTERN = re.compile(
+    r"\b(?:fixed|resolved|workaround|reinstall|reset|verify (?:the )?(?:game|file)|"
+    r"restart (?:the )?service|clear (?:the )?cache)\b", re.IGNORECASE)
+
+
+def review_pending_findings(pending, registry, previous, records, now,
+                            fetcher=fetch_text, page_cache=None, offline=False):
+    """Collect evidence for retained candidates without approving or hiding them."""
+    allowed = {host.lower() for host in registry.get("allowedHosts", [])}
+    page_cache = page_cache if page_cache is not None else {}
+    timestamp = now.replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    grouped = {}
+    for finding in pending.values():
+        url = canonical_candidate_url(finding.get("url", ""))
+        if url:
+            grouped.setdefault(url, []).append(finding)
+    results = {}
+    fetched = 0
+    # Oldest checked first prevents a large backlog starving its tail.
+    for url, findings in sorted(grouped.items(), key=lambda pair: (
+            previous.get(pair[0], {}).get("checked", ""), pair[0])):
+        old = previous.get(url, {})
+        fresh = False
+        try:
+            fresh = (now - datetime.fromisoformat(old["checked"].replace("Z", "+00:00"))).days < INLINE_REVIEW_DAYS
+        except (KeyError, ValueError, TypeError):
+            pass
+        changed = any(item.get("firstSeen", "") > old.get("checked", "") for item in findings)
+        if offline or (fresh and not changed and url not in page_cache):
+            results[url] = dict(old) if old else {"status": "deferred", "reason": "Offline; no evidence fetched."}
+            continue
+        if url not in page_cache and fetched >= INLINE_REVIEW_LIMIT:
+            results[url] = dict(old) if old else {"status": "deferred", "reason": "Per-scan fetch budget; retained for next scan."}
+            continue
+        result = {"checked": timestamp, "status": "needs-evidence", "reason": ""}
+        try:
+            require_allowed_url(url, allowed)
+            if url not in page_cache:
+                fetched += 1
+                page_cache[url] = fetcher(url, allowed)
+            raw, final_url = page_cache[url]
+            require_allowed_url(final_url, allowed)
+            text, _ = parse_page(raw, final_url)
+            result["hash"] = content_hash(text)
+            result["finalUrl"] = final_url
+            if canonical_candidate_url(final_url) != url:
+                result["reason"] = "Redirected to another page; candidate evidence is unverified."
+            elif len(text) < 160 or re.search(
+                    r"verify you are human|just a moment|access denied|checking your browser|sign in to continue",
+                    text, re.IGNORECASE):
+                result["reason"] = "Insufficient page content or access challenge; no remedy verified."
+            else:
+                product_match = re.match(r"\*\*(.+?)\*\*", findings[0].get("text", ""))
+                product = product_match.group(1) if product_match else ""
+                harms = relevant_harm_snippets(text, product)
+                remedy = REMEDY_PATTERN.search(text)
+                reviewed = [r for r in records if canonical_candidate_url(r["url"]) == url]
+                if harms:
+                    result.update(status="safety-review-required", reason="Potential harm wording in fetched page; assess product relevance.")
+                    result["evidence"] = harms[0][:240]
+                elif remedy:
+                    result.update(status="candidate-remedy", reason="Remedy wording found; applicability, version and efficacy still require review.")
+                    result["evidence"] = text[max(0, remedy.start()-60):remedy.end()+140][:240]
+                else:
+                    result["reason"] = "Page fetched, but no supported remedy established by rule-based review."
+                if reviewed:
+                    latest = max(reviewed, key=lambda r: r["reviewedAt"])
+                    result["priorDecision"] = latest["status"]
+                    result["reason"] += " Previously reviewed URL; check whether content changes alter that decision."
+        except Exception as error:
+            result["reason"] = f"Evidence fetch failed: {type(error).__name__}. Retained for retry."
+        results[url] = result
+    return results
+
+
 def build_report(
     repo_root: Path,
     registry: dict[str, Any],
@@ -372,6 +451,7 @@ def build_report(
     harms: list[str] = []
     failures: list[str] = []
     baselines = 0
+    page_cache = {}
     globally_known = {
         canonical_candidate_url(url)
         for previous in previous_sources.values()
@@ -390,6 +470,7 @@ def build_report(
             continue
         try:
             raw, final_url = fetcher(source["url"], allowed_hosts)
+            page_cache[canonical_candidate_url(source["url"])] = (raw, final_url)
             text, links = parse_page(raw, final_url)
             digest = content_hash(text)
             discovered = candidate_links(
@@ -447,8 +528,11 @@ def build_report(
                     and record["reviewedAt"] >= finding["firstSeen"]):
                 del pending[key]
                 break
-    next_state = {"version": 3, "generated": timestamp, "sources": next_sources,
-                  "pendingFindings": pending}
+    inline_reviews = review_pending_findings(
+        pending, registry, prior_state.get("inlineReviews", {}), records, now,
+        fetcher=fetcher, page_cache=page_cache, offline=offline)
+    next_state = {"version": 4, "generated": timestamp, "sources": next_sources,
+                  "pendingFindings": pending, "inlineReviews": inline_reviews}
     actionable = actionable or bool(pending)
 
     enabled_sources = [source for source in registry.get("sources", []) if source.get("enabled", True)]
@@ -488,6 +572,15 @@ def build_report(
     section("Unreviewed findings retained across scans",
             [item["text"] for item in pending.values()],
             "No retained unreviewed findings.")
+    section("Inline evidence review (rule-based, not approval)",
+            [f"{markdown_link(item['status'], url)}: {safe_report_text(item['reason'])}"
+             + (f" Checked: {item['checked']}." if item.get('checked') else "")
+             + (f" Evidence: “{safe_report_text(item['evidence'])}”" if item.get('evidence') else "")
+             for url, item in inline_reviews.items()],
+            "No pending candidates to review.")
+    lines.extend(["", "This pass fetches candidate evidence during the scan without an AI service. "
+                  "Candidate remedies are not confirmed fixes. Unresolved findings remain above; "
+                  "only recorded maintainer decisions resolve them."])
     section("Recorded review decisions",
             [f"{markdown_link(record['status'], record['url'])}: {safe_report_text(record['note'])}"
              for record in records],
