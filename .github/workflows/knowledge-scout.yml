@@ -1,4 +1,4 @@
-name: Repair knowledge scout
+name: Repair knowledge scout and evidence review
 
 on:
   schedule:
@@ -60,7 +60,7 @@ jobs:
             : > prior-report.md
           fi
 
-      - name: Scan allowlisted sources as untrusted text
+      - name: Scan sources and review pending candidate evidence
         run: |
           python Tools/KnowledgeScout/knowledge_scout.py \
             --prior-report prior-report.md \
