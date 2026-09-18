@@ -97,3 +97,26 @@ Two unrelated safety signals were dismissed. G HUB service recovery is already
 covered. No new automatic repair or repair-state change was approved by this review.
 
 Keep this file current as queue items are validated, deployed, or released.
+
+## Proposed Knowledge Scout follow-up — September 18, 2026
+
+**Pending human review; not approved, implemented or release-authorized.**
+[Evidence, dates and all dispositions](Research/KnowledgeScoutReview-2026-09-18.md).
+Four guidance proposals from 30 retained sources; seven need evidence and nineteen
+require no new entry. Four older unresolved records remain open. These are newly
+reviewed sources, not four newly released fixes.
+
+| ID | Proposed work | Acceptance / limits |
+| --- | --- | --- |
+| KS-20260918-AMS2-SHIPPED | Update existing AMS2 graphics/content guidance using shipped 1.6.9.95 notes instead of announcement-only evidence. | Match version/scenario; preserve unknown-cause wording and genuine faults. No reset, rollback or detector change. |
+| KS-20260918-AMS2-SETUPS | Explain 1.6.8 setup-autoload behavior before assuming setup corruption. | Check version/preference; preserve saved data and existing evidence-based recovery. |
+| KS-20260918-GHUB | Extend existing G HUB guidance with the reviewed July/August 2026 vendor escalation options. | Version-aware, manual vendor path; preserve settings and restart policy; no inferred crash signature. |
+| KS-20260918-SIMPRO | Add conditional SimPro display/game-data update guidance. | Match issue, build and hardware; preserve generation compatibility; no firmware or profile mutation. |
+| KS-20260918-SIMPRO-FIRMWARE | Safety-review-required: assess recovery while firmware flashing is active or uncertain. | Audit execution guards and test state handling; no proven PitMedic incident and no repair-state change authorized here. |
+| KS-20260918-SCOUT-INTEGRATION | Consolidate evidence review into the discovery run, per owner request; no separate recurring review task. | Documentation proposal only. Verify runner/auth/cost, reuse evidence, deduplicate by canonical URL/content, retain unresolved items and human decisions, update one draft docs-only PR. No releases or weakened protections. |
+
+Historical AMS2 CPU-thread workaround stays in investigation until current-build
+and hardware-specific A/B validation; it is not a queued automatic optimization.
+Fanatec runner 403 and inaccessible LMU/Kunos/KW discussions remain visible.
+Separate review schedule is being paused at the owner's request; integrated
+evidence review is **not yet active**. GitHub discovery remains unchanged.
