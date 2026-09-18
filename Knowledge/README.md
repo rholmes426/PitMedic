@@ -32,7 +32,8 @@ Only the first two states are assigned by adding ordinary knowledge. The final t
 3. treats every fetched page as untrusted text and never executes content;
 4. compares source text and up to 40 keyword-matched links per source with the prior run;
 5. highlights possible safety/harm language, source failures, and scheduled review reminders; and
-6. writes one report for a rolling GitHub issue.
+6. fetches pending candidate pages for a bounded rule-based evidence review during the same run; and
+7. writes discovery and evidence-review results into the same rolling GitHub issue.
 
 The scheduled workflow runs on Tuesday and Friday and can also be started manually. It never commits, opens a pull request, changes a repair state, or publishes a release.
 
@@ -68,3 +69,24 @@ For each useful finding, a maintainer should record one outcome:
 - disable for safety, with the supporting evidence and reason retained.
 
 New automatic repairs still require the normal PitMedic rules: evidence-based detection, backups before mutation, narrow allowlists, simulator-closed checks where relevant, verification after repair, and an explicit user approval step.
+
+## Inline evidence review
+
+The Scout now reviews both newly discovered and retained pending URLs in the same
+GitHub Actions run. No separate ChatGPT task, model call, API key or AI credits are
+used. This is deterministic evidence triage, not a full semantic or human review.
+It reuses source pages already fetched, groups duplicate candidate URLs, checks
+allowlisted pages, flags inaccessible/redirected content and possible harm wording,
+and highlights remedy wording for further review. A keyword match never confirms
+a fix or its version applicability. Existing review decisions are shown as context.
+
+Up to 32 additional candidate pages are fetched per run. Results are retained in
+the rolling issue state and retried after seven days, sooner for a new finding or
+a page already fetched by the source scan. Oldest unchecked items are processed
+first; overflow stays explicitly deferred. Offline runs never fetch evidence.
+All candidates remain pending until a maintainer records a decision; no repair
+state, release queue, app code or public release is changed automatically.
+
+The separate scheduled ChatGPT review was disabled on September 18, 2026 to avoid
+duplicate recurring AI usage. A previously requested asynchronous run might
+already be underway; disabling the schedule is not cancellation of an active run.
