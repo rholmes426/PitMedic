@@ -92,11 +92,11 @@ Other September 14 decisions remain intact and were not re-queued. LMU's separat
 
 ## Consolidating discovery and review
 
-Owner's latest request is one review pass during the Scout scan, not a second scheduled task, to reduce usage. Current GitHub workflow only runs deterministic discovery and updates #9; its job name “review” does not mean evidence review exists.
+The requested same-run review is now implemented in merged [PR #79](https://github.com/rholmes426/PitMedic/pull/79). The Scout workflow performs bounded, deterministic evidence triage during each discovery run, reuses fetched pages, canonicalizes and deduplicates candidate URLs, retains inaccessible/deferred findings, and records results in the rolling issue. It uses no ChatGPT task, model call, API key or AI credits.
 
-This documentation-only run queues the integration design; it does **not** implement a workflow change or claim real-time review is active. Pause the separate review schedule in response to the owner's request; leave GitHub discovery unchanged. The resulting review-automation gap must be clearly disclosed.
+This is evidence triage, not semantic validation or human approval. Remedy keywords never confirm a fix, version applicability, or safety. No repair state, release queue, app code, merge, signing, deployment or public release is changed automatically. The separate scheduled review automation remains disabled; a previously requested one-off run may have completed independently.
 
-Integration acceptance: one discovery-plus-review execution; reuse fetched evidence and canonical URL/content fingerprints; reconsider changed evidence and due unresolved items; separate AI proposals from human approvals; preserve inaccessible backlog; update one draft review PR with docs/queue changes only; report source failures accurately; bound runtime and usage; no product mutations, release permissions, merges or weakened protections. Select and verify an available evidence-capable runner/authentication and its cost before enabling. Do not substitute keyword triage for verified remedies.
+For future runs, compare the inline-review state and this report before refetching unchanged material. Re-review changed findings and retry unresolved evidence on the Scout's bounded cadence. Human decisions remain separate and must not be represented by the machine's evidence status.
 
 ## Continuation and validation
 
