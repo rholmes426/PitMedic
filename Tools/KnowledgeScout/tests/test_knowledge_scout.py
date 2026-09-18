@@ -224,5 +224,73 @@ class KnowledgeScoutTests(unittest.TestCase):
         self.assertIn("new", state["pendingFindings"])
 
 
+class InlineReviewTests(unittest.TestCase):
+    def setUp(self):
+        self.now = scout.datetime(2026, 9, 18, tzinfo=scout.timezone.utc)
+        self.url = "https://lemansultimate.com/crash-fix"
+        self.pending = {"one": {"url": self.url, "text": "**Le Mans Ultimate**: candidate", "firstSeen": "2026-09-15T00:00:00Z"}}
+        self.registry = {"allowedHosts": ["lemansultimate.com"]}
+        self.calls = []
+
+    def fetch(self, url, hosts):
+        self.calls.append(url)
+        return ("<p>Fixed a crash by restarting the application. " + "Detailed vendor release context. " * 8 + "</p>", url)
+
+    def review(self, **kwargs):
+        return scout.review_pending_findings(self.pending, self.registry, kwargs.pop("previous", {}), [], self.now, fetcher=kwargs.pop("fetcher", self.fetch), **kwargs)
+
+    def test_backlog_is_fetched_once_and_not_resolved(self):
+        self.pending["duplicate"] = dict(self.pending["one"])
+        result = self.review()
+        self.assertEqual([self.url], self.calls)
+        self.assertEqual("candidate-remedy", result[self.url]["status"])
+        self.assertEqual(2, len(self.pending))
+        self.assertIn("still require review", result[self.url]["reason"])
+        self.assertEqual(result, self.review(previous=result))
+        self.assertEqual(1, len(self.calls))
+
+    def test_redirect_and_challenge_never_become_remedies(self):
+        result = self.review(fetcher=lambda u,h: ("Fixed " * 100, "https://lemansultimate.com/"))
+        self.assertEqual("needs-evidence", result[self.url]["status"])
+        result = self.review(fetcher=lambda u,h: ("Verify you are human. Fixed " * 100, u))
+        self.assertEqual("needs-evidence", result[self.url]["status"])
+
+    def test_allowlist_failure_and_offline_do_not_fetch(self):
+        self.pending["bad"] = {"url": "https://example.com/fix", "firstSeen": "2026-09-15T00:00:00Z"}
+        result = self.review(offline=True)
+        self.assertEqual([], self.calls)
+        result = self.review()
+        self.assertEqual([self.url], self.calls)
+        self.assertEqual("needs-evidence", result["https://example.com/fix"]["status"])
+
+    def test_scan_cache_reused_and_new_findings_invalidate_review_cache(self):
+        raw = self.fetch(self.url, set())
+        self.calls.clear()
+        result = self.review(page_cache={self.url: raw})
+        self.assertEqual([], self.calls)
+        self.pending["one"]["firstSeen"] = "2026-09-19T00:00:00Z"
+        self.now += scout.timedelta(days=1)
+        self.review(previous=result)
+        self.assertEqual([self.url], self.calls)
+
+    def test_fetch_budget_retains_overflow_and_rotates_to_unchecked(self):
+        from unittest.mock import patch
+        self.pending["two"] = {"url": "https://lemansultimate.com/z-fix", "firstSeen": "2026-09-15T00:00:00Z"}
+        with patch.object(scout, "INLINE_REVIEW_LIMIT", 1):
+            result = self.review()
+            self.assertEqual("deferred", result["https://lemansultimate.com/z-fix"]["status"])
+            self.review(previous=result)
+        self.assertEqual(2, len(self.calls))
+
+    def test_safety_takes_priority_and_fetch_failures_remain_pending(self):
+        result = self.review(fetcher=lambda u,h: ("This workaround causes data loss. " * 20, u))
+        self.assertEqual("safety-review-required", result[self.url]["status"])
+        def fail(u,h):
+            raise TimeoutError("timeout")
+        result = self.review(fetcher=fail)
+        self.assertEqual("needs-evidence", result[self.url]["status"])
+        self.assertEqual(1, len(self.pending))
+
+
 if __name__ == "__main__":
     unittest.main()
