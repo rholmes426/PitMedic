@@ -23,10 +23,16 @@ public sealed class AnonymousUsageService : IDisposable
     private readonly CancellationTokenSource _shutdown = new();
     private readonly Uri? _endpoint;
     private bool _disposed;
+    private int _started;
+    private readonly TimeProvider _timeProvider;
+    private readonly TimeSpan _checkInterval;
+    private readonly FirstLaunchReport _firstLaunch = new();
 
-    public AnonymousUsageService(SettingsService settings, HttpClient? httpClient = null, Uri? endpoint = null)
+    public AnonymousUsageService(SettingsService settings, HttpClient? httpClient = null, Uri? endpoint = null, TimeProvider? timeProvider = null, TimeSpan? checkInterval = null)
     {
         _settings = settings;
+        _timeProvider = timeProvider ?? TimeProvider.System;
+        _checkInterval = checkInterval ?? TimeSpan.FromMinutes(15);
         _httpClient = httpClient ?? new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
         _endpoint = endpoint ?? ParseConfiguredEndpoint();
         _settings.SettingsChanged += OnSettingsChanged;
@@ -36,8 +42,19 @@ public sealed class AnonymousUsageService : IDisposable
 
     public void Start()
     {
-        if (_settings.Current.ShareAnonymousUsage == true)
-            _ = Task.Run(() => SendIfDueAsync(_shutdown.Token));
+        if (Interlocked.Exchange(ref _started, 1) == 0)
+            _ = Task.Run(() => RunReportingLoopAsync(_shutdown.Token));
+    }
+
+    private async Task RunReportingLoopAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(_checkInterval);
+            do { await SendIfDueAsync(cancellationToken).ConfigureAwait(false); }
+            while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false));
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
     }
 
     public string GetStatusText()
@@ -66,7 +83,19 @@ public sealed class AnonymousUsageService : IDisposable
             channel = AppInfo.ReleaseChannel,
             installType = DetectInstallType()
         };
-        return JsonSerializer.Serialize(preview, JsonOptions);
+        return JsonSerializer.Serialize(new
+        {
+            activeUsage = preview,
+            firstLaunch = new
+            {
+                protocol = 1,
+                eventToken = "<one-time random receipt; not an activity identifier>",
+                day = "<first-launch UTC date; only for new local profiles>",
+                appVersion = "<version at first launch>",
+                channel = AppInfo.ReleaseChannel,
+                installType = DetectInstallType()
+            }
+        }, JsonOptions);
     }
 
     public async Task SendIfDueAsync(CancellationToken cancellationToken)
@@ -80,7 +109,10 @@ public sealed class AnonymousUsageService : IDisposable
             gateHeld = true;
             if (_disposed || _settings.Current.ShareAnonymousUsage != true) return;
 
-            var utcNow = DateTimeOffset.UtcNow;
+            await _firstLaunch.SendIfDueAsync(_httpClient, new Uri(_endpoint, "/v1/first-launch"),
+                () => _settings.Current.ShareAnonymousUsage == true, cancellationToken).ConfigureAwait(false);
+            if (_settings.Current.ShareAnonymousUsage != true) return;
+            var utcNow = _timeProvider.GetUtcNow();
             var utcDay = utcNow.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             var appVersion = AppInfo.Version;
             var channel = AppInfo.ReleaseChannel;
@@ -161,6 +193,7 @@ public sealed class AnonymousUsageService : IDisposable
 
     public void DeleteLocalIdentity()
     {
+        _firstLaunch.Discard();
         DeleteIfPresent(AppPaths.AnonymousUsageKeyFile);
         DeleteIfPresent(AppPaths.AnonymousUsageStateFile);
     }
@@ -199,7 +232,7 @@ public sealed class AnonymousUsageService : IDisposable
         return Convert.ToHexStringLower(digest);
     }
 
-    private static string DetectInstallType()
+    internal static string DetectInstallType()
     {
         var programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
         var executable = Environment.ProcessPath ?? AppContext.BaseDirectory;

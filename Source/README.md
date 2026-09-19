@@ -1,6 +1,13 @@
-# PitMedic v0.6.0.18
+# PitMedic v1.0.0.3
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v1.0.0.3
+
+- Keeps optional usage counts reliable during long-running tray sessions and adds a separate opt-in first-launch count for new local profiles.
+- Adds version-specific AMS2, G HUB and SimPro guidance with vendor citations; preserves existing narrow repair actions.
+- Reviews Scout candidate evidence within the discovery run while retaining human decisions and unresolved sources.
+- Includes compatible maintenance dependencies; Vitest 5 remains deferred.
 
 ## v0.6.0.18
 

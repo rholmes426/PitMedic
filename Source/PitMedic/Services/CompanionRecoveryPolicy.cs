@@ -60,7 +60,7 @@ public static class CompanionRecoveryPolicy
             "companion-logitech-ghub-service-recovery",
             "Recover Logitech G HUB",
             "Loading-loop, agent-fault, and updater-service recovery",
-            "PitMedic follows Logitech's loading-loop recovery order: close the G HUB UI and agent, restart the G HUB updater service, relaunch G HUB, and verify that it stays running.",
+            "PitMedic follows Logitech's loading-loop recovery order: close the G HUB UI and agent, restart the G HUB updater service, relaunch G HUB, and verify that it stays running. For recurring faults, compare the installed version with Logitech's notes: 2026.4.4919028 (July 13, 2026) fixed a registry memory leak and one agent memory-corruption source; 2026.5.939708 (August 11) added a Windows troubleshooting-page reinstall option. These do not explain every fault. Vendor update or reinstall is a manual escalation; PitMedic preserves settings.",
             new[]
             {
                 "Confirm every supported simulator is closed",
@@ -76,7 +76,7 @@ public static class CompanionRecoveryPolicy
             "companion-simagic-clean-recovery",
             "Recover SIMAGIC SimPro Manager",
             "SimPro 2/3 conflict, daemon, crash, and stale-process recovery",
-            "PitMedic closes the known SimPro 2, SimPro 3, and SimPro daemon process set, relaunches the validated installed generation, and verifies that it stays running.",
+            "For display or game-data problems, check the installed generation and supported hardware: SimPro 3.2.0 (August 19, 2026) improved DPI scaling, stability and EVO data; 3.2.1 (August 25) corrected scaling, iRacing left-rear tyre temperature/left-front wear, and Alpha angle-display stutter. Follow SIMAGIC's update instructions manually. Never run recovery during a firmware update or when its completion is uncertain. PitMedic closes the known SimPro 2, SimPro 3, and SimPro daemon process set, relaunches the validated installed generation, and verifies that it stays running. PitMedic does not flash firmware, downgrade, recalibrate or change profiles.",
             new[]
             {
                 "Confirm every supported simulator is closed",

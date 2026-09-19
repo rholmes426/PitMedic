@@ -144,6 +144,8 @@ jobs:
           dotnet restore Source/PitMedic.ReleaseTests/PitMedic.ReleaseTests.csproj
       - name: Run release policy tests
         run: dotnet run --project Source/PitMedic.ReleaseTests/PitMedic.ReleaseTests.csproj --configuration Release --no-restore
+      - name: Test optional usage delivery and consent
+        run: dotnet run --project Source/PitMedic.UsageTests/PitMedic.UsageTests.csproj --configuration Release
       - name: Compile PitMedic Release
         run: dotnet build Source/PitMedic/PitMedic.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
       - name: Compile elevated repair helper Release

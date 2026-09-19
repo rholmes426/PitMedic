@@ -138,8 +138,8 @@
                 <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
                     <StackPanel>
                         <TextBlock Text="PRIVACY &amp; ANONYMOUS USAGE" Style="{StaticResource SectionHeader}"/>
-                        <CheckBox x:Name="ShareAnonymousUsage" Content="Share a once-daily anonymous usage count"/>
-                        <TextBlock Text="Off by default. Shares only the app version, release channel, installer/portable type, and rotating anonymous tokens. It never shares diagnostics, findings, repairs, simulator activity, hardware details, file paths, or a permanent identifier. Turning this off deletes the local anonymous key and sending history."
+                        <CheckBox x:Name="ShareAnonymousUsage" Content="Share basic usage counts"/>
+                        <TextBlock Text="Optional usage counts and app version help us understand how many people use PitMedic. No names, files, or simulator activity are included. Turn this off at any time. See the data preview and privacy policy for details."
                                    Foreground="{DynamicResource MutedBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,2,0,10"/>
                         <TextBlock x:Name="AnonymousUsageStatus" Foreground="{DynamicResource MutedBrush}" FontSize="12" Margin="0,0,0,12"/>
                         <StackPanel Orientation="Horizontal">

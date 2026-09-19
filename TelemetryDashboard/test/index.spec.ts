@@ -122,7 +122,10 @@ describe("private aggregate dashboard", () => {
       ),
     ]);
 
+    await env.DB.prepare("INSERT INTO first_launch_receipts VALUES (?, ?, ?, ?, ?)")
+      .bind("c".repeat(64), today, "1.0.0.2", "stable", "installer").run();
     const data = await loadDashboardData(env.DB);
+    expect(data.firstLaunches).toBe(1);
     expect(data.today).toBe(1);
     expect(data.thisMonth).toBe(1);
 
@@ -144,6 +147,8 @@ describe("private aggregate dashboard", () => {
     expect(html).toContain('aria-current="page" href="/app"');
     expect(html).toContain("0.6.0.0");
     expect(html).toContain("portable");
+    expect(html).toContain("First launches");
+    expect(html).not.toContain("c".repeat(64));
     expect(html).not.toContain(DAILY_TOKEN);
     expect(html).not.toContain(MONTHLY_TOKEN);
     expect(html).not.toContain("dailyToken");
