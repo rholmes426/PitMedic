@@ -361,3 +361,31 @@ describe("lap benchmark matching", () => {
     expect(cached?.available).toBe(0);
   });
 });
+
+describe("first-launch delivery", () => {
+  function firstLaunch(overrides: Record<string, unknown> = {}) {
+    return { protocol: 1, eventToken: "c".repeat(64), day: new Date().toISOString().slice(0, 10),
+      appVersion: "1.0.0.2", channel: "stable", installType: "installer", ...overrides };
+  }
+  async function send(body: unknown) {
+    return worker.fetch(new IncomingRequest("https://usage.example/v1/first-launch", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+    }), env);
+  }
+  it("counts retries only once, independently of activity and version changes", async () => {
+    await env.DB.exec("DELETE FROM first_launch_receipts; DELETE FROM first_launch_totals;");
+    expect((await send(firstLaunch())).status).toBe(202);
+    expect((await send(firstLaunch())).status).toBe(202);
+    expect((await send(firstLaunch({ appVersion: "1.0.0.3" }))).status).toBe(202);
+    const count = await env.DB.prepare("SELECT SUM(launches) AS total FROM first_launch_totals").first<{total:number}>();
+    expect(count?.total).toBe(1);
+    const active = await env.DB.prepare("SELECT COUNT(*) AS total FROM daily_active").first<{total:number}>();
+    expect(active?.total).toBe(0);
+  });
+  it("rejects expired receipts, future dates, activity tokens and extra identifying fields", async () => {
+    for (const changes of [
+      { day: new Date(Date.now() - 91 * 86400000).toISOString().slice(0,10) },
+      { day: "2999-01-01" }, { day: "2026-02-30" }, { dailyToken: TOKEN_A }, { computerName: "private" },
+    ]) expect((await send(firstLaunch(changes))).status).toBe(400);
+  });
+});

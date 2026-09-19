@@ -4,7 +4,7 @@ Official PitMedic Windows releases use Microsoft Azure Artifact Signing with Pit
 
 ## Privacy
 
-PitMedic never transfers diagnostics, findings, repairs, hardware data, or simulator activity to the project. Users may explicitly opt in to a once-daily anonymous active-installation count containing only the documented six-field payload; it is off by default and uses no permanent identifier. See [the complete privacy statement](Source/PRIVACY.md).
+PitMedic never transfers diagnostics, findings, repairs, hardware data, or simulator activity to the project. Users may explicitly opt in to anonymous active-usage counts and a separate first-launch count for new local profiles. Both are off by default and use only the documented payloads; first-launch receipts are separate from rotating activity tokens and expire after 90 days. See [the complete privacy statement](Source/PRIVACY.md).
 
 ## Team roles
 

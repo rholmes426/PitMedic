@@ -1,7 +1,41 @@
 # PitMedic pending updates
 
-Public app baseline: **1.0.0.1**. Next app release: **1.0.0.2**. The owner authorized publishing all queued changes on
-September 14, 2026. Signed app publication is pending the protected release workflow.
+Public app baseline: **1.0.0.2**, published September 14, 2026. The signed release,
+website, README, updater and installer checksum were verified by the publication workflow.
+The September 14 items below are release history; the two blocked Vitest 5 upgrades remain deferred.
+
+## Approved 1.0.0.3 release — September 19, 2026
+
+The owner requested processing pending updates and publishing the app. This authorizes
+the protected signed release and its required collector, dashboard and website deployments.
+Publication is pending validation and the existing protected release workflow.
+
+- Integrated usage PR #78 and the complete review record from #80 without discarding either branch's work.
+- Implemented guidance proposals KS-20260918-AMS2-SHIPPED, AMS2-SETUPS, GHUB and SIMPRO;
+  refreshed vendor evidence September 19 and regenerated all 60 Diagnostic Library records.
+  No detector signatures, automatic repair actions or lifecycle states change.
+- Included eight compatible dependency proposals: EventLog 10.0.12 (#75), Node types
+  26.5.1 in all three services (#14/#16/#74), Cloudflare test plugin 1.1.8 (#24/#28),
+  and Wrangler 4.131.1 (#26/#27). Lockfiles resolve these tested versions.
+- Vitest 5 (#19/#20) remains blocked: plugin 1.1.8 still requires Vitest ^4.1.0.
+- The SIMAGIC firmware-interruption audit remains pending. The executor closes the
+  declared SimPro process set but has no proven firmware-state signal. Added explicit
+  user guidance not to recover during flashing or uncertain completion; this is not
+  an automatic firmware guard. A guard requires reliable observability and active/unknown
+  update tests before implementation. No fix is retired or marked human-approved.
+- All inaccessible/uncertain Scout evidence remains pending as recorded in the September 18 report.
+- Local release/Scout tests pass (8 + 20); catalog validates 60 repairs and 26 sources.
+  Required Windows CI and production deployment results will be checked before publication.
+  Interactive Windows visual smoke testing is unavailable in this Linux workspace.
+
+## Queued after 1.0.0.2 — optional usage reliability
+
+- Check reporting every 15 minutes while running, including while minimized to the tray; retry failed unchanged reports hourly.
+- Add a separate opt-in first-launch report for new local profiles. Preserve state across upgrades; exclude existing profiles; deduplicate retries with a one-time receipt retained for at most the 90-day reporting window.
+- Show first launches separately from active profiles and downloads; remove misleading monthly-first-seen install emails.
+- Shorten the first-launch consent dialog and Settings explanation; retain No thanks, the payload preview, privacy details and all existing choices.
+- Backward-compatible collector route and database migration must deploy before app distribution. The September 19 request authorizes the release; verify deployment first.
+- Windows visual smoke check remains for the next requested build.
 
 The owner approves development pushes and validation for requested changes. Keep
 fixes and updates queued together; deliver a build only when requested, without a
@@ -97,3 +131,26 @@ Two unrelated safety signals were dismissed. G HUB service recovery is already
 covered. No new automatic repair or repair-state change was approved by this review.
 
 Keep this file current as queue items are validated, deployed, or released.
+
+## Proposed Knowledge Scout follow-up — September 18, 2026
+
+**Pending human review; not approved or release-authorized.**
+[Evidence, dates and all dispositions](Research/KnowledgeScoutReview-2026-09-18.md).
+Four guidance proposals from 30 retained sources; seven need evidence and nineteen
+require no new entry. Four older unresolved records remain open. These are newly
+reviewed sources, not four newly released fixes.
+
+| ID | Proposed work | Acceptance / limits |
+| --- | --- | --- |
+| KS-20260918-AMS2-SHIPPED | Update existing AMS2 graphics/content guidance using shipped 1.6.9.95 notes instead of announcement-only evidence. | Match version/scenario; preserve unknown-cause wording and genuine faults. No reset, rollback or detector change. |
+| KS-20260918-AMS2-SETUPS | Explain 1.6.8 setup-autoload behavior before assuming setup corruption. | Check version/preference; preserve saved data and existing evidence-based recovery. |
+| KS-20260918-GHUB | Extend existing G HUB guidance with the reviewed July/August 2026 vendor escalation options. | Version-aware, manual vendor path; preserve settings and restart policy; no inferred crash signature. |
+| KS-20260918-SIMPRO | Add conditional SimPro display/game-data update guidance. | Match issue, build and hardware; preserve generation compatibility; no firmware or profile mutation. |
+| KS-20260918-SIMPRO-FIRMWARE | Safety-review-required: assess recovery while firmware flashing is active or uncertain. | Audit execution guards and test state handling; no proven PitMedic incident and no repair-state change authorized here. |
+| KS-20260918-SCOUT-INTEGRATION | **Implemented in merged [PR #79](https://github.com/rholmes426/PitMedic/pull/79).** Evidence triage now runs inside each Scout scan; no separate recurring review task. | Deterministic triage only: bounded fetches, canonical deduplication, cache reuse, deferred/inaccessible retention and explicit pending status. No semantic approval, repair-state change or release action. |
+
+Historical AMS2 CPU-thread workaround stays in investigation until current-build
+and hardware-specific A/B validation; it is not a queued automatic optimization.
+Fanatec runner 403 and inaccessible LMU/Kunos/KW discussions remain visible.
+The separate review automation remains disabled. GitHub discovery and inline
+evidence triage are both active; human review and release approval remain separate.

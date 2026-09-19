@@ -13,6 +13,7 @@ export type UsageBreakdown = {
 };
 
 export type DashboardData = {
+  firstLaunches: number;
   today: number;
   thisMonth: number;
   thirtyDayAverage: number;
@@ -94,6 +95,7 @@ export async function loadDashboardData(
     db.prepare(DAILY_SQL).bind(firstDailyPeriod, firstDailyPeriod),
     db.prepare(MONTHLY_SQL).bind(firstMonthlyPeriod, firstMonthlyPeriod),
     db.prepare(BREAKDOWN_SQL).bind(currentMonth, currentMonth),
+    db.prepare("SELECT COALESCE(SUM(launches), 0) AS total FROM first_launch_totals WHERE day >= ?").bind(firstDailyPeriod),
   ]);
 
   const daily = fillPeriods(
@@ -111,6 +113,7 @@ export async function loadDashboardData(
   );
 
   return {
+    firstLaunches: Number(results[3]?.results[0]?.total ?? 0),
     today:
       daily.find((point) => point.period === today)?.activeInstallations ?? 0,
     thisMonth: currentMonthBreakdown.reduce(
@@ -154,7 +157,8 @@ export function renderDashboard(
       <div class="timestamp">Updated ${escapeHtml(formatUtc(generatedAt))}</div>
     </section>
 
-    <section class="cards five" aria-label="Current usage totals">
+    <section class="cards six" aria-label="Current usage totals">
+      ${metricCard("First launches", data.firstLaunches, "Last 30 days · opted-in new profiles")}
       ${metricCard("Today", data.today, "Daily active installations")}
       ${metricCard("This month", data.thisMonth, "Monthly active installations")}
       ${metricCard("30-day average", data.thirtyDayAverage, "Daily active installations")}
@@ -166,6 +170,7 @@ export function renderDashboard(
       )}
     </section>
 
+    <p>First launches count new local profiles using builds with first-launch reporting, after they opt in. Upgrades of existing profiles are excluded. Reinstalls with retained settings are not new; separate Windows profiles can count separately. Offline reports may arrive later. These are not a complete count of installs.</p>
     <p>GitHub counts installer and portable ZIP downloads, including repeat downloads; these are not unique users or confirmed installations.</p>
     <section class="grid">
       <article class="panel daily-panel">
@@ -289,7 +294,7 @@ function renderBars(points: TrendPoint[], periodType: "day" | "month"): string {
 
 function renderBreakdown(rows: UsageBreakdown[]): string {
   if (rows.length === 0)
-    return `<div class="empty"><strong>No opted-in activity yet.</strong><span>Counts will appear after a v0.6 tester chooses Share anonymous usage.</span></div>`;
+    return `<div class="empty"><strong>No opted-in activity yet.</strong><span>Counts appear after users choose to share usage counts.</span></div>`;
 
   return `<div class="table-wrap"><table><thead><tr><th>Version</th><th>Channel</th><th>Installation</th><th>Active</th></tr></thead><tbody>${rows
     .map(

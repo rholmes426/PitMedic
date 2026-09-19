@@ -1,6 +1,6 @@
 # PitMedic privacy statement
 
-Last updated: September 7, 2026
+Last updated: September 16, 2026
 
 PitMedic is designed to perform monitoring, diagnostics, and repairs locally on the user's Windows computer.
 
@@ -18,7 +18,7 @@ These files remain on the computer unless the user deliberately opens, copies, e
 
 ## Optional anonymous app-usage count
 
-PitMedic v0.6.0.0 can attempt one anonymous active-installation count at most once per UTC day. This is **off by default** and begins only after the user explicitly chooses **Share anonymous usage**. The choice and a preview of the complete payload are also available in Settings.
+PitMedic checks every 15 minutes while running whether an optional active-installation count is due. It sends once per UTC day and again if the version, channel, or installation type changes. Failed requests retry no more often than hourly for unchanged data. This is **off by default** and begins only after the user explicitly chooses **Share usage counts**. Existing sharing choices are preserved. The choice and a preview of the complete payload are also available in Settings.
 
 The request contains exactly:
 
@@ -36,6 +36,14 @@ The service keeps current daily and monthly tokens only long enough to prevent d
 The project administrator can view these aggregate totals in a private, access-controlled dashboard. The dashboard cannot submit usage records and never reads or displays the rotating tokens. It reports only active-installation counts and their app-version, release-channel, and installation-type breakdowns.
 
 Turning anonymous usage off immediately deletes the local secret and last-send state. Uninstalling PitMedic also removes those two usage-count files while leaving the user's diagnostic history untouched. Turning sharing on later creates a new unlinkable secret. Previously created aggregate counts cannot identify an installation and therefore cannot be individually removed.
+
+### Optional first-launch count
+
+New local PitMedic profiles can also send one first-launch report after opting in. Existing profiles upgrading to this feature are excluded. This measures participating new profiles, not all installs or unique people; multiple Windows profiles may count separately, and reinstalls that retain settings are not counted again.
+
+The separate request contains protocol version, first-launch UTC date, the version/channel/installation type at that launch, and a random one-time receipt. It contains no daily/monthly activity tokens. The receipt is used only to deduplicate retries, is not attached to later activity, and is deleted from the server after its 90-day acceptance window. Aggregated counts by day, version, channel and installation type remain. Reports older than 90 days are rejected and the app discards them.
+
+Locally, pending reports retry hourly until accepted or expired. Acceptance or opting out removes the pending payload and leaves a small completed/disabled marker. That marker stays across upgrades, opting out and re-enabling sharing, and uninstall/reinstall with retained settings, to prevent repeat first-launch counts. Clearing the entire local PitMedic profile can allow a new count. No report is sent while sharing is off, and opting out is not reported to the server.
 
 ## Other network behavior
 

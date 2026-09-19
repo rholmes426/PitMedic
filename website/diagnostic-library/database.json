@@ -1365,7 +1365,7 @@
       "product": "Automobilista 2",
       "issue": "Broken graphics or display configuration",
       "detection": "AMS2 evidence identifies graphicsconfigdx11.xml near a display, startup, or settings failure.",
-      "repair": "For weather-transition hitches, check Reiza's current release notes first. The September 2026 development update announces performance improvements and multiplayer crash fixes; it does not establish an installed-version threshold or prove local configuration damage. Preserve graphicsconfigdx11.xml and remove the active copy so AMS2 can regenerate clean display settings.",
+      "repair": "For weather-transition hitches, check the installed version first: Reiza shipped weather-slot CPU improvements in 1.6.9.95 on September 12, 2026. If running an older build, review the supported update before resetting settings. A hitch alone does not prove configuration damage. For an evidenced configuration failure, preserve graphicsconfigdx11.xml and remove the active copy so AMS2 can regenerate clean display settings.",
       "safety": "Automatic / reversible / one-click",
       "signatures": [
         "graphicsconfigdx11.xml",
@@ -1388,10 +1388,10 @@
           "official": false
         },
         {
-          "title": "September 2026 development update",
+          "title": "AMS2 1.6.9.95 release notes",
           "source": "Reiza Studios",
-          "url": "https://forum.reizastudios.com/threads/automobilista-2-september-2026-development-update.36665/",
-          "note": "Official announcement covers weather-transition performance and multiplayer stability. Confirm shipped release details before treating these as resolved.",
+          "url": "https://forum.reizastudios.com/threads/automobilista-2-v1-6-9-95-released-updated-to-v1-6-9-96.36667/",
+          "note": "September 12, 2026 shipped notes confirm weather-slot CPU improvements; the exact oldest affected build is not specified.",
           "official": true
         }
       ],
@@ -1488,7 +1488,7 @@
       "product": "Automobilista 2",
       "issue": "Car setups are incompatible after a physics update",
       "detection": "AMS2 evidence points to tuning setup or vehiclesetups data while an affected car or setup fails after an update.",
-      "repair": "Preserve the tuning setup folders and move their active copies aside so the affected cars can load without stale setup data.",
+      "repair": "Check the version and Gameplay setup-autoload preference first. AMS2 1.6.8 (October 2, 2025) disabled setup autoload by default; saved setups can still be loaded manually. Returning to factory setups alone is expected behavior, not corruption. For an evidenced incompatible setup, preserve the tuning setup folders and move their active copies aside so the affected cars can load without stale setup data.",
       "safety": "Significant / reversible / ask first",
       "signatures": [
         "tuningsetups",
@@ -1502,6 +1502,13 @@
           "url": "https://forum.reizastudios.com/threads/file-backup.32850/",
           "note": "The Reiza community identifies vehiclesetups folders as the location of saved car setup data; PitMedic preserves the folders intact.",
           "official": false
+        },
+        {
+          "title": "AMS2 1.6.8 setup-autoload change",
+          "source": "Reiza Studios",
+          "url": "https://forum.reizastudios.com/threads/automobilista-2-v1-6-8-lamborghini-dream-pack-pt2-released-now-updated-to-v1-6-8-1.35636/",
+          "note": "October 2, 2025 release notes explain default-disabled autoload, manual setup loading and the Gameplay preference.",
+          "official": true
         }
       ],
       "kind": "simulator-repair",
@@ -1603,7 +1610,7 @@
       "product": "Automobilista 2",
       "issue": "Missing or damaged Automobilista 2 game files",
       "detection": "AMS2 evidence explicitly reports a missing, corrupt, or unreadable game file or package.",
-      "repair": "For multiplayer crashes without missing-file evidence, check Reiza's current release notes before attempting content repair. Its September 2026 announcement describes upcoming crash fixes, not proof of damaged local files. Ask Steam to verify Automobilista 2 and reacquire missing or damaged game files.",
+      "repair": "For multiplayer crashes or LMP1 2005 wet-tyre crashes, check the installed version: Reiza shipped fixes for some multiplayer crash sources and that wet-tyre crash in 1.6.9.95 on September 12, 2026. Review the supported update for older builds; unknown versions and generic crashes do not establish a match. With separate missing or damaged game-file evidence, ask Steam to verify Automobilista 2 and reacquire those files.",
       "safety": "Reversible / approval required when expected over two minutes",
       "signatures": [
         "missing file",
@@ -1624,6 +1631,13 @@
           "url": "https://forum.reizastudios.com/threads/graphics-setting-are-not-saved-reset-on-game-launch.35342/",
           "note": "Reiza staff include Steam file verification among the supported AMS2 troubleshooting steps.",
           "official": false
+        },
+        {
+          "title": "AMS2 1.6.9.95 release notes",
+          "source": "Reiza Studios",
+          "url": "https://forum.reizastudios.com/threads/automobilista-2-v1-6-9-95-released-updated-to-v1-6-9-96.36667/",
+          "note": "Shipped fixes cover some multiplayer CTDs and LMP1 2005 wet-tyre CTDs, not every crash.",
+          "official": true
         }
       ],
       "kind": "simulator-repair",
@@ -1752,7 +1766,7 @@
       "product": "Logitech G HUB",
       "issue": "Recover Logitech G HUB",
       "detection": "Loading-loop, agent-fault, and updater-service recovery",
-      "repair": "PitMedic follows Logitech's loading-loop recovery order: close the G HUB UI and agent, restart the G HUB updater service, relaunch G HUB, and verify that it stays running.",
+      "repair": "PitMedic follows Logitech's loading-loop recovery order: close the G HUB UI and agent, restart the G HUB updater service, relaunch G HUB, and verify that it stays running. For recurring faults, compare the installed version with Logitech's notes: 2026.4.4919028 (July 13, 2026) fixed a registry memory leak and one agent memory-corruption source; 2026.5.939708 (August 11) added a Windows troubleshooting-page reinstall option. These do not explain every fault. Vendor update or reinstall is a manual escalation; PitMedic preserves settings.",
       "safety": "Ask first / requires elevation",
       "signatures": [],
       "steps": [
@@ -1763,6 +1777,13 @@
         "Verify that G HUB remains running"
       ],
       "references": [
+        {
+          "title": "G HUB release notes",
+          "source": "Logitech Support",
+          "url": "https://support.logi.com/hc/en-gb/articles/360048967733-G-HUB-Update-Release-Notes",
+          "note": "2026.4 documents memory fixes; 2026.5 adds a manual Windows reinstall option. Match the installed version and symptom before escalating.",
+          "official": true
+        },
         {
           "title": "G HUB freezes while loading",
           "source": "Logitech Support",
@@ -1789,7 +1810,7 @@
       "product": "SIMAGIC SimPro Manager",
       "issue": "Recover SIMAGIC SimPro Manager",
       "detection": "SimPro 2/3 conflict, daemon, crash, and stale-process recovery",
-      "repair": "PitMedic closes the known SimPro 2, SimPro 3, and SimPro daemon process set, relaunches the validated installed generation, and verifies that it stays running.",
+      "repair": "For display or game-data problems, check the installed generation and supported hardware: SimPro 3.2.0 (August 19, 2026) improved DPI scaling, stability and EVO data; 3.2.1 (August 25) corrected scaling, iRacing left-rear tyre temperature/left-front wear, and Alpha angle-display stutter. Follow SIMAGIC's update instructions manually. Never run recovery during a firmware update or when its completion is uncertain. PitMedic closes the known SimPro 2, SimPro 3, and SimPro daemon process set, relaunches the validated installed generation, and verifies that it stays running. PitMedic does not flash firmware, downgrade, recalibrate or change profiles.",
       "safety": "Ask first / controlled restart",
       "signatures": [],
       "steps": [

@@ -1,7 +1,7 @@
-Steam now starts quietly during a repair but stays available when you open it. PitMedic preserves your later Steam window choices.
+Optional usage reporting now continues during long-running tray sessions, with bounded retries. New profiles that opt in can contribute a separate first-launch count; existing profiles and opt-outs are preserved. Consent remains optional and includes an exact-data preview.
 
-Diagnostic guidance now includes iRacing's recent vendor-fixed crash cases, LMU network issues, AMS2 weather-transition and multiplayer issues, and Fanatec compatibility and RaceRoom wheel-oscillation guidance. Announced patches are distinguished from confirmed releases; hardware and firmware changes remain manual.
+Diagnostic guidance identifies shipped AMS2 1.6.9.95 weather-transition and crash fixes, explains expected setup-autoload behavior, and adds version-specific G HUB and SimPro guidance. Firmware, drivers and profiles remain outside these guidance changes.
 
-Knowledge Scout groups duplicate forum links, retains unresolved findings across scans, records review decisions, and filters unrelated safety notices. Existing repairs remain available.
+Knowledge Scout now gathers candidate evidence during the same scan, retaining unresolved findings without a separate recurring AI review. Evidence triage never automatically approves or publishes repairs.
 
 Includes the validated maintenance dependency batch. Vitest 5 remains deferred until the Cloudflare test plugin supports it.

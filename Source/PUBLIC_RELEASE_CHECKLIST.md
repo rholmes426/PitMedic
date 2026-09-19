@@ -43,6 +43,6 @@
 - Safety, restore, history, and access to the user's own diagnostics remain free.
 - Diagnostics stay local unless a future user explicitly previews and approves an upload.
 - Website analytics remain cookie-free and are documented in the public privacy policy.
-- Anonymous app-usage counting remains voluntary, off until the user makes a choice, limited to the documented six-field heartbeat, and independently disableable from update checks.
+- Anonymous app-usage counting remains voluntary, off until the user makes a choice, limited to the documented activity and new-profile first-launch payloads, and independently disableable from update checks. First-launch receipts are separate from activity tokens and expire after 90 days.
 - Raw rotating usage tokens are rolled into anonymous counts and deleted after their day or month closes; only aggregate totals persist.
 - Any future expansion of analytics or cloud features requires prior documentation, consent design, and privacy review.

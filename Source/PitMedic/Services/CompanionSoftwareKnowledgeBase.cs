@@ -29,6 +29,8 @@ public static class CompanionSoftwareKnowledgeBase
         },
         CompanionSoftwareKind.LogitechGHub => new[]
         {
+            Official("G HUB release notes", "Logitech Support", "https://support.logi.com/hc/en-gb/articles/360048967733-G-HUB-Update-Release-Notes",
+                "2026.4 documents memory fixes; 2026.5 adds a manual Windows reinstall option. Match the installed version and symptom before escalating."),
             Official("G HUB freezes while loading", "Logitech Support", "https://support.logi.com/hc/en-ca/articles/360036179173-G-HUB-freezes-while-loading-and-logo-animation-loops",
                 "Logitech documents closing the G HUB agent/UI processes before restarting the software."),
             Official("G HUB install/uninstall/update troubleshooting", "Logitech Support", "https://support.logi.com/hc/en-150/articles/360023192454-G-HUB-Install-Uninstall-Update-Troubleshooting",

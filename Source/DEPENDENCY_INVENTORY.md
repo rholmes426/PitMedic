@@ -7,7 +7,7 @@ This inventory records the packages resolved by the v0.6.0.0 .NET 10 projects. I
 | Package | Version | Purpose |
 | --- | ---: | --- |
 | LibreHardwareMonitorLib | 0.9.6 | CPU, GPU, memory, fan, clock, power, and related hardware sensor access. |
-| System.Diagnostics.EventLog | 10.0.11 | Reads relevant Windows event evidence. |
+| System.Diagnostics.EventLog | 10.0.12 | Reads relevant Windows event evidence. |
 
 ## Resolved transitive packages
 

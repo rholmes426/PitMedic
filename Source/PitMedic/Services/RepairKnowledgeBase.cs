@@ -661,14 +661,14 @@ public static class RepairKnowledgeBase
             Game = "Automobilista 2",
             Issue = "Broken graphics or display configuration",
             Detection = "AMS2 evidence identifies graphicsconfigdx11.xml near a display, startup, or settings failure.",
-            RepairStrategy = "For weather-transition hitches, check Reiza's current release notes first. The September 2026 development update announces performance improvements and multiplayer crash fixes; it does not establish an installed-version threshold or prove local configuration damage. Preserve graphicsconfigdx11.xml and remove the active copy so AMS2 can regenerate clean display settings.",
+            RepairStrategy = "For weather-transition hitches, check the installed version first: Reiza shipped weather-slot CPU improvements in 1.6.9.95 on September 12, 2026. If running an older build, review the supported update before resetting settings. A hitch alone does not prove configuration damage. For an evidenced configuration failure, preserve graphicsconfigdx11.xml and remove the active copy so AMS2 can regenerate clean display settings.",
             Safety = "Automatic / reversible / one-click",
             Signatures = new[] { "graphicsconfigdx11.xml", "graphics configuration", "display settings" },
             References = new[]
             {
                 Ref("Graphics settings reset on launch", "Reiza Studios Forum", "https://forum.reizastudios.com/threads/graphics-setting-are-not-saved-reset-on-game-launch.35342/", "Reiza staff and users document regenerating AMS2 Documents configuration while investigating graphics-state failures.", false),
                 Ref("Can't access Options", "AMS2 Steam Community", "https://steamcommunity.com/app/1066890/discussions/0/586181727714649000/", "A resolved report confirms that removing only graphicsconfigdx11.xml allowed AMS2 to regenerate the correct display state.", false),
-                Ref("September 2026 development update", "Reiza Studios", "https://forum.reizastudios.com/threads/automobilista-2-september-2026-development-update.36665/", "Official announcement covers weather-transition performance and multiplayer stability. Confirm shipped release details before treating these as resolved."),
+                Ref("AMS2 1.6.9.95 release notes", "Reiza Studios", "https://forum.reizastudios.com/threads/automobilista-2-v1-6-9-95-released-updated-to-v1-6-9-96.36667/", "September 12, 2026 shipped notes confirm weather-slot CPU improvements; the exact oldest affected build is not specified."),
             }
         },
         new KnowledgeEntry
@@ -719,12 +719,13 @@ public static class RepairKnowledgeBase
             Game = "Automobilista 2",
             Issue = "Car setups are incompatible after a physics update",
             Detection = "AMS2 evidence points to tuning setup or vehiclesetups data while an affected car or setup fails after an update.",
-            RepairStrategy = "Preserve the tuning setup folders and move their active copies aside so the affected cars can load without stale setup data.",
+            RepairStrategy = "Check the version and Gameplay setup-autoload preference first. AMS2 1.6.8 (October 2, 2025) disabled setup autoload by default; saved setups can still be loaded manually. Returning to factory setups alone is expected behavior, not corruption. For an evidenced incompatible setup, preserve the tuning setup folders and move their active copies aside so the affected cars can load without stale setup data.",
             Safety = "Significant / reversible / ask first",
             Signatures = new[] { "tuningsetups", "vehiclesetups", "tuning setup" },
             References = new[]
             {
                 Ref("AMS2 file backup locations", "Reiza Studios Forum", "https://forum.reizastudios.com/threads/file-backup.32850/", "The Reiza community identifies vehiclesetups folders as the location of saved car setup data; PitMedic preserves the folders intact.", false),
+                Ref("AMS2 1.6.8 setup-autoload change", "Reiza Studios", "https://forum.reizastudios.com/threads/automobilista-2-v1-6-8-lamborghini-dream-pack-pt2-released-now-updated-to-v1-6-8-1.35636/", "October 2, 2025 release notes explain default-disabled autoload, manual setup loading and the Gameplay preference."),
             }
         },
         new KnowledgeEntry
@@ -776,13 +777,14 @@ public static class RepairKnowledgeBase
             Game = "Automobilista 2",
             Issue = "Missing or damaged Automobilista 2 game files",
             Detection = "AMS2 evidence explicitly reports a missing, corrupt, or unreadable game file or package.",
-            RepairStrategy = "For multiplayer crashes without missing-file evidence, check Reiza's current release notes before attempting content repair. Its September 2026 announcement describes upcoming crash fixes, not proof of damaged local files. Ask Steam to verify Automobilista 2 and reacquire missing or damaged game files.",
+            RepairStrategy = "For multiplayer crashes or LMP1 2005 wet-tyre crashes, check the installed version: Reiza shipped fixes for some multiplayer crash sources and that wet-tyre crash in 1.6.9.95 on September 12, 2026. Review the supported update for older builds; unknown versions and generic crashes do not establish a match. With separate missing or damaged game-file evidence, ask Steam to verify Automobilista 2 and reacquire those files.",
             Safety = "Reversible / approval required when expected over two minutes",
             Signatures = new[] { "missing file", "corrupt package", "failed to load" },
             References = new[]
             {
                 Ref("Verify Integrity of Game Files", "Steam Support", "https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB", "Valve documents file verification for missing or damaged game content."),
                 Ref("Graphics settings reset on launch", "Reiza Studios Forum", "https://forum.reizastudios.com/threads/graphics-setting-are-not-saved-reset-on-game-launch.35342/", "Reiza staff include Steam file verification among the supported AMS2 troubleshooting steps.", false),
+                Ref("AMS2 1.6.9.95 release notes", "Reiza Studios", "https://forum.reizastudios.com/threads/automobilista-2-v1-6-9-95-released-updated-to-v1-6-9-96.36667/", "Shipped fixes cover some multiplayer CTDs and LMP1 2005 wet-tyre CTDs, not every crash."),
             }
         },
     };
