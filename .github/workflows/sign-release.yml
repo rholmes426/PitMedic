@@ -45,7 +45,7 @@ jobs:
           if ($sensorHelperVersion -ne $version) { throw "Sensor helper version $sensorHelperVersion does not match app version $version." }
 
       - name: Set up .NET 10
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
 
