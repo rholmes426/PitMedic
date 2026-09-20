@@ -7,6 +7,18 @@ website and updater update. [Deployment run 35487314338](https://github.com/rhol
 passed the final live release and installer checksum verification.
 The September 14 items below are release history; the two blocked Vitest 5 upgrades remain deferred.
 
+## Queued — iRacing repair selection consistency (September 20, 2026)
+
+- Remove the generic `iracing-electron` logger-name match from UI-cache repair detection.
+- Use shared evidence-based iRacing repair selection during capture, saved-finding review,
+  and elevated validation. Reassess older stored recommendations, including clearing
+  unsupported stale repairs, while preserving captured evidence.
+- Preserve narrow diagnostic signatures, elevated allowlists, independent plan reconstruction,
+  and approval for Windows-wide operations. A connection reset does not establish cache corruption.
+- Add regression coverage for an application fault followed by a launcher connection reset,
+  genuine UI/EAC faults, legacy findings, and stale or altered saved recommendations.
+- Development only: no version bump, signing, installer delivery, or public release authorized.
+
 ## Approved 1.0.0.3 release — September 19, 2026
 
 The owner requested processing pending updates and publishing the app. This authorizes

@@ -232,9 +232,8 @@ public sealed class IncidentRecorder
             var changed = !ReferenceEquals(reassessed, record);
             record = reassessed;
             var plan = RepairPlanner.TryCreateFromIncident(record);
-            if (plan is not null
-                && (record.RecommendedRepair is null
-                    || !record.RecommendedRepair.Id.Equals(plan.Id, StringComparison.OrdinalIgnoreCase)))
+            if ((plan is not null || record.Game.Equals("iRacing", StringComparison.OrdinalIgnoreCase))
+                && !string.Equals(record.RecommendedRepair?.Id, plan?.Id, StringComparison.OrdinalIgnoreCase))
             {
                 record = record with { RecommendedRepair = plan };
                 changed = true;

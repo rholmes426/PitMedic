@@ -357,6 +357,7 @@ AssertTrue(
     "A real RaceRoom HTTP 503 failure must remain detectable.");
 
 SteamValidationWindowTests.Run();
+IRacingRepairPlanTests.Run();
 
 Console.WriteLine("PitMedic release policy tests passed.");
 
