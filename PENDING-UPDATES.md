@@ -2,8 +2,9 @@
 
 Public app baseline: **1.0.0.3**, published September 19, 2026.
 The signed app, helpers and installer passed verification in [release run 35459555625](https://github.com/rholmes426/PitMedic/actions/runs/35459555625).
-[Publication PR #82](https://github.com/rholmes426/PitMedic/pull/82) updates the README,
-website and updater together; its deployment performs the final public checksum verification.
+[Publication PR #82](https://github.com/rholmes426/PitMedic/pull/82) merged the README,
+website and updater update. [Deployment run 35487314338](https://github.com/rholmes426/PitMedic/actions/runs/35487314338)
+passed the final live release and installer checksum verification.
 The September 14 items below are release history; the two blocked Vitest 5 upgrades remain deferred.
 
 ## Approved 1.0.0.3 release — September 19, 2026
@@ -39,7 +40,7 @@ before signed app publication. The protected release workflow completed successf
 - Add a separate opt-in first-launch report for new local profiles. Preserve state across upgrades; exclude existing profiles; deduplicate retries with a one-time receipt retained for at most the 90-day reporting window.
 - Show first launches separately from active profiles and downloads; remove misleading monthly-first-seen install emails.
 - Shorten the first-launch consent dialog and Settings explanation; retain No thanks, the payload preview, privacy details and all existing choices.
-- Backward-compatible collector route and database migration must deploy before app distribution. The September 19 request authorizes the release; verify deployment first.
+- The backward-compatible collector route and database migration deployed successfully before app distribution.
 - Windows visual smoke check remains for the next requested build.
 
 The owner approves development pushes and validation for requested changes. Keep
@@ -89,7 +90,7 @@ results before marking deployment complete.
 
 The published npm metadata for `@cloudflare/vitest-plugin@1.1.3` requires Vitest,
 `@vitest/runner`, and `@vitest/snapshot` **^4.1.0**. The latest stable plugin,
-**1.1.8**, still declares that same requirement when checked on September 13, 2026.
+**1.1.13**, still declares that same requirement when rechecked on September 20, 2026.
 Both projects therefore retain their working Vitest **4.1.11** lockfile versions.
 
 Before including #19 and #20, obtain a Cloudflare plugin release that explicitly
