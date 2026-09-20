@@ -11,9 +11,9 @@ workflows, and queued work. Read this file together with `CONTRIBUTING.md`,
 - Repository: `rholmes426/PitMedic`
 - Main branch: protected; use pull requests and required Build Validation checks.
 - Current public release: `v1.0.0.3`.
-- Release metadata PR: #82 (`release-metadata/v1.0.0.3`).
+- Release metadata PR #82 merged; README, website, updater, installer URL, and checksum verification passed.
 - The 1.0.0.3 implementation batch merged through PR #81.
-- Analytics migration, Worker, dashboard, and website deployment completed before signing.
+- Analytics migration, Worker, dashboard, signed assets, and public website deployment completed successfully.
 - Vitest 5 upgrade PRs #19 and #20 remain blocked by the Cloudflare Vitest plugin peer requirement.
 - SIMAGIC firmware interruption protection remains a safety-review item; do not claim it is implemented.
 - Unresolved Knowledge Scout findings remain retained. Broken or inaccessible citations do not retire fixes.

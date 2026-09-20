@@ -1,14 +1,19 @@
 # PitMedic pending updates
 
-Public app baseline: **1.0.0.2**, published September 14, 2026. The signed release,
-website, README, updater and installer checksum were verified by the publication workflow.
+Public app baseline: **1.0.0.3**, published September 19, 2026.
+The signed app, helpers and installer passed verification in [release run 35459555625](https://github.com/rholmes426/PitMedic/actions/runs/35459555625).
+[Publication PR #82](https://github.com/rholmes426/PitMedic/pull/82) updates the README,
+website and updater together; its deployment performs the final public checksum verification.
 The September 14 items below are release history; the two blocked Vitest 5 upgrades remain deferred.
 
 ## Approved 1.0.0.3 release — September 19, 2026
 
 The owner requested processing pending updates and publishing the app. This authorizes
 the protected signed release and its required collector, dashboard and website deployments.
-Publication is pending validation and the existing protected release workflow.
+Implemented and merged in [PR #81](https://github.com/rholmes426/PitMedic/pull/81).
+Required Windows Build Validation passed. The collector migration and dashboard
+[deployment](https://github.com/rholmes426/PitMedic/actions/runs/35459486295) succeeded
+before signed app publication. The protected release workflow completed successfully.
 
 - Integrated usage PR #78 and the complete review record from #80 without discarding either branch's work.
 - Implemented guidance proposals KS-20260918-AMS2-SHIPPED, AMS2-SETUPS, GHUB and SIMPRO;
@@ -25,10 +30,10 @@ Publication is pending validation and the existing protected release workflow.
   update tests before implementation. No fix is retired or marked human-approved.
 - All inaccessible/uncertain Scout evidence remains pending as recorded in the September 18 report.
 - Local release/Scout tests pass (8 + 20); catalog validates 60 repairs and 26 sources.
-  Required Windows CI and production deployment results will be checked before publication.
+  Required Windows CI, installer prerequisite checks and production analytics deployment passed.
   Interactive Windows visual smoke testing is unavailable in this Linux workspace.
 
-## Queued after 1.0.0.2 — optional usage reliability
+## Shipped in 1.0.0.3 — optional usage reliability
 
 - Check reporting every 15 minutes while running, including while minimized to the tray; retry failed unchanged reports hourly.
 - Add a separate opt-in first-launch report for new local profiles. Preserve state across upgrades; exclude existing profiles; deduplicate retries with a one-time receipt retained for at most the 90-day reporting window.
@@ -42,7 +47,7 @@ fixes and updates queued together; deliver a build only when requested, without 
 separate ZIP or installer for each fix. Signing and public release require explicit
 owner approval.
 
-## App fix ready for the next version
+## Shipped in 1.0.0.2 — Steam window control
 
 | Change | Implementation and validation | Tracking |
 | --- | --- | --- |
