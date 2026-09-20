@@ -13,7 +13,7 @@
     "types": "wrangler types"
   },
   "devDependencies": {
-    "@cloudflare/vitest-plugin": "^1.1.8",
+    "@cloudflare/vitest-plugin": "^1.1.12",
     "@types/node": "^26.5.1",
     "typescript": "^7.0.2",
     "vitest": "^4.1.0",
