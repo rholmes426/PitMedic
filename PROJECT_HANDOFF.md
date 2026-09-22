@@ -10,11 +10,14 @@ workflows, and queued work. Read this file together with `CONTRIBUTING.md`,
 
 - Repository: `rholmes426/PitMedic`
 - Main branch: protected; use pull requests and required Build Validation checks.
-- Current public release: `v1.0.0.3`.
-- Release metadata PR #82 merged; README, website, updater, installer URL, and checksum verification passed.
-- The 1.0.0.3 implementation batch merged through PR #81.
-- Analytics migration, Worker, dashboard, signed assets, and public website deployment completed successfully.
-- Vitest 5 upgrade PRs #19 and #20 remain blocked by the Cloudflare Vitest plugin peer requirement.
+- Current public release: `v1.0.0.4`; protected signing/publication run 35680498864 passed.
+- Implementation PR #101 and release metadata PR #102 merged. Pages run 35767900939
+  passed final README, website, updater, installer URL and checksum verification.
+- Includes the iRacing repair-selection fix and 12 compatible maintenance proposals.
+- Collector/dashboard deployment run 35680474216 passed. The separate Neon Functions
+  0.11.0 dependency deployment was blocked by approval review and requires separate
+  owner approval; the existing production function remains deployed.
+- Vitest 5 upgrade PRs #92 and #93 remain blocked by the Cloudflare Vitest plugin peer requirement.
 - SIMAGIC firmware interruption protection remains a safety-review item; do not claim it is implemented.
 - Unresolved Knowledge Scout findings remain retained. Broken or inaccessible citations do not retire fixes.
 
@@ -47,8 +50,8 @@ repair state, signing configuration, or release tags to hide pending decisions.
 The owner approved automatic publication of requested website-only updates on
 September 22, 2026. Validate and merge through required checks, then verify the
 live site. App releases and analytics deployments still need explicit approval.
-Version 1.0.0.4 is approved for the current pending-update release; preparation
-is in progress and the public baseline remains 1.0.0.3 until verification completes.
+Version 1.0.0.4 was explicitly approved and published. Future app releases still
+require explicit approval; website-only standing approval does not extend to analytics.
 
 Routine changes go through a focused branch and PR. Run the relevant tests and the full
 release validation when app, Build, workflow, or unknown files change. Public signing is
