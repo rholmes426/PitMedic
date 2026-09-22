@@ -1,6 +1,14 @@
 # PitMedic pending updates
 
-Public app baseline: **1.0.0.3**, published September 19, 2026.
+Public app baseline: **1.0.0.4**, published September 22, 2026.
+The app, helpers and installer passed signed verification in
+[release run 35680498864](https://github.com/rholmes426/PitMedic/actions/runs/35680498864).
+Implementation PR #101 and publication metadata PR #102 are merged.
+Final README, website, updater, installer URL and downloaded SHA-256 verification
+passed in [Pages run 35767900939](https://github.com/rholmes426/PitMedic/actions/runs/35767900939).
+The Neon function dependency deployment remains pending separate approval below.
+
+Previous app baseline: **1.0.0.3**, published September 19, 2026.
 The signed app, helpers and installer passed verification in [release run 35459555625](https://github.com/rholmes426/PitMedic/actions/runs/35459555625).
 [Publication PR #82](https://github.com/rholmes426/PitMedic/pull/82) merged the README,
 website and updater update. [Deployment run 35487314338](https://github.com/rholmes426/PitMedic/actions/runs/35487314338)
@@ -16,7 +24,7 @@ The September 14 items below are release history; the two blocked Vitest 5 upgra
 - Published September 22 through PR #100; Pages run 35679986329 passed live
   release and installer checksum verification. No outreach was sent.
 
-## Approved for 1.0.0.4 — iRacing repair selection consistency (September 20, 2026)
+## Shipped in 1.0.0.4 — iRacing repair selection consistency (September 20, 2026)
 
 - Remove the generic `iracing-electron` logger-name match from UI-cache repair detection.
 - Use shared evidence-based iRacing repair selection during capture, saved-finding review,
@@ -27,21 +35,27 @@ The September 14 items below are release history; the two blocked Vitest 5 upgra
 - Add regression coverage for an application fault followed by a launcher connection reset,
   genuine UI/EAC faults, legacy findings, and stale or altered saved recommendations.
 - Owner approved publishing pending app updates on September 22, 2026. Included
-  in 1.0.0.4 preparation; final signing and publication verification remain in progress.
+  in the signed 1.0.0.4 release; all 20 synthetic regression scenarios passed.
 
 ## Approved 1.0.0.4 maintenance batch — September 22, 2026
 
 The owner requested publication of pending app updates, authorizing the protected
-signed release and required website/analytics deployments for this batch.
+signed app release and website publication for this batch. Automatic approval
+review requires separate approval for the Neon analytics deployment.
 
 - Includes iRacing repair PR #85, with all 20 regression scenarios retained.
 - Includes 12 compatible dependency proposals: #86–#91, #94–#99.
   Node types 26.6.1 in all three services; Neon Functions 0.11.0; Cloudflare test
   plugin 1.1.12 and Wrangler 4.134.0; setup-python 7, upload-artifact 7,
-  configure-pages 6 and setup-dotnet 6. Full combined validation is required.
+  configure-pages 6 and setup-dotnet 6. Full combined validation passed in
+  run 35680242948 and again in the protected release workflow.
 - Vitest 5 proposals #92/#93 remain excluded: plugin 1.1.12 declares ^4.1.0 peers.
 - SIMAGIC firmware observability and unresolved Scout evidence remain pending;
   they are not implemented fixes ready for publication.
+- Collector/dashboard deployment triggered by the merge passed in run 35680474216.
+- Neon function deployment was blocked by automatic approval review and remains
+  pending separate owner approval. The validated Functions 0.11.0 bundle from
+  run 35680242948 is prepared; the existing production function remains deployed.
 - Standing website-only publication approval is recorded in Build/RELEASING.md.
   App releases and analytics deployments still require explicit approval.
 
