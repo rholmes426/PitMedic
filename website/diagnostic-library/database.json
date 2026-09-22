@@ -357,7 +357,6 @@
       "repair": "Back up metadata if useful, close the UI, clear %APPDATA%\\iracing-electron, then relaunch.",
       "safety": "Automatic/reversible enough for cache data; short",
       "signatures": [
-        "iracing-electron",
         "white screen",
         "black screen",
         "UI cache"

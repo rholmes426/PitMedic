@@ -36,7 +36,7 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v7
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.13"
       - name: Validate lifecycle coverage and safety policy
@@ -119,7 +119,7 @@ jobs:
           echo
           echo "NEON_ZIP_BASE64_END"
       - name: Upload tested function bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: neon-analytics-function
           path: NeonAnalytics/dist/
@@ -134,7 +134,7 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v7
       - name: Set up .NET 10
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Restore
@@ -165,7 +165,7 @@ jobs:
         shell: pwsh
         run: ./Build/Test-InstalledPrerequisites.ps1
       - name: Upload validation artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: PitMedic-unsigned-validation-${{ github.sha }}
           path: |

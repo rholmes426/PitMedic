@@ -44,6 +44,12 @@ repair state, signing configuration, or release tags to hide pending decisions.
 
 ## Release rules
 
+The owner approved automatic publication of requested website-only updates on
+September 22, 2026. Validate and merge through required checks, then verify the
+live site. App releases and analytics deployments still need explicit approval.
+Version 1.0.0.4 is approved for the current pending-update release; preparation
+is in progress and the public baseline remains 1.0.0.3 until verification completes.
+
 Routine changes go through a focused branch and PR. Run the relevant tests and the full
 release validation when app, Build, workflow, or unknown files change. Public signing is
 performed only by `.github/workflows/publish-release.yml` from protected `main`, with an

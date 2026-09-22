@@ -35,13 +35,10 @@ public static class RepairPlanner
 
         if (game.Kind == GameKind.IRacing)
         {
-            foreach (var fault in liveFaults ?? Array.Empty<LiveFaultEvidence>())
-            {
-                var plan = PlanForSignature(IRacingRepairSignaturePolicy.MapDiagnosticSignature(fault.SignatureId));
-                if (plan is not null) return plan;
-            }
-
-            return PlanForCategory(classification.Category);
+            // Use the same persisted evidence and precedence as history and the helper.
+            var evidence = classification.Evidence.Concat(
+                (liveFaults ?? Array.Empty<LiveFaultEvidence>()).Select(f => f.ToEvidenceText()));
+            return CreateIRacingPlan(classification.Category, evidence);
         }
 
         if (game.Kind == GameKind.AssettoCorsaEvo)
@@ -117,6 +114,9 @@ public static class RepairPlanner
     {
         // Reassess old findings before accepting even a serialized repair plan.
         if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(record)) return null;
+        // Reconstruct iRacing plans even when an older app saved a different recommendation.
+        if (record.Game.Equals("iRacing", StringComparison.OrdinalIgnoreCase))
+            return CreateIRacingPlan(record.Classification.Category, record.Classification.Evidence);
         if (record.RecommendedRepair is not null
             && !record.RecommendedRepair.Id.Equals("companion-app-restart", StringComparison.OrdinalIgnoreCase))
             return record.RecommendedRepair;
@@ -127,10 +127,6 @@ public static class RepairPlanner
             if (affected.Count > 0) return BuildLmuContentRepair(affected);
             return PlanFromEvidence("Le Mans Ultimate", record.Classification.Evidence);
         }
-
-        if (record.Game.Equals("iRacing", StringComparison.OrdinalIgnoreCase))
-            return PlanFromEvidence("iRacing", record.Classification.Evidence)
-                ?? PlanForCategory(record.Classification.Category);
 
         if (record.Game.Equals("Assetto Corsa EVO", StringComparison.OrdinalIgnoreCase))
             return PlanFromEvidence("Assetto Corsa EVO", record.Classification.Evidence)
@@ -195,6 +191,9 @@ public static class RepairPlanner
         try { return Path.IsPathFullyQualified(path) && File.Exists(Path.GetFullPath(path)); }
         catch { return false; }
     }
+
+    private static RepairPlan? CreateIRacingPlan(string category, IEnumerable<string> evidence) =>
+        PlanFromEvidence("iRacing", evidence) ?? PlanForCategory(category);
 
     private static RepairPlan? PlanFromEvidence(string game, IEnumerable<string> evidence)
     {

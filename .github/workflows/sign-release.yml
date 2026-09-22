@@ -45,7 +45,7 @@ jobs:
           if ($sensorHelperVersion -ne $version) { throw "Sensor helper version $sensorHelperVersion does not match app version $version." }
 
       - name: Set up .NET 10
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
 
@@ -130,7 +130,7 @@ jobs:
         run: ./Build/Assemble-SignedRelease.ps1 -SignedBinariesPath ./Artifacts/unsigned -SignedInstallerPath ./Artifacts/installer
 
       - name: Upload verified signed release
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: PitMedic-${{ inputs.release_tag }}-signed-release
           path: Artifacts/release/
@@ -159,7 +159,7 @@ jobs:
           path: source
           persist-credentials: false
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.13'
       - name: Promote without overwriting signed assets

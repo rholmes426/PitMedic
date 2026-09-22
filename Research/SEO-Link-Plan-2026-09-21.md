@@ -1,6 +1,6 @@
 # PitMedic SEO implementation and link outreach — September 21, 2026
 
-Status: implementation prepared for review; not deployed. No external outreach sent.
+Status: published September 22, 2026 via PR #100; Pages run 35679986329 passed. No external outreach sent.
 
 ## Implemented on-page changes
 
