@@ -7,13 +7,43 @@ website and updater update. [Deployment run 35487314338](https://github.com/rhol
 passed the final live release and installer checksum verification.
 The September 14 items below are release history; the two blocked Vitest 5 upgrades remain deferred.
 
-## Prepared — website titles, keywords and link building (September 21, 2026)
+## Published — website titles, keywords and link building (September 21, 2026)
 
 - Updated homepage title/H1, six simulator titles/intros and natural topic headings.
 - Added descriptive homepage guide links and README links to the website and relevant help pages.
 - Prepared a sourced link-building plan and OverTake outreach draft in
   `Research/SEO-Link-Plan-2026-09-21.md`; no external messages or submissions sent.
-- Website publication remains pending; app code and release metadata are unchanged.
+- Published September 22 through PR #100; Pages run 35679986329 passed live
+  release and installer checksum verification. No outreach was sent.
+
+## Approved for 1.0.0.4 — iRacing repair selection consistency (September 20, 2026)
+
+- Remove the generic `iracing-electron` logger-name match from UI-cache repair detection.
+- Use shared evidence-based iRacing repair selection during capture, saved-finding review,
+  and elevated validation. Reassess older stored recommendations, including clearing
+  unsupported stale repairs, while preserving captured evidence.
+- Preserve narrow diagnostic signatures, elevated allowlists, independent plan reconstruction,
+  and approval for Windows-wide operations. A connection reset does not establish cache corruption.
+- Add regression coverage for an application fault followed by a launcher connection reset,
+  genuine UI/EAC faults, legacy findings, and stale or altered saved recommendations.
+- Owner approved publishing pending app updates on September 22, 2026. Included
+  in 1.0.0.4 preparation; final signing and publication verification remain in progress.
+
+## Approved 1.0.0.4 maintenance batch — September 22, 2026
+
+The owner requested publication of pending app updates, authorizing the protected
+signed release and required website/analytics deployments for this batch.
+
+- Includes iRacing repair PR #85, with all 20 regression scenarios retained.
+- Includes 12 compatible dependency proposals: #86–#91, #94–#99.
+  Node types 26.6.1 in all three services; Neon Functions 0.11.0; Cloudflare test
+  plugin 1.1.12 and Wrangler 4.134.0; setup-python 7, upload-artifact 7,
+  configure-pages 6 and setup-dotnet 6. Full combined validation is required.
+- Vitest 5 proposals #92/#93 remain excluded: plugin 1.1.12 declares ^4.1.0 peers.
+- SIMAGIC firmware observability and unresolved Scout evidence remain pending;
+  they are not implemented fixes ready for publication.
+- Standing website-only publication approval is recorded in Build/RELEASING.md.
+  App releases and analytics deployments still require explicit approval.
 
 ## Approved 1.0.0.3 release — September 19, 2026
 

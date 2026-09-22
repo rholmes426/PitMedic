@@ -1,6 +1,12 @@
-# PitMedic v1.0.0.3
+# PitMedic v1.0.0.4
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v1.0.0.4
+
+- Fixes iRacing repair selection mismatches after launcher connection resets.
+- Reassesses saved iRacing recommendations while preserving independent elevated validation.
+- Includes compatible maintenance dependencies; Vitest 5 remains deferred.
 
 ## v1.0.0.3
 

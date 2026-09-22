@@ -183,7 +183,8 @@ public static class RepairKnowledgeBase
             Detection = "UI process remains alive but fails to render/respond; logs point to Electron/UI state rather than simulator crash.",
             RepairStrategy = "Back up metadata if useful, close the UI, clear %APPDATA%\\iracing-electron, then relaunch.",
             Safety = "Automatic/reversible enough for cache data; short",
-            Signatures = new[] { "iracing-electron", "white screen", "black screen", "UI cache" },
+            // The logger/process name alone is not evidence of a UI failure.
+            Signatures = new[] { "white screen", "black screen", "UI cache" },
             References = new[]
             {
                 Ref("Quick Troubleshooting Launching the iRacing UI", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000162469", "Official support recommends deleting the local iracing-electron cache after restarting the service."),

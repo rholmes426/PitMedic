@@ -3,9 +3,11 @@
 Read `PROJECT_HANDOFF.md` first. Then read the repository instructions it names before
 editing. Preserve protected-branch requirements and existing user work.
 
-Do not publish, sign, merge, deploy, or alter release state unless the user explicitly
-requests that action in the current task. Do not invoke release workflows for routine
-changes. Never use a title, search snippet, forum index, or unshipped announcement as
+The owner authorized automatic publication of requested website-only changes on
+September 22, 2026: validate, open a PR, merge after required checks and verify the
+live deployment without asking again. This includes related website documentation.
+App signing/public releases and analytics deployments still require explicit approval.
+Do not invoke release workflows for routine website changes. Never use a title, search snippet, forum index, or unshipped announcement as
 proof of a vendor remedy. Keep uncertain Knowledge Scout findings visible.
 
 Repairs must be targeted, reversible, backed up, and approval-gated according to the

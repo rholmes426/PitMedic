@@ -20,9 +20,11 @@ validation, and compatibility-blocker status. Batch changes into the next versio
 when the owner requests a build. Do not deliver a new ZIP or installer for each
 individual fix. Required CI checks may retain their internal validation artifacts.
 
-Changes that trigger website or analytics deployment on merge must stay on a
-queued branch until the owner approves that deployment. Public app releases still
-require the separate approval below. Never force incompatible dependency versions
+The owner gave standing approval on September 22, 2026 to publish requested
+website-only changes automatically after validation: open a PR, merge through branch
+protection, and verify the live deployment without asking again. Related website
+documentation may be published with those changes. This does not authorize app
+signing/public releases or analytics deployments; those require explicit approval. Never force incompatible dependency versions
 or bypass required checks to mark a queue item complete.
 
 ## Approved release
