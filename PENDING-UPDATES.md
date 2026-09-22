@@ -7,6 +7,14 @@ website and updater update. [Deployment run 35487314338](https://github.com/rhol
 passed the final live release and installer checksum verification.
 The September 14 items below are release history; the two blocked Vitest 5 upgrades remain deferred.
 
+## Prepared — website titles, keywords and link building (September 21, 2026)
+
+- Updated homepage title/H1, six simulator titles/intros and natural topic headings.
+- Added descriptive homepage guide links and README links to the website and relevant help pages.
+- Prepared a sourced link-building plan and OverTake outreach draft in
+  `Research/SEO-Link-Plan-2026-09-21.md`; no external messages or submissions sent.
+- Website publication remains pending; app code and release metadata are unchanged.
+
 ## Approved 1.0.0.3 release — September 19, 2026
 
 The owner requested processing pending updates and publishing the app. This authorizes

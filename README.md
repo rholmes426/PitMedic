@@ -13,14 +13,24 @@ Current signed release: **1.0.0.3**
 The installer, PitMedic app, repair helper, and sensor service are signed and timestamped.
 <!-- current-release:end -->
 
+## Troubleshooting guides
+
+Visit [PitMedic's sim racing diagnostics and repair website](https://pitmedic.com/) or
+browse the [Diagnostic Library](https://pitmedic.com/diagnostic-library/) for symptoms,
+evidence, supported recovery steps, and source references.
+
+- [iRacing Missing File Privileges during Steam updates](https://pitmedic.com/diagnostic-library/iracing-missing-file-privileges/)
+- [iRacing Loading Error 3 troubleshooting](https://pitmedic.com/diagnostic-library/iracing-loading-error-3/)
+- [Le Mans Ultimate damaged track or vehicle content](https://pitmedic.com/diagnostic-library/lmu-content-corruption/)
+
 ## Supported simulators
 
-- Le Mans Ultimate
-- iRacing
-- Assetto Corsa EVO
-- RaceRoom Racing Experience
-- Assetto Corsa Competizione
-- Automobilista 2
+- [Le Mans Ultimate troubleshooting](https://pitmedic.com/simulators/le-mans-ultimate/)
+- [iRacing troubleshooting](https://pitmedic.com/simulators/iracing/)
+- [Assetto Corsa EVO troubleshooting](https://pitmedic.com/simulators/assetto-corsa-evo/)
+- [RaceRoom Racing Experience troubleshooting](https://pitmedic.com/simulators/raceroom/)
+- [Assetto Corsa Competizione troubleshooting](https://pitmedic.com/simulators/assetto-corsa-competizione/)
+- [Automobilista 2 troubleshooting](https://pitmedic.com/simulators/automobilista-2/)
 
 ## Release highlights
 
