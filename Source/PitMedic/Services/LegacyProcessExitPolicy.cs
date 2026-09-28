@@ -5,8 +5,11 @@ namespace PitMedic.Services;
 
 public static class LegacyProcessExitPolicy
 {
+    public static bool IsUnverifiedRunningStatus(IncidentRecord record)
+        => !record.ProcessExitConfirmed && record.ExitCode == 259;
+
     public static bool IsUnverifiedRunningExit(IncidentRecord record)
-        => !record.ProcessExitConfirmed && record.ExitCode == 259
+        => IsUnverifiedRunningStatus(record)
             && record.Classification.Category == "Abnormal process termination";
 
     public static (string Game, int Pid, DateTimeOffset Started) SessionKey(IncidentRecord record)

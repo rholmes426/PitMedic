@@ -113,7 +113,8 @@ public static class RepairPlanner
     public static RepairPlan? TryCreateFromIncident(IncidentRecord record)
     {
         // Reassess old findings before accepting even a serialized repair plan.
-        if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(record)) return null;
+        if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(record)
+            || LegacyProcessExitPolicy.IsUnverifiedRunningStatus(record)) return null;
         // Reconstruct iRacing plans even when an older app saved a different recommendation.
         if (record.Game.Equals("iRacing", StringComparison.OrdinalIgnoreCase))
             return CreateIRacingPlan(record.Classification.Category, record.Classification.Evidence);

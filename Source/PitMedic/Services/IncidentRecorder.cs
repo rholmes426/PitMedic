@@ -238,6 +238,8 @@ public sealed class IncidentRecorder
             if (LegacyProcessExitPolicy.IsUnverifiedRunningExit(record)
                 && (_falseRunningSessions.Value.Contains(LegacyProcessExitPolicy.SessionKey(record))
                     || LegacyProcessExitPolicy.IsFalseRunningExit(record))) return null;
+            if (LegacyProcessExitPolicy.IsUnverifiedRunningStatus(record))
+                return record with { RecommendedRepair = null }; // Other evidence remains reviewable.
             var reassessed = IRacingDiagnosticPolicy.Reassess(record);
             var changed = !ReferenceEquals(reassessed, record);
             record = reassessed;
@@ -277,6 +279,7 @@ public sealed class IncidentRecorder
     {
         if (!Directory.Exists(AppPaths.Incidents)) return Array.Empty<IncidentSummary>();
         var list = new List<IncidentSummary>();
+        var legacyGroups = new HashSet<(string, int, DateTimeOffset, string)>();
         foreach (var folder in Directory.EnumerateDirectories(AppPaths.Incidents).OrderByDescending(x => x))
         {
             if (IsAcknowledged(folder)) continue;
@@ -296,6 +299,7 @@ public sealed class IncidentRecorder
                             && !record.Classification.Evidence.Any(e => e.Contains("crash dump", StringComparison.OrdinalIgnoreCase)
                                 || e.Contains("Windows Application Error", StringComparison.OrdinalIgnoreCase)))
                             continue;
+                        if (IsRepeatedLegacyFinding(record, legacyGroups)) continue;
                         list.Add(ToSummary(record, record.RecommendedRepair));
                     }
                 }
@@ -311,6 +315,7 @@ public sealed class IncidentRecorder
     {
         if (!Directory.Exists(AppPaths.Incidents)) return Array.Empty<IncidentSummary>();
         var list = new List<IncidentSummary>();
+        var legacyGroups = new HashSet<(string, int, DateTimeOffset, string)>();
         foreach (var folder in Directory.EnumerateDirectories(AppPaths.Incidents).OrderByDescending(x => x))
         {
             try
@@ -321,6 +326,7 @@ public sealed class IncidentRecorder
                     var record = LoadRecord(folder);
                     if (record is null) continue;
                     if (record.ExitCode == 0 && record.Classification.Category == "Unconfirmed simulator exit") continue;
+                    if (IsRepeatedLegacyFinding(record, legacyGroups)) continue;
                     list.Add(ToSummary(record, record.RecommendedRepair));
                 }
                 else if (LegacyProcessExitPolicy.IsManualSnapshot(folder))
@@ -336,6 +342,12 @@ public sealed class IncidentRecorder
         }
         return list;
     }
+
+    private bool IsRepeatedLegacyFinding(IncidentRecord record,
+        HashSet<(string, int, DateTimeOffset, string)> groups)
+        => LegacyProcessExitPolicy.IsUnverifiedRunningStatus(record)
+            && _falseRunningSessions.Value.Contains(LegacyProcessExitPolicy.SessionKey(record))
+            && !groups.Add((record.Game, record.ProcessId, record.SessionStarted, record.Classification.Category));
 
     public bool Acknowledge(string folder)
     {

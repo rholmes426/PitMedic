@@ -16,6 +16,7 @@ internal static class ProcessExitTests
                 Game = game.DisplayName, ExitCode = 259,
                 Classification = new("Abnormal process termination", 72, "Non-zero code", [])
             };
+            Check(RepairPlanner.TryCreateFromIncident(record) is null, "Unconfirmed running-process status must never reconstruct a repair.");
             var blocked = $"Repair could not complete: {game.DisplayName} is still running. Close the simulator before applying this repair.";
             Check(LegacyProcessExitPolicy.IsFalseRunningExit(record, blocked), "Corroborated legacy false exit must be filtered for " + game.DisplayName);
             Check(!LegacyProcessExitPolicy.IsFalseRunningExit(record with { ProcessExitConfirmed = true }, blocked), "A confirmed real 259 exit must survive.");

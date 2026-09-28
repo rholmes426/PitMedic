@@ -44,7 +44,7 @@ public sealed class RepairService : IDisposable
     public bool Begin(IncidentRecord incident, RepairPlan plan, AppSettings settings, bool automatic = false)
     {
         if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(incident)
-            || LegacyProcessExitPolicy.IsFalseRunningExit(incident)) return false;
+            || LegacyProcessExitPolicy.IsUnverifiedRunningStatus(incident)) return false;
         // Do not create a progress window for an automatic repair while its simulator
         // is running (including a restart during evidence collection).
         if (automatic && GameDefinition.Supported.Any(game =>
