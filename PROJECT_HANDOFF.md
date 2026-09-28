@@ -8,6 +8,12 @@ workflows, and queued work. Read this file together with `CONTRIBUTING.md`,
 
 ## Current state
 
+- Owner approved the cross-simulator false-exit patch and publication on September 27, 2026.
+  Release inputs for 1.0.0.5 are in PR #111. Confirmed Windows process termination now
+  replaces cached/exception-based exit checks across all simulator and companion monitors.
+  Legacy false findings are filtered without deleting diagnostics; repeated independent
+  Windows evidence is grouped and kept diagnostic-only. Protected publication is pending.
+
 - Repository: `rholmes426/PitMedic`
 - Main branch: protected; use pull requests and required Build Validation checks.
 - Current public release: `v1.0.0.4`; protected signing/publication run 35680498864 passed.
