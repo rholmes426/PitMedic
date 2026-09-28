@@ -1,6 +1,13 @@
-# PitMedic v1.0.0.4
+# PitMedic v1.0.0.5
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v1.0.0.5
+
+- Confirms process termination for all supported simulators and companion apps before recording exits.
+- Prevents automatic simulator repairs while the simulator is running.
+- Removes corroborated false-exit records from review, groups repeated Windows evidence for the affected session, and preserves the original diagnostic files.
+- Keeps unverified running-process records diagnostic-only; incomplete captures no longer appear as manual snapshots.
 
 ## v1.0.0.4
 

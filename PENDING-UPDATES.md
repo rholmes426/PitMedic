@@ -15,6 +15,24 @@ website and updater update. [Deployment run 35487314338](https://github.com/rhol
 passed the final live release and installer checksum verification.
 The September 14 items below are release history; the two blocked Vitest 5 upgrades remain deferred.
 
+## Approved 1.0.0.5 — confirmed process exits (September 27, 2026)
+
+- Owner explicitly requested the cross-simulator patch and signed public publication.
+- Use a retained Windows process handle and confirmed termination for all six sims
+  and companion apps; failed status queries no longer become exits.
+- Suppress automatic simulator repairs while a simulator process is present.
+- Filter legacy code-259 abnormal-exit records only when saved failed-repair evidence
+  confirms the same simulator was still running. Preserve original evidence on disk.
+- Stop presenting interrupted captures as manual snapshots or counting snapshots as issues.
+- Regression coverage includes repeated live polling, genuine exit codes including 259,
+  all supported sims, real-fault preservation and missing/corrupt evidence.
+- Windows process regression tests, all component builds, installer packaging and installed
+  driver-prerequisite validation passed on the code changes; final documentation CI pending.
+- An isolated audit using the actual incident loader retained all 1,324 original incident files,
+  excluded 1,261 unsupported exit diagnoses and grouped 33 repeated Windows-evidence records
+  into one diagnostic-only finding. The separate Windows-evidence record was preserved.
+- Signed publication: pending protected release workflow after PR #111 merges.
+
 ## Published — website titles, keywords and link building (September 21, 2026)
 
 - Updated homepage title/H1, six simulator titles/intros and natural topic headings.

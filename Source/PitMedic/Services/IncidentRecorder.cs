@@ -12,6 +12,9 @@ public sealed class IncidentRecorder
     private readonly LogCollector _collector = new();
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
+    private readonly Lazy<HashSet<(string Game, int Pid, DateTimeOffset Started)>> _falseRunningSessions
+        = new(() => LegacyProcessExitPolicy.FindCorroboratedSessions(AppPaths.Incidents));
+
     public event Action<IncidentSummary>? IncidentCreated;
 
     public async Task<IncidentRecord?> RecordAsync(GameDefinition game, int pid, DateTimeOffset started, DateTimeOffset ended,
@@ -45,6 +48,7 @@ public sealed class IncidentRecorder
             SessionStarted = started,
             IncidentTime = ended,
             ExitCode = exitCode,
+            ProcessExitConfirmed = true,
             Classification = classification,
             RecommendedRepair = repairPlan,
             IncidentFolder = folder
@@ -129,6 +133,7 @@ public sealed class IncidentRecorder
                 SessionStarted = started,
                 IncidentTime = ended,
                 ExitCode = exitCode,
+                ProcessExitConfirmed = true,
                 Classification = classification,
                 RecommendedRepair = repairPlan,
                 IncidentFolder = folder
@@ -213,7 +218,7 @@ public sealed class IncidentRecorder
         await File.WriteAllTextAsync(Path.Combine(folder, "telemetry.csv"), ToCsv(telemetry));
         await File.WriteAllTextAsync(Path.Combine(folder, "windows-events.txt"), FormatEvents(windowsEvents));
         await File.WriteAllTextAsync(Path.Combine(folder, "summary.txt"), $"PitMedic manual diagnostic snapshot\r\nCaptured: {now:O}\r\n");
-        var summary = new IncidentSummary(now, "System", "Manual diagnostic snapshot", 100, folder, Summary: "Manual diagnostic snapshot captured by an earlier PitMedic version.");
+        var summary = new IncidentSummary(now, "System", "Manual diagnostic snapshot", 100, folder, Summary: "Manual diagnostic snapshot; no issue was detected by this capture.");
         IncidentCreated?.Invoke(summary);
         return summary;
     }
@@ -228,6 +233,13 @@ public sealed class IncidentRecorder
             if (record is null) return null;
             if (string.IsNullOrWhiteSpace(record.IncidentFolder) || !Path.GetFullPath(record.IncidentFolder).Equals(Path.GetFullPath(folder), StringComparison.OrdinalIgnoreCase))
                 record = record with { IncidentFolder = folder };
+            // Preserve the original evidence on disk; exclude only corroborated false
+            // STILL_ACTIVE incidents from active/history views and repair reconstruction.
+            if (LegacyProcessExitPolicy.IsUnverifiedRunningExit(record)
+                && (_falseRunningSessions.Value.Contains(LegacyProcessExitPolicy.SessionKey(record))
+                    || LegacyProcessExitPolicy.IsFalseRunningExit(record))) return null;
+            if (LegacyProcessExitPolicy.IsUnverifiedRunningStatus(record))
+                return record with { RecommendedRepair = null }; // Other evidence remains reviewable.
             var reassessed = IRacingDiagnosticPolicy.Reassess(record);
             var changed = !ReferenceEquals(reassessed, record);
             record = reassessed;
@@ -267,7 +279,8 @@ public sealed class IncidentRecorder
     {
         if (!Directory.Exists(AppPaths.Incidents)) return Array.Empty<IncidentSummary>();
         var list = new List<IncidentSummary>();
-        foreach (var folder in Directory.EnumerateDirectories(AppPaths.Incidents).OrderByDescending(x => x).Take(count * 4))
+        var legacyGroups = new HashSet<(string, int, DateTimeOffset, string)>();
+        foreach (var folder in Directory.EnumerateDirectories(AppPaths.Incidents).OrderByDescending(x => x))
         {
             if (IsAcknowledged(folder)) continue;
             var json = Path.Combine(folder, "incident.json");
@@ -286,14 +299,11 @@ public sealed class IncidentRecorder
                             && !record.Classification.Evidence.Any(e => e.Contains("crash dump", StringComparison.OrdinalIgnoreCase)
                                 || e.Contains("Windows Application Error", StringComparison.OrdinalIgnoreCase)))
                             continue;
+                        if (IsRepeatedLegacyFinding(record, legacyGroups)) continue;
                         list.Add(ToSummary(record, record.RecommendedRepair));
                     }
                 }
-                else
-                {
-                    var info = new DirectoryInfo(folder);
-                    list.Add(new IncidentSummary(info.CreationTime, "System", "Manual diagnostic snapshot", 100, folder, Summary: "Manual diagnostic snapshot captured by an earlier PitMedic version."));
-                }
+
             }
             catch { }
             if (list.Count >= count) break;
@@ -305,6 +315,7 @@ public sealed class IncidentRecorder
     {
         if (!Directory.Exists(AppPaths.Incidents)) return Array.Empty<IncidentSummary>();
         var list = new List<IncidentSummary>();
+        var legacyGroups = new HashSet<(string, int, DateTimeOffset, string)>();
         foreach (var folder in Directory.EnumerateDirectories(AppPaths.Incidents).OrderByDescending(x => x))
         {
             try
@@ -315,13 +326,14 @@ public sealed class IncidentRecorder
                     var record = LoadRecord(folder);
                     if (record is null) continue;
                     if (record.ExitCode == 0 && record.Classification.Category == "Unconfirmed simulator exit") continue;
+                    if (IsRepeatedLegacyFinding(record, legacyGroups)) continue;
                     list.Add(ToSummary(record, record.RecommendedRepair));
                 }
-                else
+                else if (LegacyProcessExitPolicy.IsManualSnapshot(folder))
                 {
                     var info = new DirectoryInfo(folder);
                     list.Add(new IncidentSummary(info.CreationTime, "System", "Manual diagnostic snapshot", 100, folder,
-                        Summary: "Manual diagnostic snapshot captured by an earlier PitMedic version.",
+                        Summary: "Manual diagnostic snapshot; no issue was detected by this capture.",
                         IsDismissed: IsAcknowledged(folder)));
                 }
             }
@@ -330,6 +342,12 @@ public sealed class IncidentRecorder
         }
         return list;
     }
+
+    private bool IsRepeatedLegacyFinding(IncidentRecord record,
+        HashSet<(string, int, DateTimeOffset, string)> groups)
+        => LegacyProcessExitPolicy.IsUnverifiedRunningStatus(record)
+            && _falseRunningSessions.Value.Contains(LegacyProcessExitPolicy.SessionKey(record))
+            && !groups.Add((record.Game, record.ProcessId, record.SessionStarted, record.Classification.Category));
 
     public bool Acknowledge(string folder)
     {

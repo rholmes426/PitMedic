@@ -46,7 +46,7 @@ public sealed class CompanionSoftwareWatchService : IDisposable
             lock (_gate)
                 _tracked.TryGetValue(software.Kind, out current);
 
-            if (current is not null && !SafeHasExited(current.Process))
+            if (current is not null && !current.Lifetime.TryGetExitCode(out _))
                 continue;
 
             if (current is not null)
@@ -57,10 +57,8 @@ public sealed class CompanionSoftwareWatchService : IDisposable
 
             try
             {
-                process.EnableRaisingEvents = true;
                 var tracked = new TrackedCompanion(software, process, SafeStart(process));
                 tracked.ProcessPath = SafeProcessPath(process);
-                process.Exited += (_, _) => TriggerExit(tracked);
                 lock (_gate)
                 {
                     _detected.Add(software.Kind);
@@ -86,7 +84,7 @@ public sealed class CompanionSoftwareWatchService : IDisposable
                     software.Kind,
                     software.DisplayName,
                     _detected.Contains(software.Kind) || _installed.Contains(software.Kind),
-                    (_tracked.TryGetValue(software.Kind, out var tracked) && !SafeHasExited(tracked.Process))
+                    (_tracked.TryGetValue(software.Kind, out var tracked) && !tracked.Lifetime.TryGetExitCode(out _))
                     || _runningWithoutTracking.Contains(software.Kind)))
                 .ToArray();
         }
@@ -131,6 +129,7 @@ public sealed class CompanionSoftwareWatchService : IDisposable
         foreach (var item in tracked)
         {
             Interlocked.Exchange(ref item.ExitHandled, 1);
+            item.Lifetime.Dispose();
             item.Process.Dispose();
             RaiseStatus(item.Software);
         }
@@ -138,20 +137,20 @@ public sealed class CompanionSoftwareWatchService : IDisposable
 
     private void TriggerExit(TrackedCompanion tracked)
     {
+        // Scan is the sole producer; status failures retain this tracked session.
+        if (!tracked.Lifetime.TryGetExitCode(out var exitCode)) return;
         if (Interlocked.Exchange(ref tracked.ExitHandled, 1) != 0) return;
-        _ = OnExitedAsync(tracked);
+        _ = OnExitedAsync(tracked, exitCode);
     }
 
-    private async Task OnExitedAsync(TrackedCompanion tracked)
+    private async Task OnExitedAsync(TrackedCompanion tracked, int? exitCode)
     {
         var ended = DateTimeOffset.Now;
-        int? exitCode = null;
-        try { exitCode = tracked.Process.ExitCode; } catch { }
         var pid = tracked.ProcessId;
 
         lock (_gate)
         {
-            if (_tracked.TryGetValue(tracked.Software.Kind, out var current) && current.ProcessId == pid)
+            if (_tracked.TryGetValue(tracked.Software.Kind, out var current) && ReferenceEquals(current, tracked))
                 _tracked.Remove(tracked.Software.Kind);
             _detected.Add(tracked.Software.Kind);
         }
@@ -179,6 +178,7 @@ public sealed class CompanionSoftwareWatchService : IDisposable
         }
         finally
         {
+            tracked.Lifetime.Dispose();
             tracked.Process.Dispose();
         }
     }
@@ -260,7 +260,7 @@ public sealed class CompanionSoftwareWatchService : IDisposable
                 software.Kind,
                 software.DisplayName,
                 _detected.Contains(software.Kind) || _installed.Contains(software.Kind),
-                (_tracked.TryGetValue(software.Kind, out var tracked) && !SafeHasExited(tracked.Process))
+                (_tracked.TryGetValue(software.Kind, out var tracked) && !tracked.Lifetime.TryGetExitCode(out _))
                 || _runningWithoutTracking.Contains(software.Kind));
         }
         StatusChanged?.Invoke(status);
@@ -269,11 +269,6 @@ public sealed class CompanionSoftwareWatchService : IDisposable
     private static DateTimeOffset SafeStart(Process process)
     {
         try { return process.StartTime; } catch { return DateTimeOffset.Now; }
-    }
-
-    private static bool SafeHasExited(Process process)
-    {
-        try { return process.HasExited; } catch { return true; }
     }
 
     private static string SafeProcessPath(Process process)
@@ -288,6 +283,7 @@ public sealed class CompanionSoftwareWatchService : IDisposable
     {
         public CompanionSoftwareDefinition Software { get; }
         public Process Process { get; }
+        public ProcessExitMonitor Lifetime { get; }
         public int ProcessId { get; }
         public DateTimeOffset Started { get; }
         public string ProcessPath { get; set; } = string.Empty;
@@ -297,6 +293,7 @@ public sealed class CompanionSoftwareWatchService : IDisposable
         {
             Software = software;
             Process = process;
+            Lifetime = new ProcessExitMonitor(process);
             ProcessId = process.Id;
             Started = started;
         }

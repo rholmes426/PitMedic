@@ -1,4 +1,4 @@
-PITMEDIC v0.6.0.18 - FULL DEVELOPMENT PACKAGE
+PITMEDIC v1.0.0.5 - FULL DEVELOPMENT PACKAGE
 ===============================================
 
 PitMedic is a free, open-source Windows sim-racing diagnostics and automated
