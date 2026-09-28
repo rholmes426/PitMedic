@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../PitMedic/Services/ProcessExitMonitor.cs" Link="ProcessExitMonitor.cs" />
+    <Compile Include="../PitMedic/Services/LegacyProcessExitPolicy.cs" Link="LegacyProcessExitPolicy.cs" />
     <Compile Include="../PitMedic/Services/CompanionSoftwareKnowledgeBase.cs" Link="CompanionSoftwareKnowledgeBase.cs" />
     <Compile Include="../PitMedic/Services/SteamLibraryLocator.cs" Link="SteamLibraryLocator.cs" />
     <Compile Include="../PitMedic/Services/RepairPlanner.cs" Link="RepairPlanner.cs" />

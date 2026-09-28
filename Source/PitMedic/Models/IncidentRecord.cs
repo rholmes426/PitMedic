@@ -16,6 +16,7 @@ public sealed record IncidentRecord
     public DateTimeOffset SessionStarted { get; init; }
     public DateTimeOffset IncidentTime { get; init; }
     public int? ExitCode { get; init; }
+    public bool ProcessExitConfirmed { get; init; }
     public CrashClassification Classification { get; init; } = new("Unknown", 0, "No classification", Array.Empty<string>());
     public RepairPlan? RecommendedRepair { get; init; }
     public string IncidentFolder { get; init; } = string.Empty;

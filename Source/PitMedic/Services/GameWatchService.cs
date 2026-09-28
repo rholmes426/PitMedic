@@ -35,14 +35,14 @@ public sealed class GameWatchService : IDisposable
             TrackedGame? current = null;
             lock (_gate)
             {
-                if (_tracked.TryGetValue(game.Kind, out current) && !SafeHasExited(current.Process))
+                if (_tracked.TryGetValue(game.Kind, out current) && !current.Lifetime.TryGetExitCode(out _))
                 {
                     PollLiveFaults(current);
                     continue;
                 }
             }
 
-            if (current is not null && SafeHasExited(current.Process))
+            if (current is not null && current.Lifetime.TryGetExitCode(out _))
                 TriggerExit(current);
 
             var process = FindProcess(game);
@@ -50,11 +50,9 @@ public sealed class GameWatchService : IDisposable
 
             try
             {
-                process.EnableRaisingEvents = true;
                 var tracked = new TrackedGame(game, process, SafeStart(process));
                 tracked.LiveLogMonitor = SimulatorLiveLogMonitor.Create(game.Kind);
                 tracked.LiveLogMonitor?.StartSession(tracked.Started);
-                process.Exited += (_, _) => TriggerExit(tracked);
                 lock (_gate) _tracked[game.Kind] = tracked;
                 AppLog.Write($"Detected {game.DisplayName}: PID {process.Id}, process={process.ProcessName}");
                 GameStatusChanged?.Invoke(game.Kind, true);
@@ -76,7 +74,7 @@ public sealed class GameWatchService : IDisposable
     public bool IsRunning(GameKind kind)
     {
         lock (_gate)
-            return _tracked.TryGetValue(kind, out var item) && !SafeHasExited(item.Process);
+            return _tracked.TryGetValue(kind, out var item) && !item.Lifetime.TryGetExitCode(out _);
     }
 
     private bool ShouldMonitor(GameKind kind)
@@ -181,20 +179,20 @@ public sealed class GameWatchService : IDisposable
 
     private void TriggerExit(TrackedGame tracked)
     {
+        // Scan is the sole producer; status failures retain this tracked session.
+        if (!tracked.Lifetime.TryGetExitCode(out var exitCode)) return;
         if (Interlocked.Exchange(ref tracked.ExitHandled, 1) != 0) return;
-        _ = OnExitedAsync(tracked);
+        _ = OnExitedAsync(tracked, exitCode);
     }
 
-    private async Task OnExitedAsync(TrackedGame tracked)
+    private async Task OnExitedAsync(TrackedGame tracked, int? exitCode)
     {
         var ended = DateTimeOffset.Now;
-        int? exitCode = null;
-        try { exitCode = tracked.Process.ExitCode; } catch { }
         var pid = tracked.Process.Id;
 
         lock (_gate)
         {
-            if (_tracked.TryGetValue(tracked.Game.Kind, out var current) && current.Process.Id == pid)
+            if (_tracked.TryGetValue(tracked.Game.Kind, out var current) && ReferenceEquals(current, tracked))
                 _tracked.Remove(tracked.Game.Kind);
         }
         GameStatusChanged?.Invoke(tracked.Game.Kind, false);
@@ -226,6 +224,7 @@ public sealed class GameWatchService : IDisposable
                 Ended = ended,
                 Outcome = outcome
             });
+            tracked.Lifetime.Dispose();
             tracked.Process.Dispose();
         }
     }
@@ -235,16 +234,16 @@ public sealed class GameWatchService : IDisposable
         try { return process.StartTime; } catch { return DateTimeOffset.Now; }
     }
 
-    private static bool SafeHasExited(Process process)
-    {
-        try { return process.HasExited; } catch { return true; }
-    }
-
     public void Dispose()
     {
         lock (_gate)
         {
-            foreach (var item in _tracked.Values) item.Process.Dispose();
+            foreach (var item in _tracked.Values)
+            {
+                Interlocked.Exchange(ref item.ExitHandled, 1);
+                item.Lifetime.Dispose();
+                item.Process.Dispose();
+            }
             _tracked.Clear();
         }
     }
@@ -253,6 +252,7 @@ public sealed class GameWatchService : IDisposable
     {
         public GameDefinition Game { get; }
         public Process Process { get; }
+        public ProcessExitMonitor Lifetime { get; }
         public DateTimeOffset Started { get; }
         public ILiveLogMonitor? LiveLogMonitor { get; set; }
         public object FaultGate { get; } = new();
@@ -263,6 +263,7 @@ public sealed class GameWatchService : IDisposable
         {
             Game = game;
             Process = process;
+            Lifetime = new ProcessExitMonitor(process);
             Started = started;
         }
     }

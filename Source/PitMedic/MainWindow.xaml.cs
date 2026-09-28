@@ -406,7 +406,7 @@ public partial class MainWindow : Window
         var companions = _monitoring.CompanionSoftwareStatuses().Where(x => x.IsDetected).ToArray();
         var companionRunning = companions.Count(x => x.IsRunning);
         var companionMonitoring = _settings.MonitorCompanionSoftware && companions.Length > 0;
-        var activeFindings = _incidents.Count(i => !i.IsDismissed && !i.IsResolved && IsRecentFinding(i));
+        var activeFindings = _incidents.Count(i => !i.IsDismissed && !i.IsResolved && i.Category != "Manual diagnostic snapshot" && IsRecentFinding(i));
 
         HomeMonitoringSummary.Text = $"{monitored} monitored · {running} running";
         SetHomeReadiness(HomeLmuStatus, GameKind.LeMansUltimate);

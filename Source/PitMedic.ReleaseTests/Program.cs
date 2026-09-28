@@ -2,6 +2,8 @@ using PitMedic.Models;
 using PitMedic.Services;
 using System.Text.Json;
 
+ProcessExitTests.Run();
+
 foreach (var invalid in new float?[] { null, 0, -1, float.NaN, float.PositiveInfinity, float.NegativeInfinity })
 {
     AssertFalse(CpuSensorPolicy.PositiveReading(invalid).HasValue, "Invalid CPU readings must be unavailable.");

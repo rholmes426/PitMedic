@@ -43,7 +43,13 @@ public sealed class RepairService : IDisposable
 
     public bool Begin(IncidentRecord incident, RepairPlan plan, AppSettings settings, bool automatic = false)
     {
-        if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(incident)) return false;
+        if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(incident)
+            || LegacyProcessExitPolicy.IsFalseRunningExit(incident)) return false;
+        // Do not create a progress window for an automatic repair while its simulator
+        // is running (including a restart during evidence collection).
+        if (automatic && GameDefinition.Supported.Any(game =>
+                game.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase)
+                && game.ProcessNames.Any(IsProcessRunning))) return false;
         lock (_gate)
         {
             if (_current?.IsActive == true) return false;
@@ -74,6 +80,17 @@ public sealed class RepairService : IDisposable
                 ? RunElevatedViaHelperAsync(incident, plan, settings, automatic, _activeCts!.Token)
                 : RunAsync(incident, plan, settings, automatic, _activeCts!.Token));
         return true;
+    }
+
+    private static bool IsProcessRunning(string name)
+    {
+        try
+        {
+            var processes = Process.GetProcessesByName(name);
+            try { return processes.Length > 0; }
+            finally { foreach (var process in processes) process.Dispose(); }
+        }
+        catch { return true; } // Unknown process state must not start an automatic repair.
     }
 
     private bool DeferIRacingRepair(IncidentRecord incident, RepairPlan plan)

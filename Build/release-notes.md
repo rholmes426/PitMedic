@@ -1,5 +1,3 @@
-Fixes an iRacing repair mismatch after a simulator fault followed by a launcher connection reset. Capture, saved findings and the elevated helper now use the same evidence-based repair selection; the launcher logger name alone no longer triggers a UI-cache repair.
+Fixes repeated false simulator exits, inflated finding counts, and recurring repair windows. All supported simulators and monitored companion apps now require confirmed process termination; a running or inaccessible process is not treated as a crash.
 
-Older iRacing findings are reassessed before repair, including clearing unsupported stale recommendations. Independent helper validation, narrow allowlists, backups and required approval remain in place.
-
-Includes compatible maintenance dependencies and build actions. Vitest 5 remains deferred because the Cloudflare test plugin requires Vitest 4. The website also has clearer search titles, headings and direct troubleshooting-guide links.
+Automatic simulator repairs wait while the simulator is running. Corroborated false running-process findings from earlier versions are excluded from review and repair without deleting the original diagnostic files. Interrupted captures no longer appear as manual snapshots, and manual snapshots do not inflate the issue count.
