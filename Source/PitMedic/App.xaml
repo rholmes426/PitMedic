@@ -3,45 +3,96 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
-        <!-- PitMedic fixed visual identity: light surfaces, dark navy structure, orange action. -->
-        <SolidColorBrush x:Key="BgBrush" Color="#F3F6F9"/>
-        <SolidColorBrush x:Key="PanelBrush" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="Panel2Brush" Color="#F7F9FC"/>
-        <SolidColorBrush x:Key="BorderBrush" Color="#D7E0E8"/>
-        <SolidColorBrush x:Key="TextBrush" Color="#102A43"/>
-        <SolidColorBrush x:Key="MutedBrush" Color="#66788A"/>
-        <SolidColorBrush x:Key="TitleBarBrush" Color="#0D2744"/>
-        <SolidColorBrush x:Key="TitleTextBrush" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="TitleMutedBrush" Color="#B8C7D8"/>
-        <SolidColorBrush x:Key="TitleHoverBrush" Color="#173B63"/>
-        <SolidColorBrush x:Key="TitlePressedBrush" Color="#204B78"/>
-        <SolidColorBrush x:Key="InsetBrush" Color="#EEF3F7"/>
-        <SolidColorBrush x:Key="HoverBrush" Color="#E8EEF4"/>
-        <SolidColorBrush x:Key="PressedBrush" Color="#DCE5EE"/>
-        <SolidColorBrush x:Key="AccentBrush" Color="#F47A20"/>
-        <SolidColorBrush x:Key="AccentSoftBrush" Color="#FFF0E5"/>
-        <SolidColorBrush x:Key="AccentBorderBrush" Color="#F3B181"/>
-        <SolidColorBrush x:Key="AccentHoverBrush" Color="#DA6818"/>
-        <SolidColorBrush x:Key="AccentPressedBrush" Color="#BC5410"/>
-        <SolidColorBrush x:Key="AccentTextBrush" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="TelemetryBrush" Color="#2E70B7"/>
-        <SolidColorBrush x:Key="CpuBrush" Color="#177C86"/>
-        <SolidColorBrush x:Key="HotspotBrush" Color="#B66B00"/>
-        <SolidColorBrush x:Key="GoodBrush" Color="#2E7D57"/>
-        <SolidColorBrush x:Key="WarnBrush" Color="#9A6900"/>
-        <SolidColorBrush x:Key="DangerBrush" Color="#B8424E"/>
-        <SolidColorBrush x:Key="InfoSoftBrush" Color="#EAF2FA"/>
-        <SolidColorBrush x:Key="InfoBorderBrush" Color="#A8C4DE"/>
-        <SolidColorBrush x:Key="InfoTextBrush" Color="#285F91"/>
-        <SolidColorBrush x:Key="GoodSoftBrush" Color="#E7F3EC"/>
-        <SolidColorBrush x:Key="GoodBorderBrush" Color="#A2CAB0"/>
-        <SolidColorBrush x:Key="GoodTextBrush" Color="#246A48"/>
-        <SolidColorBrush x:Key="WarnSoftBrush" Color="#FFF3D8"/>
-        <SolidColorBrush x:Key="WarnBorderBrush" Color="#DFC477"/>
-        <SolidColorBrush x:Key="WarnTextBrush" Color="#755600"/>
-        <SolidColorBrush x:Key="DangerSoftBrush" Color="#FBE9EB"/>
-        <SolidColorBrush x:Key="DangerBorderBrush" Color="#DDA6AD"/>
-        <SolidColorBrush x:Key="DangerTextBrush" Color="#963844"/>
+        <!-- PitMedic fixed visual identity: Carbon / Lime dark surfaces with semantic status accents. -->
+        <SolidColorBrush x:Key="BgBrush" Color="#0B0F0D"/>
+        <SolidColorBrush x:Key="PanelBrush" Color="#171D19"/>
+        <SolidColorBrush x:Key="Panel2Brush" Color="#1C241F"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#394A3E"/>
+        <SolidColorBrush x:Key="TextBrush" Color="#F3F7F1"/>
+        <SolidColorBrush x:Key="MutedBrush" Color="#AAB8AD"/>
+        <SolidColorBrush x:Key="TitleBarBrush" Color="#0B0F0D"/>
+        <SolidColorBrush x:Key="TitleTextBrush" Color="#F3F7F1"/>
+        <SolidColorBrush x:Key="TitleMutedBrush" Color="#AAB8AD"/>
+        <SolidColorBrush x:Key="TitleHoverBrush" Color="#263329"/>
+        <SolidColorBrush x:Key="TitlePressedBrush" Color="#344536"/>
+        <SolidColorBrush x:Key="InsetBrush" Color="#111712"/>
+        <SolidColorBrush x:Key="HoverBrush" Color="#263329"/>
+        <SolidColorBrush x:Key="PressedBrush" Color="#344536"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#B6FF38"/>
+        <SolidColorBrush x:Key="AccentSoftBrush" Color="#243219"/>
+        <SolidColorBrush x:Key="AccentBorderBrush" Color="#719A36"/>
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#C9FF70"/>
+        <SolidColorBrush x:Key="AccentPressedBrush" Color="#9DE329"/>
+        <SolidColorBrush x:Key="AccentTextBrush" Color="#0B0F0D"/>
+        <SolidColorBrush x:Key="TelemetryBrush" Color="#FFE34D"/>
+        <SolidColorBrush x:Key="CpuBrush" Color="#B6FF38"/>
+        <SolidColorBrush x:Key="HotspotBrush" Color="#FF9638"/>
+        <SolidColorBrush x:Key="GoodBrush" Color="#B6FF38"/>
+        <SolidColorBrush x:Key="WarnBrush" Color="#FFE34D"/>
+        <SolidColorBrush x:Key="DangerBrush" Color="#FF505C"/>
+        <SolidColorBrush x:Key="InfoSoftBrush" Color="#1D2B20"/>
+        <SolidColorBrush x:Key="InfoBorderBrush" Color="#64834F"/>
+        <SolidColorBrush x:Key="InfoTextBrush" Color="#D1EDA9"/>
+        <SolidColorBrush x:Key="GoodSoftBrush" Color="#243219"/>
+        <SolidColorBrush x:Key="GoodBorderBrush" Color="#719A36"/>
+        <SolidColorBrush x:Key="GoodTextBrush" Color="#B6FF38"/>
+        <SolidColorBrush x:Key="WarnSoftBrush" Color="#342D15"/>
+        <SolidColorBrush x:Key="WarnBorderBrush" Color="#9C8834"/>
+        <SolidColorBrush x:Key="WarnTextBrush" Color="#FFE34D"/>
+        <SolidColorBrush x:Key="DangerSoftBrush" Color="#341D22"/>
+        <SolidColorBrush x:Key="DangerBorderBrush" Color="#A74A55"/>
+        <SolidColorBrush x:Key="DangerTextBrush" Color="#FF808A"/>
+
+        <!-- Keep stock control surfaces readable in the fixed dark palette. -->
+        <Style TargetType="ToolTip">
+            <Setter Property="Background" Value="{DynamicResource Panel2Brush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        </Style>
+        <Style TargetType="ProgressBar">
+            <Setter Property="Background" Value="{DynamicResource InsetBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        </Style>
+        <Style x:Key="DarkCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource InsetBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource MutedBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid Background="Transparent">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Border x:Name="CheckBorder" Width="18" Height="18" CornerRadius="3" VerticalAlignment="Center"
+                                    Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+                                <Grid>
+                                    <Path x:Name="CheckMark" Visibility="Collapsed" Data="M 3 8 L 7 12 L 14 4"
+                                          Stroke="{DynamicResource AccentTextBrush}" StrokeThickness="2"/>
+                                    <Rectangle x:Name="MixedMark" Visibility="Collapsed" Width="10" Height="2"
+                                               Fill="{DynamicResource AccentTextBrush}"/>
+                                </Grid>
+                            </Border>
+                            <ContentPresenter Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckBorder" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="{x:Null}">
+                                <Setter TargetName="CheckBorder" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="MixedMark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="CheckBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/></Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="CheckBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/><Setter TargetName="CheckBorder" Property="BorderThickness" Value="2"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="CheckBox" BasedOn="{StaticResource DarkCheckBoxStyle}"/>
 
         <!-- App-wide readability baseline. -->
         <Style TargetType="TextBlock">
@@ -62,6 +113,8 @@
             <Setter Property="Background" Value="{DynamicResource InsetBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBorderBrush}"/>
             <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
             <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
         </Style>
@@ -197,6 +250,8 @@
         </Style>
 
         <Style TargetType="ListBox">
+            <Setter Property="Background" Value="{DynamicResource InsetBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>

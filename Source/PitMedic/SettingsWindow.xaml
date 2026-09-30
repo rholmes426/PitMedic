@@ -5,7 +5,7 @@
         Background="{DynamicResource BgBrush}" Foreground="{DynamicResource TextBrush}" FontSize="14"
         WindowStartupLocation="CenterOwner">
     <Window.Resources>
-        <Style TargetType="CheckBox">
+        <Style TargetType="CheckBox" BasedOn="{StaticResource DarkCheckBoxStyle}">
             <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
             <Setter Property="Margin" Value="0,6,18,6"/>
             <Setter Property="FontSize" Value="13"/>
