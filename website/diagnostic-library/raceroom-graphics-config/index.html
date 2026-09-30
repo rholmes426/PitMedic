@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"RaceRoom Racing Experience"}]},{"@type":"TechArticle","headline":"RaceRoom Racing Experience: Broken graphics / resolution configuration","description":"How PitMedic detects and safely responds to broken graphics / resolution configuration in RaceRoom Racing Experience.","url":"https://pitmedic.com/diagnostic-library/raceroom-graphics-config/","dateModified":"2026-09-01","author":{"@type":"Organization","name":"PitMedic Project"},"about":"RaceRoom Racing Experience"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"RaceRoom Racing Experience"}]},{"@type":"TechArticle","headline":"RaceRoom Racing Experience: Broken graphics / resolution configuration","description":"How PitMedic detects and safely responds to broken graphics / resolution configuration in RaceRoom Racing Experience.","url":"https://pitmedic.com/diagnostic-library/raceroom-graphics-config/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"RaceRoom Racing Experience"}]}</script>
 </head>
 <body>
 <main>
@@ -31,11 +31,16 @@
       <span class="section-kicker">Simulator repair</span>
       <p class="library-product">RaceRoom Racing Experience</p>
       <h1>Broken graphics / resolution configuration</h1>
-      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
-      <div class="issue-status"><span>Automatic repair available</span><span>Active</span><span>Reviewed 2026-09-01</span></div>
+      <p>RaceRoom starts with a black display, minimizes, or fails after a display change.</p>
+      <div class="issue-status"><span>Automatic repair available</span><span>Active</span><span>Evidence reviewed 2026-09-01</span><span>Guide updated 2026-09-29</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Record the selected monitor and resolution and check for graphics_options.xml evidence.</li><li>Close RaceRoom and preserve UserData\graphics_options.xml before removing its active copy.</li><li>Note the settings you will need to re-enter and change only the identified file or files.</li></ul>
+          <h3>How to confirm the result</h3><p>Relaunch RaceRoom, review the rebuilt settings, and repeat the original action. Confirm that the intended display works and a test session loads. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.</p>
+          <h3>Repair limits and when to stop</h3><p>A display reset does not reinstall a driver or diagnose a GPU fault.</p>
+        </section>
         <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>RaceRoom cannot display correctly, minimizes on launch, shows black output after a GPU/display change, or graphics_options.xml is implicated.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>graphics_options.xml</code></li><li><code>resolution</code></li><li><code>refresh rate</code></li><li><code>black screen</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>Back up and remove UserData\graphics_options.xml so RaceRoom creates a fresh display configuration.</p><div class="safety-note"><strong>Repair safety</strong><span>Automatic / reversible / one-click</span></div></section>
         <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Black screen with AMD GPU</strong><span>RaceRoom Steam Community · Community evidence</span><p>A RaceRoom moderator recommends deleting graphics_options.xml after a GPU change when entering a race produces a black screen.</p></div><a href="https://steamcommunity.com/app/211500/discussions/1/601901942630817124/" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>Graphic Resolution - settings off screen</strong><span>KW Studios Forum · Community evidence</span><p>Community support recommends renaming graphics_options.xml to reset graphics settings.</p></div><a href="https://forum.kw-studios.com/index.php?threads%2Fgraphic-resolution-cannot-change-settings-off-the-screen.19714%2F=" target="_blank" rel="noreferrer">Open source</a></li></ul></section>

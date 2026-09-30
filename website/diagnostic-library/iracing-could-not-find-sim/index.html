@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"iRacing"}]},{"@type":"TechArticle","headline":"iRacing: Could not find sim","description":"How PitMedic detects and safely responds to could not find sim in iRacing.","url":"https://pitmedic.com/diagnostic-library/iracing-could-not-find-sim/","dateModified":"2026-09-01","author":{"@type":"Organization","name":"PitMedic Project"},"about":"iRacing"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"iRacing"}]},{"@type":"TechArticle","headline":"iRacing: Could not find sim","description":"How PitMedic detects and safely responds to could not find sim in iRacing.","url":"https://pitmedic.com/diagnostic-library/iracing-could-not-find-sim/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"iRacing"}]}</script>
 </head>
 <body>
 <main>
@@ -31,11 +31,16 @@
       <span class="section-kicker">Simulator repair</span>
       <p class="library-product">iRacing</p>
       <h1>Could not find sim</h1>
-      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
-      <div class="issue-status"><span>Guided diagnosis</span><span>Active</span><span>Reviewed 2026-09-01</span></div>
+      <p>Could not find sim is a launch failure with several possible causes. Check the launch path, VR tools, and Documents location before choosing a repair.</p>
+      <div class="issue-status"><span>Guided diagnosis</span><span>Active</span><span>Evidence reviewed 2026-09-01</span><span>Guide updated 2026-09-29</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Compare a monitor-based test session with VR, if available, and note whether OpenXR Toolkit is installed.</li><li>Compare the UI shortcut target with the location of iRacing.com Helper Service. Both should belong to the intended installation.</li><li>Open the actual Documents folder and inspect the iRacing folder location, including whether OneDrive manages it.</li><li>Record whether Windows beta UTF-8 is enabled and whether the Windows account name uses special characters; follow the linked iRacing guidance for a matching condition.</li></ul>
+          <h3>How to confirm the result</h3><p>After correcting one confirmed mismatch using vendor guidance, launch the same test session again. Record which change affected the result so unrelated settings can remain intact.</p>
+          <h3>Repair limits and when to stop</h3><p>This record provides guided diagnosis, not a universal one-click repair. Do not broadly move Documents, disable OneDrive backup, uninstall VR software, or change Windows locale settings without understanding the impact and preserving data.</p>
+        </section>
         <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>UI reports Could not find sim; correlate VR/OpenXR Toolkit, duplicate installations, OneDrive Documents path, and Windows UTF-8 beta setting.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>Could not find sim</code></li><li><code>OpenXR Toolkit</code></li><li><code>OneDrive</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>Detect the conflicting condition first; offer only targeted corrective actions. Do not broadly move Documents or uninstall software without approval.</p><div class="safety-note"><strong>Repair safety</strong><span>Diagnostic / ask first</span></div></section>
         <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Could not find sim error message</strong><span>iRacing Support · Official source</span><p>Official support lists OpenXR Toolkit, duplicate installs, OneDrive Documents and Windows UTF-8 beta mode as known causes.</p></div><a href="https://support.iracing.com/support/solutions/articles/31000168994--could-not-find-sim-error-message" target="_blank" rel="noreferrer">Open source</a></li></ul></section>

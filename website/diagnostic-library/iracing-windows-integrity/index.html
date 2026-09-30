@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"iRacing"}]},{"@type":"TechArticle","headline":"iRacing: Repeated 0xc0000005 / Windows application access-violation failure","description":"How PitMedic detects and safely responds to repeated 0xc0000005 / windows application access-violation failure in iRacing.","url":"https://pitmedic.com/diagnostic-library/iracing-windows-integrity/","dateModified":"2026-09-01","author":{"@type":"Organization","name":"PitMedic Project"},"about":"iRacing"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"iRacing"}]},{"@type":"TechArticle","headline":"iRacing: Repeated 0xc0000005 / Windows application access-violation failure","description":"How PitMedic detects and safely responds to repeated 0xc0000005 / windows application access-violation failure in iRacing.","url":"https://pitmedic.com/diagnostic-library/iracing-windows-integrity/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"iRacing"}]}</script>
 </head>
 <body>
 <main>
@@ -31,14 +31,26 @@
       <span class="section-kicker">Simulator repair</span>
       <p class="library-product">iRacing</p>
       <h1>Repeated 0xc0000005 / Windows application access-violation failure</h1>
-      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
-      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Reviewed 2026-09-01</span></div>
+      <p>A repeatable iRacing application fault may justify Windows integrity checks only after more specific causes have been considered. The exception code alone does not prove Windows corruption.</p>
+      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Evidence reviewed 2026-09-01</span><span>Guide updated 2026-09-29</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Record the faulting application, module, exception code, and timestamp from the matching Windows Application event.</li><li>Check for a more specific iRacing content, service, graphics-driver, or temperature-related finding first.</li><li>Review the Windows-wide scope and administrator prompt before approving DISM followed by SFC.</li></ul>
+          <h3>How to confirm the result</h3><p>Read the reported DISM and SFC results, restart if instructed, and retest the same session. Completed scans are not proof that iRacing has been fixed.</p>
+          <h3>Repair limits and when to stop</h3><p>These commands affect Windows and require explicit approval. Driver replacement, RAM testing, and reinstalling iRacing remain separate investigations; do not repeatedly run system repairs for an unrelated launcher connection reset.</p>
+        </section>
         <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>Windows/iRacing records a repeatable application fault or 0xc0000005 without a more specific content, driver, thermal, or service signature.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>0xc0000005</code></li><li><code>Access Violation</code></li><li><code>Application fault</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>With explicit approval, run DISM /RestoreHealth followed by sfc /scannow. Driver reinstall, RAM testing, and full iRacing reinstall remain separate/manual because they are broader actions.</p><div class="safety-note"><strong>Repair safety</strong><span>Significant / always ask / often over two minutes</span></div></section>
-        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>iRacingSim64DX11.exe Application Error 0xc0000005</strong><span>iRacing Support · Official source</span><p>Current official guidance starts with Windows updates, DISM /RestoreHealth and sfc /scannow, then recommends RAM/graphics-driver checks and reinstall if needed.</p></div><a href="https://support.iracing.com/support/solutions/articles/31000178953-iracingsim64dx11-exe-application-error-0xc0000005-" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+<section class="diagnostic-card diagnostic-example">
+          <h2>A launcher connection reset is not a cache diagnosis</h2>
+          <p class="example-label">Verified automated regression test · 2026-09-28</p>
+          <h3>Test setup</h3><p>Synthetic iRacing evidence used the iracing-electron logger with ECONNRESET, both alone and following an application fault.</p>
+          <h3>Observed result</h3><p>The connection-reset-only case produced no repair. With an application fault, it retained the approval-gated Windows-integrity plan instead of substituting a UI-cache reset. Saved and reconstructed plans agreed.</p>
+          <h3>What this establishes</h3><p>This verifies repair selection, not that Windows was corrupt or that running a repair would solve a real crash.</p>
+          <p class="example-evidence"><a href="https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/IRacingRepairPlanTests.cs">Read the test source</a> · <a href="https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664">View the passing Windows test run</a></p>
+        </section>        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>iRacingSim64DX11.exe Application Error 0xc0000005</strong><span>iRacing Support · Official source</span><p>Current official guidance starts with Windows updates, DISM /RestoreHealth and sfc /scannow, then recommends RAM/graphics-driver checks and reinstall if needed.</p></div><a href="https://support.iracing.com/support/solutions/articles/31000178953-iracingsim64dx11-exe-application-error-0xc0000005-" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
       </div>
       <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.5/PitMedic-Setup-x64.exe">Download v1.0.0.5</a><a class="button button-secondary" href="/simulators/iracing/">View iRacing coverage</a><small>Free and open source · Windows 10/11</small></aside>
     </div>

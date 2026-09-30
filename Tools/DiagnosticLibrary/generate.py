@@ -47,104 +47,7 @@ COMPANION_NAMES = {
 # Search-focused editorial content supplements the app-owned diagnostic record.
 # Detection and repair behavior remains authoritative in the C# knowledge base;
 # this layer explains priority issues in the language people use to seek help.
-PUBLIC_CONTENT = {
-    "iracing-missing-file-privileges": {
-        "heading": "iRacing Missing File Privileges during a Steam update",
-        "modified": "2026-09-07",
-        "title": "iRacing Missing File Privileges: Safe Steam Fix | PitMedic",
-        "description": "Steam says Missing File Privileges while updating iRacing? Learn why the Helper Service can lock files, what to check, and how PitMedic safely restarts the update.",
-        "intro": "Steam can stop an iRacing update with a Missing File Privileges message when the iRacing Helper Service still has installation files open. PitMedic confirms that specific combination before offering a controlled recovery.",
-        "meaning": "This message does not necessarily mean your Windows account has lost access to the whole iRacing installation. During an update, the background Helper Service can keep an iRacing file in use, preventing Steam from replacing it. A Content File Locked message can have the same underlying cause.",
-        "checks": [
-            "Close the iRacing simulator and finish any active session before changing update files.",
-            "Confirm the error appears while Steam is updating iRacing, rather than during an unrelated Steam download.",
-            "Check whether iRacing.com Helper Service is still running in Windows Task Manager.",
-            "Allow time for Steam validation: on a large installation it can take more than two minutes.",
-        ],
-        "result": "Steam should be able to validate or update the installation after the Helper Service releases its file handles. PitMedic restarts the service afterward. If Steam still reports the error, stop rather than repeatedly deleting content and continue with iRacing's official support guidance.",
-        "related": ["iracing-content-file-locked", "iracing-helper-service", "iracing-update-verification", "iracing-car-loading-errors"],
-    },
-    "iracing-content-file-locked": {
-        "heading": "iRacing Content File Locked during a Steam update",
-        "modified": "2026-09-07",
-        "title": "iRacing Content File Locked: Fix the Steam Update Error | PitMedic",
-        "description": "Fix Steam's Content File Locked error for iRacing by identifying a running Helper Service, releasing the locked files, and safely resuming validation.",
-        "intro": "A Content File Locked error means Steam could not replace part of the iRacing installation because another process still had the file open. PitMedic checks for the iRacing Helper Service before recommending a restart of the update.",
-        "meaning": "iRacing's Helper Service normally runs in the background. If it remains active during a Steam update, Windows can prevent Steam from changing a file that the service is using. The repair should therefore target the process holding the file, not erase unrelated settings or vehicle data.",
-        "checks": [
-            "Close the simulator, iRacing UI, and any active Steam update dialog.",
-            "Confirm Content File Locked names the iRacing installation.",
-            "Check Task Manager for iRacing.com Helper Service before using broader repair steps.",
-            "Preserve user setups, paints, and replays; they are not part of this targeted recovery.",
-        ],
-        "result": "Once the Helper Service is no longer holding the installation open, Steam should be able to complete validation or download the affected file. PitMedic verifies that the update was started and restores the service afterward.",
-        "related": ["iracing-missing-file-privileges", "iracing-helper-service", "iracing-update-verification", "iracing-content-corruption"],
-    },
-    "iracing-loading-error-3": {
-        "heading": "iRacing Loading Error 3",
-        "modified": "2026-09-07",
-        "title": "iRacing Loading Error 3: Causes and Recovery Steps | PitMedic",
-        "description": "Troubleshoot iRacing Loading Error 3, rule out car and track problems, preserve Documents\\iRacing, and safely generate a clean configuration.",
-        "intro": "iRacing Loading Error 3 has several possible causes. PitMedic treats a full configuration reset as a last step, after checking for a specific car or track problem that can be repaired more narrowly.",
-        "meaning": "The error can follow damaged car or track content, an unsupported car-and-track combination, or a damaged Documents\\iRacing profile. Because those causes require different fixes, seeing Error 3 alone is not enough reason to remove the entire profile.",
-        "checks": [
-            "Try another known-good car and track combination to see whether the failure is content-specific.",
-            "Resolve a numbered car or track loading error first if iRacing reports one alongside Error 3.",
-            "Close iRacing before moving its Documents folder.",
-            "Keep setups, replays, paints, and controller information in the preserved backup.",
-        ],
-        "result": "A clean profile will make iRacing request graphics configuration and controller calibration again. If the simulator then loads, restore only the personal setups, replays, and paints you need from the backup instead of copying the damaged configuration back wholesale.",
-        "related": ["iracing-car-loading-errors", "iracing-track-loading-errors", "iracing-renderer-config", "iracing-content-corruption"],
-    },
-    "iracing-car-loading-errors": {
-        "heading": "iRacing Loading Error 22 or 71",
-        "modified": "2026-09-07",
-        "title": "iRacing Loading Error 22 or 71: Repair Car Files | PitMedic",
-        "description": "Loading Error 22 or 71 usually points to damaged or outdated iRacing car content. Identify the affected car, preserve unrelated files, and redownload only what is needed.",
-        "intro": "iRacing Loading Errors 22 and 71 usually point to car content that is missing, outdated, or corrupt. PitMedic favors the smallest repair: replace the affected car before considering a reset of shared car metadata.",
-        "meaning": "If one car fails while other combinations load, the problem is likely limited to that vehicle's installed files. Error 71 can also involve shared car metadata or the pace-car safety directory. A failure across every car requires a broader content check than a single-car error.",
-        "checks": [
-            "Record which car or multiclass session triggers the loading error.",
-            "Test a different car at the same track to separate car content from track content.",
-            "Close iRacing before changing files in its installation directory.",
-            "Start with the named car; do not remove the full cars directory unless the problem affects all cars.",
-        ],
-        "result": "iRacing should offer the removed car or shared metadata as an update. After it is downloaded again, retry the same car-and-track combination and confirm that other installed content remains available.",
-        "related": ["iracing-loading-error-3", "iracing-track-loading-errors", "iracing-content-corruption", "iracing-update-verification"],
-    },
-    "iracing-eac-error73": {
-        "heading": "iRacing Error 73 / Easy Anti-Cheat failure",
-        "modified": "2026-09-07",
-        "title": "iRacing Error 73: Repair Easy Anti-Cheat | PitMedic",
-        "description": "Troubleshoot iRacing Error 73 and repair the EOS Easy Anti-Cheat installation after confirming the startup error and checking for duplicate iRacing installs.",
-        "intro": "iRacing Error 73 is a startup failure associated with the EOS version of Easy Anti-Cheat. PitMedic confirms the error signature before offering iRacing's supported uninstall, reinstall, and repair workflow.",
-        "meaning": "The failure occurs before a normal simulator session begins, so graphics, car, and track resets are unlikely to address it. iRacing also warns that duplicate installations can leave the anti-cheat repair pointed at the wrong simulator path.",
-        "checks": [
-            "Close iRacing before running the anti-cheat repair.",
-            "Confirm the message explicitly names Error 73, Easy Anti-Cheat, or EOS.",
-            "Check for more than one iRacing installation and identify the copy you actually launch.",
-            "Use the Easy Anti-Cheat tools included with that installation rather than an unrelated download.",
-        ],
-        "result": "After the EOS Easy Anti-Cheat service is repaired, launch the same iRacing installation again. If Error 73 remains, verify that shortcuts and Steam point to the same installation before repeating the repair.",
-        "related": ["iracing-windows-integrity", "iracing-compatibility-flags", "iracing-helper-service", "iracing-loading-error-3"],
-    },
-    "companion-moza-clean-recovery": {
-        "heading": "MOZA Pit House not opening or crashing",
-        "modified": "2026-09-07",
-        "title": "MOZA Pit House Not Opening or Crashing: Recovery Guide | PitMedic",
-        "description": "MOZA Pit House won't open, crashed, or left a stale process? See the safe restart sequence PitMedic uses without resetting profiles or changing device firmware.",
-        "intro": "When MOZA Pit House crashes or will not reopen, an old Pit House process may still be running in the background. PitMedic can close only those remaining processes, relaunch the installed application, and verify that it stays open.",
-        "meaning": "This recovery is intentionally limited to a confirmed application crash or stale process. It does not flash firmware, reset wheel profiles, remove drivers, or alter simulator settings. Firmware, device-detection, and network errors need their own diagnosis.",
-        "checks": [
-            "Close every supported racing simulator before restarting wheelbase software.",
-            "Confirm Pit House has crashed, stopped responding, or will not reopen because a process remains active.",
-            "Do not interrupt a firmware update or use this recovery while MOZA's offline firmware tool is running.",
-            "If Pit House opens, use its Report Error feature for a repeatable crash and retain the report number.",
-        ],
-        "result": "Pit House should relaunch from its validated installed location and remain running. If it closes again, PitMedic records the failed recovery without changing profiles or firmware; the next step is MOZA's built-in error report and official support guidance.",
-        "related": ["companion-logitech-ghub-service-recovery", "companion-simucube-clean-recovery", "companion-fanatec-process-recovery", "companion-simagic-clean-recovery"],
-    },
-}
+PUBLIC_CONTENT = json.loads((Path(__file__).with_name("guides.json")).read_text(encoding="utf-8"))
 
 
 def csharp_string(value: str) -> str:
@@ -263,11 +166,22 @@ def load_entries() -> list[dict[str, object]]:
     unknown_public_ids = sorted(set(PUBLIC_CONTENT) - known_ids)
     if unknown_public_ids:
         raise ValueError(f"Public content references unknown diagnostic records: {unknown_public_ids}")
+    if set(PUBLIC_CONTENT) != known_ids:
+        raise ValueError("Every diagnostic record must have a practical public guide")
     for entry_id, content in PUBLIC_CONTENT.items():
-        missing_fields = sorted({"heading", "modified", "title", "description", "intro", "meaning", "checks", "result", "related"} - set(content))
+        missing_fields = sorted({"modified", "intro", "meaning", "checks", "result", "limits"} - set(content))
         if missing_fields:
             raise ValueError(f"{entry_id} public content is missing fields: {missing_fields}")
-        unknown_related = sorted(set(content["related"]) - known_ids)
+        if not isinstance(content["checks"], list) or len(content["checks"]) < 2:
+            raise ValueError(f"{entry_id} needs at least two practical checks")
+        for example in content.get("examples", []):
+            if not {"title", "setup", "outcome", "scope", "source", "validation", "verified"} <= set(example):
+                raise ValueError(f"{entry_id} example is missing its evidence or limits")
+            if not re.fullmatch(r"https://github\.com/rholmes426/PitMedic/blob/[0-9a-f]{40}/Source/PitMedic\.ReleaseTests/[A-Za-z]+\.cs", example["source"]):
+                raise ValueError(f"{entry_id} example needs an immutable test source")
+            if not re.fullmatch(r"https://github\.com/rholmes426/PitMedic/actions/runs/[0-9]+/job/[0-9]+", example["validation"]):
+                raise ValueError(f"{entry_id} example needs a validation job")
+        unknown_related = sorted(set(content.get("related", [])) - known_ids)
         if unknown_related:
             raise ValueError(f"{entry_id} public content has unknown related records: {unknown_related}")
     return entries
@@ -378,7 +292,7 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
                 "headline": f"{product}: {display_issue}",
                 "description": description,
                 "url": canonical,
-                "dateModified": editorial.get("modified", entry["lastVerified"]),
+                "dateModified": max(str(editorial.get("modified", entry["lastVerified"])), str(entry["lastVerified"])),
                 "author": {"@type": "Organization", "name": "PitMedic Project"},
                 "about": product,
             },
@@ -411,11 +325,23 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
     explanation_html = ""
     if meaning or checks or result:
         checks_html = "".join(f"<li>{esc(item)}</li>" for item in checks)
-        explanation_html = f'''        <section class="diagnostic-card diagnostic-guide"><h2>What this problem means</h2><p>{esc(meaning)}</p>
+        meaning_html = f"<p>{esc(meaning)}</p>" if meaning != intro else ""
+        explanation_html = f'''        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>{meaning_html}
           <h3>Before you repair it</h3><ul class="guide-checks">{checks_html}</ul>
           <h3>How to confirm the result</h3><p>{esc(result)}</p>
+          <h3>Repair limits and when to stop</h3><p>{esc(editorial.get("limits", ""))}</p>
         </section>
 '''
+    examples_html = ""
+    for example in editorial.get("examples", []):
+        examples_html += f'''<section class="diagnostic-card diagnostic-example">
+          <h2>{esc(example["title"])}</h2>
+          <p class="example-label">Verified automated regression test · {esc(example["verified"])}</p>
+          <h3>Test setup</h3><p>{esc(example["setup"])}</p>
+          <h3>Observed result</h3><p>{esc(example["outcome"])}</p>
+          <h3>What this establishes</h3><p>{esc(example["scope"])}</p>
+          <p class="example-evidence"><a href="{esc(example["source"])}">Read the test source</a> · <a href="{esc(example["validation"])}">View the passing Windows test run</a></p>
+        </section>'''
     body = f'''
   <article class="library-page issue-page">
     {crumb_html}
@@ -424,13 +350,13 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
       <p class="library-product">{esc(product)}</p>
       <h1>{esc(display_issue)}</h1>
       <p>{esc(intro)}</p>
-      <div class="issue-status"><span>{esc(repair_label(str(entry["safety"])))}</span><span>Active</span><span>Reviewed {esc(entry["lastVerified"])}</span></div>
+      <div class="issue-status"><span>{esc(repair_label(str(entry["safety"])))}</span><span>Active</span><span>Evidence reviewed {esc(entry["lastVerified"])}</span><span>Guide updated {esc(editorial["modified"])}</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
 {explanation_html}        <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>{esc(entry["detection"])}</p>{details}</section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>{esc(entry["repair"])}</p><div class="safety-note"><strong>Repair safety</strong><span>{esc(entry["safety"])}</span></div></section>
-        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list">{source_items}</ul></section>
+{examples_html}        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list">{source_items}</ul></section>
       </div>
       <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="{RELEASE_URL}">Download v{RELEASE_VERSION}</a>{product_link}<small>Free and open source · Windows 10/11</small></aside>
     </div>
@@ -588,7 +514,7 @@ def write_sitemap(entries: list[dict[str, object]], path: Path) -> None:
     ]
     urls = existing + [(
         f"/diagnostic-library/{entry['id']}/",
-        str(PUBLIC_CONTENT.get(str(entry["id"]), {}).get("modified", entry["lastVerified"])),
+        max(str(PUBLIC_CONTENT.get(str(entry["id"]), {}).get("modified", entry["lastVerified"])), str(entry["lastVerified"])),
         "monthly",
         "0.7",
     ) for entry in entries]

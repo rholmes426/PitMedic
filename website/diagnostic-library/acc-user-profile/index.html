@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Assetto Corsa Competizione"}]},{"@type":"TechArticle","headline":"Assetto Corsa Competizione: Damaged ACC user configuration","description":"How PitMedic detects and safely responds to damaged acc user configuration in Assetto Corsa Competizione.","url":"https://pitmedic.com/diagnostic-library/acc-user-profile/","dateModified":"2026-09-03","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Assetto Corsa Competizione"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Assetto Corsa Competizione"}]},{"@type":"TechArticle","headline":"Assetto Corsa Competizione: Damaged ACC user configuration","description":"How PitMedic detects and safely responds to damaged acc user configuration in Assetto Corsa Competizione.","url":"https://pitmedic.com/diagnostic-library/acc-user-profile/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Assetto Corsa Competizione"}]}</script>
 </head>
 <body>
 <main>
@@ -31,11 +31,16 @@
       <span class="section-kicker">Simulator repair</span>
       <p class="library-product">Assetto Corsa Competizione</p>
       <h1>Damaged ACC user configuration</h1>
-      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
-      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Reviewed 2026-09-03</span></div>
+      <p>A clean Assetto Corsa Competizione profile is a last diagnostic step when current evidence points to configuration corruption and narrower repairs have not helped.</p>
+      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Evidence reviewed 2026-09-03</span><span>Guide updated 2026-09-29</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Identify the repeated startup failure and record which targeted cache, display, or controller repairs have already been tried.</li><li>Locate both the ACC Documents configuration and LocalAppData Saved\Config folders in the actual user profile, including any redirected Documents location.</li><li>Close Assetto Corsa Competizione and preserve the complete affected data before approving a move of the active copy.</li></ul>
+          <h3>How to confirm the result</h3><p>Relaunch Assetto Corsa Competizione to create clean user data, review graphics and controls, and retry the original failure. If it works, bring back personal data selectively; if it fails, restore the preserved profile with the simulator closed.</p>
+          <h3>Repair limits and when to stop</h3><p>A new profile can reset preferences and bindings or temporarily hide saved data. It is not a repair for driver, hardware, or game-package faults. Do not delete the backup or copy all of the old configuration back before retesting.</p>
+        </section>
         <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>Repeated startup failure remains after targeted repairs and ACC reports corrupt or unparseable configuration state.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>configuration corruption</code></li><li><code>parse error</code></li><li><code>Saved\Config</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>Preserve the ACC Documents configuration and LocalAppData Saved\Config folders, then move the active copies aside so ACC can generate clean settings.</p><div class="safety-note"><strong>Repair safety</strong><span>Significant / reversible / ask first</span></div></section>
         <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Assetto Corsa Competizione support forum</strong><span>Kunos Simulazioni · Official source</span><p>Kunos support uses ACC configuration and crash evidence to isolate persistent user-state failures; PitMedic preserves all moved data for rollback.</p></div><a href="https://www.assettocorsa.net/forum/index.php?forums/acc-troubleshooting.79/" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
