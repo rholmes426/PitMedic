@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Automobilista 2"}]},{"@type":"TechArticle","headline":"Automobilista 2: Corrupted custom championship state","description":"How PitMedic detects and safely responds to corrupted custom championship state in Automobilista 2.","url":"https://pitmedic.com/diagnostic-library/ams2-championship-state/","dateModified":"2026-09-03","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Automobilista 2"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Automobilista 2"}]},{"@type":"TechArticle","headline":"Automobilista 2: Corrupted custom championship state","description":"How PitMedic detects and safely responds to corrupted custom championship state in Automobilista 2.","url":"https://pitmedic.com/diagnostic-library/ams2-championship-state/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Automobilista 2"}]}</script>
 </head>
 <body>
 <main>
@@ -31,11 +31,16 @@
       <span class="section-kicker">Simulator repair</span>
       <p class="library-product">Automobilista 2</p>
       <h1>Corrupted custom championship state</h1>
-      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
-      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Reviewed 2026-09-03</span></div>
+      <p>A damaged championship save can affect one AMS2 mode while other sessions still work. Identify the implicated championship state before resetting it.</p>
+      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Evidence reviewed 2026-09-03</span><span>Guide updated 2026-09-29</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Record the championship and the action that fails, such as opening or continuing it.</li><li>Check whether a normal session still loads and whether the failure evidence names a championship or singlechamps save.</li><li>Close AMS2 and preserve only the implicated save-state files before moving their active copies aside.</li></ul>
+          <h3>How to confirm the result</h3><p>Test Championship mode with newly created state. Keep the original save available for restoration or support if the failure is unchanged.</p>
+          <h3>Repair limits and when to stop</h3><p>Existing championship progress may be unavailable during this test. Rebuilding mode state does not guarantee recovery of a damaged championship and does not justify removing unrelated profile files.</p>
+        </section>
         <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>A championship or singlechamps save file changed immediately before a Championship-mode failure and no stronger system fault is present.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>championship</code></li><li><code>singlechamps</code></li><li><code>championship save</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>Preserve only the implicated championship save-state files and move them aside so AMS2 can rebuild the mode without deleting other profile data.</p><div class="safety-note"><strong>Repair safety</strong><span>Significant / reversible / ask first</span></div></section>
         <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Automobilista 2 troubleshooting</strong><span>Reiza Studios Forum · Community evidence</span><p>Reiza&#x27;s troubleshooting forum establishes the user save hierarchy used to isolate mode-specific state; PitMedic acts only when recent championship evidence exists.</p></div><a href="https://forum.reizastudios.com/threads/troubleshooting-automobilista-2.9860/" target="_blank" rel="noreferrer">Open source</a></li></ul></section>

@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Asetek RaceHub"}]},{"@type":"TechArticle","headline":"Asetek RaceHub: Asetek RaceHub crash or stale-process recovery","description":"How PitMedic detects and performs a controlled recovery after a Asetek RaceHub crash or stale process.","url":"https://pitmedic.com/diagnostic-library/companion-asetek-clean-recovery/","dateModified":"2026-09-01","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Asetek RaceHub"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Asetek RaceHub"}]},{"@type":"TechArticle","headline":"Asetek RaceHub: Asetek RaceHub crash or stale-process recovery","description":"How PitMedic detects and performs a controlled recovery after a Asetek RaceHub crash or stale process.","url":"https://pitmedic.com/diagnostic-library/companion-asetek-clean-recovery/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Asetek RaceHub"}]}</script>
 </head>
 <body>
 <main>
@@ -31,11 +31,16 @@
       <span class="section-kicker">Companion software repair</span>
       <p class="library-product">Asetek RaceHub</p>
       <h1>Asetek RaceHub crash or stale-process recovery</h1>
-      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
-      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Reviewed 2026-09-01</span></div>
+      <p>A confirmed Asetek RaceHub application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.</p>
+      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Evidence reviewed 2026-09-01</span><span>Guide updated 2026-09-29</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Close every supported simulator and save any work in the companion app.</li><li>Identify the installed RaceHub app and its known helper; review any prompt needed to close the elevated helper.</li><li>Do not restart device software during firmware flashing or while an update’s completion is uncertain.</li><li>Check the installed executable location before relaunching; retain the exact crash time and message if the app fails again.</li></ul>
+          <h3>How to confirm the result</h3><p>Asetek RaceHub should relaunch from its validated installed location and remain running. Check device visibility and expected controls before entering a session. If the app closes again, preserve the new error for vendor support.</p>
+          <h3>Repair limits and when to stop</h3><p>This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue.</p>
+        </section>
         <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>RaceHub app and elevated-helper clean recovery</p><h3>Controlled recovery sequence</h3><ol class="repair-steps"><li>Confirm every supported simulator is closed</li><li>Close RaceHub and its known elevated helper</li><li>Relaunch the validated RaceHub executable</li><li>Verify that RaceHub remains running</li></ol></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>PitMedic closes the RaceHub app and its known elevated helper, relaunches the validated installed app, and verifies that it stays running.</p><div class="safety-note"><strong>Repair safety</strong><span>Ask first / controlled restart</span></div></section>
         <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>RaceHub troubleshooting</strong><span>Asetek Racing · Official source</span><p>Asetek lists restarting RaceHub and updating it as the first software-side recovery steps.</p></div><a href="https://www.asetek.com/simsports/knowledge-base/troubleshooting/" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>RaceHub log files</strong><span>Asetek Racing · Official source</span><p>Asetek recommends collecting RaceHub logs from the affected session for unresolved issues.</p></div><a href="https://www.asetek.com/simsports/knowledge-base/how-to-find-serial-number-and-racehub-log-files/" target="_blank" rel="noreferrer">Open source</a></li></ul></section>

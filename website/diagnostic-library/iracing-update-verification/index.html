@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"iRacing"}]},{"@type":"TechArticle","headline":"iRacing: Update verification failure","description":"How PitMedic detects and safely responds to update verification failure in iRacing.","url":"https://pitmedic.com/diagnostic-library/iracing-update-verification/","dateModified":"2026-09-01","author":{"@type":"Organization","name":"PitMedic Project"},"about":"iRacing"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"iRacing"}]},{"@type":"TechArticle","headline":"iRacing: Update verification failure","description":"How PitMedic detects and safely responds to update verification failure in iRacing.","url":"https://pitmedic.com/diagnostic-library/iracing-update-verification/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"iRacing"}]}</script>
 </head>
 <body>
 <main>
@@ -31,14 +31,26 @@
       <span class="section-kicker">Simulator repair</span>
       <p class="library-product">iRacing</p>
       <h1>Update verification failure</h1>
-      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
-      <div class="issue-status"><span>Automatic repair available</span><span>Active</span><span>Reviewed 2026-09-01</span></div>
+      <p>A verification message during an active iRacing update can be transient. A repair should be considered only for a fresh failure after the updater finishes.</p>
+      <div class="issue-status"><span>Automatic repair available</span><span>Active</span><span>Evidence reviewed 2026-09-01</span><span>Guide updated 2026-09-29</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Check whether iRacingUpdater or its 64-bit version is still active and let it complete.</li><li>Wait through PitMedic’s 30-second settling period after updater activity ends.</li><li>Retry once and capture a new verification failure. Old lines from the update are not fresh evidence.</li><li>Before an approved reset, preserve version_system.txt and the downloads cache.</li></ul>
+          <h3>How to confirm the result</h3><p>Restart the updater after the targeted reset and let it finish. Confirm that a new verification attempt succeeds and the intended session launches.</p>
+          <h3>Repair limits and when to stop</h3><p>PitMedic blocks iRacing repairs during active updating. Do not clear downloads midway through an update; repeated network or CDN failures require a separate connection investigation.</p>
+        </section>
         <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>A fresh verification failure is reported after the iRacing updater has closed and its 30-second settling period has ended. Transient verification checks during an active update are not repair findings.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>Verification Failure</code></li><li><code>version_system.txt</code></li><li><code>downloads</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>Let any running update finish first. If verification still fails, back up and reset version_system.txt and the downloads cache, then restart the updater. PitMedic blocks iRacing repairs while an update is active; CDN/network changes remain advisory.</p><div class="safety-note"><strong>Repair safety</strong><span>Reversible / one-click for local files</span></div></section>
-        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Verification Failure Error while Updating</strong><span>iRacing Support · Official source</span><p>Official support documents renaming version_system.txt and clearing downloads.</p></div><a href="https://support.iracing.com/support/solutions/articles/31000155062-verification-failure-error-while-updating" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+<section class="diagnostic-card diagnostic-example">
+          <h2>Update messages wait for fresh failure evidence</h2>
+          <p class="example-label">Verified automated regression test · 2026-09-28</p>
+          <h3>Test setup</h3><p>Synthetic updater state and temporary log files included verification failures and service-wait messages during an active update.</p>
+          <h3>Observed result</h3><p>Maintenance findings were suppressed while updating, suppressed lines were not replayed afterward, and a fresh post-update verification failure remained detectable. A separate graphics fault remained detectable during updating.</p>
+          <h3>What this establishes</h3><p>This tests the update guard and log handling, not download completion or a live iRacing update.</p>
+          <p class="example-evidence"><a href="https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/Program.cs">Read the test source</a> · <a href="https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664">View the passing Windows test run</a></p>
+        </section>        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Verification Failure Error while Updating</strong><span>iRacing Support · Official source</span><p>Official support documents renaming version_system.txt and clearing downloads.</p></div><a href="https://support.iracing.com/support/solutions/articles/31000155062-verification-failure-error-while-updating" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
       </div>
       <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.5/PitMedic-Setup-x64.exe">Download v1.0.0.5</a><a class="button button-secondary" href="/simulators/iracing/">View iRacing coverage</a><small>Free and open source · Windows 10/11</small></aside>
     </div>

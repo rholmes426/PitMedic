@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"iRacing"}]},{"@type":"TechArticle","headline":"iRacing: iRacing Helper Service stopped / UI cannot launch","description":"How PitMedic detects and safely responds to iracing helper service stopped / ui cannot launch in iRacing.","url":"https://pitmedic.com/diagnostic-library/iracing-helper-service/","dateModified":"2026-09-01","author":{"@type":"Organization","name":"PitMedic Project"},"about":"iRacing"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"iRacing"}]},{"@type":"TechArticle","headline":"iRacing: iRacing Helper Service stopped / UI cannot launch","description":"How PitMedic detects and safely responds to iracing helper service stopped / ui cannot launch in iRacing.","url":"https://pitmedic.com/diagnostic-library/iracing-helper-service/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"iRacing"}]}</script>
 </head>
 <body>
 <main>
@@ -31,14 +31,33 @@
       <span class="section-kicker">Simulator repair</span>
       <p class="library-product">iRacing</p>
       <h1>iRacing Helper Service stopped / UI cannot launch</h1>
-      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
-      <div class="issue-status"><span>Automatic repair available</span><span>Active</span><span>Reviewed 2026-09-01</span></div>
+      <p>The iRacing UI needs the iRacing.com Helper Service. A stopped service can explain Not In Service, but a temporary service handoff during an update is expected.</p>
+      <div class="issue-status"><span>Automatic repair available</span><span>Active</span><span>Evidence reviewed 2026-09-01</span><span>Guide updated 2026-09-29</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Finish any active iRacing update and allow its settling period to end.</li><li>Open Windows Services and check iRacing.com Helper Service; record whether it is missing, stopped, or running.</li><li>If multiple iRacing copies are installed, compare the service location with the UI shortcut target before restarting anything.</li></ul>
+          <h3>How to confirm the result</h3><p>After the service restart, confirm its state is Running and retry opening the UI and a test session. A service that immediately stops again needs its error investigated.</p>
+          <h3>Repair limits and when to stop</h3><p>Restarting the service does not repair a damaged car, UI cache, or mismatched installation. A missing service may require the vendor installation workflow rather than repeated restart attempts.</p>
+        </section>
         <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>iRacing.com Helper Service absent or stopped while UI launch fails or reports Not In Service.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>Not In Service</code></li><li><code>iRacing.com Helper Service</code></li><li><code>iRacingService</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>Restart the iRacing service using the installed service/start-stop helpers, then verify service state.</p><div class="safety-note"><strong>Repair safety</strong><span>Automatic / short</span></div></section>
-        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>System Not in Service</strong><span>iRacing Support · Official source</span><p>Official support says the helper service should run automatically and can be started manually.</p></div><a href="https://support.iracing.com/support/solutions/articles/31000133527-what-does-system-not-in-service-indicate-" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>Quick Troubleshooting Launching the iRacing UI</strong><span>iRacing Support · Official source</span><p>Official first step is restarting the iRacing service.</p></div><a href="https://support.iracing.com/support/solutions/articles/31000162469" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+<section class="diagnostic-card diagnostic-example">
+          <h2>Specific evidence survives a saved-finding round trip</h2>
+          <p class="example-label">Verified automated regression test · 2026-09-28</p>
+          <h3>Test setup</h3><p>Synthetic findings combined an application fault with a specific service, UI, update-permissions, or Error 73 signature.</p>
+          <h3>Observed result</h3><p>Capture, serialized history, and independent helper reconstruction selected the corresponding targeted plan, including when the saved recommendation was stale or altered.</p>
+          <h3>What this establishes</h3><p>This tests plan consistency; it does not execute a service restart, delete a cache, or demonstrate a successful repair on a simulator installation.</p>
+          <p class="example-evidence"><a href="https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/IRacingRepairPlanTests.cs">Read the test source</a> · <a href="https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664">View the passing Windows test run</a></p>
+        </section><section class="diagnostic-card diagnostic-example">
+          <h2>Update messages wait for fresh failure evidence</h2>
+          <p class="example-label">Verified automated regression test · 2026-09-28</p>
+          <h3>Test setup</h3><p>Synthetic updater state and temporary log files included verification failures and service-wait messages during an active update.</p>
+          <h3>Observed result</h3><p>Maintenance findings were suppressed while updating, suppressed lines were not replayed afterward, and a fresh post-update verification failure remained detectable. A separate graphics fault remained detectable during updating.</p>
+          <h3>What this establishes</h3><p>This tests the update guard and log handling, not download completion or a live iRacing update.</p>
+          <p class="example-evidence"><a href="https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/Program.cs">Read the test source</a> · <a href="https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664">View the passing Windows test run</a></p>
+        </section>        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>System Not in Service</strong><span>iRacing Support · Official source</span><p>Official support says the helper service should run automatically and can be started manually.</p></div><a href="https://support.iracing.com/support/solutions/articles/31000133527-what-does-system-not-in-service-indicate-" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>Quick Troubleshooting Launching the iRacing UI</strong><span>iRacing Support · Official source</span><p>Official first step is restarting the iRacing service.</p></div><a href="https://support.iracing.com/support/solutions/articles/31000162469" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
       </div>
       <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.5/PitMedic-Setup-x64.exe">Download v1.0.0.5</a><a class="button button-secondary" href="/simulators/iracing/">View iRacing coverage</a><small>Free and open source · Windows 10/11</small></aside>
     </div>

@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"RaceRoom Racing Experience"}]},{"@type":"TechArticle","headline":"RaceRoom Racing Experience: Damaged RaceRoom user configuration","description":"How PitMedic detects and safely responds to damaged raceroom user configuration in RaceRoom Racing Experience.","url":"https://pitmedic.com/diagnostic-library/raceroom-user-config/","dateModified":"2026-09-01","author":{"@type":"Organization","name":"PitMedic Project"},"about":"RaceRoom Racing Experience"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"RaceRoom Racing Experience"}]},{"@type":"TechArticle","headline":"RaceRoom Racing Experience: Damaged RaceRoom user configuration","description":"How PitMedic detects and safely responds to damaged raceroom user configuration in RaceRoom Racing Experience.","url":"https://pitmedic.com/diagnostic-library/raceroom-user-config/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"RaceRoom Racing Experience"}]}</script>
 </head>
 <body>
 <main>
@@ -31,11 +31,16 @@
       <span class="section-kicker">Simulator repair</span>
       <p class="library-product">RaceRoom Racing Experience</p>
       <h1>Damaged RaceRoom user configuration</h1>
-      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
-      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Reviewed 2026-09-01</span></div>
+      <p>A clean RaceRoom profile is a last diagnostic step when current evidence points to configuration corruption and narrower repairs have not helped.</p>
+      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Evidence reviewed 2026-09-01</span><span>Guide updated 2026-09-29</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Identify the repeated startup failure and record which targeted cache, display, or controller repairs have already been tried.</li><li>Locate the RaceRoom Racing Experience user folder in the actual user profile, including any redirected Documents location.</li><li>Close RaceRoom and preserve the complete affected data before approving a move of the active copy.</li></ul>
+          <h3>How to confirm the result</h3><p>Relaunch RaceRoom to create clean user data, review graphics and controls, and retry the original failure. If it works, bring back personal data selectively; if it fails, restore the preserved profile with the simulator closed.</p>
+          <h3>Repair limits and when to stop</h3><p>A new profile can reset preferences and bindings or temporarily hide saved data. It is not a repair for driver, hardware, or game-package faults. Do not delete the backup or copy all of the old configuration back before retesting.</p>
+        </section>
         <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>Repeated startup/loading failure remains after targeted cache/config repairs and evidence points to UserData configuration corruption.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>UserData</code></li><li><code>configuration corruption</code></li><li><code>RaceRoom Racing Experience.old</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>Preserve the complete RaceRoom Racing Experience user folder and move the active copy aside so the game can generate a clean profile.</p><div class="safety-note"><strong>Repair safety</strong><span>Significant / reversible / ask first</span></div></section>
         <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>game crashes, can someone help me?</strong><span>RaceRoom Steam Community · Community evidence</span><p>A RaceRoom moderator recommends renaming the RaceRoom user folder to reset all settings; the reporter later confirmed the game worked. PitMedic preserves the folder as a recovery backup.</p></div><a href="https://forum.kw-studios.com/index.php?threads%2Fcontrol-settings-are-missing-and-game-keeps-going-to-black-screen.19776%2F=" target="_blank" rel="noreferrer">Open source</a></li></ul></section>

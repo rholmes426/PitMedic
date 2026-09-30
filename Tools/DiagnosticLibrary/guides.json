@@ -1,0 +1,998 @@
+{
+  "iracing-missing-file-privileges": {
+    "heading": "iRacing Missing File Privileges during a Steam update",
+    "modified": "2026-09-29",
+    "title": "iRacing Missing File Privileges: Safe Steam Fix | PitMedic",
+    "description": "Steam says Missing File Privileges while updating iRacing? Learn why the Helper Service can lock files, what to check, and how PitMedic safely restarts the update.",
+    "intro": "Steam can stop an iRacing update with a Missing File Privileges message when the iRacing Helper Service still has installation files open. PitMedic confirms that specific combination before offering a controlled recovery.",
+    "meaning": "This message does not necessarily mean your Windows account has lost access to the whole iRacing installation. During an update, the background Helper Service can keep an iRacing file in use, preventing Steam from replacing it. A Content File Locked message can have the same underlying cause.",
+    "checks": [
+      "Close the iRacing simulator and finish any active session before changing update files.",
+      "Confirm the error appears while Steam is updating iRacing, rather than during an unrelated Steam download.",
+      "Check whether iRacing.com Helper Service is still running in Windows Task Manager.",
+      "Allow time for Steam validation: on a large installation it can take more than two minutes."
+    ],
+    "result": "Steam should be able to validate or update the installation after the Helper Service releases its file handles. PitMedic restarts the service afterward. If Steam still reports the error, stop rather than repeatedly deleting content and continue with iRacing's official support guidance.",
+    "related": [
+      "iracing-content-file-locked",
+      "iracing-helper-service",
+      "iracing-update-verification",
+      "iracing-car-loading-errors"
+    ],
+    "limits": "This targets the iRacing service/file-lock combination, not arbitrary Windows permissions. Do not take ownership of the full Steam library or disable security software. An active iRacing updater must finish before repair.",
+    "examples": [
+      {
+        "title": "Specific evidence survives a saved-finding round trip",
+        "setup": "Synthetic findings combined an application fault with a specific service, UI, update-permissions, or Error 73 signature.",
+        "outcome": "Capture, serialized history, and independent helper reconstruction selected the corresponding targeted plan, including when the saved recommendation was stale or altered.",
+        "scope": "This tests plan consistency; it does not execute a service restart, delete a cache, or demonstrate a successful repair on a simulator installation.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/IRacingRepairPlanTests.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "iracing-content-file-locked": {
+    "heading": "iRacing Content File Locked during a Steam update",
+    "modified": "2026-09-29",
+    "title": "iRacing Content File Locked: Fix the Steam Update Error | PitMedic",
+    "description": "Fix Steam's Content File Locked error for iRacing by identifying a running Helper Service, releasing the locked files, and safely resuming validation.",
+    "intro": "A Content File Locked error means Steam could not replace part of the iRacing installation because another process still had the file open. PitMedic checks for the iRacing Helper Service before recommending a restart of the update.",
+    "meaning": "iRacing's Helper Service normally runs in the background. If it remains active during a Steam update, Windows can prevent Steam from changing a file that the service is using. The repair should therefore target the process holding the file, not erase unrelated settings or vehicle data.",
+    "checks": [
+      "Close the simulator, iRacing UI, and any active Steam update dialog.",
+      "Confirm Content File Locked names the iRacing installation.",
+      "Check Task Manager for iRacing.com Helper Service before using broader repair steps.",
+      "Preserve user setups, paints, and replays; they are not part of this targeted recovery."
+    ],
+    "result": "Complete the Steam validation or download after the Helper Service releases its handles, then confirm the service is restored and retry the affected session. Starting validation is not proof that it succeeded.",
+    "related": [
+      "iracing-missing-file-privileges",
+      "iracing-helper-service",
+      "iracing-update-verification",
+      "iracing-content-corruption"
+    ],
+    "limits": "A locked file is not proof of corruption. This targets the implicated service, not all Steam processes or Windows permissions. Let an active iRacing updater finish before repair.",
+    "examples": [
+      {
+        "title": "Reopening Steam ends automatic window hiding",
+        "setup": "A fake-window regression scenario reopened Steam during validation startup, with another Steam window present.",
+        "outcome": "Both windows remained visible and further hiding stopped. The eight-scenario suite also covered cancellation, elapsed startup time, and later user window choices.",
+        "scope": "This verifies window-control policy using fake windows; it is not an interactive Steam desktop test or proof that file validation completed.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/SteamValidationWindowTests.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "iracing-loading-error-3": {
+    "heading": "iRacing Loading Error 3",
+    "modified": "2026-09-29",
+    "title": "iRacing Loading Error 3: Causes and Recovery Steps | PitMedic",
+    "description": "Troubleshoot iRacing Loading Error 3, rule out car and track problems, preserve Documents\\iRacing, and safely generate a clean configuration.",
+    "intro": "iRacing Loading Error 3 has several possible causes. PitMedic treats a full configuration reset as a last step, after checking for a specific car or track problem that can be repaired more narrowly.",
+    "meaning": "The error can follow damaged car or track content, an unsupported car-and-track combination, or a damaged Documents\\iRacing profile. Because those causes require different fixes, seeing Error 3 alone is not enough reason to remove the entire profile.",
+    "checks": [
+      "Try another known-good car and track combination to see whether the failure is content-specific.",
+      "Resolve a numbered car or track loading error first if iRacing reports one alongside Error 3.",
+      "Close iRacing before moving its Documents folder.",
+      "Keep setups, replays, paints, and controller information in the preserved backup."
+    ],
+    "result": "A clean profile will make iRacing request graphics configuration and controller calibration again. If the simulator then loads, restore only the personal setups, replays, and paints you need from the backup instead of copying the damaged configuration back wholesale.",
+    "related": [
+      "iracing-car-loading-errors",
+      "iracing-track-loading-errors",
+      "iracing-renderer-config",
+      "iracing-content-corruption"
+    ],
+    "limits": "This is an approval-gated profile reset after narrower checks. Graphics, controls, and preferences may need to be recreated. The preserved profile is a rollback copy, not evidence that every file in it was damaged."
+  },
+  "iracing-car-loading-errors": {
+    "heading": "iRacing Loading Error 22 or 71",
+    "modified": "2026-09-29",
+    "title": "iRacing Loading Error 22 or 71: Repair Car Files | PitMedic",
+    "description": "Loading Error 22 or 71 usually points to damaged or outdated iRacing car content. Identify the affected car, preserve unrelated files, and redownload only what is needed.",
+    "intro": "iRacing Loading Errors 22 and 71 usually point to car content that is missing, outdated, or corrupt. PitMedic favors the smallest repair: replace the affected car before considering a reset of shared car metadata.",
+    "meaning": "If one car fails while other combinations load, the problem is likely limited to that vehicle's installed files. Error 71 can also involve shared car metadata or the pace-car safety directory. A failure across every car requires a broader content check than a single-car error.",
+    "checks": [
+      "Record which car or multiclass session triggers the loading error.",
+      "Test a different car at the same track to separate car content from track content.",
+      "Close iRacing before changing files in its installation directory.",
+      "Start with the named car when it is identifiable. If several cars fail, review the shared-metadata recovery rather than removing the full cars directory."
+    ],
+    "result": "iRacing should offer the removed car or shared metadata as an update. After it is downloaded again, retry the same car-and-track combination and confirm that other installed content remains available.",
+    "related": [
+      "iracing-loading-error-3",
+      "iracing-track-loading-errors",
+      "iracing-content-corruption",
+      "iracing-update-verification"
+    ],
+    "limits": "The exact car folder must be identified before a targeted replacement. Shared metadata resets are broader; do not promise that every car error can be parsed to one folder or erase personal setups and paints."
+  },
+  "iracing-eac-error73": {
+    "heading": "iRacing Error 73 / Easy Anti-Cheat failure",
+    "modified": "2026-09-29",
+    "title": "iRacing Error 73: Repair Easy Anti-Cheat | PitMedic",
+    "description": "Troubleshoot iRacing Error 73 and repair the EOS Easy Anti-Cheat installation after confirming the startup error and checking for duplicate iRacing installs.",
+    "intro": "iRacing Error 73 is a startup failure associated with the EOS version of Easy Anti-Cheat. PitMedic confirms the error signature before offering iRacing's supported uninstall, reinstall, and repair workflow.",
+    "meaning": "The failure occurs before a normal simulator session begins, so graphics, car, and track resets are unlikely to address it. iRacing also warns that duplicate installations can leave the anti-cheat repair pointed at the wrong simulator path.",
+    "checks": [
+      "Close iRacing before running the anti-cheat repair.",
+      "Confirm the message explicitly names Error 73, Easy Anti-Cheat, or EOS.",
+      "Check for more than one iRacing installation and identify the copy you actually launch.",
+      "Use the Easy Anti-Cheat tools included with that installation rather than an unrelated download."
+    ],
+    "result": "After the EOS Easy Anti-Cheat service is repaired, launch the same iRacing installation again. If Error 73 remains, verify that shortcuts and Steam point to the same installation before repeating the repair.",
+    "related": [
+      "iracing-windows-integrity",
+      "iracing-compatibility-flags",
+      "iracing-helper-service",
+      "iracing-loading-error-3"
+    ],
+    "limits": "Only explicit matching failure evidence supports this repair. An installation-status probe during an update is not a failed launch. This does not bypass security checks or repair unrelated graphics, car, or track problems.",
+    "examples": [
+      {
+        "title": "Specific evidence survives a saved-finding round trip",
+        "setup": "Synthetic findings combined an application fault with a specific service, UI, update-permissions, or Error 73 signature.",
+        "outcome": "Capture, serialized history, and independent helper reconstruction selected the corresponding targeted plan, including when the saved recommendation was stale or altered.",
+        "scope": "This tests plan consistency; it does not execute a service restart, delete a cache, or demonstrate a successful repair on a simulator installation.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/IRacingRepairPlanTests.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "companion-moza-clean-recovery": {
+    "heading": "MOZA Pit House not opening or crashing",
+    "modified": "2026-09-29",
+    "title": "MOZA Pit House Not Opening or Crashing: Recovery Guide | PitMedic",
+    "description": "MOZA Pit House won't open, crashed, or left a stale process? See the safe restart sequence PitMedic uses without resetting profiles or changing device firmware.",
+    "intro": "When MOZA Pit House crashes or will not reopen, an old Pit House process may still be running in the background. PitMedic can close only those remaining processes, relaunch the installed application, and verify that it stays open.",
+    "meaning": "This recovery is intentionally limited to a confirmed application crash or stale process. It does not flash firmware, reset wheel profiles, remove drivers, or alter simulator settings. Firmware, device-detection, and network errors need their own diagnosis.",
+    "checks": [
+      "Close every supported racing simulator before restarting wheelbase software.",
+      "Confirm Pit House has crashed, stopped responding, or will not reopen because a process remains active.",
+      "Do not interrupt a firmware update or use this recovery while MOZA's offline firmware tool is running.",
+      "If Pit House opens, use its Report Error feature for a repeatable crash and retain the report number."
+    ],
+    "result": "Pit House should relaunch from its validated installed location and remain running. If it closes again, PitMedic records the failed recovery without changing profiles or firmware; the next step is MOZA's built-in error report and official support guidance.",
+    "related": [
+      "companion-logitech-ghub-service-recovery",
+      "companion-simucube-clean-recovery",
+      "companion-fanatec-process-recovery",
+      "companion-simagic-clean-recovery"
+    ],
+    "limits": "A controlled app restart does not diagnose USB hardware or guarantee a firmware/device fix. Do not run it during flashing. A short successful relaunch check is not proof of long-term stability."
+  },
+  "lmu-content-corruption": {
+    "modified": "2026-09-29",
+    "intro": "A track or vehicle package that cannot be read can stop Le Mans Ultimate while loading a session. Match the failed package to the current session before replacing any content.",
+    "meaning": "A track or vehicle package that cannot be read can stop Le Mans Ultimate while loading a session. Match the failed package to the current session before replacing any content.",
+    "checks": [
+      "Note the selected car, track, and the time loading stopped. Try a different combination to see whether the failure is limited to one package.",
+      "Check the current trace for a decompression, mesh, or scene error naming the affected Installed\\Locations or Installed\\Vehicles package on the same line.",
+      "Close LMU and preserve the identified package before targeted replacement and Steam verification."
+    ],
+    "result": "After Steam finishes downloading or validating the affected content, repeat the same car and track selection. Success means the session loads and the matching content error does not recur.",
+    "limits": "An isolated warning during a clean shutdown is not evidence that a package needs replacement. Do not clear every track or vehicle, or combine an error on one line with an unrelated successful load on another.",
+    "examples": [
+      {
+        "title": "An LMU warning during a clean exit does not trigger content replacement",
+        "setup": "Synthetic LMU evidence combined a content warning with clean-shutdown markers and exit code zero; another case represented an actual content failure without clean-shutdown evidence.",
+        "outcome": "The clean case became a normal exit with no targeted content repair. The failure case remained a content diagnosis. An error on one line was not associated with an unrelated successfully loaded path on another.",
+        "scope": "This verifies classification and path matching. It does not demonstrate that a damaged track package was downloaded or repaired.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/Program.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "lmu-shader-cache": {
+    "modified": "2026-09-29",
+    "intro": "A damaged LMU shader cache can interrupt car or track loading. A stall near 48% is a clue to investigate, not a diagnosis by itself.",
+    "meaning": "A damaged LMU shader cache can interrupt car or track loading. A stall near 48% is a clue to investigate, not a diagnosis by itself.",
+    "checks": [
+      "Record the loading stage and check the current trace for shader/cache failures.",
+      "Rule out a named unreadable track or vehicle package; that needs content recovery instead.",
+      "Close LMU and preserve UserData\\Log\\Shaders\\dynamic.cache before the targeted cache reset."
+    ],
+    "result": "Start LMU and retry the same session. Allow the shader cache to rebuild; the useful result is that loading completes without the previous cache failure.",
+    "limits": "This resets cached shaders, not game packages, graphics drivers, or wheel settings. A vendor-wide graphics cache reset requires separate confirmation and supporting evidence."
+  },
+  "lmu-startup-config": {
+    "modified": "2026-09-29",
+    "intro": "LMU can fail before reaching a session when its saved display or browser initialization settings are unusable. First identify which initialization step fails.",
+    "meaning": "LMU can fail before reaching a session when its saved display or browser initialization settings are unusable. First identify which initialization step fails.",
+    "checks": [
+      "Note whether a window appears, stays black, or closes before the menu.",
+      "Check the current trace for Config_DX11, dx11 configuration, or CEF initialization failures.",
+      "Close LMU and keep the existing configuration backup and display settings before a targeted reset."
+    ],
+    "result": "Relaunch to the menu, confirm resolution and display selection, then load a session. If a CEF setting was tested and did not help, restore its previous value.",
+    "limits": "A black screen alone does not establish configuration corruption. Do not reset the entire profile for a clearly identified driver or game-content failure; change only the implicated settings."
+  },
+  "lmu-plugin-conflict": {
+    "modified": "2026-09-29",
+    "intro": "An LMU plugin may be involved when crashes begin after enabling it or the current trace identifies a plugin failure. Test that connection with a reversible change.",
+    "meaning": "An LMU plugin may be involved when crashes begin after enabling it or the current trace identifies a plugin failure. Test that connection with a reversible change.",
+    "checks": [
+      "Record recently enabled plugins and the point at which LMU fails.",
+      "Check the trace for plugin-related failure evidence and rule out a more specific content or hardware fault.",
+      "Close LMU and back up CustomPluginVariables.JSON before temporarily disabling plugin entries."
+    ],
+    "result": "Repeat the same session with the suspect plugin disabled. If it works, re-enable entries individually to narrow the conflict; keep the original configuration available.",
+    "limits": "A plugin name in a normal log line is not proof of a fault. Disabling plugins can remove their features during the test and does not repair the plugin itself."
+  },
+  "lmu-overlay-conflict": {
+    "modified": "2026-09-29",
+    "intro": "A graphics overlay may contribute to an LMU loading crash. Closing the implicated overlay for one retest helps distinguish a conflict from an unrelated crash.",
+    "meaning": "A graphics overlay may contribute to an LMU loading crash. Closing the implicated overlay for one retest helps distinguish a conflict from an unrelated crash.",
+    "checks": [
+      "Note which overlay or tuning tools are running, such as RivaTuner or MSI Afterburner.",
+      "Check whether the failure occurs at the same loading stage and whether the evidence names a more specific content or driver problem.",
+      "Save any work in the implicated tool, close it for the test, and keep the car, track, and graphics settings unchanged."
+    ],
+    "result": "Compare the same launch with the overlay closed. A repeatable difference supports further overlay troubleshooting; one successful launch is not a confirmed root cause.",
+    "limits": "The supporting reports are community evidence. PitMedic does not uninstall tuning software or change overclock settings, and another cause may still explain the failure."
+  },
+  "lmu-ghub-conflict": {
+    "modified": "2026-09-29",
+    "intro": "Some community reports link LMU startup failures to Logitech G HUB state or version. Check the installed version and test carefully before attributing a crash to G HUB.",
+    "meaning": "Some community reports link LMU startup failures to Logitech G HUB state or version. Check the installed version and test carefully before attributing a crash to G HUB.",
+    "checks": [
+      "Record the LMU and G HUB versions and whether the failure occurs before the menu.",
+      "Finish any device or firmware update before considering a restart or temporary closure.",
+      "With LMU closed, test a launch with G HUB closed only if it is safe for your hardware setup; confirm controls before driving."
+    ],
+    "result": "Compare startup behavior under the same conditions. If the result consistently changes with G HUB, use Logitech guidance for the installed version and hardware.",
+    "limits": "This is community-derived diagnostic guidance, not proof that G HUB causes every black screen. Third-party updates remain manual; closing G HUB may affect device features."
+  },
+  "lmu-memory-allocation": {
+    "modified": "2026-09-29",
+    "intro": "An LMU memory allocation failure can involve Windows commit capacity as well as physical RAM. Confirm the allocation error before changing Windows memory settings.",
+    "meaning": "An LMU memory allocation failure can involve Windows commit capacity as well as physical RAM. Confirm the allocation error before changing Windows memory settings.",
+    "checks": [
+      "Look for Failed to allocate a section of memory in the trace near the failed session.",
+      "In Task Manager, open Performance > Memory and record Committed usage and its limit while reproducing the issue.",
+      "Review available disk space and the current Windows page-file configuration; note other memory-heavy applications."
+    ],
+    "result": "After an approved correction and any required restart, repeat the same workload and check that commit use remains below the limit and the allocation error does not recur.",
+    "limits": "Page-file changes affect Windows and require explicit approval. This is not a RAM upgrade, leak fix, or guaranteed cure for a generic crash; do not choose an arbitrary fixed size without checking the system."
+  },
+  "lmu-eac": {
+    "modified": "2026-09-29",
+    "intro": "An explicit Easy Anti-Cheat startup failure needs a targeted installation check. A general LMU crash does not establish that the service is broken.",
+    "meaning": "An explicit Easy Anti-Cheat startup failure needs a targeted installation check. A general LMU crash does not establish that the service is broken.",
+    "checks": [
+      "Record the exact startup message and check that the failure names Easy Anti-Cheat or EAC.",
+      "Close LMU and confirm which installed copy Steam launches.",
+      "Use only the install or repair tools supplied with that LMU installation and review any elevation prompt."
+    ],
+    "result": "Launch LMU through its supported path and retry the previously failing session. Confirm that the original startup error has cleared.",
+    "limits": "This repairs the included component; it does not bypass it or change Windows security settings. Keep unrelated driver, content, and configuration failures on their own diagnostic paths."
+  },
+  "lmu-reshade-runtime": {
+    "modified": "2026-09-29",
+    "intro": "A custom graphics runtime such as ReShade can be relevant to an LMU early-launch failure, but its presence must be confirmed before changing files.",
+    "meaning": "A custom graphics runtime such as ReShade can be relevant to an LMU early-launch failure, but its presence must be confirmed before changing files.",
+    "checks": [
+      "Record the full launch error, including 0xc000007b if shown.",
+      "Check the LMU application directory for the specific custom runtime installed with the graphics add-on.",
+      "Close LMU and preserve recovery copies before temporarily disabling only the identified add-on files."
+    ],
+    "result": "Relaunch with the custom runtime disabled. If startup is unchanged, restore the backup and investigate the remaining evidence.",
+    "limits": "The error code alone does not identify ReShade. Do not remove arbitrary DLLs, use third-party DLL downloads, or replace Windows runtime files."
+  },
+  "lmu-online-clock-eac": {
+    "modified": "2026-09-29",
+    "intro": "An online join failure needs different checks from a local loading crash. Establish whether LMU can run an offline session before changing connection settings.",
+    "meaning": "An online join failure needs different checks from a local loading crash. Establish whether LMU can run an offline session before changing connection settings.",
+    "checks": [
+      "Compare an offline session with the affected online join and record the server and time of failure.",
+      "Check Windows date, time, and time-zone settings, and use the supported LMU launch path.",
+      "Review Studio 397 service information and shipped update notes for the specific symptom; an announced fix is not evidence that it shipped."
+    ],
+    "result": "Retry the same online session after correcting a confirmed local issue. If offline play works but joining still fails, retain the exact message and timestamps for support.",
+    "limits": "This is guided diagnosis. It does not justify broad network resets, security changes, or content deletion; online warping and a local application crash may have different causes."
+  },
+  "iracing-helper-service": {
+    "modified": "2026-09-29",
+    "intro": "The iRacing UI needs the iRacing.com Helper Service. A stopped service can explain Not In Service, but a temporary service handoff during an update is expected.",
+    "meaning": "The iRacing UI needs the iRacing.com Helper Service. A stopped service can explain Not In Service, but a temporary service handoff during an update is expected.",
+    "checks": [
+      "Finish any active iRacing update and allow its settling period to end.",
+      "Open Windows Services and check iRacing.com Helper Service; record whether it is missing, stopped, or running.",
+      "If multiple iRacing copies are installed, compare the service location with the UI shortcut target before restarting anything."
+    ],
+    "result": "After the service restart, confirm its state is Running and retry opening the UI and a test session. A service that immediately stops again needs its error investigated.",
+    "limits": "Restarting the service does not repair a damaged car, UI cache, or mismatched installation. A missing service may require the vendor installation workflow rather than repeated restart attempts.",
+    "examples": [
+      {
+        "title": "Specific evidence survives a saved-finding round trip",
+        "setup": "Synthetic findings combined an application fault with a specific service, UI, update-permissions, or Error 73 signature.",
+        "outcome": "Capture, serialized history, and independent helper reconstruction selected the corresponding targeted plan, including when the saved recommendation was stale or altered.",
+        "scope": "This tests plan consistency; it does not execute a service restart, delete a cache, or demonstrate a successful repair on a simulator installation.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/IRacingRepairPlanTests.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      },
+      {
+        "title": "Update messages wait for fresh failure evidence",
+        "setup": "Synthetic updater state and temporary log files included verification failures and service-wait messages during an active update.",
+        "outcome": "Maintenance findings were suppressed while updating, suppressed lines were not replayed afterward, and a fresh post-update verification failure remained detectable. A separate graphics fault remained detectable during updating.",
+        "scope": "This tests the update guard and log handling, not download completion or a live iRacing update.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/Program.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "iracing-ui-cache": {
+    "modified": "2026-09-29",
+    "intro": "A blank or frozen iRacing UI can be caused by damaged UI state. Confirm an actual UI rendering problem before clearing the Electron cache.",
+    "meaning": "A blank or frozen iRacing UI can be caused by damaged UI state. Confirm an actual UI rendering problem before clearing the Electron cache.",
+    "checks": [
+      "Check whether the UI itself is blank, frozen, or unable to render, rather than a simulator session crashing after launch.",
+      "Record the time and look for matching UI failure evidence. The logger name iracing-electron or a connection-reset message alone is insufficient.",
+      "Close the UI and let any updater finish; preserve relevant UI data before clearing %APPDATA%\\iracing-electron."
+    ],
+    "result": "Relaunch the UI and retry the screen that failed. If it renders normally, test launching a session separately; a remaining simulator crash needs its own diagnosis.",
+    "limits": "A cache reset may rebuild UI state, but it does not repair the graphics driver, Windows, or car files. Do not repeat it solely because the launcher reports ECONNRESET after a simulator crash.",
+    "examples": [
+      {
+        "title": "A launcher connection reset is not a cache diagnosis",
+        "setup": "Synthetic iRacing evidence used the iracing-electron logger with ECONNRESET, both alone and following an application fault.",
+        "outcome": "The connection-reset-only case produced no repair. With an application fault, it retained the approval-gated Windows-integrity plan instead of substituting a UI-cache reset. Saved and reconstructed plans agreed.",
+        "scope": "This verifies repair selection, not that Windows was corrupt or that running a repair would solve a real crash.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/IRacingRepairPlanTests.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "iracing-ui-safe": {
+    "modified": "2026-09-29",
+    "intro": "An iRacing UI that remains on Welcome to iRacing can be tested with the supported UISafe setting when that setting is present.",
+    "meaning": "An iRacing UI that remains on Welcome to iRacing can be tested with the supported UISafe setting when that setting is present.",
+    "checks": [
+      "Confirm the UI stops at Welcome to iRacing and finish any active update.",
+      "With iRacing closed, locate app.ini in the actual Documents\\iRacing folder and preserve a backup.",
+      "Check whether UISafe exists and is set to 1 before using the targeted change to 0."
+    ],
+    "result": "Relaunch the UI. It should progress beyond the welcome screen; if there is no improvement, restore the saved setting and retain the UI log.",
+    "limits": "This changes one setting. Do not invent the setting when absent or treat every startup crash as this issue; no full Documents-folder reset is needed for this test.",
+    "examples": [
+      {
+        "title": "Specific evidence survives a saved-finding round trip",
+        "setup": "Synthetic findings combined an application fault with a specific service, UI, update-permissions, or Error 73 signature.",
+        "outcome": "Capture, serialized history, and independent helper reconstruction selected the corresponding targeted plan, including when the saved recommendation was stale or altered.",
+        "scope": "This tests plan consistency; it does not execute a service restart, delete a cache, or demonstrate a successful repair on a simulator installation.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/IRacingRepairPlanTests.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "iracing-update-verification": {
+    "modified": "2026-09-29",
+    "intro": "A verification message during an active iRacing update can be transient. A repair should be considered only for a fresh failure after the updater finishes.",
+    "meaning": "A verification message during an active iRacing update can be transient. A repair should be considered only for a fresh failure after the updater finishes.",
+    "checks": [
+      "Check whether iRacingUpdater or its 64-bit version is still active and let it complete.",
+      "Wait through PitMedic’s 30-second settling period after updater activity ends.",
+      "Retry once and capture a new verification failure. Old lines from the update are not fresh evidence.",
+      "Before an approved reset, preserve version_system.txt and the downloads cache."
+    ],
+    "result": "Restart the updater after the targeted reset and let it finish. Confirm that a new verification attempt succeeds and the intended session launches.",
+    "limits": "PitMedic blocks iRacing repairs during active updating. Do not clear downloads midway through an update; repeated network or CDN failures require a separate connection investigation.",
+    "examples": [
+      {
+        "title": "Update messages wait for fresh failure evidence",
+        "setup": "Synthetic updater state and temporary log files included verification failures and service-wait messages during an active update.",
+        "outcome": "Maintenance findings were suppressed while updating, suppressed lines were not replayed afterward, and a fresh post-update verification failure remained detectable. A separate graphics fault remained detectable during updating.",
+        "scope": "This tests the update guard and log handling, not download completion or a live iRacing update.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/Program.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "iracing-content-corruption": {
+    "modified": "2026-09-29",
+    "intro": "When one iRacing car fails in the UI or 3D viewer while other cars work, investigate that vehicle’s installed content before resetting shared data.",
+    "meaning": "When one iRacing car fails in the UI or 3D viewer while other cars work, investigate that vehicle’s installed content before resetting shared data.",
+    "checks": [
+      "Write down the exact car and the screen or session that fails.",
+      "Try another car using the same track or viewer to check whether the problem is isolated.",
+      "Close iRacing and keep a backup before replacing the identified car content through the updater."
+    ],
+    "result": "After the affected content downloads again, open the same car in the viewer and repeat the failing session. Confirm other installed cars still work.",
+    "limits": "A shared cars.dat reset is broader and needs evidence that several vehicles are affected. Do not remove all cars, paints, or setups for an isolated failure."
+  },
+  "iracing-could-not-find-sim": {
+    "modified": "2026-09-29",
+    "intro": "Could not find sim is a launch failure with several possible causes. Check the launch path, VR tools, and Documents location before choosing a repair.",
+    "meaning": "Could not find sim is a launch failure with several possible causes. Check the launch path, VR tools, and Documents location before choosing a repair.",
+    "checks": [
+      "Compare a monitor-based test session with VR, if available, and note whether OpenXR Toolkit is installed.",
+      "Compare the UI shortcut target with the location of iRacing.com Helper Service. Both should belong to the intended installation.",
+      "Open the actual Documents folder and inspect the iRacing folder location, including whether OneDrive manages it.",
+      "Record whether Windows beta UTF-8 is enabled and whether the Windows account name uses special characters; follow the linked iRacing guidance for a matching condition."
+    ],
+    "result": "After correcting one confirmed mismatch using vendor guidance, launch the same test session again. Record which change affected the result so unrelated settings can remain intact.",
+    "limits": "This record provides guided diagnosis, not a universal one-click repair. Do not broadly move Documents, disable OneDrive backup, uninstall VR software, or change Windows locale settings without understanding the impact and preserving data."
+  },
+  "iracing-track-loading-errors": {
+    "modified": "2026-09-29",
+    "intro": "A numbered track loading error needs the exact code and installation type. Steam Error 49 and direct-install updater failures do not use the same recovery path.",
+    "meaning": "A numbered track loading error needs the exact code and installation type. Steam Error 49 and direct-install updater failures do not use the same recovery path.",
+    "checks": [
+      "Record the complete loading error, track layout, car, and whether the installation is managed by Steam.",
+      "Try the same car at another track to see whether the failure follows the track.",
+      "Close iRacing and preserve track index metadata before the supported reset or validation."
+    ],
+    "result": "Complete Steam validation or the direct iRacing update, then retry the original track and layout. Check that the exact loading error has cleared.",
+    "limits": "The current built-in strategy resets track index metadata; automatic parsing of an exact track folder is not promised here. Do not delete all tracks or assume every loading error is track corruption."
+  },
+  "iracing-trueforce-stale-state": {
+    "modified": "2026-09-29",
+    "intro": "An iRacing process that remains after leaving a session can cause an already-running message. Check for a genuinely stale process and the applicable Logitech integrations.",
+    "meaning": "An iRacing process that remains after leaving a session can cause an already-running message. Check for a genuinely stale process and the applicable Logitech integrations.",
+    "checks": [
+      "Confirm the session has ended and inspect Task Manager for the remaining simulator process.",
+      "Record the wheel model and whether TrueForce or Logitech lighting integration is in use.",
+      "Close the simulator and back up app.ini before the supported integration-disable test."
+    ],
+    "result": "Start and exit a test session, then confirm the simulator process closes and the next launch succeeds. Compare wheel features with the previous settings.",
+    "limits": "Disabling TrueForce and lighting changes those features during the test. It is not a reason to interrupt a running race, and it does not prove that every leftover process is a Logitech fault."
+  },
+  "iracing-compatibility-flags": {
+    "modified": "2026-09-29",
+    "intro": "Forced administrator or legacy compatibility settings can interfere with iRacing’s supported launch path. Inspect only the executables involved in the failed launch.",
+    "meaning": "Forced administrator or legacy compatibility settings can interfere with iRacing’s supported launch path. Inspect only the executables involved in the failed launch.",
+    "checks": [
+      "Capture CreateProcessAsUser or the exact launch error if present.",
+      "Check Compatibility settings on the actual iRacing executables and compare them with the shortcut paths.",
+      "Preserve the current settings before removing only the administrator or legacy compatibility overrides implicated by the failure."
+    ],
+    "result": "Relaunch through the usual supported UI path and retry a test session. If the failure is unchanged, retain the before-and-after settings for further diagnosis.",
+    "limits": "This is a targeted compatibility change, not a blanket instruction to run Steam or Windows applications as administrator. Other applications’ compatibility settings remain outside the repair."
+  },
+  "iracing-updater-autoinstall": {
+    "modified": "2026-09-29",
+    "intro": "Waiting for iRacingService can leave downloaded update files unapplied. Check the updater’s state before starting a second update process.",
+    "meaning": "Waiting for iRacingService can leave downloaded update files unapplied. Check the updater’s state before starting a second update process.",
+    "checks": [
+      "Confirm the updater actually reports Waiting for iRacingService and the download phase has finished.",
+      "Check for an update still actively progressing and let it finish first.",
+      "Identify the correct installed iRacingUpdater and use its supported -autoinstall path only after closing conflicting updater state."
+    ],
+    "result": "The updater should apply the downloaded files and finish. Confirm the UI opens and the intended session launches afterward.",
+    "limits": "This does not fix every service or download failure. If installation still fails, collect the new updater message before considering the separate backed-up cache-reset procedure."
+  },
+  "iracing-digital-signature": {
+    "modified": "2026-09-29",
+    "intro": "Digital Signature Failed during an iRacing update needs the exact message and the correct updater path. Start with the vendor-supported updater workflow.",
+    "meaning": "Digital Signature Failed during an iRacing update needs the exact message and the correct updater path. Start with the vendor-supported updater workflow.",
+    "checks": [
+      "Record whether the error appears in the UI or updater and which installation it belongs to.",
+      "Let any active update finish or close its failed state cleanly before retrying.",
+      "Locate iRacingUpdater.exe inside the intended installation and launch that copy directly."
+    ],
+    "result": "Allow the update to complete, reopen the UI, and retry launching. If signature validation still fails, preserve the exact message for iRacing support.",
+    "limits": "Do not disable signature checks, security tools, or Windows protections. This workflow is not permission to trust an unknown installer or download a replacement executable from a third party."
+  },
+  "iracing-windows-integrity": {
+    "modified": "2026-09-29",
+    "intro": "A repeatable iRacing application fault may justify Windows integrity checks only after more specific causes have been considered. The exception code alone does not prove Windows corruption.",
+    "meaning": "A repeatable iRacing application fault may justify Windows integrity checks only after more specific causes have been considered. The exception code alone does not prove Windows corruption.",
+    "checks": [
+      "Record the faulting application, module, exception code, and timestamp from the matching Windows Application event.",
+      "Check for a more specific iRacing content, service, graphics-driver, or temperature-related finding first.",
+      "Review the Windows-wide scope and administrator prompt before approving DISM followed by SFC."
+    ],
+    "result": "Read the reported DISM and SFC results, restart if instructed, and retest the same session. Completed scans are not proof that iRacing has been fixed.",
+    "limits": "These commands affect Windows and require explicit approval. Driver replacement, RAM testing, and reinstalling iRacing remain separate investigations; do not repeatedly run system repairs for an unrelated launcher connection reset.",
+    "examples": [
+      {
+        "title": "A launcher connection reset is not a cache diagnosis",
+        "setup": "Synthetic iRacing evidence used the iracing-electron logger with ECONNRESET, both alone and following an application fault.",
+        "outcome": "The connection-reset-only case produced no repair. With an application fault, it retained the approval-gated Windows-integrity plan instead of substituting a UI-cache reset. Saved and reconstructed plans agreed.",
+        "scope": "This verifies repair selection, not that Windows was corrupt or that running a repair would solve a real crash.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/IRacingRepairPlanTests.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "iracing-renderer-config": {
+    "modified": "2026-09-29",
+    "intro": "A failed iRacing Graphics Config or damaged renderer settings can justify a targeted configuration rebuild. First check whether the exact crash is already addressed by a shipped iRacing update.",
+    "meaning": "A failed iRacing Graphics Config or damaged renderer settings can justify a targeted configuration rebuild. First check whether the exact crash is already addressed by a shipped iRacing update.",
+    "checks": [
+      "Record the iRacing build and whether the failure occurs in Graphics Config, while minimizing, or during replay controls.",
+      "Compare that symptom and build with the linked vendor release notes before resetting renderer settings.",
+      "With iRacing closed, preserve rendererDX11*.ini and note monitor arrangement, resolution, and VR choices."
+    ],
+    "result": "Run graphics configuration again and repeat the specific action that failed. Restore personal display choices selectively, checking whether the problem returns.",
+    "limits": "A GPU-driver or hardware fault is not repaired by regenerating renderer settings. The original community reset evidence and official version-specific fixes support different claims; neither establishes the cause of an unmatched crash."
+  },
+  "ace-video-settings": {
+    "modified": "2026-09-29",
+    "intro": "Startup fails during video initialization or a display change.",
+    "meaning": "Startup fails during video initialization or a display change.",
+    "checks": [
+      "Confirm the current log names a video/graphics initialization failure; a normal settings-load line is not an error.",
+      "Close Assetto Corsa EVO and preserve Video.videosettings before removing its active copy.",
+      "Note the settings you will need to re-enter and change only the identified file or files."
+    ],
+    "result": "Relaunch Assetto Corsa EVO, review the rebuilt settings, and repeat the original action. Confirm that the menu displays correctly and the same launch succeeds. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.",
+    "limits": "This touches video settings only. It does not reset controls or repair missing game content.",
+    "examples": [
+      {
+        "title": "Normal initialization text is not a fault",
+        "setup": "Synthetic lines included Loading Video.VideoSettings profile, ShaderCache initialized successfully, and BrowserData directory opened.",
+        "outcome": "Those normal lines produced no fault match. A separate HTTP 503 Service Unavailable line remained detectable for RaceRoom.",
+        "scope": "This verifies log matching only. Recognizing a 503 does not prove that clearing local browser data will fix a server-side failure.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/Program.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "raceroom-graphics-config": {
+    "modified": "2026-09-29",
+    "intro": "RaceRoom starts with a black display, minimizes, or fails after a display change.",
+    "meaning": "RaceRoom starts with a black display, minimizes, or fails after a display change.",
+    "checks": [
+      "Record the selected monitor and resolution and check for graphics_options.xml evidence.",
+      "Close RaceRoom and preserve UserData\\graphics_options.xml before removing its active copy.",
+      "Note the settings you will need to re-enter and change only the identified file or files."
+    ],
+    "result": "Relaunch RaceRoom, review the rebuilt settings, and repeat the original action. Confirm that the intended display works and a test session loads. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.",
+    "limits": "A display reset does not reinstall a driver or diagnose a GPU fault."
+  },
+  "raceroom-shader-cache": {
+    "modified": "2026-09-29",
+    "intro": "Repeated shader/cache errors can justify rebuilding RaceRoom’s shader data.",
+    "meaning": "Repeated shader/cache errors can justify rebuilding RaceRoom’s shader data.",
+    "checks": [
+      "Look for an actual shader compilation or cache failure; ShaderCache initialized successfully is normal.",
+      "Close RaceRoom and preserve UserData\\ShaderCache.bin before removing its active copy.",
+      "Note the settings you will need to re-enter and change only the identified file or files."
+    ],
+    "result": "Relaunch RaceRoom, review the rebuilt settings, and repeat the original action. Confirm that shader data rebuilds and the original loading or graphics failure no longer recurs. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.",
+    "limits": "A normal cache mention is insufficient. Do not reset the full user profile for a single cache failure.",
+    "examples": [
+      {
+        "title": "Normal initialization text is not a fault",
+        "setup": "Synthetic lines included Loading Video.VideoSettings profile, ShaderCache initialized successfully, and BrowserData directory opened.",
+        "outcome": "Those normal lines produced no fault match. A separate HTTP 503 Service Unavailable line remained detectable for RaceRoom.",
+        "scope": "This verifies log matching only. Recognizing a 503 does not prove that clearing local browser data will fix a server-side failure.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/Program.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "acc-game-user-settings": {
+    "modified": "2026-09-29",
+    "intro": "ACC can fail to display or start correctly when saved display settings are unusable.",
+    "meaning": "ACC can fail to display or start correctly when saved display settings are unusable.",
+    "checks": [
+      "Check the current ACC log for GameUserSettings.ini, resolution, or fullscreen failure evidence.",
+      "Close Assetto Corsa Competizione and preserve GameUserSettings.ini before removing its active copy.",
+      "Note the settings you will need to re-enter and change only the identified file or files."
+    ],
+    "result": "Relaunch Assetto Corsa Competizione, review the rebuilt settings, and repeat the original action. Confirm that the menu appears and the chosen resolution/fullscreen mode works. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.",
+    "limits": "This resets display/startup settings, not controller profiles, game packages, or graphics drivers."
+  },
+  "acc-engine-config": {
+    "modified": "2026-09-29",
+    "intro": "An ACC rendering failure can involve custom engine configuration, but it can also have another graphics-related cause.",
+    "meaning": "An ACC rendering failure can involve custom engine configuration, but it can also have another graphics-related cause.",
+    "checks": [
+      "Record the exact rendering-thread or DXGI error and any recent Engine.ini edits.",
+      "Close Assetto Corsa Competizione and preserve Engine.ini before removing its active copy.",
+      "Note the settings you will need to re-enter and change only the identified file or files."
+    ],
+    "result": "Relaunch Assetto Corsa Competizione, review the rebuilt settings, and repeat the original action. Confirm that the original session and graphics action complete without the previous error. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.",
+    "limits": "DXGI device loss alone does not prove Engine.ini corruption. Driver or hardware problems need separate diagnosis; PitMedic does not change drivers automatically.",
+    "examples": [
+      {
+        "title": "A current graphics fault survives a later successful exit",
+        "setup": "Synthetic ACC evidence included a current-session DXGI_ERROR_DEVICE_REMOVED event, an old copied warning, and a later zero process-exit code.",
+        "outcome": "The current-session graphics fault remained actionable instead of being discarded as a normal exit.",
+        "scope": "This validates evidence handling, not an Engine.ini repair or a diagnosis of driver or hardware failure.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/Program.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "acc-controls": {
+    "modified": "2026-09-29",
+    "intro": "Damaged ACC controller configuration can break input or the Controls menu.",
+    "meaning": "Damaged ACC controller configuration can break input or the Controls menu.",
+    "checks": [
+      "Confirm Windows and the vendor app can see the device, then check ACC for controls.json or input-configuration errors.",
+      "Close Assetto Corsa Competizione and preserve controls.json before removing its active copy.",
+      "Note the settings you will need to re-enter and change only the identified file or files."
+    ],
+    "result": "Relaunch Assetto Corsa Competizione, review the rebuilt settings, and repeat the original action. Confirm that the Controls menu opens and remapped steering, pedals, and buttons respond correctly. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.",
+    "limits": "Bindings must be recreated. This does not repair a disconnected USB device, firmware, or a missing driver."
+  },
+  "acc-ffb": {
+    "modified": "2026-09-29",
+    "intro": "An unreadable ACC force-feedback configuration can prevent the expected wheel response.",
+    "meaning": "An unreadable ACC force-feedback configuration can prevent the expected wheel response.",
+    "checks": [
+      "Check for an explicit FFB/settings-file failure and note the current gain and other wheel settings.",
+      "Close Assetto Corsa Competizione and preserve ffbUserSettings.json before removing its active copy.",
+      "Note the settings you will need to re-enter and change only the identified file or files."
+    ],
+    "result": "Relaunch Assetto Corsa Competizione, review the rebuilt settings, and repeat the original action. Confirm that force feedback works during a cautious test using reviewed settings. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.",
+    "limits": "Review force levels before driving. This does not diagnose every loss of wheel force or alter wheelbase firmware."
+  },
+  "ams2-vr-config": {
+    "modified": "2026-09-29",
+    "intro": "AMS2 may fail to start in VR when its saved VR configuration is unusable.",
+    "meaning": "AMS2 may fail to start in VR when its saved VR configuration is unusable.",
+    "checks": [
+      "Record whether the same content starts on a monitor and which OpenVR or Oculus file the failure identifies.",
+      "Close Automobilista 2 and preserve the implicated OpenVR/Oculus graphics and settings XML files before removing its active copy.",
+      "Note the settings you will need to re-enter and change only the identified file or files."
+    ],
+    "result": "Relaunch Automobilista 2, review the rebuilt settings, and repeat the original action. Confirm that the headset renders the session correctly after VR settings are recreated. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.",
+    "limits": "Only the implicated VR XML files belong in this reset. It does not replace the VR runtime or reset unrelated controller data."
+  },
+  "ams2-controller-config": {
+    "modified": "2026-09-29",
+    "intro": "AMS2 bindings may need to be rebuilt when controller configuration fails after a USB, driver, or device change.",
+    "meaning": "AMS2 bindings may need to be rebuilt when controller configuration fails after a USB, driver, or device change.",
+    "checks": [
+      "Check device visibility in Windows and record the wheel/pedal connections before blaming the saved configuration.",
+      "Close Automobilista 2 and preserve default.controllersettings.v1.03.sav before removing its active copy.",
+      "Note the settings you will need to re-enter and change only the identified file or files."
+    ],
+    "result": "Relaunch Automobilista 2, review the rebuilt settings, and repeat the original action. Confirm that new bindings and calibration work for steering, pedals, and buttons in a test session. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.",
+    "limits": "You must remap and calibrate controls. A reset does not repair a missing device or guarantee stable USB enumeration."
+  },
+  "ams2-ffb-custom": {
+    "modified": "2026-09-29",
+    "intro": "A custom AMS2 force-feedback file can cause initialization or parsing problems when it is invalid.",
+    "meaning": "A custom AMS2 force-feedback file can cause initialization or parsing problems when it is invalid.",
+    "checks": [
+      "Check for a matching custom-file error and compare behavior with the supported default force-feedback option.",
+      "Close Automobilista 2 and preserve ffb_custom_settings.txt before removing its active copy.",
+      "Note the settings you will need to re-enter and change only the identified file or files."
+    ],
+    "result": "Relaunch Automobilista 2, review the rebuilt settings, and repeat the original action. Confirm that a reviewed default force-feedback setup works without the previous initialization error. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.",
+    "limits": "Custom tuning is temporarily unavailable. Check force levels before driving and do not restore the same failing custom file without reviewing it."
+  },
+  "ams2-default-profile": {
+    "modified": "2026-09-29",
+    "intro": "AMS2 default-profile corruption needs evidence identifying default.sav specifically.",
+    "meaning": "AMS2 default-profile corruption needs evidence identifying default.sav specifically.",
+    "checks": [
+      "Distinguish default.sav errors from controller-specific profile errors and note which settings or mode fail.",
+      "Close Automobilista 2 and preserve default.sav before removing its active copy.",
+      "Note the settings you will need to re-enter and change only the identified file or files."
+    ],
+    "result": "Relaunch Automobilista 2, review the rebuilt settings, and repeat the original action. Confirm that AMS2 creates default profile state and the originally failing action works. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.",
+    "limits": "Default preferences may need to be set again. Use the controller-specific guide when that separate file is implicated."
+  },
+  "ace-user-profile": {
+    "modified": "2026-09-29",
+    "intro": "A clean Assetto Corsa EVO profile is a last diagnostic step when current evidence points to configuration corruption and narrower repairs have not helped.",
+    "meaning": "A clean Assetto Corsa EVO profile is a last diagnostic step when current evidence points to configuration corruption and narrower repairs have not helped.",
+    "checks": [
+      "Identify the repeated startup failure and record which targeted cache, display, or controller repairs have already been tried.",
+      "Locate the ACE user-data folder in the actual user profile, including any redirected Documents location.",
+      "Close Assetto Corsa EVO and preserve the complete affected data before approving a move of the active copy."
+    ],
+    "result": "Relaunch Assetto Corsa EVO to create clean user data, review graphics and controls, and retry the original failure. If it works, bring back personal data selectively; if it fails, restore the preserved profile with the simulator closed.",
+    "limits": "A new profile can reset preferences and bindings or temporarily hide saved data. It is not a repair for driver, hardware, or game-package faults. Do not delete the backup or copy all of the old configuration back before retesting."
+  },
+  "raceroom-user-config": {
+    "modified": "2026-09-29",
+    "intro": "A clean RaceRoom profile is a last diagnostic step when current evidence points to configuration corruption and narrower repairs have not helped.",
+    "meaning": "A clean RaceRoom profile is a last diagnostic step when current evidence points to configuration corruption and narrower repairs have not helped.",
+    "checks": [
+      "Identify the repeated startup failure and record which targeted cache, display, or controller repairs have already been tried.",
+      "Locate the RaceRoom Racing Experience user folder in the actual user profile, including any redirected Documents location.",
+      "Close RaceRoom and preserve the complete affected data before approving a move of the active copy."
+    ],
+    "result": "Relaunch RaceRoom to create clean user data, review graphics and controls, and retry the original failure. If it works, bring back personal data selectively; if it fails, restore the preserved profile with the simulator closed.",
+    "limits": "A new profile can reset preferences and bindings or temporarily hide saved data. It is not a repair for driver, hardware, or game-package faults. Do not delete the backup or copy all of the old configuration back before retesting."
+  },
+  "acc-user-profile": {
+    "modified": "2026-09-29",
+    "intro": "A clean Assetto Corsa Competizione profile is a last diagnostic step when current evidence points to configuration corruption and narrower repairs have not helped.",
+    "meaning": "A clean Assetto Corsa Competizione profile is a last diagnostic step when current evidence points to configuration corruption and narrower repairs have not helped.",
+    "checks": [
+      "Identify the repeated startup failure and record which targeted cache, display, or controller repairs have already been tried.",
+      "Locate both the ACC Documents configuration and LocalAppData Saved\\Config folders in the actual user profile, including any redirected Documents location.",
+      "Close Assetto Corsa Competizione and preserve the complete affected data before approving a move of the active copy."
+    ],
+    "result": "Relaunch Assetto Corsa Competizione to create clean user data, review graphics and controls, and retry the original failure. If it works, bring back personal data selectively; if it fails, restore the preserved profile with the simulator closed.",
+    "limits": "A new profile can reset preferences and bindings or temporarily hide saved data. It is not a repair for driver, hardware, or game-package faults. Do not delete the backup or copy all of the old configuration back before retesting."
+  },
+  "ams2-user-profile": {
+    "modified": "2026-09-29",
+    "intro": "A clean Automobilista 2 profile is a last diagnostic step when current evidence points to configuration corruption and narrower repairs have not helped.",
+    "meaning": "A clean Automobilista 2 profile is a last diagnostic step when current evidence points to configuration corruption and narrower repairs have not helped.",
+    "checks": [
+      "Identify the repeated startup failure and record which targeted cache, display, or controller repairs have already been tried.",
+      "Locate Documents\\Automobilista 2 in the actual user profile, including any redirected Documents location.",
+      "Close Automobilista 2 and preserve the complete affected data before approving a move of the active copy."
+    ],
+    "result": "Relaunch Automobilista 2 to create clean user data, review graphics and controls, and retry the original failure. If it works, bring back personal data selectively; if it fails, restore the preserved profile with the simulator closed.",
+    "limits": "A new profile can reset preferences and bindings or temporarily hide saved data. It is not a repair for driver, hardware, or game-package faults. Do not delete the backup or copy all of the old configuration back before retesting."
+  },
+  "ace-steam-content": {
+    "modified": "2026-09-29",
+    "intro": "Missing or unreadable Assetto Corsa EVO game files can be checked through Steam’s file verification. Match the error to an installed game asset first.",
+    "meaning": "Missing or unreadable Assetto Corsa EVO game files can be checked through Steam’s file verification. Match the error to an installed game asset first.",
+    "checks": [
+      "Record the missing package or file from the current failure and distinguish it from a driver, plugin, or Windows file.",
+      "Close Assetto Corsa EVO; in Steam, open the game’s Properties > Installed Files to locate Verify integrity of game files.",
+      "Allow any download or validation to finish before launching another test. Preserve intentionally modified game files before verification."
+    ],
+    "result": "After Steam completes verification and any downloads, retry the same car, track, or launch. Completion of verification alone is not proof that the original failure is resolved.",
+    "limits": "Verification can replace modified installation files. It does not reset Documents profiles or repair Windows, drivers, or hardware. If the error persists, retain the fresh log instead of repeatedly verifying without new evidence.",
+    "examples": [
+      {
+        "title": "Reopening Steam ends automatic window hiding",
+        "setup": "A fake-window regression scenario reopened Steam during validation startup, with another Steam window present.",
+        "outcome": "Both windows remained visible and further hiding stopped. The eight-scenario suite also covered cancellation, elapsed startup time, and later user window choices.",
+        "scope": "This verifies window-control policy using fake windows; it is not an interactive Steam desktop test or proof that file validation completed.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/SteamValidationWindowTests.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "raceroom-steam-content": {
+    "modified": "2026-09-29",
+    "intro": "Missing or unreadable RaceRoom Racing Experience game files can be checked through Steam’s file verification. Match the error to an installed game asset first.",
+    "meaning": "Missing or unreadable RaceRoom Racing Experience game files can be checked through Steam’s file verification. Match the error to an installed game asset first.",
+    "checks": [
+      "Record the missing package or file from the current failure and distinguish it from a driver, plugin, or Windows file.",
+      "Close RaceRoom Racing Experience; in Steam, open the game’s Properties > Installed Files to locate Verify integrity of game files.",
+      "Allow any download or validation to finish before launching another test. Preserve intentionally modified game files before verification."
+    ],
+    "result": "After Steam completes verification and any downloads, retry the same car, track, or launch. Completion of verification alone is not proof that the original failure is resolved.",
+    "limits": "Verification can replace modified installation files. It does not reset Documents profiles or repair Windows, drivers, or hardware. If the error persists, retain the fresh log instead of repeatedly verifying without new evidence.",
+    "examples": [
+      {
+        "title": "Reopening Steam ends automatic window hiding",
+        "setup": "A fake-window regression scenario reopened Steam during validation startup, with another Steam window present.",
+        "outcome": "Both windows remained visible and further hiding stopped. The eight-scenario suite also covered cancellation, elapsed startup time, and later user window choices.",
+        "scope": "This verifies window-control policy using fake windows; it is not an interactive Steam desktop test or proof that file validation completed.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/SteamValidationWindowTests.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "acc-steam-content": {
+    "modified": "2026-09-29",
+    "intro": "Missing or unreadable Assetto Corsa Competizione game files can be checked through Steam’s file verification. Match the error to an installed game asset first.",
+    "meaning": "Missing or unreadable Assetto Corsa Competizione game files can be checked through Steam’s file verification. Match the error to an installed game asset first.",
+    "checks": [
+      "Record the missing package or file from the current failure and distinguish it from a driver, plugin, or Windows file.",
+      "Close Assetto Corsa Competizione; in Steam, open the game’s Properties > Installed Files to locate Verify integrity of game files.",
+      "Allow any download or validation to finish before launching another test. Preserve intentionally modified game files before verification."
+    ],
+    "result": "After Steam completes verification and any downloads, retry the same car, track, or launch. Completion of verification alone is not proof that the original failure is resolved.",
+    "limits": "Verification can replace modified installation files. It does not reset Documents profiles or repair Windows, drivers, or hardware. If the error persists, retain the fresh log instead of repeatedly verifying without new evidence.",
+    "examples": [
+      {
+        "title": "Reopening Steam ends automatic window hiding",
+        "setup": "A fake-window regression scenario reopened Steam during validation startup, with another Steam window present.",
+        "outcome": "Both windows remained visible and further hiding stopped. The eight-scenario suite also covered cancellation, elapsed startup time, and later user window choices.",
+        "scope": "This verifies window-control policy using fake windows; it is not an interactive Steam desktop test or proof that file validation completed.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/SteamValidationWindowTests.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "ams2-steam-content": {
+    "modified": "2026-09-29",
+    "intro": "Missing or unreadable Automobilista 2 game files can be checked through Steam’s file verification. Match the error to an installed game asset first.",
+    "meaning": "Missing or unreadable Automobilista 2 game files can be checked through Steam’s file verification. Match the error to an installed game asset first.",
+    "checks": [
+      "For multiplayer or LMP1 2005 wet-tyre crashes, compare the installed build with the linked Reiza release notes first; a version-specific game bug is not proof of damaged files.",
+      "Record the missing package or file from the current failure and distinguish it from a driver, plugin, or Windows file.",
+      "Close Automobilista 2; in Steam, open the game’s Properties > Installed Files to locate Verify integrity of game files.",
+      "Allow any download or validation to finish before launching another test. Preserve intentionally modified game files before verification."
+    ],
+    "result": "After Steam completes verification and any downloads, retry the same car, track, or launch. Completion of verification alone is not proof that the original failure is resolved.",
+    "limits": "Verification can replace modified installation files. It does not reset Documents profiles or repair Windows, drivers, or hardware. If the error persists, retain the fresh log instead of repeatedly verifying without new evidence.",
+    "examples": [
+      {
+        "title": "Reopening Steam ends automatic window hiding",
+        "setup": "A fake-window regression scenario reopened Steam during validation startup, with another Steam window present.",
+        "outcome": "Both windows remained visible and further hiding stopped. The eight-scenario suite also covered cancellation, elapsed startup time, and later user window choices.",
+        "scope": "This verifies window-control policy using fake windows; it is not an interactive Steam desktop test or proof that file validation completed.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/SteamValidationWindowTests.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "raceroom-browser-cache": {
+    "modified": "2026-09-29",
+    "intro": "RaceRoom’s embedded browser can fail while the simulator process is still running. A local BrowserData reset may help damaged browser state, but an HTTP 503 can also be a service-side failure.",
+    "meaning": "RaceRoom’s embedded browser can fail while the simulator process is still running. A local BrowserData reset may help damaged browser state, but an HTTP 503 can also be a service-side failure.",
+    "checks": [
+      "Record the exact browser error and whether the rest of RaceRoom remains responsive.",
+      "Check RaceRoom’s official service information before resetting local data for a 503.",
+      "If current evidence supports damaged local browser state, close RaceRoom and preserve BrowserData before clearing it."
+    ],
+    "result": "Relaunch and revisit the same browser screen. If a service outage persists, a rebuilt local cache will not resolve it; retain the error and retry when the service is available.",
+    "limits": "A BrowserData directory opened log line is normal. The 503 detector identifies a failure, not its root cause; cache clearing cannot repair RaceRoom’s servers.",
+    "examples": [
+      {
+        "title": "Normal initialization text is not a fault",
+        "setup": "Synthetic lines included Loading Video.VideoSettings profile, ShaderCache initialized successfully, and BrowserData directory opened.",
+        "outcome": "Those normal lines produced no fault match. A separate HTTP 503 Service Unavailable line remained detectable for RaceRoom.",
+        "scope": "This verifies log matching only. Recognizing a 503 does not prove that clearing local browser data will fix a server-side failure.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/Program.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "acc-trueforce": {
+    "modified": "2026-09-29",
+    "intro": "An ACC controller-related crash may involve a wheel-manufacturer integration when current evidence identifies that library or manufacturer extras.",
+    "meaning": "An ACC controller-related crash may involve a wheel-manufacturer integration when current evidence identifies that library or manufacturer extras.",
+    "checks": [
+      "Record the wheel model, the failing action, and the exact TrueForce/manufacturer-library error.",
+      "Close ACC and preserve controls.json.",
+      "Review the targeted enableManufacturerExtras change before testing with it set to false."
+    ],
+    "result": "Repeat the same menu action or session with manufacturer extras disabled and confirm ordinary steering and pedals still work. Compare the result before deciding whether to keep the change.",
+    "limits": "Manufacturer-specific features are disabled during the test. This is not a general wheel reset, firmware repair, or reason to change every control binding."
+  },
+  "acc-control-presets": {
+    "modified": "2026-09-29",
+    "intro": "A saved ACC control preset may be invalid when choosing it crashes the Controls menu. Compare it with the active controller configuration before a broader reset.",
+    "meaning": "A saved ACC control preset may be invalid when choosing it crashes the Controls menu. Compare it with the active controller configuration before a broader reset.",
+    "checks": [
+      "Record which preset and menu action fail and check for a matching Customs\\Controls error.",
+      "Close ACC and preserve the complete saved control-preset folder.",
+      "Move the active preset folder aside for a clean-menu test without deleting the backup."
+    ],
+    "result": "Reopen the Controls menu and test a newly created preset. Reintroduce saved presets individually only after checking they do not reproduce the failure.",
+    "limits": "Saved presets will be temporarily unavailable. This does not prove the active controls.json is damaged or repair a wheel that Windows cannot detect."
+  },
+  "ams2-graphics-config": {
+    "modified": "2026-09-29",
+    "intro": "An AMS2 display failure can involve graphicsconfigdx11.xml. A weather-transition hitch alone is a different symptom and is not proof of damaged display settings.",
+    "meaning": "An AMS2 display failure can involve graphicsconfigdx11.xml. A weather-transition hitch alone is a different symptom and is not proof of damaged display settings.",
+    "checks": [
+      "Record the installed AMS2 version and whether the problem is startup/display failure or a hitch during weather changes.",
+      "Check the linked Reiza notes for the version-specific weather improvements before choosing a configuration reset.",
+      "For a matching file failure, close AMS2, preserve graphicsconfigdx11.xml, and note resolution and display choices."
+    ],
+    "result": "After a targeted reset, review the rebuilt display settings and retry the same session. For a vendor-update test, compare the same weather scenario after the supported update.",
+    "limits": "A configuration reset cannot guarantee removal of every hitch. It does not update a graphics driver or establish a vendor-bug match when the installed version and symptom are unknown."
+  },
+  "ams2-tuning-setups": {
+    "modified": "2026-09-29",
+    "intro": "A car returning to its factory setup is not necessarily corruption. Check AMS2’s setup-autoload preference before moving saved tuning data.",
+    "meaning": "A car returning to its factory setup is not necessarily corruption. Check AMS2’s setup-autoload preference before moving saved tuning data.",
+    "checks": [
+      "Record the installed version and check the Gameplay setup-autoload setting.",
+      "Try manually loading the saved setup and compare the affected car with its factory setup.",
+      "Only if evidence identifies incompatible setup data, close AMS2 and preserve the implicated tuning folders before moving active copies aside."
+    ],
+    "result": "The affected car should load with factory settings. If a saved setup still fails, keep it preserved and rebuild it against the current version rather than restoring all old setup data.",
+    "limits": "AMS2 1.6.8 changed the default autoload behavior, as described in the linked notes. A clean setup test does not recover an overwritten setup or prove a physics-update incompatibility on its own."
+  },
+  "ams2-championship-state": {
+    "modified": "2026-09-29",
+    "intro": "A damaged championship save can affect one AMS2 mode while other sessions still work. Identify the implicated championship state before resetting it.",
+    "meaning": "A damaged championship save can affect one AMS2 mode while other sessions still work. Identify the implicated championship state before resetting it.",
+    "checks": [
+      "Record the championship and the action that fails, such as opening or continuing it.",
+      "Check whether a normal session still loads and whether the failure evidence names a championship or singlechamps save.",
+      "Close AMS2 and preserve only the implicated save-state files before moving their active copies aside."
+    ],
+    "result": "Test Championship mode with newly created state. Keep the original save available for restoration or support if the failure is unchanged.",
+    "limits": "Existing championship progress may be unavailable during this test. Rebuilding mode state does not guarantee recovery of a damaged championship and does not justify removing unrelated profile files."
+  },
+  "companion-simucube-clean-recovery": {
+    "modified": "2026-09-29",
+    "intro": "A confirmed Simucube True Drive application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
+    "meaning": "A confirmed Simucube True Drive application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
+    "checks": [
+      "Close every supported simulator and save any work in the companion app.",
+      "Confirm the installed application is True Drive; do not assume a True Drive recovery applies to Simucube Tuner.",
+      "Do not restart device software during firmware flashing or while an update’s completion is uncertain.",
+      "Check the installed executable location before relaunching; retain the exact crash time and message if the app fails again."
+    ],
+    "result": "Simucube True Drive should relaunch from its validated installed location and remain running. Check device visibility and expected controls before entering a session. If the app closes again, preserve the new error for vendor support.",
+    "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue."
+  },
+  "companion-fanatec-process-recovery": {
+    "modified": "2026-09-29",
+    "intro": "A confirmed Fanatec software application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
+    "meaning": "A confirmed Fanatec software application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
+    "checks": [
+      "Close every supported simulator and save any work in the companion app.",
+      "Record whether you use the Fanatec App or legacy Driver/Control Panel and FanaLab. Use the vendor’s compatibility guidance before switching between them.",
+      "Do not restart device software during firmware flashing or while an update’s completion is uncertain.",
+      "Check the installed executable location before relaunching; retain the exact crash time and message if the app fails again."
+    ],
+    "result": "Fanatec software should relaunch from its validated installed location and remain running. Check device visibility and expected controls before entering a session. If the app closes again, preserve the new error for vendor support.",
+    "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue. PitMedic does not uninstall the Fanatec App or migrate a system to legacy software."
+  },
+  "companion-logitech-ghub-service-recovery": {
+    "modified": "2026-09-29",
+    "intro": "A confirmed Logitech G HUB application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
+    "meaning": "A confirmed Logitech G HUB application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
+    "checks": [
+      "Close every supported simulator and save any work in the companion app.",
+      "Check whether the UI is stuck loading and whether LGHUBUpdaterService exists. This recovery restarts that specific service and requires elevation.",
+      "Do not restart device software during firmware flashing or while an update’s completion is uncertain.",
+      "Check the installed executable location before relaunching; retain the exact crash time and message if the app fails again."
+    ],
+    "result": "Logitech G HUB should relaunch from its validated installed location and remain running. Check device visibility and expected controls before entering a session. If the app closes again, preserve the new error for vendor support.",
+    "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue.",
+    "examples": [
+      {
+        "title": "G HUB service recovery stays scoped",
+        "setup": "The release-policy test inspected the configured G HUB recovery definition and elevation policy.",
+        "outcome": "The definition named LGHUBUpdaterService and required elevation under the allowlisted repair policy.",
+        "scope": "This is a policy assertion. It does not run Logitech software or demonstrate that restarting its service fixes a loading loop.",
+        "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/Program.cs",
+        "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
+        "verified": "2026-09-28"
+      }
+    ]
+  },
+  "companion-simagic-clean-recovery": {
+    "modified": "2026-09-29",
+    "intro": "A confirmed SIMAGIC SimPro Manager application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
+    "meaning": "A confirmed SIMAGIC SimPro Manager application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
+    "checks": [
+      "Close every supported simulator and save any work in the companion app.",
+      "Record the installed SimPro generation and check for both SimPro 2/3 or daemon processes. Confirm firmware flashing has completed; if completion is uncertain, stop.",
+      "Do not restart device software during firmware flashing or while an update’s completion is uncertain.",
+      "Check the installed executable location before relaunching; retain the exact crash time and message if the app fails again."
+    ],
+    "result": "SIMAGIC SimPro Manager should relaunch from its validated installed location and remain running. Check device visibility and expected controls before entering a session. If the app closes again, preserve the new error for vendor support.",
+    "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue. PitMedic has no proven automatic firmware-state guard; the user must confirm that flashing is not active or uncertain."
+  },
+  "companion-asetek-clean-recovery": {
+    "modified": "2026-09-29",
+    "intro": "A confirmed Asetek RaceHub application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
+    "meaning": "A confirmed Asetek RaceHub application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
+    "checks": [
+      "Close every supported simulator and save any work in the companion app.",
+      "Identify the installed RaceHub app and its known helper; review any prompt needed to close the elevated helper.",
+      "Do not restart device software during firmware flashing or while an update’s completion is uncertain.",
+      "Check the installed executable location before relaunching; retain the exact crash time and message if the app fails again."
+    ],
+    "result": "Asetek RaceHub should relaunch from its validated installed location and remain running. Check device visibility and expected controls before entering a session. If the app closes again, preserve the new error for vendor support.",
+    "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue."
+  },
+  "companion-vrs-clean-recovery": {
+    "modified": "2026-09-29",
+    "intro": "A confirmed VRS DirectForce application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
+    "meaning": "A confirmed VRS DirectForce application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
+    "checks": [
+      "Close every supported simulator and save any work in the companion app.",
+      "Confirm it is the VRS configuration application that failed, rather than a simulator-only input problem.",
+      "Do not restart device software during firmware flashing or while an update’s completion is uncertain.",
+      "Check the installed executable location before relaunching; retain the exact crash time and message if the app fails again."
+    ],
+    "result": "VRS DirectForce should relaunch from its validated installed location and remain running. Check device visibility and expected controls before entering a session. If the app closes again, preserve the new error for vendor support.",
+    "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue."
+  }
+}

@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Le Mans Ultimate"}]},{"@type":"TechArticle","headline":"Le Mans Ultimate: Unable to join online sessions","description":"How PitMedic detects and safely responds to unable to join online sessions in Le Mans Ultimate.","url":"https://pitmedic.com/diagnostic-library/lmu-online-clock-eac/","dateModified":"2026-09-14","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Le Mans Ultimate"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Le Mans Ultimate"}]},{"@type":"TechArticle","headline":"Le Mans Ultimate: Unable to join online sessions","description":"How PitMedic detects and safely responds to unable to join online sessions in Le Mans Ultimate.","url":"https://pitmedic.com/diagnostic-library/lmu-online-clock-eac/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Le Mans Ultimate"}]}</script>
 </head>
 <body>
 <main>
@@ -31,11 +31,16 @@
       <span class="section-kicker">Simulator repair</span>
       <p class="library-product">Le Mans Ultimate</p>
       <h1>Unable to join online sessions</h1>
-      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
-      <div class="issue-status"><span>Guided diagnosis</span><span>Active</span><span>Reviewed 2026-09-14</span></div>
+      <p>An online join failure needs different checks from a local loading crash. Establish whether LMU can run an offline session before changing connection settings.</p>
+      <div class="issue-status"><span>Guided diagnosis</span><span>Active</span><span>Evidence reviewed 2026-09-14</span><span>Guide updated 2026-09-29</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Compare an offline session with the affected online join and record the server and time of failure.</li><li>Check Windows date, time, and time-zone settings, and use the supported LMU launch path.</li><li>Review Studio 397 service information and shipped update notes for the specific symptom; an announced fix is not evidence that it shipped.</li></ul>
+          <h3>How to confirm the result</h3><p>Retry the same online session after correcting a confirmed local issue. If offline play works but joining still fails, retain the exact message and timestamps for support.</p>
+          <h3>Repair limits and when to stop</h3><p>This is guided diagnosis. It does not justify broad network resets, security changes, or content deletion; online warping and a local application crash may have different causes.</p>
+        </section>
         <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>RaceControl connection/join failure without local loading crash; compare Windows time settings and EAC launch state.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>join</code></li><li><code>RaceControl</code></li><li><code>Easy Anti-Cheat</code></li><li><code>EAC</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>For online warping or phantom collisions, check Studio 397&#x27;s network updates before changing local settings. Its September 11 announcement planned a September 15 fix; that announcement alone does not confirm release or explain a local crash. Validate automatic Windows time/time-zone and detect EAC launch path; targeted content verification is a later step.</p><div class="safety-note"><strong>Repair safety</strong><span>Diagnostic first; changes require confirmation</span></div></section>
         <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Connection Issues</strong><span>Le Mans Ultimate Support · Official source</span><p>Official guidance identifies incorrect Windows date/time as a common connection cause and describes file/EAC checks.</p></div><a href="https://guide.lemansultimate.com/hc/en-gb/articles/13192678574095-Connection-Issues" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>September 2026 network update</strong><span>Studio 397 · Official source</span><p>Vendor acknowledges online collision issues and describes planned network work. Check subsequent release notes for availability.</p></div><a href="https://lemansultimate.com/community-update-september-2026/" target="_blank" rel="noreferrer">Open source</a></li></ul></section>

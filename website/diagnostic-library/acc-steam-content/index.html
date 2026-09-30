@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Assetto Corsa Competizione"}]},{"@type":"TechArticle","headline":"Assetto Corsa Competizione: Missing or damaged ACC game files","description":"How PitMedic detects and safely responds to missing or damaged acc game files in Assetto Corsa Competizione.","url":"https://pitmedic.com/diagnostic-library/acc-steam-content/","dateModified":"2026-09-03","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Assetto Corsa Competizione"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Assetto Corsa Competizione"}]},{"@type":"TechArticle","headline":"Assetto Corsa Competizione: Missing or damaged ACC game files","description":"How PitMedic detects and safely responds to missing or damaged acc game files in Assetto Corsa Competizione.","url":"https://pitmedic.com/diagnostic-library/acc-steam-content/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Assetto Corsa Competizione"}]}</script>
 </head>
 <body>
 <main>
@@ -31,14 +31,26 @@
       <span class="section-kicker">Simulator repair</span>
       <p class="library-product">Assetto Corsa Competizione</p>
       <h1>Missing or damaged ACC game files</h1>
-      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
-      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Reviewed 2026-09-03</span></div>
+      <p>Missing or unreadable Assetto Corsa Competizione game files can be checked through Steam’s file verification. Match the error to an installed game asset first.</p>
+      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Evidence reviewed 2026-09-03</span><span>Guide updated 2026-09-29</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Record the missing package or file from the current failure and distinguish it from a driver, plugin, or Windows file.</li><li>Close Assetto Corsa Competizione; in Steam, open the game’s Properties &gt; Installed Files to locate Verify integrity of game files.</li><li>Allow any download or validation to finish before launching another test. Preserve intentionally modified game files before verification.</li></ul>
+          <h3>How to confirm the result</h3><p>After Steam completes verification and any downloads, retry the same car, track, or launch. Completion of verification alone is not proof that the original failure is resolved.</p>
+          <h3>Repair limits and when to stop</h3><p>Verification can replace modified installation files. It does not reset Documents profiles or repair Windows, drivers, or hardware. If the error persists, retain the fresh log instead of repeatedly verifying without new evidence.</p>
+        </section>
         <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>ACC explicitly reports a missing, corrupt, or unreadable game package or asset rather than a driver, Windows, or optional plugin file.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>.pak</code></li><li><code>pak file</code></li><li><code>asset registry</code></li><li><code>failed to load package</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>Ask Steam to verify Assetto Corsa Competizione and reacquire missing or damaged game files.</p><div class="safety-note"><strong>Repair safety</strong><span>Reversible / approval required when expected over two minutes</span></div></section>
-        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Verify Integrity of Game Files</strong><span>Steam Support · Official source</span><p>Valve documents file verification for missing or damaged game content.</p></div><a href="https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+<section class="diagnostic-card diagnostic-example">
+          <h2>Reopening Steam ends automatic window hiding</h2>
+          <p class="example-label">Verified automated regression test · 2026-09-28</p>
+          <h3>Test setup</h3><p>A fake-window regression scenario reopened Steam during validation startup, with another Steam window present.</p>
+          <h3>Observed result</h3><p>Both windows remained visible and further hiding stopped. The eight-scenario suite also covered cancellation, elapsed startup time, and later user window choices.</p>
+          <h3>What this establishes</h3><p>This verifies window-control policy using fake windows; it is not an interactive Steam desktop test or proof that file validation completed.</p>
+          <p class="example-evidence"><a href="https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/SteamValidationWindowTests.cs">Read the test source</a> · <a href="https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664">View the passing Windows test run</a></p>
+        </section>        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Verify Integrity of Game Files</strong><span>Steam Support · Official source</span><p>Valve documents file verification for missing or damaged game content.</p></div><a href="https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
       </div>
       <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.5/PitMedic-Setup-x64.exe">Download v1.0.0.5</a><a class="button button-secondary" href="/simulators/assetto-corsa-competizione/">View Assetto Corsa Competizione coverage</a><small>Free and open source · Windows 10/11</small></aside>
     </div>

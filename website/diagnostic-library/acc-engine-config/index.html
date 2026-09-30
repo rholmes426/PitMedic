@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-v2.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-v2.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Assetto Corsa Competizione"}]},{"@type":"TechArticle","headline":"Assetto Corsa Competizione: Unreal Engine or graphics configuration failure","description":"How PitMedic detects and safely responds to unreal engine or graphics configuration failure in Assetto Corsa Competizione.","url":"https://pitmedic.com/diagnostic-library/acc-engine-config/","dateModified":"2026-09-03","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Assetto Corsa Competizione"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Assetto Corsa Competizione"}]},{"@type":"TechArticle","headline":"Assetto Corsa Competizione: Unreal Engine or graphics configuration failure","description":"How PitMedic detects and safely responds to unreal engine or graphics configuration failure in Assetto Corsa Competizione.","url":"https://pitmedic.com/diagnostic-library/acc-engine-config/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Assetto Corsa Competizione"}]}</script>
 </head>
 <body>
 <main>
@@ -31,14 +31,26 @@
       <span class="section-kicker">Simulator repair</span>
       <p class="library-product">Assetto Corsa Competizione</p>
       <h1>Unreal Engine or graphics configuration failure</h1>
-      <p>PitMedic contains a dedicated diagnostic record for this problem, including the evidence required before it recommends a repair.</p>
-      <div class="issue-status"><span>Automatic repair available</span><span>Active</span><span>Reviewed 2026-09-03</span></div>
+      <p>An ACC rendering failure can involve custom engine configuration, but it can also have another graphics-related cause.</p>
+      <div class="issue-status"><span>Automatic repair available</span><span>Active</span><span>Evidence reviewed 2026-09-03</span><span>Guide updated 2026-09-29</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Record the exact rendering-thread or DXGI error and any recent Engine.ini edits.</li><li>Close Assetto Corsa Competizione and preserve Engine.ini before removing its active copy.</li><li>Note the settings you will need to re-enter and change only the identified file or files.</li></ul>
+          <h3>How to confirm the result</h3><p>Relaunch Assetto Corsa Competizione, review the rebuilt settings, and repeat the original action. Confirm that the original session and graphics action complete without the previous error. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.</p>
+          <h3>Repair limits and when to stop</h3><p>DXGI device loss alone does not prove Engine.ini corruption. Driver or hardware problems need separate diagnosis; PitMedic does not change drivers automatically.</p>
+        </section>
         <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>ACC logs identify Engine.ini, DXGI device loss, a rendering-thread exception, or a GPU crash without a stronger content signature.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>Engine.ini</code></li><li><code>DXGI_ERROR</code></li><li><code>D3D device lost</code></li><li><code>rendering thread exception</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>Back up and remove Engine.ini so ACC can regenerate a clean Unreal Engine configuration. PitMedic does not change graphics drivers automatically.</p><div class="safety-note"><strong>Repair safety</strong><span>Automatic / reversible / one-click</span></div></section>
-        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Assetto Corsa Competizione support forum</strong><span>Kunos Simulazioni · Official source</span><p>Kunos troubleshooting requests the ACC logs and crash evidence needed to distinguish configuration failures from driver or hardware faults.</p></div><a href="https://www.assettocorsa.net/forum/index.php?forums/acc-troubleshooting.79/" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+<section class="diagnostic-card diagnostic-example">
+          <h2>A current graphics fault survives a later successful exit</h2>
+          <p class="example-label">Verified automated regression test · 2026-09-28</p>
+          <h3>Test setup</h3><p>Synthetic ACC evidence included a current-session DXGI_ERROR_DEVICE_REMOVED event, an old copied warning, and a later zero process-exit code.</p>
+          <h3>Observed result</h3><p>The current-session graphics fault remained actionable instead of being discarded as a normal exit.</p>
+          <h3>What this establishes</h3><p>This validates evidence handling, not an Engine.ini repair or a diagnosis of driver or hardware failure.</p>
+          <p class="example-evidence"><a href="https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/Program.cs">Read the test source</a> · <a href="https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664">View the passing Windows test run</a></p>
+        </section>        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Assetto Corsa Competizione support forum</strong><span>Kunos Simulazioni · Official source</span><p>Kunos troubleshooting requests the ACC logs and crash evidence needed to distinguish configuration failures from driver or hardware faults.</p></div><a href="https://www.assettocorsa.net/forum/index.php?forums/acc-troubleshooting.79/" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
       </div>
       <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.5/PitMedic-Setup-x64.exe">Download v1.0.0.5</a><a class="button button-secondary" href="/simulators/assetto-corsa-competizione/">View Assetto Corsa Competizione coverage</a><small>Free and open source · Windows 10/11</small></aside>
     </div>

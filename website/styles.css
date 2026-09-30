@@ -575,6 +575,8 @@ footer > div a:hover { color: var(--orange); }
 .diagnostic-card>p{max-width:720px;margin:0;color:var(--muted);font-size:15px;line-height:1.72}
 .diagnostic-guide .guide-checks{margin:0;padding-left:20px;color:var(--muted);font-size:14px;line-height:1.75}
 .diagnostic-guide .guide-checks li+li{margin-top:6px}
+.diagnostic-example .example-label{font-size:13px;font-weight:700}
+.diagnostic-example .example-evidence{margin-top:20px;font-size:14px;overflow-wrap:anywhere}
 .diagnostic-guide h3+p{max-width:720px;margin:0;color:var(--muted);font-size:15px;line-height:1.72}
 .signal-list{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}.signal-list code{display:block;padding:7px 9px;background:#eeece6;color:var(--navy);font-size:11px}
 .repair-steps{margin:0;padding-left:21px;color:var(--muted);font-size:14px;line-height:1.8}
