@@ -1,5 +1,20 @@
 # PitMedic pending updates
 
+## Carbon / Lime theme — September 30, 2026
+
+- Owner selected concept 1: near-black background, dark panels, neon lime primary
+  actions, yellow warnings, orange accents and red errors.
+- Shared app brushes cover Home, simulator pages, settings, findings and repair
+  dialogs. Dark checkbox, list, tooltip and text-entry surfaces retain readability.
+- Website palette covers the homepage, simulator guides and Diagnostic Library;
+  its generator preserves the new two-tone textual wordmark. Existing genuine
+  product screenshots and installed icon artwork are retained, not AI-recreated.
+- No monitoring, repair, privacy, updater or release-version behavior changes.
+- Validation: automated palette/contrast/resource tests and generated-page checks;
+  Windows compilation and protected PR checks must pass before merge.
+- Website publication follows standing authorization. App changes are queued for
+  the next explicitly approved signed release; 1.0.0.5 remains the public app.
+
 Public app baseline: **1.0.0.4**, published September 22, 2026.
 The app, helpers and installer passed signed verification in
 [release run 35680498864](https://github.com/rholmes426/PitMedic/actions/runs/35680498864).

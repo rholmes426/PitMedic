@@ -11,11 +11,11 @@
     </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <SolidColorBrush x:Key="SidebarBrush" Color="#0D2B49"/>
-        <SolidColorBrush x:Key="SidebarBorderBrush" Color="#244A69"/>
-        <SolidColorBrush x:Key="SidebarMutedBrush" Color="#A9BCCF"/>
-        <SolidColorBrush x:Key="SidebarButtonBrush" Color="#1C4774"/>
-        <SolidColorBrush x:Key="SidebarButtonHoverBrush" Color="#245A8F"/>
+        <SolidColorBrush x:Key="SidebarBrush" Color="#111712"/>
+        <SolidColorBrush x:Key="SidebarBorderBrush" Color="#394A3E"/>
+        <SolidColorBrush x:Key="SidebarMutedBrush" Color="#AAB8AD"/>
+        <SolidColorBrush x:Key="SidebarButtonBrush" Color="#1C241F"/>
+        <SolidColorBrush x:Key="SidebarButtonHoverBrush" Color="#263329"/>
 
         <Style x:Key="SimulatorNavStyle" TargetType="RadioButton">
             <Setter Property="Foreground" Value="{DynamicResource TitleTextBrush}"/>
@@ -37,10 +37,10 @@
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="NavBorder" Property="Background" Value="#173B60"/></Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="NavBorder" Property="Background" Value="{DynamicResource HoverBrush}"/></Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-                                <Setter TargetName="NavBorder" Property="Background" Value="{DynamicResource PanelBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="NavBorder" Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
                                 <Setter TargetName="NavBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="NavBorder" Property="BorderThickness" Value="4,0,0,0"/>
                                 <Setter TargetName="NavBorder" Property="Padding" Value="15,13,18,13"/>
@@ -86,7 +86,7 @@
             <Grid Margin="28,0,12,0">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="PITMEDIC" Foreground="{DynamicResource TitleTextBrush}" FontFamily="Segoe UI Variable Display" FontWeight="Bold" FontSize="21" VerticalAlignment="Center"/>
+                    <TextBlock Foreground="{DynamicResource TitleTextBrush}" FontFamily="Segoe UI Variable Display" FontWeight="Bold" FontSize="21" VerticalAlignment="Center"><Run Text="Pit"/><Run Text="Medic" Foreground="{DynamicResource AccentBrush}"/></TextBlock>
                     <TextBlock Text="SIM RELIABILITY" Foreground="{DynamicResource TitleMutedBrush}" FontWeight="Bold" FontSize="11.5" VerticalAlignment="Center" Margin="15,2,0,0"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">

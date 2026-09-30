@@ -215,7 +215,7 @@ def page_header(title: str, description: str, canonical: str, structured_data: d
 <body>
 <main>
   <header class="site-header">
-    <a class="brand" href="/" aria-label="PitMedic home"><img src="{LOGO_URL}" alt="" /><span>PitMedic</span></a>
+    <a class="brand" href="/" aria-label="PitMedic home"><img src="{LOGO_URL}" alt="" /><span>Pit<em>Medic</em></span></a>
     <nav aria-label="Primary navigation"><a href="/#how-it-works">How it works</a><a href="/#simulators">Simulators</a><a class="active" href="/diagnostic-library/">Diagnostic Library</a><a href="/#about">About</a></nav>
     <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-cta" href="/">Home</a></div>
   </header>'''
@@ -223,7 +223,7 @@ def page_header(title: str, description: str, canonical: str, structured_data: d
 
 def page_footer() -> str:
     return f'''  <footer>
-    <a class="brand" href="/"><img src="{LOGO_URL}" alt="" /><span>PitMedic</span></a>
+    <a class="brand" href="/"><img src="{LOGO_URL}" alt="" /><span>Pit<em>Medic</em></span></a>
     <p>A free open-source project for the sim-racing community.</p>
     <div><a href="/diagnostic-library/">Diagnostic Library</a><a href="/#simulators">Simulators</a><a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a><a href="https://github.com/rholmes426/PitMedic">GitHub</a><a href="https://paypal.me/PitMedicApp">Support</a></div>
   </footer>
