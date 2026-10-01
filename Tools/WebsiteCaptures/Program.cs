@@ -57,7 +57,7 @@ internal static class Program
         });
         Save(progress, "lmu-repair-progress-carbon-lime.png");
 
-        var complete = Load("IncidentDetailsWindow.xaml", 860, 1020);
+        var complete = Load("IncidentDetailsWindow.xaml", 860, 788);
         Text(complete, "TitleText", "Le Mans Ultimate");
         Text(complete, "TimeText", "Example finding · Le Mans Ultimate.exe");
         Text(complete, "OutcomeSummaryText", "Steam validation completed and the affected content was restored. The finding is marked resolved.");
@@ -66,9 +66,9 @@ internal static class Program
         Text(complete, "CategoryText", "LMU content read / decompression failure");
         Text(complete, "PlainLanguageText", "Le Mans Ultimate could not read an installed track package. PitMedic identified the affected content and guided its replacement through Steam.");
         Items(complete, "RepairActivityList", new[] {
-            new { Title = "Preserved recovery data", Detail = "Kept a recovery copy before replacing affected content.", Time = "10:00 AM" },
-            new { Title = "Requested Steam validation", Detail = "Steam validated the installation and reacquired clean content.", Time = "10:01 AM" },
-            new { Title = "Recorded the repair outcome", Detail = "Saved the repair history and marked the finding resolved.", Time = "10:08 AM" }
+            new { Title = "Preserved recovery data", Detail = "Kept a recovery copy before replacing affected content.", Timestamp = new DateTime(2026, 10, 1, 10, 0, 0) },
+            new { Title = "Requested Steam validation", Detail = "Steam validated the installation and reacquired clean content.", Timestamp = new DateTime(2026, 10, 1, 10, 1, 0) },
+            new { Title = "Recorded the repair outcome", Detail = "Saved the repair history and marked the finding resolved.", Timestamp = new DateTime(2026, 10, 1, 10, 8, 0) }
         });
         Items(complete, "EvidenceList", new[] { @"Affected content: Installed\Locations\Silverstone_2025", "Example content-read failure used to demonstrate the repair review." });
         complete.FindName("ReferencesCard").As<FrameworkElement>().Visibility = Visibility.Collapsed;
@@ -101,6 +101,16 @@ internal static class Program
         return window;
     }
 
+    static IEnumerable<DependencyObject> Descendants(DependencyObject parent)
+    {
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            yield return child;
+            foreach (var descendant in Descendants(child)) yield return descendant;
+        }
+    }
+
     static void Save(Window window, string filename)
     {
         window.Show();
@@ -108,6 +118,12 @@ internal static class Program
         window.Dispatcher.Invoke(() => { }, DispatcherPriority.ApplicationIdle);
         var bitmap = new RenderTargetBitmap((int)window.ActualWidth, (int)window.ActualHeight, 96, 96, PixelFormats.Pbgra32);
         bitmap.Render(window);
+        if (window.FindName("RepairNowButton") is Button primary)
+        {
+            var label = Descendants(primary).OfType<TextBlock>().FirstOrDefault(t => t.Text == "Repair now");
+            if (label?.Foreground is not SolidColorBrush brush || brush.Color != Color.FromRgb(11, 15, 13))
+                throw new InvalidOperationException("Primary button text must render dark on lime.");
+        }
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(bitmap));
         var path = Path.Combine(output, filename);
