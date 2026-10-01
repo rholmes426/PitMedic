@@ -1,6 +1,6 @@
 # PitMedic pending updates
 
-## Queued — Carbon / Lime artwork completion (October 1, 2026)
+## Approved 1.0.0.7 — Carbon / Lime artwork completion (October 1, 2026)
 
 - Recolored the existing P logo to near-black, off-white and neon lime, including
   the app window, executable, desktop shortcut and tray icon asset.
@@ -11,9 +11,10 @@
 - Repair progress text and footer controls use separate columns to avoid overlap.
 - Button labels inherit their button foreground, preserving dark-on-lime primary
   text and red cancellation text. The Windows renderer checks primary-label contrast.
-- Website publication follows standing approval; the installed app icon and layout
-  changes require the next explicitly approved signed release. Public version
-  1.0.0.6 and its signed installer remain unchanged.
+- Website changes published through PR #117; Pages run 36902476264 passed live
+  release/download verification. Windows validation run 36902043450 passed.
+- Owner explicitly approved signed release 1.0.0.7 on October 1, 2026. Release
+  inputs are being validated; public baseline stays 1.0.0.6 until signing succeeds.
 
 ## Published 1.0.0.6 — Carbon / Lime theme (September 30, 2026)
 
