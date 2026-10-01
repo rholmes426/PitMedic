@@ -1,6 +1,13 @@
-# PitMedic v1.0.0.6
+# PitMedic v1.0.0.7
 
 PitMedic is a Windows .NET 10 WPF simulator reliability monitor and repair assistant.
+
+## v1.0.0.7
+
+- Completes Carbon / Lime branding in app windows, desktop/Start menu shortcuts and the tray icon.
+- Fixes dark-on-lime primary-button contrast and warning-colored labels.
+- Prevents repair-progress estimates and footer buttons from overlapping text.
+- Refreshes website artwork and WPF example captures; monitoring and repair behavior are unchanged.
 
 ## v1.0.0.6
 

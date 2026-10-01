@@ -8,10 +8,10 @@ workflows, and queued work. Read this file together with `CONTRIBUTING.md`,
 
 ## Current state
 
-- October 1: Carbon / Lime logo completion is in PR #117. It updates the website
-  brand assets and current-theme WPF example captures, plus app/desktop/tray icons.
-  Website publication is covered by standing approval; app changes are queued
-  for the next explicitly approved signed release. `Tools/WebsiteCaptures` renders
+- October 1: Carbon / Lime logo completion merged in PR #117, with successful
+  Windows validation and website deployment. The owner explicitly approved signed
+  app release 1.0.0.7, covering logos/icons, button contrast and repair-progress
+  layout. Release inputs are being validated. `Tools/WebsiteCaptures` renders
   current WPF views without starting production monitoring or repair services.
 
 
