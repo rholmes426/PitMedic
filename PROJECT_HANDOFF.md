@@ -11,7 +11,8 @@ workflows, and queued work. Read this file together with `CONTRIBUTING.md`,
 - Owner approved publication of the Carbon / Lime app theme on September 30, 2026.
   PR #114 passed full Build Validation and is merged. The website theme is live;
   deployment run 36749437751 passed release/download verification. App release
-  inputs target 1.0.0.6; protected signing/publication is pending. Local interactive
+  1.0.0.6 passed protected signing/publication in run 36805995891. Publication PR #116
+  synchronizes public downloads and updater metadata. Local interactive
   visual rendering was blocked by runtime socket permissions.
 
 - Owner approved the cross-simulator false-exit patch and publication on September 27, 2026.
@@ -23,7 +24,7 @@ workflows, and queued work. Read this file together with `CONTRIBUTING.md`,
 
 - Repository: `rholmes426/PitMedic`
 - Main branch: protected; use pull requests and required Build Validation checks.
-- Current public release: `v1.0.0.5`; 1.0.0.6 is the approved next release.
+- Current public release: `v1.0.0.6`; signed app, helpers and installer verified.
 - Implementation PR #101 and release metadata PR #102 merged. Pages run 35767900939
   passed final README, website, updater, installer URL and checksum verification.
 - Includes the iRacing repair-selection fix and 12 compatible maintenance proposals.
