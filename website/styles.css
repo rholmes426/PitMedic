@@ -217,7 +217,7 @@ svg { display: block; }
 .app-capture {
   position: relative;
   width: 100%;
-  aspect-ratio: 1.42;
+  aspect-ratio: 680 / 780;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -233,12 +233,9 @@ svg { display: block; }
 }
 .app-capture img {
   display: block;
-  width: 104%;
-  max-width: none;
-  height: 104%;
-  object-fit: cover;
-  object-position: 53% 50%;
-  transform: translate(-1.5%, -1.5%);
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 .product-stage figcaption {
   align-self: flex-end;
@@ -442,8 +439,8 @@ footer > div a:hover { color: var(--accent); }
   .hero-copy > p { font-size: 15px; }
   .hero-actions { align-items: flex-start; flex-direction: column; gap: 17px; }
   .product-stage { width: 100%; }
-  .app-capture { aspect-ratio: 1.32; border-radius: 7px; }
-  .app-capture img { width: 106%; height: 106%; transform: translate(-2.2%, -2.2%); }
+  .app-capture { aspect-ratio: 680 / 780; border-radius: 7px; }
+  .app-capture img { width: 100%; height: auto; }
   .product-stage figcaption { align-self: flex-start; }
   .proof-bar { margin: 0 20px; grid-template-columns: 1fr; }
   .proof-bar div,
