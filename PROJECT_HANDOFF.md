@@ -11,7 +11,8 @@ workflows, and queued work. Read this file together with `CONTRIBUTING.md`,
 - October 1: Carbon / Lime logo completion merged in PR #117, with successful
   Windows validation and website deployment. The owner explicitly approved signed
   app release 1.0.0.7, covering logos/icons, button contrast and repair-progress
-  layout. Release inputs are being validated. `Tools/WebsiteCaptures` renders
+  layout. Signing and installer verification passed in release run 36906341052;
+  publication metadata is in PR #119. `Tools/WebsiteCaptures` renders
   current WPF views without starting production monitoring or repair services.
 
 
@@ -31,7 +32,7 @@ workflows, and queued work. Read this file together with `CONTRIBUTING.md`,
 
 - Repository: `rholmes426/PitMedic`
 - Main branch: protected; use pull requests and required Build Validation checks.
-- Current public release: `v1.0.0.6`; signed app, helpers and installer verified.
+- Current public release: `v1.0.0.7`; signed app, helpers and installer verified.
 - Implementation PR #101 and release metadata PR #102 merged. Pages run 35767900939
   passed final README, website, updater, installer URL and checksum verification.
 - Includes the iRacing repair-selection fix and 12 compatible maintenance proposals.
