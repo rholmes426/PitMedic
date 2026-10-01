@@ -1,6 +1,6 @@
 # PitMedic pending updates
 
-## Carbon / Lime theme — September 30, 2026
+## Approved 1.0.0.6 — Carbon / Lime theme (September 30, 2026)
 
 - Owner selected concept 1: near-black background, dark panels, neon lime primary
   actions, yellow warnings, orange accents and red errors.
@@ -10,12 +10,18 @@
   its generator preserves the new two-tone textual wordmark. Existing genuine
   product screenshots and installed icon artwork are retained, not AI-recreated.
 - No monitoring, repair, privacy, updater or release-version behavior changes.
-- Validation: automated palette/contrast/resource tests and generated-page checks;
-  Windows compilation and protected PR checks must pass before merge.
-- Website publication follows standing authorization. App changes are queued for
-  the next explicitly approved signed release; 1.0.0.5 remains the public app.
+- Validation: PR #114 passed Windows compilation, installer validation, all required
+  Build Validation jobs and automated contrast/resource tests in run 36749040780.
+  Local interactive visual rendering was blocked by runtime socket permissions.
+- Website published through PR #114; deployment and live release/checksum validation
+  succeeded in run 36749437751.
+- Owner explicitly approved the signed app update on September 30, 2026.
+  Release inputs now target 1.0.0.6; protected signing/publication is pending.
 
-Public app baseline: **1.0.0.4**, published September 22, 2026.
+Public app baseline: **1.0.0.5**, published September 27, 2026 (Pacific).
+Publication metadata PR #112 and subsequent theme website PR #114 are merged.
+
+Previous app baseline: **1.0.0.4**, published September 22, 2026.
 The app, helpers and installer passed signed verification in
 [release run 35680498864](https://github.com/rholmes426/PitMedic/actions/runs/35680498864).
 Implementation PR #101 and publication metadata PR #102 are merged.
