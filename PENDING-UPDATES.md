@@ -1,6 +1,6 @@
 # PitMedic pending updates
 
-## Approved 1.0.0.6 — Carbon / Lime theme (September 30, 2026)
+## Published 1.0.0.6 — Carbon / Lime theme (September 30, 2026)
 
 - Owner selected concept 1: near-black background, dark panels, neon lime primary
   actions, yellow warnings, orange accents and red errors.
@@ -16,9 +16,14 @@
 - Website published through PR #114; deployment and live release/checksum validation
   succeeded in run 36749437751.
 - Owner explicitly approved the signed app update on September 30, 2026.
-  Release inputs now target 1.0.0.6; protected signing/publication is pending.
+  Version 1.0.0.6 passed protected signing, timestamp and installer verification in
+  [release run 36805995891](https://github.com/rholmes426/PitMedic/actions/runs/36805995891).
+  Publication PR #116 synchronizes the website, README and updater; its Pages run
+  verifies the live release links and downloaded installer checksum after merge.
 
-Public app baseline: **1.0.0.5**, published September 27, 2026 (Pacific).
+Public app baseline: **1.0.0.6**, published September 30, 2026 (Pacific).
+
+Previous app baseline: **1.0.0.5**, published September 27, 2026 (Pacific).
 Publication metadata PR #112 and subsequent theme website PR #114 are merged.
 
 Previous app baseline: **1.0.0.4**, published September 22, 2026.
@@ -52,7 +57,7 @@ The September 14 items below are release history; the two blocked Vitest 5 upgra
 - An isolated audit using the actual incident loader retained all 1,324 original incident files,
   excluded 1,261 unsupported exit diagnoses and grouped 33 repeated Windows-evidence records
   into one diagnostic-only finding. The separate Windows-evidence record was preserved.
-- Signed publication: pending protected release workflow after PR #111 merges.
+- Signed publication completed in run 36379233517; publication metadata PR #112 merged.
 
 ## Published — website titles, keywords and link building (September 21, 2026)
 
