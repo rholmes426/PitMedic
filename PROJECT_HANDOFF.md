@@ -8,6 +8,13 @@ workflows, and queued work. Read this file together with `CONTRIBUTING.md`,
 
 ## Current state
 
+- October 1: Carbon / Lime logo completion is in PR #117. It updates the website
+  brand assets and current-theme WPF example captures, plus app/desktop/tray icons.
+  Website publication is covered by standing approval; app changes are queued
+  for the next explicitly approved signed release. `Tools/WebsiteCaptures` renders
+  current WPF views without starting production monitoring or repair services.
+
+
 - Owner approved publication of the Carbon / Lime app theme on September 30, 2026.
   PR #114 passed full Build Validation and is merged. The website theme is live;
   deployment run 36749437751 passed release/download verification. App release

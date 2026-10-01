@@ -1,5 +1,20 @@
 # PitMedic pending updates
 
+## Queued — Carbon / Lime artwork completion (October 1, 2026)
+
+- Recolored the existing P logo to near-black, off-white and neon lime, including
+  the app window, executable, desktop shortcut and tray icon asset.
+- Website logos, favicon, Apple touch icon, social preview and GitHub wordmark
+  use new asset URLs to avoid stale cached navy/orange artwork.
+- Homepage and LMU guide captures are rendered from the current WPF markup and
+  shared theme with labeled example data. No real user diagnostics are included.
+- Repair progress text and footer controls use separate columns to avoid overlap.
+- Button labels inherit their button foreground, preserving dark-on-lime primary
+  text and red cancellation text. The Windows renderer checks primary-label contrast.
+- Website publication follows standing approval; the installed app icon and layout
+  changes require the next explicitly approved signed release. Public version
+  1.0.0.6 and its signed installer remain unchanged.
+
 ## Published 1.0.0.6 — Carbon / Lime theme (September 30, 2026)
 
 - Owner selected concept 1: near-black background, dark panels, neon lime primary
