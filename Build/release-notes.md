@@ -1,3 +1,5 @@
-Fixes repeated false simulator exits, inflated finding counts, and recurring repair windows. All supported simulators and monitored companion apps now require confirmed process termination; a running or inaccessible process is not treated as a crash.
+Introduces the Carbon / Lime dark theme: near-black backgrounds, dark panels, neon lime actions, yellow warnings, orange accents and red errors, matching the PitMedic website.
 
-Automatic simulator repairs wait while the simulator is running. Corroborated false running-process findings from earlier versions are excluded from review and repair without deleting the original diagnostic files. Interrupted captures no longer appear as manual snapshots, and manual snapshots do not inflate the issue count.
+Applies the palette throughout Home, simulator pages, findings, repair dialogs and Settings. Updates active navigation and the text wordmark, and improves dark-mode checkbox, list, tooltip and text-entry surfaces. Automated checks guard text contrast and shared website/app colors.
+
+Retains the confirmed-process-exit and false-finding fixes from 1.0.0.5. Monitoring, repair, privacy and update behavior are unchanged. Existing desktop/tray icons are retained.

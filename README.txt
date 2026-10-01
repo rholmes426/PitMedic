@@ -1,4 +1,4 @@
-PITMEDIC v1.0.0.5 - FULL DEVELOPMENT PACKAGE
+PITMEDIC v1.0.0.6 - FULL DEVELOPMENT PACKAGE
 ===============================================
 
 PitMedic is a free, open-source Windows sim-racing diagnostics and automated
@@ -10,7 +10,14 @@ This repository contains the full source tree, PitMedic assets, repair knowledge
 base, documentation, website, telemetry services, and Windows build/run command
 file. It is not a patch-only package.
 
-WHAT CHANGED IN v0.6.0.18
+WHAT CHANGED IN v1.0.0.6
+-------------------------
+- Carbon / Lime dark theme across simulator pages, settings, findings and repairs.
+- Near-black panels, neon lime actions, yellow/orange/red status accents.
+- Dark controls, clearer active navigation and matching website colors.
+- Retains existing icons and the confirmed-process-exit fixes from 1.0.0.5.
+
+PREVIOUS UPDATE v0.6.0.18
 -------------------------
 - Suppresses misleading iRacing update-related findings while the updater runs.
 - Defers iRacing repairs until the update and a short settling period finish.
