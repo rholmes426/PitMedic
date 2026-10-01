@@ -148,6 +148,15 @@ jobs:
         run: dotnet run --project Source/PitMedic.UsageTests/PitMedic.UsageTests.csproj --configuration Release
       - name: Compile PitMedic Release
         run: dotnet build Source/PitMedic/PitMedic.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
+      - name: Render current WPF website captures
+        run: dotnet run --project Tools/WebsiteCaptures --configuration Release -- .
+      - name: Upload website captures
+        uses: actions/upload-artifact@v7
+        with:
+          name: PitMedic-website-captures
+          path: Artifacts/website-captures/
+          if-no-files-found: error
+          retention-days: 14
       - name: Compile elevated repair helper Release
         run: dotnet build Source/PitMedic.RepairHelper/PitMedic.RepairHelper.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
       - name: Compile read-only sensor service Release
