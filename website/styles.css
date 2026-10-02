@@ -61,9 +61,11 @@ svg { display: block; }
   align-items: center;
   gap: 18px;
 }
-.header-support {
+.header-support,
+.header-download {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 36px;
   padding: 8px 13px;
   border: 1px solid var(--accent);
@@ -72,10 +74,12 @@ svg { display: block; }
   color: var(--accent-text);
   font-size: 12.5px;
   font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
 }
-.header-support:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-.header-download { min-height: 36px; padding: 0 13px; font-size: 12.5px; white-space: nowrap; }
-.button.header-download { min-height: 36px; }
+.header-support:hover,
+.header-download:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.header-download { gap: 9px; }
 .header-cta {
   display: inline-flex;
   align-items: center;
@@ -87,6 +91,7 @@ svg { display: block; }
   font-weight: 700;
 }
 .header-cta svg,
+.header-download svg,
 .button svg { width: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; }
 
 .hero {
@@ -433,12 +438,10 @@ footer > div a:hover { color: var(--accent); }
   .brand img { width: 31px; height: 31px; }
   .header-actions { gap: 8px; }
   .header-cta { display: none; }
-  .header-download { min-height: 34px; padding: 0 9px; font-size: 12px; }
-  .button.header-download { min-height: 34px; }
+  .header-support,
+  .header-download { min-height: 34px; padding: 7px 11px; font-size: 12px; }
   .header-download { font-size: 0; }
   .header-download::before { content: "Download"; font-size: 12px; }
-  .header-support { min-height: 34px; padding: 7px 9px; font-size: 11.5px; }
-  .header-support { min-height: 34px; padding: 7px 11px; font-size: 12px; }
   .hero { padding: 56px 20px 68px; gap: 42px; }
   .hero-logo { gap: 12px; }
   .hero-logo img { width: 66px; height: 66px; }
