@@ -75,7 +75,7 @@ svg { display: block; }
 }
 .header-support:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 .header-download { min-height: 36px; padding: 0 13px; font-size: 12.5px; white-space: nowrap; }
-.header-download span { font-size: 11px; opacity: .8; }
+.button.header-download { min-height: 36px; }
 .header-cta {
   display: inline-flex;
   align-items: center;
@@ -434,7 +434,9 @@ footer > div a:hover { color: var(--accent); }
   .header-actions { gap: 8px; }
   .header-cta { display: none; }
   .header-download { min-height: 34px; padding: 0 9px; font-size: 12px; }
-  .header-download span { display: none; }
+  .button.header-download { min-height: 34px; }
+  .header-download { font-size: 0; }
+  .header-download::before { content: "Download"; font-size: 12px; }
   .header-support { min-height: 34px; padding: 7px 9px; font-size: 11.5px; }
   .header-support { min-height: 34px; padding: 7px 11px; font-size: 12px; }
   .hero { padding: 56px 20px 68px; gap: 42px; }
