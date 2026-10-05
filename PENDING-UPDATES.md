@@ -275,3 +275,25 @@ and hardware-specific A/B validation; it is not a queued automatic optimization.
 Fanatec runner 403 and inaccessible LMU/Kunos/KW discussions remain visible.
 The separate review automation remains disabled. GitHub discovery and inline
 evidence triage are both active; human review and release approval remain separate.
+
+## Proposed — October 5 scout and external-source review
+
+Research only; source-backed candidates are not implemented or approved repairs.
+Full evidence, limitations and all 47 retained URLs:
+[KnowledgeScoutReview-2026-10-05](Research/KnowledgeScoutReview-2026-10-05.md).
+
+| Candidate | Proposed next work |
+| --- | --- |
+| KS-20261005-SIMPRO | Add version/symptom guidance for recurring Windows app failures and the older Assetto Corsa EVO startup conflict. |
+| KS-20261005-RACEHUB | Add rotary-input freeze and LMU/EVO game-data guidance from the vendor's September update. |
+| KS-20261005-LMU | Describe released crash and team-event synchronization fixes before suggesting configuration resets. |
+| KS-20261005-AMS2 | Add a staff-recommended, reversible per-game Steam Input check for wheel/paddle loss. |
+| KS-20261005-TUNER | Add separate Tuner library guidance; do not reuse True Drive recovery. |
+| KS-20261005-IRACING | Add current patch guidance for specific reference-input display and spotter failures. |
+| KS-20261005-SCOUT-COVERAGE | Repair moved Simucube source coverage and add accessible official release sources; confirm runner success. |
+| KS-20261005-TUNER-DETECTION | Investigate actual Tuner executable identity and update state before extending app monitoring. |
+| KS-20261005-FANATEC-CITATION | Refresh the already-covered oscillation fix's official citation/version context. |
+
+Six guidance groups, two engineering investigations and one citation refresh.
+No new automatic repair is established. The prior SIMPRO firmware-state investigation
+and inaccessible forum findings remain pending. No app build, merge or release requested.
