@@ -24,7 +24,8 @@
     "store.steampowered.com",
     "steamcommunity.com",
     "pitmedic.com",
-    "www.reddit.com"
+    "www.reddit.com",
+    "docs.simucube.com"
   ],
   "defaultKeywords": [
     "crash",
@@ -250,7 +251,7 @@
       "productType": "companion",
       "authority": "official",
       "sourceRole": "downloads",
-      "url": "https://simucube.com/support/simucube-downloads/",
+      "url": "https://docs.simucube.com/TunerSoftware/index.html",
       "sourceType": "html",
       "discoverLinks": true,
       "reportTextChanges": true,
@@ -262,7 +263,7 @@
       "productType": "companion",
       "authority": "official",
       "sourceRole": "release-notes",
-      "url": "https://simucube.com/simucube-tuner-3-0-software/",
+      "url": "https://docs.simucube.com/TunerSoftware/changelog.html",
       "sourceType": "html",
       "discoverLinks": true,
       "reportTextChanges": true,
@@ -376,6 +377,32 @@
       "sourceType": "html",
       "discoverLinks": true,
       "reportTextChanges": true,
+      "enabled": true
+    },
+    {
+      "id": "lmu-support-release-notes",
+      "product": "Le Mans Ultimate",
+      "productType": "simulator",
+      "authority": "official",
+      "sourceRole": "release-notes",
+      "url": "https://guide.lemansultimate.com/hc/en-gb/categories/13278904445967-Release-Notes",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "reportTextChanges": false,
+      "maxLinks": 40,
+      "enabled": true
+    },
+    {
+      "id": "fanatec-support-release-notes",
+      "product": "Fanatec software",
+      "productType": "companion",
+      "authority": "official",
+      "sourceRole": "release-notes",
+      "url": "https://help.fanatec.com/hc/en-us/sections/47850807160721-Release-Notes",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "reportTextChanges": false,
+      "maxLinks": 40,
       "enabled": true
     }
   ]

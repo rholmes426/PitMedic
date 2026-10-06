@@ -1,5 +1,36 @@
 # PitMedic pending updates
 
+## Approved 1.0.0.8 — fixes and diagnostic guidance (October 5, 2026)
+
+Owner requested all pending app/website updates, the recent fixes and diagnostic
+guidance, and publication. This authorizes the protected signed release and website
+publication for this batch.
+
+- Implements all six October 5 guidance groups. Five new guidance-only records
+  cover LMU, EVO, AMS2, iRacing and Simucube Tuner; SimPro/RaceHub recovery explanations
+  include the relevant vendor fixes. The library now contains 65 records.
+- Finding reviews show version/symptom checks separately from diagnosis and repair.
+  Guidance carries no detector signatures and is excluded from repair selection.
+- Updates moved Simucube sources with a narrow docs.simucube.com allowlist entry;
+  adds official LMU/Fanatec release indexes (28 sources). Actual runner validation
+  remains required; the Fanatec forum 403 is retained separately.
+- Refreshes the existing Fanatec oscillation citation to official 1.5.4.2 notes.
+- Dependency proposals #124–#131 remain pending as a separate analytics batch.
+  Their local preparation reached Node types 26.6.4, pg 8.23.1, Cloudflare test plugin
+  1.3.6 and Wrangler 4.147.0. Automatic approval review blocked a Worker dry-run
+  because the analytics destination/payload needs separate authorization. This app
+  release keeps the previously validated dependency inputs and does not trigger an
+  analytics deployment. No required checks or deployment controls are weakened.
+- Vitest 5 proposals #132/#133 remain incompatible: plugins 1.3.5 and 1.3.6 require
+  Vitest/@vitest runner/snapshot ^4.1.0. No forced install or peer override.
+- Tuner automatic monitoring and SIMAGIC firmware-state detection remain unimplemented:
+  verified executable/update-state evidence is still needed. No repair is retired.
+- The separate Neon function production deployment remains pending its specific
+  owner approval recorded below; its dependency bundle is validated with this batch.
+- Validation: 13 local release/theme tests, 20 Scout tests, lifecycle/source validation
+  and generated-library consistency passed. Required Windows CI and publication
+  verification are tracked on PR #134 and the protected release run.
+
 ## Published 1.0.0.7 — Carbon / Lime artwork completion (October 1, 2026)
 
 - Recolored the existing P logo to near-black, off-white and neon lime, including
@@ -275,3 +306,25 @@ and hardware-specific A/B validation; it is not a queued automatic optimization.
 Fanatec runner 403 and inaccessible LMU/Kunos/KW discussions remain visible.
 The separate review automation remains disabled. GitHub discovery and inline
 evidence triage are both active; human review and release approval remain separate.
+
+## Proposed — October 5 scout and external-source review
+
+Research only; source-backed candidates are not implemented or approved repairs.
+Full evidence, limitations and all 47 retained URLs:
+[KnowledgeScoutReview-2026-10-05](Research/KnowledgeScoutReview-2026-10-05.md).
+
+| Candidate | Proposed next work |
+| --- | --- |
+| KS-20261005-SIMPRO | Add version/symptom guidance for recurring Windows app failures and the older Assetto Corsa EVO startup conflict. |
+| KS-20261005-RACEHUB | Add rotary-input freeze and LMU/EVO game-data guidance from the vendor's September update. |
+| KS-20261005-LMU | Describe released crash and team-event synchronization fixes before suggesting configuration resets. |
+| KS-20261005-AMS2 | Add a staff-recommended, reversible per-game Steam Input check for wheel/paddle loss. |
+| KS-20261005-TUNER | Add separate Tuner library guidance; do not reuse True Drive recovery. |
+| KS-20261005-IRACING | Add current patch guidance for specific reference-input display and spotter failures. |
+| KS-20261005-SCOUT-COVERAGE | Repair moved Simucube source coverage and add accessible official release sources; confirm runner success. |
+| KS-20261005-TUNER-DETECTION | Investigate actual Tuner executable identity and update state before extending app monitoring. |
+| KS-20261005-FANATEC-CITATION | Refresh the already-covered oscillation fix's official citation/version context. |
+
+Six guidance groups, two engineering investigations and one citation refresh.
+No new automatic repair is established. The prior SIMPRO firmware-state investigation
+and inaccessible forum findings remain pending. No app build, merge or release requested.

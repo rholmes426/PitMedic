@@ -37,7 +37,7 @@ Only the first two states are assigned by adding ordinary knowledge. The final t
 
 The scheduled workflow runs on Tuesday and Friday and can also be started manually. It never commits, opens a pull request, changes a repair state, or publishes a release.
 
-The registry currently monitors 26 focused sources. Search results may help a maintainer locate a candidate, but the Scout monitors the direct vendor source rather than a search result, repost, or general social feed.
+The registry currently monitors 28 focused sources. Search results may help a maintainer locate a candidate, but the Scout monitors the direct vendor source rather than a search result, repost, or general social feed.
 
 | Product | Trusted coverage |
 |---|---|
@@ -48,8 +48,8 @@ The registry currently monitors 26 focused sources. Search results may help a ma
 | RaceRoom | KW Studios announcements and community support |
 | Automobilista 2 | Reiza announcements and help/support |
 | MOZA Pit House | Official support, Pit House known issues, and downloads |
-| Simucube Tuner / True Drive | Official Tuner information and downloads |
-| Fanatec software | Official downloads and the Fanatec-operated app release forum |
+| Simucube Tuner / True Drive | Official Tuner documentation, downloads and changelog |
+| Fanatec software | Official downloads, support release notes and the Fanatec-operated app release forum |
 | Logitech G HUB | Official recovery guidance and release notes |
 | SIMAGIC SimPro Manager | Official downloads and announcements |
 | Asetek RaceHub | Official knowledge base and RaceHub download page |

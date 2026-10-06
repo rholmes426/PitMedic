@@ -11,6 +11,8 @@
     <Compile Include="../PitMedic/Services/CompanionSoftwareKnowledgeBase.cs" Link="CompanionSoftwareKnowledgeBase.cs" />
     <Compile Include="../PitMedic/Services/SteamLibraryLocator.cs" Link="SteamLibraryLocator.cs" />
     <Compile Include="../PitMedic/Services/RepairPlanner.cs" Link="RepairPlanner.cs" />
+    <Compile Include="../PitMedic/Services/IncidentDetailsService.cs" Link="IncidentDetailsService.cs" />
+    <Compile Include="../PitMedic/Models/IncidentDetailsData.cs" Link="IncidentDetailsData.cs" />
     <Compile Include="../PitMedic/Services/LogCollector.cs" Link="LogCollector.cs" />
     <Compile Include="../PitMedic/Services/SteamValidationWindowSession.cs" Link="SteamValidationWindowSession.cs" />
     <Compile Include="../PitMedic/Services/CpuSensorPolicy.cs" Link="CpuSensorPolicy.cs" />

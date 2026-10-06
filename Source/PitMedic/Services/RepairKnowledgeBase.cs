@@ -151,7 +151,7 @@ public static class RepairKnowledgeBase
             Game = "Le Mans Ultimate",
             Issue = "Unable to join online sessions",
             Detection = "RaceControl connection/join failure without local loading crash; compare Windows time settings and EAC launch state.",
-            RepairStrategy = "For online warping or phantom collisions, check Studio 397's network updates before changing local settings. Its September 11 announcement planned a September 15 fix; that announcement alone does not confirm release or explain a local crash. Validate automatic Windows time/time-zone and detect EAC launch path; targeted content verification is a later step.",
+            RepairStrategy = "For online warping or phantom collisions, check Studio 397's network updates before changing local settings. Released 1.4.2 and 1.4.2.1 notes cover specific crashes and team-event synchronization; they do not establish a remedy for every warping or phantom-collision report. Validate automatic Windows time/time-zone and detect EAC launch path; targeted content verification is a later step.",
             Safety = "Diagnostic first; changes require confirmation",
             Signatures = new[] { "join", "RaceControl", "Easy Anti-Cheat", "EAC" },
             References = new[]
@@ -788,7 +788,88 @@ public static class RepairKnowledgeBase
                 Ref("AMS2 1.6.9.95 release notes", "Reiza Studios", "https://forum.reizastudios.com/threads/automobilista-2-v1-6-9-95-released-updated-to-v1-6-9-96.36667/", "Shipped fixes cover some multiplayer CTDs and LMP1 2005 wet-tyre CTDs, not every crash."),
             }
         },
+        new KnowledgeEntry
+        {
+            Id = "lmu-vendor-update-guidance",
+            Game = "Le Mans Ultimate",
+            IsGuidanceOnly = true,
+            Issue = "Released crash, team-sync and RaceHub data fixes",
+            Detection = "Compare the installed LMU build and session context; a generic crash or long join does not establish a vendor-known cause.",
+            RepairStrategy = "LMU 1.4.2 fixes shared-memory threading and specific temporary-car, car-position and session-join crashes. 1.4.2.1 fixes long synchronization into team events. For matching symptoms on older builds, review the supported update before resetting configuration. Missing TC/ABS data in RaceHub is separately addressed by RaceHub 4.5.1. Preserve evidence and retest the same session.",
+            Safety = "Guidance only / manual vendor update or reversible check",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("LMU 1.4.2 release notes", "Le Mans Ultimate Support", "https://guide.lemansultimate.com/hc/en-gb/articles/17713037697807-V1-4-2-Update-1-4-Patch-2", "Released fixes for specific crash contexts; not every crash."),
+                Ref("LMU 1.4.2.1 hotfix", "Le Mans Ultimate Support", "https://guide.lemansultimate.com/hc/en-gb/articles/17739847034383-v1-4-2-1-Update-4-Patch-2-Hotfix-1", "Released team-event synchronization fix."),
+                Ref("RaceHub 4.5.1 release notes", "Asetek Racing", "https://www.asetek.com/simsports/wp-content/uploads/2026/09/Release-Note-for-RaceHub-version-4.5.1.pdf", "September 24, 2026: missing LMU TC/ABS data fix."),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ace-companion-update-guidance",
+            Game = "Assetto Corsa EVO",
+            IsGuidanceOnly = true,
+            Issue = "SimPro startup conflicts and RaceHub display data",
+            Detection = "Check which companion app is running and distinguish an EVO startup failure from incorrect peripheral display data.",
+            RepairStrategy = "SIMAGIC documented an EVO startup/crash conflict with SimPro 3 in the older 3.0.3 release (May 7, 2026). Check the installed generation and current supported update. RaceHub 4.5.1 fixes EVO DRS data and uses core tyre temperature to match the simulator. Update the relevant vendor app manually and retest; these symptoms alone do not justify deleting EVO profiles.",
+            Safety = "Guidance only / manual vendor update or reversible check",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("SIMAGIC SimPro release notes", "SIMAGIC", "https://simagic.com/pages/download-center", "Historical 3.0.3 EVO startup fix; match generation and symptom."),
+                Ref("RaceHub 4.5.1 release notes", "Asetek Racing", "https://www.asetek.com/simsports/wp-content/uploads/2026/09/Release-Note-for-RaceHub-version-4.5.1.pdf", "EVO DRS and tyre-temperature display corrections."),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ams2-steam-input-guidance",
+            Game = "Automobilista 2",
+            IsGuidanceOnly = true,
+            Issue = "Wheel or paddles stop responding: Steam Input check",
+            Detection = "Manual check for a wheel/paddle input problem; not a generic crash diagnosis or an automatic setting change.",
+            RepairStrategy = "A Reiza staff response on September 20, 2026 recommends disabling Steam Input for AMS2 when a wheel or paddles stop working. Record the prior per-game setting, close AMS2, test the AMS2-only override, then retest steering and paddles. Restore the prior setting if ineffective. Do not change the global Steam setting or apply this automatically to gamepads. The thread does not confirm success on the original poster's PC.",
+            Safety = "Guidance only / manual vendor update or reversible check",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Wheel and paddles not working", "Reiza Studios staff", "https://forum.reizastudios.com/threads/my-wheel-and-paddles-simply-wont-work.36701/", "Staff-recommended A/B check; no confirmed outcome from the original poster."),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "simucube-tuner-update-guidance",
+            Game = "Simucube Tuner",
+            IsGuidanceOnly = true,
+            Issue = "Tuner startup GPU use, saving crashes and pedal mapping",
+            Detection = "Identify Simucube Tuner and its installed version manually. PitMedic's monitored True Drive process set is separate and does not detect or restart Tuner.",
+            RepairStrategy = "Tuner 3.1.4 (August 20, 2026) fixes high GPU use at Windows autostart and a saving crash after a wireless wheel disconnects. 3.1.5 (September 9) fixes swapped-pedal roles lost across restarts and some input-curve mapping failures. Compare the exact symptom and supported hardware, follow Simucube's manual update instructions, and retest. Do not use True Drive recovery for Tuner.",
+            Safety = "Guidance only / manual vendor update or reversible check",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Simucube Tuner changelog", "Simucube", "https://docs.simucube.com/TunerSoftware/changelog.html", "Version-specific fixes; Tuner guidance does not extend True Drive recovery."),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "iracing-season4-update-guidance",
+            Game = "iRacing",
+            IsGuidanceOnly = true,
+            Issue = "Reference Car Input display and spotter audio fixes",
+            Detection = "Compare the iRacing build and exact display/audio symptom. These patch notes do not provide a crash signature.",
+            RepairStrategy = "2026 Season 4 Patch 1 (build 2026.10.01.01) fixes Reference Car Input display problems with foveated quad views or triple screens and spotter audio stopping. For these symptoms on older builds, use the supported updater and retest before resetting renderer or audio settings. Let updates finish; preserve unrelated crash evidence.",
+            Safety = "Guidance only / manual vendor update or reversible check",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("2026 Season 4 Patch 1", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000179767-2026-season-4-patch-1-release-notes-2026-10-01-01-", "Specific reference-input display and spotter fixes in build 2026.10.01.01."),
+            }
+        },
     };
+
+    public static IReadOnlyList<KnowledgeEntry> GuidanceForProduct(string product) =>
+        Entries.Where(entry => entry.IsGuidanceOnly && entry.Game.Equals(product, StringComparison.OrdinalIgnoreCase)).ToArray();
 
     public static KnowledgeEntry? Find(string id) => Entries.FirstOrDefault(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
 

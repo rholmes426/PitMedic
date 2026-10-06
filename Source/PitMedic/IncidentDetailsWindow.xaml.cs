@@ -40,6 +40,8 @@ public partial class IncidentDetailsWindow : Window
         ConfigureRepairWork();
         ConfigureTiming();
 
+        VendorGuidanceList.ItemsSource = details.VendorGuidance;
+        VendorGuidanceCard.Visibility = details.VendorGuidance.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         ReferencesList.ItemsSource = details.References;
         ReferencesCard.Visibility = details.References.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         DiagnosticLibraryButton.Visibility = _diagnosticLibraryUrl is null ? Visibility.Collapsed : Visibility.Visible;

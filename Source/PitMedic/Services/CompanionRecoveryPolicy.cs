@@ -47,7 +47,7 @@ public static class CompanionRecoveryPolicy
             "companion-fanatec-process-recovery",
             "Recover Fanatec software",
             "Confirmed app fault and process-set recovery",
-            "Fanatec instructs removing the Fanatec App before choosing legacy Driver/Control Panel and FanaLab; follow vendor instructions manually. For CSL DD or GT DD Pro oscillation after leaving RaceRoom menus, consult the official 1.5.4.1 hotfix notes and current supported update. PitMedic does not uninstall software or change drivers, firmware, or profiles. PitMedic closes the Fanatec app, Control Panel, and FanaLab process set, relaunches the validated installed app, and verifies that it stays running.",
+            "Fanatec instructs removing the Fanatec App before choosing legacy Driver/Control Panel and FanaLab; follow vendor instructions manually. For CSL DD or GT DD Pro oscillation after leaving RaceRoom menus, consult the official 1.5.4.2 release notes (including the 1.5.4.1 hotfix) and current supported update. PitMedic does not uninstall software or change drivers, firmware, or profiles. PitMedic closes the Fanatec app, Control Panel, and FanaLab process set, relaunches the validated installed app, and verifies that it stays running.",
             new[]
             {
                 "Confirm every supported simulator is closed",
@@ -76,7 +76,7 @@ public static class CompanionRecoveryPolicy
             "companion-simagic-clean-recovery",
             "Recover SIMAGIC SimPro Manager",
             "SimPro 2/3 conflict, daemon, crash, and stale-process recovery",
-            "For display or game-data problems, check the installed generation and supported hardware: SimPro 3.2.0 (August 19, 2026) improved DPI scaling, stability and EVO data; 3.2.1 (August 25) corrected scaling, iRacing left-rear tyre temperature/left-front wear, and Alpha angle-display stutter. Follow SIMAGIC's update instructions manually. Never run recovery during a firmware update or when its completion is uncertain. PitMedic closes the known SimPro 2, SimPro 3, and SimPro daemon process set, relaunches the validated installed generation, and verifies that it stays running. PitMedic does not flash firmware, downgrade, recalibrate or change profiles.",
+            "SimPro 3.2.2 (September 22, 2026) fixes repeated Windows Reliability Monitor app-failure reports and shutdown error prompts. For matching symptoms, compare your installed version and review the supported manual update; preserve genuine fault evidence. For display or game-data problems, check the installed generation and supported hardware: SimPro 3.2.0 (August 19, 2026) improved DPI scaling, stability and EVO data; 3.2.1 (August 25) corrected scaling, iRacing left-rear tyre temperature/left-front wear, and Alpha angle-display stutter. Follow SIMAGIC's update instructions manually. Never run recovery during a firmware update or when its completion is uncertain. PitMedic closes the known SimPro 2, SimPro 3, and SimPro daemon process set, relaunches the validated installed generation, and verifies that it stays running. PitMedic does not flash firmware, downgrade, recalibrate or change profiles.",
             new[]
             {
                 "Confirm every supported simulator is closed",
@@ -89,7 +89,7 @@ public static class CompanionRecoveryPolicy
             "companion-asetek-clean-recovery",
             "Recover Asetek RaceHub",
             "RaceHub app and elevated-helper clean recovery",
-            "PitMedic closes the RaceHub app and its known elevated helper, relaunches the validated installed app, and verifies that it stays running.",
+            "RaceHub 4.5.1 (September 24, 2026) fixes steering-wheel input stopping after a rotary is turned, missing LMU TC/ABS data and EVO DRS data. Compare your version and exact symptom, follow Asetek's supported update manually, then retest the control or display. PitMedic closes the RaceHub app and its known elevated helper, relaunches the validated installed app, and verifies that it stays running.",
             new[]
             {
                 "Confirm every supported simulator is closed",
