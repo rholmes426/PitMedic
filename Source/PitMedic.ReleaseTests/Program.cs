@@ -243,9 +243,17 @@ foreach (var guidance in RepairKnowledgeBase.Entries.Where(entry => entry.IsGuid
     var incident = new IncidentRecord
     {
         Game = guidance.Game,
-        Classification = new CrashClassification("Finding captured for review", 0, "Manual guidance", new[] { guidance.Issue, guidance.RepairStrategy })
+        IncidentFolder = Path.Combine(Path.GetTempPath(), "PitMedic-guidance-test-" + Guid.NewGuid().ToString("N")),
+        Classification = new CrashClassification("Unknown", 0, "No identified cause", Array.Empty<string>())
     };
-    AssertTrue(RepairPlanner.TryCreateFromIncident(incident) is null, "Vendor notes alone must not select an automatic repair.");
+    var originalPlan = RepairPlanner.TryCreateFromIncident(incident);
+    var details = IncidentDetailsService.Build(incident);
+    AssertTrue(originalPlan is null && details.RepairPlan is null, "Displaying vendor guidance must not create a repair.");
+    AssertTrue(details.VendorGuidance.Contains(guidance), "Finding review must include guidance for the affected product.");
+    AssertTrue(ReferenceEquals(details.Incident.Classification, incident.Classification)
+        && details.Incident.Classification.Evidence.Count == 0, "Vendor guidance must not become diagnosis or crash evidence.");
+    AssertTrue(guidance.References.All(reference => details.References.Any(item => item.Url == reference.Url)),
+        "Finding review must retain the guidance source citations.");
 }
 AssertTrue(RepairKnowledgeBase.GuidanceForProduct("Assetto Corsa Competizione").Count == 0,
     "EVO companion guidance must not leak into ACC findings.");
