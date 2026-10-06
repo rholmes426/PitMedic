@@ -224,7 +224,7 @@ finally
 }
 
 AssertTrue(
-    RepairKnowledgeBase.Entries.Count == 53,
+    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly) == 53,
     "Every simulator repair implemented for this release must have a formal knowledge record.");
 AssertTrue(
     RepairKnowledgeBase.DiagnosticLibraryUrlForPlan("ams2-controller-reset")
@@ -234,6 +234,23 @@ AssertTrue(
     RepairKnowledgeBase.DiagnosticLibraryUrlForPlan("companion-moza-clean-recovery")
         == "https://pitmedic.com/diagnostic-library/companion-moza-clean-recovery/",
     "Companion recovery plans must deep-link to their Diagnostic Library page.");
+
+
+foreach (var guidance in RepairKnowledgeBase.Entries.Where(entry => entry.IsGuidanceOnly))
+{
+    AssertTrue(guidance.Signatures.Count == 0, "Vendor guidance must not introduce detector signatures.");
+    AssertTrue(RepairKnowledgeBase.GuidanceForProduct(guidance.Game).Contains(guidance), "Guidance must be available for its own product.");
+    var incident = new IncidentRecord
+    {
+        Game = guidance.Game,
+        Classification = new CrashClassification("Finding captured for review", 0, "Manual guidance", new[] { guidance.Issue, guidance.RepairStrategy })
+    };
+    AssertTrue(RepairPlanner.TryCreateFromIncident(incident) is null, "Vendor notes alone must not select an automatic repair.");
+}
+AssertTrue(RepairKnowledgeBase.GuidanceForProduct("Assetto Corsa Competizione").Count == 0,
+    "EVO companion guidance must not leak into ACC findings.");
+AssertTrue(RepairKnowledgeBase.GuidanceForProduct("Simucube True Drive").Count == 0,
+    "Tuner guidance must not be presented as True Drive recovery.");
 
 AssertTrue(
     CompanionRecoveryPolicy.Supported.Count == CompanionSoftwareDefinition.Supported.Count,

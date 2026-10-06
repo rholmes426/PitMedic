@@ -1,5 +1,12 @@
 # PitMedic project handoff
 
+October 5: Owner authorized the 1.0.0.8 signed app/website release including recent
+fixes and guidance. PR #134 now implements the six research groups, five new
+manual guidance records, finding-review display and 28 Scout sources. Analytics dependency
+updates remain separate after an automatic approval block. Public baseline remains 1.0.0.7 until protected publication completes.
+Tuner monitoring, firmware-state detection, inaccessible source evidence and the
+separate Neon function deployment are not claimed complete. See PENDING-UPDATES.md.
+
 This file is the working brief for another coding assistant, including GitHub Copilot.
 The repository is the source of truth for code, tests, issues, pull requests, release
 workflows, and queued work. Read this file together with `CONTRIBUTING.md`,

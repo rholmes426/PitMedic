@@ -25,5 +25,6 @@ public sealed record IncidentDetailsData
     public DateTimeOffset? RepairUpdated { get; init; }
     public IReadOnlyList<string> ResolutionActions { get; init; } = Array.Empty<string>();
     public IReadOnlyList<IncidentRepairAction> RepairActivity { get; init; } = Array.Empty<IncidentRepairAction>();
+    public IReadOnlyList<KnowledgeEntry> VendorGuidance { get; init; } = Array.Empty<KnowledgeEntry>();
     public IReadOnlyList<RepairReference> References { get; init; } = Array.Empty<RepairReference>();
 }

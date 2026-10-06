@@ -90,7 +90,7 @@ def parse_simulator_entries() -> list[dict[str, object]]:
         signatures = re.findall(r'"((?:[^"\\]|\\.)*)"', signatures_match.group(1)) if signatures_match else []
         entries.append({
             "id": field(block, "Id"),
-            "displayKind": "Simulator repair",
+            "displayKind": "Diagnostic guidance" if "IsGuidanceOnly = true" in block else "Simulator repair",
             "product": field(block, "Game"),
             "issue": field(block, "Issue"),
             "detection": field(block, "Detection"),
@@ -237,7 +237,7 @@ def page_footer() -> str:
 
 def repair_label(safety: str) -> str:
     lower = safety.lower()
-    if "diagnostic" in lower or "community-derived" in lower:
+    if "guidance only" in lower or "diagnostic" in lower or "community-derived" in lower:
         return "Guided diagnosis"
     if "ask" in lower or "significant" in lower or "approval required" in lower:
         return "Approval required"
@@ -267,6 +267,7 @@ def breadcrumbs(items: list[tuple[str, str | None]]) -> tuple[str, dict[str, obj
 
 
 def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, object]], destination: Path) -> None:
+    is_guidance = entry["status"] == "guidance"
     issue = str(entry["issue"])
     product = str(entry["product"])
     is_companion = entry["displayKind"] == "Companion software repair"
@@ -350,15 +351,15 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
       <p class="library-product">{esc(product)}</p>
       <h1>{esc(display_issue)}</h1>
       <p>{esc(intro)}</p>
-      <div class="issue-status"><span>{esc(repair_label(str(entry["safety"])))}</span><span>Active</span><span>Evidence reviewed {esc(entry["lastVerified"])}</span><span>Guide updated {esc(editorial["modified"])}</span></div>
+      <div class="issue-status"><span>{esc(repair_label(str(entry["safety"])))}</span><span>{"Guidance" if is_guidance else "Active"}</span><span>Evidence reviewed {esc(entry["lastVerified"])}</span><span>Guide updated {esc(editorial["modified"])}</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
-{explanation_html}        <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>{esc(entry["detection"])}</p>{details}</section>
-        <section class="diagnostic-card"><h2>Built-in response</h2><p>{esc(entry["repair"])}</p><div class="safety-note"><strong>Repair safety</strong><span>{esc(entry["safety"])}</span></div></section>
+{explanation_html}        <section class="diagnostic-card"><h2>{"When to consider this guidance" if is_guidance else "How PitMedic recognizes it"}</h2><p>{esc(entry["detection"])}</p>{details}</section>
+        <section class="diagnostic-card"><h2>{"Suggested manual checks" if is_guidance else "Built-in response"}</h2><p>{esc(entry["repair"])}</p><div class="safety-note"><strong>Repair safety</strong><span>{esc(entry["safety"])}</span></div></section>
 {examples_html}        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list">{source_items}</ul></section>
       </div>
-      <aside class="library-aside"><h2>Let PitMedic check it</h2><p>PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.</p><a class="button button-primary" href="{RELEASE_URL}">Download v{RELEASE_VERSION}</a>{product_link}<small>Free and open source · Windows 10/11</small></aside>
+      <aside class="library-aside"><h2>{"Compare your symptoms" if is_guidance else "Let PitMedic check it"}</h2><p>{"This is version-specific guidance for manual review. It does not add automatic detection or a repair action." if is_guidance else "PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present."}</p><a class="button button-primary" href="{RELEASE_URL}">Download v{RELEASE_VERSION}</a>{product_link}<small>Free and open source · Windows 10/11</small></aside>
     </div>
     <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>{"Other companion software recoveries" if is_companion else "More for " + esc(product)}</h2><div>{related_html}</div></nav>
   </article>
@@ -370,7 +371,7 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
 
 def write_index(entries: list[dict[str, object]], destination: Path) -> None:
     canonical = f"{BASE_URL}/diagnostic-library/"
-    description = "Browse 60 sim-racing troubleshooting guides for iRacing, Le Mans Ultimate, ACC, AMS2, RaceRoom, Assetto Corsa EVO, and companion software."
+    description = f"Browse {len(entries)} sim-racing troubleshooting guides for iRacing, Le Mans Ultimate, ACC, AMS2, RaceRoom, Assetto Corsa EVO, and companion software."
     crumb_html, crumb_schema = breadcrumbs([("Home", "/"), ("Diagnostic Library", None)])
     products = sorted({str(entry["product"]) for entry in entries})
     product_options = "".join(f'<option value="{esc(product.lower())}">{esc(product)}</option>' for product in products)
@@ -401,8 +402,8 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
     <header class="library-hero library-index-hero">
       <span class="section-kicker">Built into PitMedic</span>
       <h1>PitMedic Diagnostic Library</h1>
-      <p>Search known sim-racing errors, launch failures, crashes, configuration problems, and companion-software issues. Each guide explains the evidence PitMedic checks and the safe response available in the app.</p>
-      <div class="library-count"><strong>{len(entries)}</strong><span>active diagnostic and repair records</span></div>
+      <p>Search known sim-racing errors, launch failures, crashes, configuration problems, and companion-software issues. Each guide explains diagnostic evidence, available repairs, or version-specific manual checks.</p>
+      <div class="library-count"><strong>{len(entries)}</strong><span>diagnostic, repair and guidance records</span></div>
     </header>
     <nav class="library-topics" aria-label="Browse troubleshooting guides by simulator">
       <a href="?software=iracing#library-results" data-product-filter="iracing"><strong>iRacing troubleshooting</strong><span>Loading errors, updates, UI, services, and anti-cheat</span></a>
@@ -528,8 +529,8 @@ def write_sitemap(entries: list[dict[str, object]], path: Path) -> None:
 
 def generate(destination: Path, sitemap: Path) -> None:
     entries = load_entries()
-    if len(entries) != 60:
-        raise ValueError(f"Expected 60 public records, found {len(entries)}")
+    if len({entry["id"] for entry in entries}) != len(entries):
+        raise ValueError("Duplicate diagnostic record IDs")
     destination.mkdir(parents=True, exist_ok=True)
     write_index(entries, destination)
     write_public_json(entries, destination)
@@ -546,7 +547,7 @@ def main() -> int:
         if OUTPUT.exists():
             shutil.rmtree(OUTPUT)
         generate(OUTPUT, WEBSITE / "sitemap.xml")
-        print("Generated 60 Diagnostic Library records.")
+        print(f"Generated {len(load_entries())} Diagnostic Library records.")
         return 0
 
     with tempfile.TemporaryDirectory() as temp:

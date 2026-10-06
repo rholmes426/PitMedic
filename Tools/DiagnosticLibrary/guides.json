@@ -284,16 +284,20 @@
     "limits": "The error code alone does not identify ReShade. Do not remove arbitrary DLLs, use third-party DLL downloads, or replace Windows runtime files."
   },
   "lmu-online-clock-eac": {
-    "modified": "2026-09-29",
+    "modified": "2026-10-05",
     "intro": "An online join failure needs different checks from a local loading crash. Establish whether LMU can run an offline session before changing connection settings.",
     "meaning": "An online join failure needs different checks from a local loading crash. Establish whether LMU can run an offline session before changing connection settings.",
     "checks": [
+      "LMU 1.4.2 fixes shared-memory threading and specific temporary-car, car-position and session-join crashes. 1.4.2.1 fixes long synchronization into team events. For matching symptoms on older builds, review the supported update before resetting configuration. Missing TC/ABS data in RaceHub is separately addressed by RaceHub 4.5.1. Preserve evidence and retest the same session.",
       "Compare an offline session with the affected online join and record the server and time of failure.",
       "Check Windows date, time, and time-zone settings, and use the supported LMU launch path.",
       "Review Studio 397 service information and shipped update notes for the specific symptom; an announced fix is not evidence that it shipped."
     ],
     "result": "Retry the same online session after correcting a confirmed local issue. If offline play works but joining still fails, retain the exact message and timestamps for support.",
-    "limits": "This is guided diagnosis. It does not justify broad network resets, security changes, or content deletion; online warping and a local application crash may have different causes."
+    "limits": "This is guided diagnosis. It does not justify broad network resets, security changes, or content deletion; online warping and a local application crash may have different causes.",
+    "related": [
+      "lmu-vendor-update-guidance"
+    ]
   },
   "iracing-helper-service": {
     "modified": "2026-09-29",
@@ -506,16 +510,20 @@
     ]
   },
   "iracing-renderer-config": {
-    "modified": "2026-09-29",
+    "modified": "2026-10-05",
     "intro": "A failed iRacing Graphics Config or damaged renderer settings can justify a targeted configuration rebuild. First check whether the exact crash is already addressed by a shipped iRacing update.",
     "meaning": "A failed iRacing Graphics Config or damaged renderer settings can justify a targeted configuration rebuild. First check whether the exact crash is already addressed by a shipped iRacing update.",
     "checks": [
+      "For Reference Car Input problems with foveated quad views or triples, check the fix in build 2026.10.01.01 before assuming renderer configuration damage.",
       "Record the iRacing build and whether the failure occurs in Graphics Config, while minimizing, or during replay controls.",
       "Compare that symptom and build with the linked vendor release notes before resetting renderer settings.",
       "With iRacing closed, preserve rendererDX11*.ini and note monitor arrangement, resolution, and VR choices."
     ],
     "result": "Run graphics configuration again and repeat the specific action that failed. Restore personal display choices selectively, checking whether the problem returns.",
-    "limits": "A GPU-driver or hardware fault is not repaired by regenerating renderer settings. The original community reset evidence and official version-specific fixes support different claims; neither establishes the cause of an unmatched crash."
+    "limits": "A GPU-driver or hardware fault is not repaired by regenerating renderer settings. The original community reset evidence and official version-specific fixes support different claims; neither establishes the cause of an unmatched crash.",
+    "related": [
+      "iracing-season4-update-guidance"
+    ]
   },
   "ace-video-settings": {
     "modified": "2026-09-29",
@@ -647,16 +655,20 @@
     "limits": "Only the implicated VR XML files belong in this reset. It does not replace the VR runtime or reset unrelated controller data."
   },
   "ams2-controller-config": {
-    "modified": "2026-09-29",
+    "modified": "2026-10-05",
     "intro": "AMS2 bindings may need to be rebuilt when controller configuration fails after a USB, driver, or device change.",
     "meaning": "AMS2 bindings may need to be rebuilt when controller configuration fails after a USB, driver, or device change.",
     "checks": [
+      "A Reiza staff response on September 20, 2026 recommends disabling Steam Input for AMS2 when a wheel or paddles stop working. Record the prior per-game setting, close AMS2, test the AMS2-only override, then retest steering and paddles. Restore the prior setting if ineffective. Do not change the global Steam setting or apply this automatically to gamepads. The thread does not confirm success on the original poster's PC.",
       "Check device visibility in Windows and record the wheel/pedal connections before blaming the saved configuration.",
       "Close Automobilista 2 and preserve default.controllersettings.v1.03.sav before removing its active copy.",
       "Note the settings you will need to re-enter and change only the identified file or files."
     ],
     "result": "Relaunch Automobilista 2, review the rebuilt settings, and repeat the original action. Confirm that new bindings and calibration work for steering, pedals, and buttons in a test session. If it does not help, keep the new evidence and use the backup to restore the previous configuration with the simulator closed.",
-    "limits": "You must remap and calibrate controls. A reset does not repair a missing device or guarantee stable USB enumeration."
+    "limits": "You must remap and calibrate controls. A reset does not repair a missing device or guarantee stable USB enumeration.",
+    "related": [
+      "ams2-steam-input-guidance"
+    ]
   },
   "ams2-ffb-custom": {
     "modified": "2026-09-29",
@@ -907,23 +919,28 @@
     "limits": "Existing championship progress may be unavailable during this test. Rebuilding mode state does not guarantee recovery of a damaged championship and does not justify removing unrelated profile files."
   },
   "companion-simucube-clean-recovery": {
-    "modified": "2026-09-29",
+    "modified": "2026-10-05",
     "intro": "A confirmed Simucube True Drive application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
     "meaning": "A confirmed Simucube True Drive application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
     "checks": [
+      "If you use Simucube Tuner, consult its separate version-specific guide. True Drive process recovery does not monitor or restart Tuner.",
       "Close every supported simulator and save any work in the companion app.",
       "Confirm the installed application is True Drive; do not assume a True Drive recovery applies to Simucube Tuner.",
       "Do not restart device software during firmware flashing or while an update’s completion is uncertain.",
       "Check the installed executable location before relaunching; retain the exact crash time and message if the app fails again."
     ],
     "result": "Simucube True Drive should relaunch from its validated installed location and remain running. Check device visibility and expected controls before entering a session. If the app closes again, preserve the new error for vendor support.",
-    "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue."
+    "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue.",
+    "related": [
+      "simucube-tuner-update-guidance"
+    ]
   },
   "companion-fanatec-process-recovery": {
-    "modified": "2026-09-29",
+    "modified": "2026-10-05",
     "intro": "A confirmed Fanatec software application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
     "meaning": "A confirmed Fanatec software application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
     "checks": [
+      "Consult the official 1.5.4.2 release notes for the included 1.5.4.1 CSL DD / GT DD Pro menu-return oscillation fix. Driver and firmware updates remain manual.",
       "Close every supported simulator and save any work in the companion app.",
       "Record whether you use the Fanatec App or legacy Driver/Control Panel and FanaLab. Use the vendor’s compatibility guidance before switching between them.",
       "Do not restart device software during firmware flashing or while an update’s completion is uncertain.",
@@ -957,30 +974,38 @@
     ]
   },
   "companion-simagic-clean-recovery": {
-    "modified": "2026-09-29",
+    "modified": "2026-10-05",
     "intro": "A confirmed SIMAGIC SimPro Manager application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
     "meaning": "A confirmed SIMAGIC SimPro Manager application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
     "checks": [
+      "For repeated Windows Reliability Monitor failures or shutdown prompts, compare SimPro with 3.2.2 (September 22, 2026). Review hardware compatibility and the manual vendor update; preserve genuine fault evidence.",
       "Close every supported simulator and save any work in the companion app.",
       "Record the installed SimPro generation and check for both SimPro 2/3 or daemon processes. Confirm firmware flashing has completed; if completion is uncertain, stop.",
       "Do not restart device software during firmware flashing or while an update’s completion is uncertain.",
       "Check the installed executable location before relaunching; retain the exact crash time and message if the app fails again."
     ],
     "result": "SIMAGIC SimPro Manager should relaunch from its validated installed location and remain running. Check device visibility and expected controls before entering a session. If the app closes again, preserve the new error for vendor support.",
-    "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue. PitMedic has no proven automatic firmware-state guard; the user must confirm that flashing is not active or uncertain."
+    "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue. PitMedic has no proven automatic firmware-state guard; the user must confirm that flashing is not active or uncertain.",
+    "related": [
+      "ace-companion-update-guidance"
+    ]
   },
   "companion-asetek-clean-recovery": {
-    "modified": "2026-09-29",
+    "modified": "2026-10-05",
     "intro": "A confirmed Asetek RaceHub application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
     "meaning": "A confirmed Asetek RaceHub application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
     "checks": [
+      "RaceHub 4.5.1 (September 24, 2026) fixes input stopping after rotary movement, missing LMU TC/ABS and EVO DRS data. Match the symptom and installed version, then update manually and retest.",
       "Close every supported simulator and save any work in the companion app.",
       "Identify the installed RaceHub app and its known helper; review any prompt needed to close the elevated helper.",
       "Do not restart device software during firmware flashing or while an update’s completion is uncertain.",
       "Check the installed executable location before relaunching; retain the exact crash time and message if the app fails again."
     ],
     "result": "Asetek RaceHub should relaunch from its validated installed location and remain running. Check device visibility and expected controls before entering a session. If the app closes again, preserve the new error for vendor support.",
-    "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue."
+    "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue.",
+    "related": [
+      "lmu-vendor-update-guidance"
+    ]
   },
   "companion-vrs-clean-recovery": {
     "modified": "2026-09-29",
@@ -994,5 +1019,101 @@
     ],
     "result": "VRS DirectForce should relaunch from its validated installed location and remain running. Check device visibility and expected controls before entering a session. If the app closes again, preserve the new error for vendor support.",
     "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue."
+  },
+  "lmu-vendor-update-guidance": {
+    "heading": "Released crash, team-sync and RaceHub data fixes",
+    "modified": "2026-10-05",
+    "title": "Released crash, team-sync and RaceHub data fixes | PitMedic",
+    "description": "Compare the installed LMU build and session context; a generic crash or long join does not establish a vendor-known cause.",
+    "intro": "LMU 1.4.2 fixes shared-memory threading and specific temporary-car, car-position and session-join crashes. 1.4.2.1 fixes long synchronization into team events. For matching symptoms on older builds, review the supported update before resetting configuration. Missing TC/ABS data in RaceHub is separately addressed by RaceHub 4.5.1. Preserve evidence and retest the same session.",
+    "meaning": "Compare the installed LMU build and session context; a generic crash or long join does not establish a vendor-known cause.",
+    "checks": [
+      "Record the LMU build and whether the problem occurs in hosted/practice sessions, during a session join, or while syncing into a team event.",
+      "For an older affected build, use the supported update and retry the same car, track and session type.",
+      "If only RaceHub TC/ABS data is missing, compare the RaceHub version with 4.5.1 before changing LMU settings."
+    ],
+    "result": "Repeat the affected scenario after the supported update or reversible check. If it persists, preserve logs and contact the relevant vendor; this guide does not promise a successful repair.",
+    "limits": "Guidance only. PitMedic does not update vendor software, flash firmware, delete profiles or change these settings automatically. An unknown version or generic failure is not proof of a match.",
+    "related": [
+      "lmu-online-clock-eac",
+      "lmu-content-corruption",
+      "companion-asetek-clean-recovery"
+    ]
+  },
+  "ace-companion-update-guidance": {
+    "heading": "SimPro startup conflicts and RaceHub display data",
+    "modified": "2026-10-05",
+    "title": "SimPro startup conflicts and RaceHub display data | PitMedic",
+    "description": "Check which companion app is running and distinguish an EVO startup failure from incorrect peripheral display data.",
+    "intro": "SIMAGIC documented an EVO startup/crash conflict with SimPro 3 in the older 3.0.3 release (May 7, 2026). Check the installed generation and current supported update. RaceHub 4.5.1 fixes EVO DRS data and uses core tyre temperature to match the simulator. Update the relevant vendor app manually and retest; these symptoms alone do not justify deleting EVO profiles.",
+    "meaning": "Check which companion app is running and distinguish an EVO startup failure from incorrect peripheral display data.",
+    "checks": [
+      "Record the EVO build, installed SimPro or RaceHub version, and whether the problem concerns startup or only peripheral data.",
+      "Review vendor hardware compatibility and the supported update path; never interrupt firmware flashing.",
+      "Retest the same launch or DRS/temperature display after the vendor update. Preserve settings and captured faults."
+    ],
+    "result": "Repeat the affected scenario after the supported update or reversible check. If it persists, preserve logs and contact the relevant vendor; this guide does not promise a successful repair.",
+    "limits": "Guidance only. PitMedic does not update vendor software, flash firmware, delete profiles or change these settings automatically. An unknown version or generic failure is not proof of a match.",
+    "related": [
+      "ace-video-settings",
+      "companion-simagic-clean-recovery",
+      "companion-asetek-clean-recovery"
+    ]
+  },
+  "ams2-steam-input-guidance": {
+    "heading": "Wheel or paddles stop responding: Steam Input check",
+    "modified": "2026-10-05",
+    "title": "Wheel or paddles stop responding: Steam Input check | PitMedic",
+    "description": "Manual check for a wheel/paddle input problem; not a generic crash diagnosis or an automatic setting change.",
+    "intro": "A Reiza staff response on September 20, 2026 recommends disabling Steam Input for AMS2 when a wheel or paddles stop working. Record the prior per-game setting, close AMS2, test the AMS2-only override, then retest steering and paddles. Restore the prior setting if ineffective. Do not change the global Steam setting or apply this automatically to gamepads. The thread does not confirm success on the original poster's PC.",
+    "meaning": "Manual check for a wheel/paddle input problem; not a generic crash diagnosis or an automatic setting change.",
+    "checks": [
+      "Confirm the wheel and paddles register in the vendor software, and note the current AMS2 bindings.",
+      "In Steam Library, open Automobilista 2 > Properties > Controller. Record the existing override before testing Disable Steam Input for this game.",
+      "Start AMS2 and test steering plus both paddles. If it does not help, restore the recorded override before investigating controller-file damage."
+    ],
+    "result": "Repeat the affected scenario after the supported update or reversible check. If it persists, preserve logs and contact the relevant vendor; this guide does not promise a successful repair.",
+    "limits": "Guidance only. PitMedic does not update vendor software, flash firmware, delete profiles or change these settings automatically. An unknown version or generic failure is not proof of a match.",
+    "related": [
+      "ams2-controller-config",
+      "ams2-ffb-custom"
+    ]
+  },
+  "simucube-tuner-update-guidance": {
+    "heading": "Tuner startup GPU use, saving crashes and pedal mapping",
+    "modified": "2026-10-05",
+    "title": "Tuner startup GPU use, saving crashes and pedal mapping | PitMedic",
+    "description": "Identify Simucube Tuner and its installed version manually. PitMedic's monitored True Drive process set is separate and does not detect or restart Tuner.",
+    "intro": "Tuner 3.1.4 (August 20, 2026) fixes high GPU use at Windows autostart and a saving crash after a wireless wheel disconnects. 3.1.5 (September 9) fixes swapped-pedal roles lost across restarts and some input-curve mapping failures. Compare the exact symptom and supported hardware, follow Simucube's manual update instructions, and retest. Do not use True Drive recovery for Tuner.",
+    "meaning": "Identify Simucube Tuner and its installed version manually. PitMedic's monitored True Drive process set is separate and does not detect or restart Tuner.",
+    "checks": [
+      "Confirm the application is Tuner and record its version and the affected wheelbase, wireless wheel or pedals.",
+      "Compare the symptom with 3.1.4 or 3.1.5. Review the current supported release and preserve profiles before following vendor update instructions.",
+      "After the update, repeat the affected startup, save-after-disconnect or pedal-role restart scenario. Do not deliberately interrupt a firmware update."
+    ],
+    "result": "Repeat the affected scenario after the supported update or reversible check. If it persists, preserve logs and contact the relevant vendor; this guide does not promise a successful repair.",
+    "limits": "Guidance only. PitMedic does not update vendor software, flash firmware, delete profiles or change these settings automatically. An unknown version or generic failure is not proof of a match.",
+    "related": [
+      "companion-simucube-clean-recovery"
+    ]
+  },
+  "iracing-season4-update-guidance": {
+    "heading": "Reference Car Input display and spotter audio fixes",
+    "modified": "2026-10-05",
+    "title": "Reference Car Input display and spotter audio fixes | PitMedic",
+    "description": "Compare the iRacing build and exact display/audio symptom. These patch notes do not provide a crash signature.",
+    "intro": "2026 Season 4 Patch 1 (build 2026.10.01.01) fixes Reference Car Input display problems with foveated quad views or triple screens and spotter audio stopping. For these symptoms on older builds, use the supported updater and retest before resetting renderer or audio settings. Let updates finish; preserve unrelated crash evidence.",
+    "meaning": "Compare the iRacing build and exact display/audio symptom. These patch notes do not provide a crash signature.",
+    "checks": [
+      "Record the build, display configuration and whether Reference Car Input or the spotter is affected.",
+      "For an older build, let the official updater complete before repair or retest. Unknown build numbers do not prove that a fix is missing.",
+      "Retry the same display or spotter scenario. Preserve logs if it persists on the supported build instead of repeatedly resetting configuration."
+    ],
+    "result": "Repeat the affected scenario after the supported update or reversible check. If it persists, preserve logs and contact the relevant vendor; this guide does not promise a successful repair.",
+    "limits": "Guidance only. PitMedic does not update vendor software, flash firmware, delete profiles or change these settings automatically. An unknown version or generic failure is not proof of a match.",
+    "related": [
+      "iracing-renderer-config",
+      "iracing-update-verification"
+    ]
   }
 }

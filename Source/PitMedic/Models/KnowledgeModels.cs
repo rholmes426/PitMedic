@@ -4,6 +4,7 @@ public sealed record KnowledgeEntry
 {
     public string Id { get; init; } = string.Empty;
     public string Game { get; init; } = string.Empty;
+    public bool IsGuidanceOnly { get; init; }
     public string Issue { get; init; } = string.Empty;
     public string Detection { get; init; } = string.Empty;
     public string RepairStrategy { get; init; } = string.Empty;

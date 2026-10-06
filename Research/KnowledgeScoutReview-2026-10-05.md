@@ -1,6 +1,6 @@
 # Knowledge Scout and external-source review — October 5, 2026
 
-Status: research and proposed queue only. These are source-backed guidance candidates, not locally reproduced repairs or human approvals.
+Status at initial review: research and proposed queue only. The owner subsequently authorized implementation and publication on October 5. PR #134 implements the six guidance groups and citation/source updates; no locally reproduced automatic repair is claimed. See PENDING-UPDATES.md for validation and remaining investigations.
 
 ## Result
 

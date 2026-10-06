@@ -25,6 +25,7 @@ public static class CompanionSoftwareKnowledgeBase
             Official("Fanatec app telemetry no longer working", "Fanatec Support", "https://help.fanatec.com/hc/en-us/articles/47862678424593-The-game-telemetry-function-of-the-Fanatec-app-is-no-longer-working",
                 "Fanatec documents restarting the app as the first recovery when its telemetry feed stops or the app crashes."),
             Official("Fanatec App and legacy downloads", "Fanatec Support", "https://www.fanatec.com/ca/en/s/download-apps-driver", "Official compatibility guidance distinguishes the Fanatec App from legacy Driver/Control Panel and FanaLab."),
+            Official("Fanatec App 1.5.4.2 release notes", "Fanatec Support", "https://help.fanatec.com/hc/en-us/articles/50512683066513-Fanatec-App-v1-5-4-2-Release-Notes", "Current official record includes the 1.5.4.1 CSL DD / GT DD Pro oscillation fix. Driver and firmware changes remain manual."),
             Official("Fanatec App 1.5.4.1 hotfix", "Fanatec Team", "https://forum.fanatec.com/topic/20482-fanatec-app-v1541-hotfix/", "Official CSL DD and GT DD Pro fix for oscillation after returning from menus in RaceRoom and other named titles. Hardware updates remain manual.")
         },
         CompanionSoftwareKind.LogitechGHub => new[]
@@ -39,12 +40,13 @@ public static class CompanionSoftwareKnowledgeBase
         CompanionSoftwareKind.SimagicSimProManager => new[]
         {
             Official("SIMAGIC software download center", "SIMAGIC", "https://simagic.com/pages/download-center",
-                "SIMAGIC publishes current SimPro Manager builds and supported device families."),
+                "3.2.2 addresses repeated Windows app-failure reports and shutdown prompts; historical 3.0.3 addresses EVO startup conflicts. Check generation and hardware; all vendor updates remain manual."),
             Community("SimPro Manager suddenly turning off", "SIMAGIC Community", "https://www.reddit.com/r/Simagic/comments/1qgzd6o/simpro_manager_suddenly_turning_off_and_not/",
                 "Users repeatedly report a hidden/stale SimPro process preventing relaunch; closing the stale process restores the app.")
         },
         CompanionSoftwareKind.AsetekRaceHub => new[]
         {
+            Official("RaceHub 4.5.1 release notes", "Asetek Racing", "https://www.asetek.com/simsports/wp-content/uploads/2026/09/Release-Note-for-RaceHub-version-4.5.1.pdf", "Version-specific rotary-input, LMU TC/ABS and EVO display fixes; update and retest manually."),
             Official("RaceHub troubleshooting", "Asetek Racing", "https://www.asetek.com/simsports/knowledge-base/troubleshooting/",
                 "Asetek lists restarting RaceHub and updating it as the first software-side recovery steps."),
             Official("RaceHub log files", "Asetek Racing", "https://www.asetek.com/simsports/knowledge-base/how-to-find-serial-number-and-racehub-log-files/",

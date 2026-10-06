@@ -67,6 +67,11 @@
     { "id": "companion-logitech-ghub-service-recovery", "kind": "companion-repair", "status": "active", "lastVerified": "2026-09-01", "reviewCadenceDays": 180 },
     { "id": "companion-simagic-clean-recovery", "kind": "companion-repair", "status": "active", "lastVerified": "2026-09-01", "reviewCadenceDays": 180 },
     { "id": "companion-asetek-clean-recovery", "kind": "companion-repair", "status": "active", "lastVerified": "2026-09-01", "reviewCadenceDays": 180 },
-    { "id": "companion-vrs-clean-recovery", "kind": "companion-repair", "status": "active", "lastVerified": "2026-09-01", "reviewCadenceDays": 180 }
+    { "id": "companion-vrs-clean-recovery", "kind": "companion-repair", "status": "active", "lastVerified": "2026-09-01", "reviewCadenceDays": 180 },
+    {"id": "lmu-vendor-update-guidance", "kind": "simulator-guidance", "status": "guidance", "lastVerified": "2026-10-05", "reviewCadenceDays": 180},
+    {"id": "ace-companion-update-guidance", "kind": "simulator-guidance", "status": "guidance", "lastVerified": "2026-10-05", "reviewCadenceDays": 180},
+    {"id": "ams2-steam-input-guidance", "kind": "simulator-guidance", "status": "guidance", "lastVerified": "2026-10-05", "reviewCadenceDays": 180},
+    {"id": "simucube-tuner-update-guidance", "kind": "companion-guidance", "status": "guidance", "lastVerified": "2026-10-05", "reviewCadenceDays": 180},
+    {"id": "iracing-season4-update-guidance", "kind": "simulator-guidance", "status": "guidance", "lastVerified": "2026-10-05", "reviewCadenceDays": 180}
   ]
 }

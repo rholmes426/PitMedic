@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SimPro startup conflicts and RaceHub display data | PitMedic</title>
+  <meta name="description" content="Check which companion app is running and distinguish an EVO startup failure from incorrect peripheral display data." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://pitmedic.com/diagnostic-library/ace-companion-update-guidance/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="PitMedic" />
+  <meta property="og:title" content="SimPro startup conflicts and RaceHub display data | PitMedic" />
+  <meta property="og:description" content="Check which companion app is running and distinguish an EVO startup failure from incorrect peripheral display data." />
+  <meta property="og:url" content="https://pitmedic.com/diagnostic-library/ace-companion-update-guidance/" />
+  <meta property="og:image" content="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" />
+  <link rel="icon" href="/assets/brand/pitmedic-carbon-lime.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-carbon-lime.png" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Assetto Corsa EVO"}]},{"@type":"TechArticle","headline":"Assetto Corsa EVO: SimPro startup conflicts and RaceHub display data","description":"Check which companion app is running and distinguish an EVO startup failure from incorrect peripheral display data.","url":"https://pitmedic.com/diagnostic-library/ace-companion-update-guidance/","dateModified":"2026-10-05","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Assetto Corsa EVO"}]}</script>
+</head>
+<body>
+<main>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="PitMedic home"><img src="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" alt="" /><span>Pit<em>Medic</em></span></a>
+    <nav aria-label="Primary navigation"><a href="/#how-it-works">How it works</a><a href="/#simulators">Simulators</a><a class="active" href="/diagnostic-library/">Diagnostic Library</a><a href="/#about">About</a></nav>
+    <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-cta" href="/">Home</a></div>
+  </header>
+  <article class="library-page issue-page">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><a href="/diagnostic-library/">Diagnostic Library</a><span>›</span><span>Assetto Corsa EVO</span></nav>
+    <header class="library-hero">
+      <span class="section-kicker">Diagnostic guidance</span>
+      <p class="library-product">Assetto Corsa EVO</p>
+      <h1>SimPro startup conflicts and RaceHub display data</h1>
+      <p>SIMAGIC documented an EVO startup/crash conflict with SimPro 3 in the older 3.0.3 release (May 7, 2026). Check the installed generation and current supported update. RaceHub 4.5.1 fixes EVO DRS data and uses core tyre temperature to match the simulator. Update the relevant vendor app manually and retest; these symptoms alone do not justify deleting EVO profiles.</p>
+      <div class="issue-status"><span>Guided diagnosis</span><span>Guidance</span><span>Evidence reviewed 2026-10-05</span><span>Guide updated 2026-10-05</span></div>
+    </header>
+    <div class="diagnostic-layout">
+      <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2><p>Check which companion app is running and distinguish an EVO startup failure from incorrect peripheral display data.</p>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Record the EVO build, installed SimPro or RaceHub version, and whether the problem concerns startup or only peripheral data.</li><li>Review vendor hardware compatibility and the supported update path; never interrupt firmware flashing.</li><li>Retest the same launch or DRS/temperature display after the vendor update. Preserve settings and captured faults.</li></ul>
+          <h3>How to confirm the result</h3><p>Repeat the affected scenario after the supported update or reversible check. If it persists, preserve logs and contact the relevant vendor; this guide does not promise a successful repair.</p>
+          <h3>Repair limits and when to stop</h3><p>Guidance only. PitMedic does not update vendor software, flash firmware, delete profiles or change these settings automatically. An unknown version or generic failure is not proof of a match.</p>
+        </section>
+        <section class="diagnostic-card"><h2>When to consider this guidance</h2><p>Check which companion app is running and distinguish an EVO startup failure from incorrect peripheral display data.</p></section>
+        <section class="diagnostic-card"><h2>Suggested manual checks</h2><p>SIMAGIC documented an EVO startup/crash conflict with SimPro 3 in the older 3.0.3 release (May 7, 2026). Check the installed generation and current supported update. RaceHub 4.5.1 fixes EVO DRS data and uses core tyre temperature to match the simulator. Update the relevant vendor app manually and retest; these symptoms alone do not justify deleting EVO profiles.</p><div class="safety-note"><strong>Repair safety</strong><span>Guidance only / manual vendor update or reversible check</span></div></section>
+        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>SIMAGIC SimPro release notes</strong><span>SIMAGIC · Official source</span><p>Historical 3.0.3 EVO startup fix; match generation and symptom.</p></div><a href="https://simagic.com/pages/download-center" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>RaceHub 4.5.1 release notes</strong><span>Asetek Racing · Official source</span><p>EVO DRS and tyre-temperature display corrections.</p></div><a href="https://www.asetek.com/simsports/wp-content/uploads/2026/09/Release-Note-for-RaceHub-version-4.5.1.pdf" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+      </div>
+      <aside class="library-aside"><h2>Compare your symptoms</h2><p>This is version-specific guidance for manual review. It does not add automatic detection or a repair action.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.7/PitMedic-Setup-x64.exe">Download v1.0.0.7</a><a class="button button-secondary" href="/simulators/assetto-corsa-evo/">View Assetto Corsa EVO coverage</a><small>Free and open source · Windows 10/11</small></aside>
+    </div>
+    <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>More for Assetto Corsa EVO</h2><div><a href="/diagnostic-library/ace-video-settings/"><strong>Broken video settings / graphics startup state</strong><span>Automatic repair available</span></a><a href="/diagnostic-library/companion-simagic-clean-recovery/"><strong>Recover SIMAGIC SimPro Manager</strong><span>Approval required</span></a><a href="/diagnostic-library/companion-asetek-clean-recovery/"><strong>Recover Asetek RaceHub</strong><span>Approval required</span></a></div></nav>
+  </article>
+  <footer>
+    <a class="brand" href="/"><img src="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" alt="" /><span>Pit<em>Medic</em></span></a>
+    <p>A free open-source project for the sim-racing community.</p>
+    <div><a href="/diagnostic-library/">Diagnostic Library</a><a href="/#simulators">Simulators</a><a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a><a href="https://github.com/rholmes426/PitMedic">GitHub</a><a href="https://paypal.me/PitMedicApp">Support</a></div>
+  </footer>
+</main>
+<script defer src="/analytics.js"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5a4e361a3e0d4f838478d54e24d8f925"}'></script>
+</body>
+</html>

@@ -285,7 +285,7 @@
       "product": "Le Mans Ultimate",
       "issue": "Unable to join online sessions",
       "detection": "RaceControl connection/join failure without local loading crash; compare Windows time settings and EAC launch state.",
-      "repair": "For online warping or phantom collisions, check Studio 397's network updates before changing local settings. Its September 11 announcement planned a September 15 fix; that announcement alone does not confirm release or explain a local crash. Validate automatic Windows time/time-zone and detect EAC launch path; targeted content verification is a later step.",
+      "repair": "For online warping or phantom collisions, check Studio 397's network updates before changing local settings. Released 1.4.2 and 1.4.2.1 notes cover specific crashes and team-event synchronization; they do not establish a remedy for every warping or phantom-collision report. Validate automatic Windows time/time-zone and detect EAC launch path; targeted content verification is a later step.",
       "safety": "Diagnostic first; changes require confirmation",
       "signatures": [
         "join",
@@ -1645,6 +1645,142 @@
       "reviewCadenceDays": 180
     },
     {
+      "id": "lmu-vendor-update-guidance",
+      "displayKind": "Diagnostic guidance",
+      "product": "Le Mans Ultimate",
+      "issue": "Released crash, team-sync and RaceHub data fixes",
+      "detection": "Compare the installed LMU build and session context; a generic crash or long join does not establish a vendor-known cause.",
+      "repair": "LMU 1.4.2 fixes shared-memory threading and specific temporary-car, car-position and session-join crashes. 1.4.2.1 fixes long synchronization into team events. For matching symptoms on older builds, review the supported update before resetting configuration. Missing TC/ABS data in RaceHub is separately addressed by RaceHub 4.5.1. Preserve evidence and retest the same session.",
+      "safety": "Guidance only / manual vendor update or reversible check",
+      "signatures": [],
+      "references": [
+        {
+          "title": "LMU 1.4.2 release notes",
+          "source": "Le Mans Ultimate Support",
+          "url": "https://guide.lemansultimate.com/hc/en-gb/articles/17713037697807-V1-4-2-Update-1-4-Patch-2",
+          "note": "Released fixes for specific crash contexts; not every crash.",
+          "official": true
+        },
+        {
+          "title": "LMU 1.4.2.1 hotfix",
+          "source": "Le Mans Ultimate Support",
+          "url": "https://guide.lemansultimate.com/hc/en-gb/articles/17739847034383-v1-4-2-1-Update-4-Patch-2-Hotfix-1",
+          "note": "Released team-event synchronization fix.",
+          "official": true
+        },
+        {
+          "title": "RaceHub 4.5.1 release notes",
+          "source": "Asetek Racing",
+          "url": "https://www.asetek.com/simsports/wp-content/uploads/2026/09/Release-Note-for-RaceHub-version-4.5.1.pdf",
+          "note": "September 24, 2026: missing LMU TC/ABS data fix.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-guidance",
+      "status": "guidance",
+      "lastVerified": "2026-10-05",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "ace-companion-update-guidance",
+      "displayKind": "Diagnostic guidance",
+      "product": "Assetto Corsa EVO",
+      "issue": "SimPro startup conflicts and RaceHub display data",
+      "detection": "Check which companion app is running and distinguish an EVO startup failure from incorrect peripheral display data.",
+      "repair": "SIMAGIC documented an EVO startup/crash conflict with SimPro 3 in the older 3.0.3 release (May 7, 2026). Check the installed generation and current supported update. RaceHub 4.5.1 fixes EVO DRS data and uses core tyre temperature to match the simulator. Update the relevant vendor app manually and retest; these symptoms alone do not justify deleting EVO profiles.",
+      "safety": "Guidance only / manual vendor update or reversible check",
+      "signatures": [],
+      "references": [
+        {
+          "title": "SIMAGIC SimPro release notes",
+          "source": "SIMAGIC",
+          "url": "https://simagic.com/pages/download-center",
+          "note": "Historical 3.0.3 EVO startup fix; match generation and symptom.",
+          "official": true
+        },
+        {
+          "title": "RaceHub 4.5.1 release notes",
+          "source": "Asetek Racing",
+          "url": "https://www.asetek.com/simsports/wp-content/uploads/2026/09/Release-Note-for-RaceHub-version-4.5.1.pdf",
+          "note": "EVO DRS and tyre-temperature display corrections.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-guidance",
+      "status": "guidance",
+      "lastVerified": "2026-10-05",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "ams2-steam-input-guidance",
+      "displayKind": "Diagnostic guidance",
+      "product": "Automobilista 2",
+      "issue": "Wheel or paddles stop responding: Steam Input check",
+      "detection": "Manual check for a wheel/paddle input problem; not a generic crash diagnosis or an automatic setting change.",
+      "repair": "A Reiza staff response on September 20, 2026 recommends disabling Steam Input for AMS2 when a wheel or paddles stop working. Record the prior per-game setting, close AMS2, test the AMS2-only override, then retest steering and paddles. Restore the prior setting if ineffective. Do not change the global Steam setting or apply this automatically to gamepads. The thread does not confirm success on the original poster's PC.",
+      "safety": "Guidance only / manual vendor update or reversible check",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Wheel and paddles not working",
+          "source": "Reiza Studios staff",
+          "url": "https://forum.reizastudios.com/threads/my-wheel-and-paddles-simply-wont-work.36701/",
+          "note": "Staff-recommended A/B check; no confirmed outcome from the original poster.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-guidance",
+      "status": "guidance",
+      "lastVerified": "2026-10-05",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "simucube-tuner-update-guidance",
+      "displayKind": "Diagnostic guidance",
+      "product": "Simucube Tuner",
+      "issue": "Tuner startup GPU use, saving crashes and pedal mapping",
+      "detection": "Identify Simucube Tuner and its installed version manually. PitMedic's monitored True Drive process set is separate and does not detect or restart Tuner.",
+      "repair": "Tuner 3.1.4 (August 20, 2026) fixes high GPU use at Windows autostart and a saving crash after a wireless wheel disconnects. 3.1.5 (September 9) fixes swapped-pedal roles lost across restarts and some input-curve mapping failures. Compare the exact symptom and supported hardware, follow Simucube's manual update instructions, and retest. Do not use True Drive recovery for Tuner.",
+      "safety": "Guidance only / manual vendor update or reversible check",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Simucube Tuner changelog",
+          "source": "Simucube",
+          "url": "https://docs.simucube.com/TunerSoftware/changelog.html",
+          "note": "Version-specific fixes; Tuner guidance does not extend True Drive recovery.",
+          "official": true
+        }
+      ],
+      "kind": "companion-guidance",
+      "status": "guidance",
+      "lastVerified": "2026-10-05",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "iracing-season4-update-guidance",
+      "displayKind": "Diagnostic guidance",
+      "product": "iRacing",
+      "issue": "Reference Car Input display and spotter audio fixes",
+      "detection": "Compare the iRacing build and exact display/audio symptom. These patch notes do not provide a crash signature.",
+      "repair": "2026 Season 4 Patch 1 (build 2026.10.01.01) fixes Reference Car Input display problems with foveated quad views or triple screens and spotter audio stopping. For these symptoms on older builds, use the supported updater and retest before resetting renderer or audio settings. Let updates finish; preserve unrelated crash evidence.",
+      "safety": "Guidance only / manual vendor update or reversible check",
+      "signatures": [],
+      "references": [
+        {
+          "title": "2026 Season 4 Patch 1",
+          "source": "iRacing Support",
+          "url": "https://support.iracing.com/support/solutions/articles/31000179767-2026-season-4-patch-1-release-notes-2026-10-01-01-",
+          "note": "Specific reference-input display and spotter fixes in build 2026.10.01.01.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-guidance",
+      "status": "guidance",
+      "lastVerified": "2026-10-05",
+      "reviewCadenceDays": 180
+    },
+    {
       "id": "companion-moza-clean-recovery",
       "displayKind": "Companion software repair",
       "product": "MOZA Pit House",
@@ -1722,7 +1858,7 @@
       "product": "Fanatec software",
       "issue": "Recover Fanatec software",
       "detection": "Confirmed app fault and process-set recovery",
-      "repair": "Fanatec instructs removing the Fanatec App before choosing legacy Driver/Control Panel and FanaLab; follow vendor instructions manually. For CSL DD or GT DD Pro oscillation after leaving RaceRoom menus, consult the official 1.5.4.1 hotfix notes and current supported update. PitMedic does not uninstall software or change drivers, firmware, or profiles. PitMedic closes the Fanatec app, Control Panel, and FanaLab process set, relaunches the validated installed app, and verifies that it stays running.",
+      "repair": "Fanatec instructs removing the Fanatec App before choosing legacy Driver/Control Panel and FanaLab; follow vendor instructions manually. For CSL DD or GT DD Pro oscillation after leaving RaceRoom menus, consult the official 1.5.4.2 release notes (including the 1.5.4.1 hotfix) and current supported update. PitMedic does not uninstall software or change drivers, firmware, or profiles. PitMedic closes the Fanatec app, Control Panel, and FanaLab process set, relaunches the validated installed app, and verifies that it stays running.",
       "safety": "Ask first / controlled restart",
       "signatures": [],
       "steps": [
@@ -1744,6 +1880,13 @@
           "source": "Fanatec Support",
           "url": "https://www.fanatec.com/ca/en/s/download-apps-driver",
           "note": "Official compatibility guidance distinguishes the Fanatec App from legacy Driver/Control Panel and FanaLab.",
+          "official": true
+        },
+        {
+          "title": "Fanatec App 1.5.4.2 release notes",
+          "source": "Fanatec Support",
+          "url": "https://help.fanatec.com/hc/en-us/articles/50512683066513-Fanatec-App-v1-5-4-2-Release-Notes",
+          "note": "Current official record includes the 1.5.4.1 CSL DD / GT DD Pro oscillation fix. Driver and firmware changes remain manual.",
           "official": true
         },
         {
@@ -1809,7 +1952,7 @@
       "product": "SIMAGIC SimPro Manager",
       "issue": "Recover SIMAGIC SimPro Manager",
       "detection": "SimPro 2/3 conflict, daemon, crash, and stale-process recovery",
-      "repair": "For display or game-data problems, check the installed generation and supported hardware: SimPro 3.2.0 (August 19, 2026) improved DPI scaling, stability and EVO data; 3.2.1 (August 25) corrected scaling, iRacing left-rear tyre temperature/left-front wear, and Alpha angle-display stutter. Follow SIMAGIC's update instructions manually. Never run recovery during a firmware update or when its completion is uncertain. PitMedic closes the known SimPro 2, SimPro 3, and SimPro daemon process set, relaunches the validated installed generation, and verifies that it stays running. PitMedic does not flash firmware, downgrade, recalibrate or change profiles.",
+      "repair": "SimPro 3.2.2 (September 22, 2026) fixes repeated Windows Reliability Monitor app-failure reports and shutdown error prompts. For matching symptoms, compare your installed version and review the supported manual update; preserve genuine fault evidence. For display or game-data problems, check the installed generation and supported hardware: SimPro 3.2.0 (August 19, 2026) improved DPI scaling, stability and EVO data; 3.2.1 (August 25) corrected scaling, iRacing left-rear tyre temperature/left-front wear, and Alpha angle-display stutter. Follow SIMAGIC's update instructions manually. Never run recovery during a firmware update or when its completion is uncertain. PitMedic closes the known SimPro 2, SimPro 3, and SimPro daemon process set, relaunches the validated installed generation, and verifies that it stays running. PitMedic does not flash firmware, downgrade, recalibrate or change profiles.",
       "safety": "Ask first / controlled restart",
       "signatures": [],
       "steps": [
@@ -1823,7 +1966,7 @@
           "title": "SIMAGIC software download center",
           "source": "SIMAGIC",
           "url": "https://simagic.com/pages/download-center",
-          "note": "SIMAGIC publishes current SimPro Manager builds and supported device families.",
+          "note": "3.2.2 addresses repeated Windows app-failure reports and shutdown prompts; historical 3.0.3 addresses EVO startup conflicts. Check generation and hardware; all vendor updates remain manual.",
           "official": true
         },
         {
@@ -1845,7 +1988,7 @@
       "product": "Asetek RaceHub",
       "issue": "Recover Asetek RaceHub",
       "detection": "RaceHub app and elevated-helper clean recovery",
-      "repair": "PitMedic closes the RaceHub app and its known elevated helper, relaunches the validated installed app, and verifies that it stays running.",
+      "repair": "RaceHub 4.5.1 (September 24, 2026) fixes steering-wheel input stopping after a rotary is turned, missing LMU TC/ABS data and EVO DRS data. Compare your version and exact symptom, follow Asetek's supported update manually, then retest the control or display. PitMedic closes the RaceHub app and its known elevated helper, relaunches the validated installed app, and verifies that it stays running.",
       "safety": "Ask first / controlled restart",
       "signatures": [],
       "steps": [
@@ -1855,6 +1998,13 @@
         "Verify that RaceHub remains running"
       ],
       "references": [
+        {
+          "title": "RaceHub 4.5.1 release notes",
+          "source": "Asetek Racing",
+          "url": "https://www.asetek.com/simsports/wp-content/uploads/2026/09/Release-Note-for-RaceHub-version-4.5.1.pdf",
+          "note": "Version-specific rotary-input, LMU TC/ABS and EVO display fixes; update and retest manually.",
+          "official": true
+        },
         {
           "title": "RaceHub troubleshooting",
           "source": "Asetek Racing",

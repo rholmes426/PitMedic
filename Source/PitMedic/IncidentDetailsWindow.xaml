@@ -68,6 +68,23 @@
                     </StackPanel>
                 </Border>
 
+                <Border x:Name="VendorGuidanceCard" Visibility="Collapsed" Style="{StaticResource CardStyle}" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="VERSION AND SYMPTOM CHECKS" Foreground="{DynamicResource MutedBrush}" FontSize="11.5" FontWeight="Bold"/>
+                        <TextBlock Text="Compare these vendor notes with your installed version and symptoms. They do not establish the cause of this finding." TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" Margin="0,8,0,4"/>
+                        <ItemsControl x:Name="VendorGuidanceList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,8,0,0">
+                                        <TextBlock Text="{Binding Issue}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding RepairStrategy}" TextWrapping="Wrap" LineHeight="19" Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
                 <Border x:Name="RepairWorkCard" Style="{StaticResource CardStyle}" Margin="0,0,0,14">
                     <StackPanel>
                         <Grid>

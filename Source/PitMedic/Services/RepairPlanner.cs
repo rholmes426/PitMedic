@@ -206,7 +206,7 @@ public static class RepairPlanner
         }
 
         var text = string.Join("\n", evidence);
-        foreach (var entry in RepairKnowledgeBase.Entries.Where(x => x.Game.Equals(game, StringComparison.OrdinalIgnoreCase)))
+        foreach (var entry in RepairKnowledgeBase.Entries.Where(x => !x.IsGuidanceOnly && x.Game.Equals(game, StringComparison.OrdinalIgnoreCase)))
         {
             if (entry.Signatures.Any(sig => text.Contains(sig, StringComparison.OrdinalIgnoreCase)))
             {

@@ -130,6 +130,9 @@ public static class IncidentDetailsService
         if (references.Count == 0 && companion is not null)
             references.AddRange(CompanionSoftwareKnowledgeBase.ReferencesFor(companion.Kind));
 
+        var vendorGuidance = RepairKnowledgeBase.GuidanceForProduct(incident.Game);
+        references.AddRange(vendorGuidance.SelectMany(entry => entry.References));
+
         var outcome = BuildOutcome(incident, plan, repairAttempted, repairInProgress, repairCancelled, repairFailed, resolved, resolutionSummary);
         var resolutionActions = activity.Count > 0
             ? activity.Select(x => string.IsNullOrWhiteSpace(x.Detail) ? x.Title : $"{x.Title} — {x.Detail}").ToArray()
@@ -153,6 +156,7 @@ public static class IncidentDetailsService
             RepairUpdated = repairUpdated,
             ResolutionActions = resolutionActions,
             RepairActivity = activity,
+            VendorGuidance = vendorGuidance,
             References = references.DistinctBy(x => x.Url, StringComparer.OrdinalIgnoreCase).ToArray()
         };
     }
