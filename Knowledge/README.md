@@ -37,7 +37,7 @@ Only the first two states are assigned by adding ordinary knowledge. The final t
 
 The scheduled workflow runs on Tuesday and Friday and can also be started manually. It never commits, opens a pull request, changes a repair state, or publishes a release.
 
-The registry currently monitors 28 focused sources. Search results may help a maintainer locate a candidate, but the Scout monitors the direct vendor source rather than a search result, repost, or general social feed.
+The registry currently monitors 27 focused sources. Search results may help a maintainer locate a candidate, but the Scout monitors the direct vendor source rather than a search result, repost, or general social feed.
 
 | Product | Trusted coverage |
 |---|---|
