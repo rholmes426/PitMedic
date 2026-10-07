@@ -45,6 +45,7 @@ VALID_STATES = {"active", "guidance", "disabled-for-safety", "version-gated", "s
 VALID_AUTHORITIES = {"official", "vendor-community"}
 VALID_PRODUCT_TYPES = {"simulator", "companion", "platform"}
 VALID_SOURCE_ROLES = {"support", "release-notes", "known-issues", "downloads"}
+VALID_SOURCE_TYPES = {"html", "zendesk-json"}
 
 
 class PageParser(HTMLParser):
@@ -151,6 +152,39 @@ def parse_page(raw: str, base_url: str) -> tuple[str, list[tuple[str, str]]]:
         if urlsplit(absolute).scheme == "https":
             links.append((absolute, label))
     return text, links
+
+
+def parse_zendesk_articles(raw: str) -> tuple[str, list[tuple[str, str]]]:
+    """Extract readable evidence and public article links from a Zendesk collection."""
+    payload = json.loads(raw)
+    articles = payload.get("articles") if isinstance(payload, dict) else None
+    if not isinstance(articles, list):
+        raise ValueError("Zendesk response does not contain an articles list")
+    text_parts: list[str] = []
+    links: list[tuple[str, str]] = []
+    for article in articles:
+        if not isinstance(article, dict):
+            continue
+        title = normalize_text(str(article.get("title") or ""))
+        body = article.get("body")
+        updated = normalize_text(str(article.get("updated_at") or ""))
+        if isinstance(body, str):
+            body, _ = parse_page(body, "https://example.invalid/")
+        else:
+            body = ""
+        text_parts.extend(part for part in (title, updated, body) if part)
+        public_url = article.get("html_url")
+        if isinstance(public_url, str) and public_url.startswith("https://"):
+            links.append((public_url, title))
+    return normalize_text(" ".join(text_parts)), links
+
+
+def parse_source(raw: str, base_url: str, source_type: str) -> tuple[str, list[tuple[str, str]]]:
+    if source_type == "html":
+        return parse_page(raw, base_url)
+    if source_type == "zendesk-json":
+        return parse_zendesk_articles(raw)
+    raise ValueError(f"unsupported source type: {source_type}")
 
 
 def content_hash(text: str) -> str:
@@ -313,6 +347,8 @@ def catalog_validation(repo_root: Path, registry: dict[str, Any], lifecycle: dic
             problems.append(f"Invalid product type for {source_id or '<missing>'}: {source.get('productType')}")
         if source.get("sourceRole") not in VALID_SOURCE_ROLES:
             problems.append(f"Invalid source role for {source_id or '<missing>'}: {source.get('sourceRole')}")
+        if source.get("sourceType") not in VALID_SOURCE_TYPES:
+            problems.append(f"Invalid source type for {source_id or '<missing>'}: {source.get('sourceType')}")
         max_links = source.get("maxLinks", DEFAULT_MAX_LINKS_PER_SOURCE)
         if isinstance(max_links, bool) or not isinstance(max_links, int) or not 1 <= max_links <= MAX_LINKS_PER_SOURCE:
             problems.append(
@@ -471,7 +507,7 @@ def build_report(
         try:
             raw, final_url = fetcher(source["url"], allowed_hosts)
             page_cache[canonical_candidate_url(source["url"])] = (raw, final_url)
-            text, links = parse_page(raw, final_url)
+            text, links = parse_source(raw, final_url, source.get("sourceType", "html"))
             digest = content_hash(text)
             discovered = candidate_links(
                 links,
