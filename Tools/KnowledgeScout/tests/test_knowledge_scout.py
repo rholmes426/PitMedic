@@ -175,6 +175,55 @@ class KnowledgeScoutTests(unittest.TestCase):
         problems = scout.catalog_validation(REPO_ROOT, registry, self.lifecycle)
         self.assertTrue(any("Invalid source authority" in problem for problem in problems))
 
+    def test_zendesk_article_collection_discovers_public_release_notes(self) -> None:
+        registry = self.one_source_registry()
+        source = registry["sources"][0]
+        source.update({
+            "url": "https://lemansultimate.com/api/releases.json",
+            "sourceType": "zendesk-json",
+            "discoverLinks": True,
+            "reportTextChanges": False,
+        })
+        prior = {
+            "version": 2,
+            "sources": {
+                source["id"]: {
+                    "hash": scout.content_hash("older release notes"),
+                    "links": [],
+                    "status": "ok",
+                }
+            },
+        }
+
+        def fake_fetch(url: str, allowed_hosts: set[str]) -> tuple[str, str]:
+            return (json.dumps({"articles": [{
+                "title": "Patch fixes launch crash",
+                "updated_at": "2026-10-07T00:00:00Z",
+                "body": "<p>Fixed a launch crash in the current build.</p>",
+                "html_url": "https://lemansultimate.com/release-notes/patch",
+            }]}), url)
+
+        report, state, actionable = scout.build_report(
+            REPO_ROOT,
+            registry,
+            self.lifecycle,
+            prior,
+            now=scout.datetime(2026, 10, 7, tzinfo=scout.timezone.utc),
+            fetcher=fake_fetch,
+        )
+        self.assertTrue(actionable)
+        self.assertIn("Patch fixes launch crash", report)
+        self.assertEqual(
+            ["https://lemansultimate.com/release-notes/patch"],
+            state["sources"][source["id"]]["links"],
+        )
+
+    def test_registry_rejects_unknown_source_type(self) -> None:
+        registry = self.one_source_registry()
+        registry["sources"][0]["sourceType"] = "feed"
+        problems = scout.catalog_validation(REPO_ROOT, registry, self.lifecycle)
+        self.assertTrue(any("Invalid source type" in problem for problem in problems))
+
 
     def test_forum_canonicalization_groups_pages_and_preserves_query(self) -> None:
         self.assertEqual(
