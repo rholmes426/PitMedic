@@ -292,7 +292,7 @@
       "discoverLinks": true,
       "reportTextChanges": false,
       "maxLinks": 40,
-      "enabled": true
+      "enabled": false
     },
     {
       "id": "logitech-ghub-support",
@@ -385,8 +385,8 @@
       "productType": "simulator",
       "authority": "official",
       "sourceRole": "release-notes",
-      "url": "https://guide.lemansultimate.com/hc/en-gb/categories/13278904445967-Release-Notes",
-      "sourceType": "html",
+      "url": "https://guide.lemansultimate.com/api/v2/help_center/en-gb/categories/13278904445967/articles.json?per_page=100",
+      "sourceType": "zendesk-json",
       "discoverLinks": true,
       "reportTextChanges": false,
       "maxLinks": 40,
@@ -398,8 +398,8 @@
       "productType": "companion",
       "authority": "official",
       "sourceRole": "release-notes",
-      "url": "https://help.fanatec.com/hc/en-us/sections/47850807160721-Release-Notes",
-      "sourceType": "html",
+      "url": "https://help.fanatec.com/api/v2/help_center/en-us/sections/47850807160721/articles.json?per_page=100",
+      "sourceType": "zendesk-json",
       "discoverLinks": true,
       "reportTextChanges": false,
       "maxLinks": 40,
