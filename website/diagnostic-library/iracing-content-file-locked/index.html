@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-carbon-lime.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-carbon-lime.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"iRacing"}]},{"@type":"TechArticle","headline":"iRacing: iRacing Content File Locked during a Steam update","description":"Fix Steam's Content File Locked error for iRacing by identifying a running Helper Service, releasing the locked files, and safely resuming validation.","url":"https://pitmedic.com/diagnostic-library/iracing-content-file-locked/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"iRacing"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"iRacing"}]},{"@type":"TechArticle","headline":"iRacing: iRacing Content File Locked during a Steam update","description":"Fix Steam's Content File Locked error for iRacing by identifying a running Helper Service, releasing the locked files, and safely resuming validation.","url":"https://pitmedic.com/diagnostic-library/iracing-content-file-locked/","dateModified":"2026-10-09","author":{"@type":"Organization","name":"PitMedic Project"},"about":"iRacing"}]}</script>
 </head>
 <body>
 <main>
@@ -31,8 +31,8 @@
       <span class="section-kicker">Simulator repair</span>
       <p class="library-product">iRacing</p>
       <h1>iRacing Content File Locked during a Steam update</h1>
-      <p>A Content File Locked error means Steam could not replace part of the iRacing installation because another process still had the file open. PitMedic checks for the iRacing Helper Service before recommending a restart of the update.</p>
-      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Evidence reviewed 2026-09-01</span><span>Guide updated 2026-09-29</span></div>
+      <p>A Content File Locked error means Steam could not replace an iRacing installation file. The iRacing Helper Service is one documented cause; PitMedic checks that service before recommending its targeted update recovery.</p>
+      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Evidence reviewed 2026-09-01</span><span>Guide updated 2026-10-09</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
@@ -41,7 +41,12 @@
           <h3>How to confirm the result</h3><p>Complete the Steam validation or download after the Helper Service releases its handles, then confirm the service is restored and retry the affected session. Starting validation is not proof that it succeeded.</p>
           <h3>Repair limits and when to stop</h3><p>A locked file is not proof of corruption. This targets the implicated service, not all Steam processes or Windows permissions. Let an active iRacing updater finish before repair.</p>
         </section>
-        <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>Steam reports Content File Locked while updating iRacing and the Helper Service is running.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>Content File Locked</code></li><li><code>Helper Service</code></li></ul></section>
+<section class="diagnostic-card diagnostic-guide">
+          <h2>Manual steps without PitMedic</h2>
+          <p>Use these steps only for a failed Steam update of iRacing. For Missing File Privileges, this is a check for the same service lock, not proof of a Windows permissions problem.</p>
+          <ol class="guide-checks"><li>Finish your session and close the simulator. Let any update that is still progressing finish; intervene only after it has failed.</li><li>Press Ctrl+Shift+Esc to open Task Manager. Under background processes, locate iRacing.com Helper Service, right-click it, and select End task.</li><li>Return to Steam and retry the failed iRacing update. Wait for Steam to report completion before launching the simulator.</li><li>After the update, restart Windows to restore normal background services, then open iRacing and test the session again.</li><li>If the named process is absent or the same error returns, stop here and use iRacing Support. Do not delete the Steam library or change broad folder permissions.</li></ol>
+          <h3>Official instructions</h3><ul><li><a href="https://support.iracing.com/support/solutions/articles/31000167301-steam-accounts-getting-content-file-locked-error">iRacing Support: Steam Content File Locked</a></li></ul>
+        </section>        <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>Steam reports Content File Locked while updating iRacing and the Helper Service is running.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>Content File Locked</code></li><li><code>Helper Service</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>Stop the iRacing Helper Service to release file handles, begin Steam validation/update work, then restart the service.</p><div class="safety-note"><strong>Repair safety</strong><span>Reversible / approval required because validation may exceed two minutes</span></div></section>
 <section class="diagnostic-card diagnostic-example">
           <h2>Reopening Steam ends automatic window hiding</h2>

@@ -20,6 +20,18 @@ rates or guarantees.
 knowledge record's `lastVerified` date; editing prose must not imply that vendor
 evidence was rechecked. Sitemap and article modification dates use the later date.
 
+The collection's sitemap date is the later of `INDEX_MODIFIED` and all guide/evidence
+dates, so publishing a new guide cannot leave the collection dated September 7.
+Update `INDEX_MODIFIED` when changing the collection's own editorial content.
+The homepage and static simulator pages omit optional `lastmod` values because
+they have no reliable editorial date source. Do not restore frozen dates or use
+the build time as a substitute. Google ignores `changefreq` and `priority`.
+
+Optional `manual_intro`, `manual_steps`, and `manual_sources` provide a standalone
+procedure with explicit scope and direct official links. Verify those instructions
+against the linked vendor article before editing them. They do not change the
+app-owned repair or lifecycle verification dates.
+
 ## Evidence for the September 29, 2026 expansion
 
 All 60 guides were expanded. Eighteen include relevant automated regression
