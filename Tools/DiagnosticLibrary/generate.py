@@ -23,7 +23,9 @@ if not RELEASE_VERSION_MATCH:
     raise RuntimeError("Diagnostic Library release URL does not contain a valid PitMedic version")
 RELEASE_VERSION = RELEASE_VERSION_MATCH.group(1)
 LOGO_URL = "https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png"
-TODAY = "2026-09-03"
+# Date of the last editorial change to the collection page itself. Individual
+# guide dates also advance its sitemap entry when the collection changes.
+INDEX_MODIFIED = "2026-10-09"
 
 GAME_SLUGS = {
     "Le Mans Ultimate": "le-mans-ultimate",
@@ -174,6 +176,12 @@ def load_entries() -> list[dict[str, object]]:
             raise ValueError(f"{entry_id} public content is missing fields: {missing_fields}")
         if not isinstance(content["checks"], list) or len(content["checks"]) < 2:
             raise ValueError(f"{entry_id} needs at least two practical checks")
+        if content.get("manual_steps"):
+            if not content.get("manual_intro") or not content.get("manual_sources"):
+                raise ValueError(f"{entry_id} manual steps need context and official sources")
+            for source in content["manual_sources"]:
+                if not source.get("title") or not source.get("url", "").startswith("https://"):
+                    raise ValueError(f"{entry_id} manual source needs a title and HTTPS URL")
         for example in content.get("examples", []):
             if not {"title", "setup", "outcome", "scope", "source", "validation", "verified"} <= set(example):
                 raise ValueError(f"{entry_id} example is missing its evidence or limits")
@@ -334,6 +342,19 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
         </section>
 '''
     examples_html = ""
+    manual_html = ""
+    if editorial.get("manual_steps"):
+        manual_steps = "".join(f"<li>{esc(item)}</li>" for item in editorial["manual_steps"])
+        manual_sources = "".join(
+            f'<li><a href="{esc(source["url"])}">{esc(source["title"])}</a></li>'
+            for source in editorial["manual_sources"]
+        )
+        manual_html = f'''<section class="diagnostic-card diagnostic-guide">
+          <h2>Manual steps without PitMedic</h2>
+          <p>{esc(editorial["manual_intro"])}</p>
+          <ol class="guide-checks">{manual_steps}</ol>
+          <h3>Official instructions</h3><ul>{manual_sources}</ul>
+        </section>'''
     for example in editorial.get("examples", []):
         examples_html += f'''<section class="diagnostic-card diagnostic-example">
           <h2>{esc(example["title"])}</h2>
@@ -355,7 +376,7 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
-{explanation_html}        <section class="diagnostic-card"><h2>{"When to consider this guidance" if is_guidance else "How PitMedic recognizes it"}</h2><p>{esc(entry["detection"])}</p>{details}</section>
+{explanation_html}{manual_html}        <section class="diagnostic-card"><h2>{"When to consider this guidance" if is_guidance else "How PitMedic recognizes it"}</h2><p>{esc(entry["detection"])}</p>{details}</section>
         <section class="diagnostic-card"><h2>{"Suggested manual checks" if is_guidance else "Built-in response"}</h2><p>{esc(entry["repair"])}</p><div class="safety-note"><strong>Repair safety</strong><span>{esc(entry["safety"])}</span></div></section>
 {examples_html}        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list">{source_items}</ul></section>
       </div>
@@ -405,6 +426,15 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
       <p>Search known sim-racing errors, launch failures, crashes, configuration problems, and companion-software issues. Each guide explains diagnostic evidence, available repairs, or version-specific manual checks.</p>
       <div class="library-count"><strong>{len(entries)}</strong><span>diagnostic, repair and guidance records</span></div>
     </header>
+    <section class="diagnostic-card diagnostic-guide" aria-labelledby="specific-errors-title">
+      <h2 id="specific-errors-title">Start with your error message</h2>
+      <p>These guides include manual steps, expected results, and when to stop.</p>
+      <ul class="featured-guides">
+        <li><a href="/diagnostic-library/iracing-missing-file-privileges/">iRacing Missing File Privileges</a></li>
+        <li><a href="/diagnostic-library/iracing-content-file-locked/">iRacing Content File Locked in Steam</a></li>
+        <li><a href="/diagnostic-library/iracing-eac-error73/">iRacing Error 73 at startup</a></li>
+      </ul>
+    </section>
     <nav class="library-topics" aria-label="Browse troubleshooting guides by simulator">
       <a href="?software=iracing#library-results" data-product-filter="iracing"><strong>iRacing troubleshooting</strong><span>Loading errors, updates, UI, services, and anti-cheat</span></a>
       <a href="?software=le%20mans%20ultimate#library-results" data-product-filter="le mans ultimate"><strong>Le Mans Ultimate troubleshooting</strong><span>Startup, content, memory, plugins, and overlays</span></a>
@@ -503,15 +533,21 @@ def write_public_json(entries: list[dict[str, object]], destination: Path) -> No
 
 
 def write_sitemap(entries: list[dict[str, object]], path: Path) -> None:
+    # A missing optional lastmod is better than an invented or frozen date.
+    # These hand-maintained pages do not have a reliable editorial date source.
+    collection_modified = max(INDEX_MODIFIED, *(
+        max(str(PUBLIC_CONTENT[str(entry["id"])]["modified"]), str(entry["lastVerified"]))
+        for entry in entries
+    ))
     existing = [
-        ("/", TODAY, "weekly", "1.0"),
-        ("/simulators/iracing/", "2026-09-07", "monthly", "0.8"),
-        ("/simulators/le-mans-ultimate/", "2026-09-07", "monthly", "0.8"),
-        ("/simulators/assetto-corsa-competizione/", TODAY, "monthly", "0.8"),
-        ("/simulators/automobilista-2/", TODAY, "monthly", "0.8"),
-        ("/simulators/raceroom/", TODAY, "monthly", "0.8"),
-        ("/simulators/assetto-corsa-evo/", TODAY, "monthly", "0.8"),
-        ("/diagnostic-library/", "2026-09-07", "weekly", "0.9"),
+        ("/", None, "weekly", "1.0"),
+        ("/simulators/iracing/", None, "monthly", "0.8"),
+        ("/simulators/le-mans-ultimate/", None, "monthly", "0.8"),
+        ("/simulators/assetto-corsa-competizione/", None, "monthly", "0.8"),
+        ("/simulators/automobilista-2/", None, "monthly", "0.8"),
+        ("/simulators/raceroom/", None, "monthly", "0.8"),
+        ("/simulators/assetto-corsa-evo/", None, "monthly", "0.8"),
+        ("/diagnostic-library/", collection_modified, "weekly", "0.9"),
     ]
     urls = existing + [(
         f"/diagnostic-library/{entry['id']}/",
@@ -519,7 +555,12 @@ def write_sitemap(entries: list[dict[str, object]], path: Path) -> None:
         "monthly",
         "0.7",
     ) for entry in entries]
-    rows = "\n".join(f"  <url><loc>{BASE_URL}{url}</loc><lastmod>{date}</lastmod><changefreq>{frequency}</changefreq><priority>{priority}</priority></url>" for url, date, frequency, priority in urls)
+    rows = "\n".join(
+        f"  <url><loc>{BASE_URL}{url}</loc>"
+        + (f"<lastmod>{date}</lastmod>" if date else "")
+        + f"<changefreq>{frequency}</changefreq><priority>{priority}</priority></url>"
+        for url, date, frequency, priority in urls
+    )
     path.write_text(f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 {rows}

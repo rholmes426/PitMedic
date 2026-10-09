@@ -16,7 +16,7 @@
   <link rel="icon" href="/assets/brand/pitmedic-carbon-lime.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-carbon-lime.png" />
   <link rel="stylesheet" href="/styles.css" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"iRacing"}]},{"@type":"TechArticle","headline":"iRacing: iRacing Missing File Privileges during a Steam update","description":"Steam says Missing File Privileges while updating iRacing? Learn why the Helper Service can lock files, what to check, and how PitMedic safely restarts the update.","url":"https://pitmedic.com/diagnostic-library/iracing-missing-file-privileges/","dateModified":"2026-09-29","author":{"@type":"Organization","name":"PitMedic Project"},"about":"iRacing"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"iRacing"}]},{"@type":"TechArticle","headline":"iRacing: iRacing Missing File Privileges during a Steam update","description":"Steam says Missing File Privileges while updating iRacing? Learn why the Helper Service can lock files, what to check, and how PitMedic safely restarts the update.","url":"https://pitmedic.com/diagnostic-library/iracing-missing-file-privileges/","dateModified":"2026-10-09","author":{"@type":"Organization","name":"PitMedic Project"},"about":"iRacing"}]}</script>
 </head>
 <body>
 <main>
@@ -32,7 +32,7 @@
       <p class="library-product">iRacing</p>
       <h1>iRacing Missing File Privileges during a Steam update</h1>
       <p>Steam can stop an iRacing update with a Missing File Privileges message when the iRacing Helper Service still has installation files open. PitMedic confirms that specific combination before offering a controlled recovery.</p>
-      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Evidence reviewed 2026-09-03</span><span>Guide updated 2026-09-29</span></div>
+      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Evidence reviewed 2026-09-03</span><span>Guide updated 2026-10-09</span></div>
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
@@ -41,7 +41,12 @@
           <h3>How to confirm the result</h3><p>Steam should be able to validate or update the installation after the Helper Service releases its file handles. PitMedic restarts the service afterward. If Steam still reports the error, stop rather than repeatedly deleting content and continue with iRacing&#x27;s official support guidance.</p>
           <h3>Repair limits and when to stop</h3><p>This targets the iRacing service/file-lock combination, not arbitrary Windows permissions. Do not take ownership of the full Steam library or disable security software. An active iRacing updater must finish before repair.</p>
         </section>
-        <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>Steam reports Missing File Privileges for iRacing while the iRacing Helper Service may still hold installed files open.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>Missing File Privileges</code></li><li><code>missing-file-privileges</code></li><li><code>Helper Service</code></li></ul></section>
+<section class="diagnostic-card diagnostic-guide">
+          <h2>Manual steps without PitMedic</h2>
+          <p>Use these steps only for a failed Steam update of iRacing. For Missing File Privileges, this is a check for the same service lock, not proof of a Windows permissions problem.</p>
+          <ol class="guide-checks"><li>Finish your session and close the simulator. Let any update that is still progressing finish; intervene only after it has failed.</li><li>Press Ctrl+Shift+Esc to open Task Manager. Under background processes, locate iRacing.com Helper Service, right-click it, and select End task.</li><li>Return to Steam and retry the failed iRacing update. Wait for Steam to report completion before launching the simulator.</li><li>After the update, restart Windows to restore normal background services, then open iRacing and test the session again.</li><li>If the named process is absent or the same error returns, stop here and use iRacing Support. Do not delete the Steam library or change broad folder permissions.</li></ol>
+          <h3>Official instructions</h3><ul><li><a href="https://support.iracing.com/support/solutions/articles/31000167301-steam-accounts-getting-content-file-locked-error">iRacing Support: Steam Content File Locked</a></li></ul>
+        </section>        <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>Steam reports Missing File Privileges for iRacing while the iRacing Helper Service may still hold installed files open.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>Missing File Privileges</code></li><li><code>missing-file-privileges</code></li><li><code>Helper Service</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>Stop the iRacing Helper Service, wait for its file handles to close, start Steam validation/update work, and restart the service afterward.</p><div class="safety-note"><strong>Repair safety</strong><span>Reversible / approval required because Steam validation may exceed two minutes</span></div></section>
 <section class="diagnostic-card diagnostic-example">
           <h2>Specific evidence survives a saved-finding round trip</h2>

@@ -328,3 +328,14 @@ Full evidence, limitations and all 47 retained URLs:
 Six guidance groups, two engineering investigations and one citation refresh.
 No new automatic repair is established. The prior SIMPRO firmware-state investigation
 and inaccessible forum findings remain pending. No app build, merge or release requested.
+## October 9, 2026 — website search-discovery improvements
+
+- Remove frozen early-September sitemap dates for hand-maintained pages; derive
+  the library index date from its editorial changes and the latest guide updates.
+- Add prominent homepage/library links to iRacing Content File Locked and Error 73.
+- Add scoped manual procedures and official iRacing links to the three priority
+  Steam-update/Error 73 guides; keep app repair behavior and verification dates unchanged.
+- Local generation, catalog, sitemap and link validation completed. Publication
+  follows protected PR checks and live Pages verification.
+- Search Console indexing diagnosis remains incomplete; these changes do not
+  establish the cause of the impressions drop or guarantee ranking recovery.

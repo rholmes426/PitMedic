@@ -1,7 +1,7 @@
 {
   "iracing-missing-file-privileges": {
     "heading": "iRacing Missing File Privileges during a Steam update",
-    "modified": "2026-09-29",
+    "modified": "2026-10-09",
     "title": "iRacing Missing File Privileges: Safe Steam Fix | PitMedic",
     "description": "Steam says Missing File Privileges while updating iRacing? Learn why the Helper Service can lock files, what to check, and how PitMedic safely restarts the update.",
     "intro": "Steam can stop an iRacing update with a Missing File Privileges message when the iRacing Helper Service still has installation files open. PitMedic confirms that specific combination before offering a controlled recovery.",
@@ -30,14 +30,28 @@
         "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
         "verified": "2026-09-28"
       }
+    ],
+    "manual_intro": "Use these steps only for a failed Steam update of iRacing. For Missing File Privileges, this is a check for the same service lock, not proof of a Windows permissions problem.",
+    "manual_steps": [
+      "Finish your session and close the simulator. Let any update that is still progressing finish; intervene only after it has failed.",
+      "Press Ctrl+Shift+Esc to open Task Manager. Under background processes, locate iRacing.com Helper Service, right-click it, and select End task.",
+      "Return to Steam and retry the failed iRacing update. Wait for Steam to report completion before launching the simulator.",
+      "After the update, restart Windows to restore normal background services, then open iRacing and test the session again.",
+      "If the named process is absent or the same error returns, stop here and use iRacing Support. Do not delete the Steam library or change broad folder permissions."
+    ],
+    "manual_sources": [
+      {
+        "title": "iRacing Support: Steam Content File Locked",
+        "url": "https://support.iracing.com/support/solutions/articles/31000167301-steam-accounts-getting-content-file-locked-error"
+      }
     ]
   },
   "iracing-content-file-locked": {
     "heading": "iRacing Content File Locked during a Steam update",
-    "modified": "2026-09-29",
+    "modified": "2026-10-09",
     "title": "iRacing Content File Locked: Fix the Steam Update Error | PitMedic",
     "description": "Fix Steam's Content File Locked error for iRacing by identifying a running Helper Service, releasing the locked files, and safely resuming validation.",
-    "intro": "A Content File Locked error means Steam could not replace part of the iRacing installation because another process still had the file open. PitMedic checks for the iRacing Helper Service before recommending a restart of the update.",
+    "intro": "A Content File Locked error means Steam could not replace an iRacing installation file. The iRacing Helper Service is one documented cause; PitMedic checks that service before recommending its targeted update recovery.",
     "meaning": "iRacing's Helper Service normally runs in the background. If it remains active during a Steam update, Windows can prevent Steam from changing a file that the service is using. The repair should therefore target the process holding the file, not erase unrelated settings or vehicle data.",
     "checks": [
       "Close the simulator, iRacing UI, and any active Steam update dialog.",
@@ -62,6 +76,20 @@
         "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/SteamValidationWindowTests.cs",
         "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
         "verified": "2026-09-28"
+      }
+    ],
+    "manual_intro": "Use these steps only for a failed Steam update of iRacing. For Missing File Privileges, this is a check for the same service lock, not proof of a Windows permissions problem.",
+    "manual_steps": [
+      "Finish your session and close the simulator. Let any update that is still progressing finish; intervene only after it has failed.",
+      "Press Ctrl+Shift+Esc to open Task Manager. Under background processes, locate iRacing.com Helper Service, right-click it, and select End task.",
+      "Return to Steam and retry the failed iRacing update. Wait for Steam to report completion before launching the simulator.",
+      "After the update, restart Windows to restore normal background services, then open iRacing and test the session again.",
+      "If the named process is absent or the same error returns, stop here and use iRacing Support. Do not delete the Steam library or change broad folder permissions."
+    ],
+    "manual_sources": [
+      {
+        "title": "iRacing Support: Steam Content File Locked",
+        "url": "https://support.iracing.com/support/solutions/articles/31000167301-steam-accounts-getting-content-file-locked-error"
       }
     ]
   },
@@ -111,7 +139,7 @@
   },
   "iracing-eac-error73": {
     "heading": "iRacing Error 73 / Easy Anti-Cheat failure",
-    "modified": "2026-09-29",
+    "modified": "2026-10-09",
     "title": "iRacing Error 73: Repair Easy Anti-Cheat | PitMedic",
     "description": "Troubleshoot iRacing Error 73 and repair the EOS Easy Anti-Cheat installation after confirming the startup error and checking for duplicate iRacing installs.",
     "intro": "iRacing Error 73 is a startup failure associated with the EOS version of Easy Anti-Cheat. PitMedic confirms the error signature before offering iRacing's supported uninstall, reinstall, and repair workflow.",
@@ -139,6 +167,23 @@
         "source": "https://github.com/rholmes426/PitMedic/blob/6faed4256d39b9067f8f0ccfdd08a09a2feea1e1/Source/PitMedic.ReleaseTests/IRacingRepairPlanTests.cs",
         "validation": "https://github.com/rholmes426/PitMedic/actions/runs/36379079203/job/108790897664",
         "verified": "2026-09-28"
+      }
+    ],
+    "manual_intro": "iRacing links Error 73 to its EOS installation instructions. Use the files bundled with the installed copy you actually launch.",
+    "manual_steps": [
+      "Close the simulator and wait for any iRacing update to finish.",
+      "Open the EasyAntiCheat folder inside your iRacing installation. The default direct-install location is C:\\Program Files (x86)\\iRacing\\EasyAntiCheat. For Steam, it is normally under steamapps\\common\\iRacing\\EasyAntiCheat in your Steam library; custom libraries use their own location.",
+      "Run InstallEOSAntiCheat.bat from that folder and follow its prompts. If it is missing, consult the official instructions below; do not download a replacement script from another site.",
+      "Launch the same iRacing installation again. If Error 73 persists, check whether another installed copy or shortcut points to a different location, then contact iRacing Support with the error screenshot."
+    ],
+    "manual_sources": [
+      {
+        "title": "iRacing Support: Error 73",
+        "url": "https://support.iracing.com/support/solutions/articles/31000173542-error-73-fatal-error-detected"
+      },
+      {
+        "title": "iRacing Support: install EOS from your iRacing folder",
+        "url": "https://support.iracing.com/support/solutions/articles/31000173103-anticheat-not-installed-uninstalling-eac-and-installing-eos-"
       }
     ]
   },
