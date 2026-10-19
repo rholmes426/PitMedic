@@ -31,7 +31,7 @@ public static class CompanionSoftwareKnowledgeBase
         CompanionSoftwareKind.LogitechGHub => new[]
         {
             Official("G HUB release notes", "Logitech Support", "https://support.logi.com/hc/en-gb/articles/360048967733-G-HUB-Update-Release-Notes",
-                "2026.4 documents memory fixes; 2026.5 adds a manual Windows reinstall option. Match the installed version and symptom before escalating."),
+                "2026.6 documents G29/G920 input, Windows-theme tray crashes and updater memory fixes; 2026.4 documents memory fixes; 2026.5 adds a manual Windows reinstall option. Match the installed version and symptom before escalating."),
             Official("G HUB freezes while loading", "Logitech Support", "https://support.logi.com/hc/en-ca/articles/360036179173-G-HUB-freezes-while-loading-and-logo-animation-loops",
                 "Logitech documents closing the G HUB agent/UI processes before restarting the software."),
             Official("G HUB install/uninstall/update troubleshooting", "Logitech Support", "https://support.logi.com/hc/en-150/articles/360023192454-G-HUB-Install-Uninstall-Update-Troubleshooting",
@@ -40,7 +40,7 @@ public static class CompanionSoftwareKnowledgeBase
         CompanionSoftwareKind.SimagicSimProManager => new[]
         {
             Official("SIMAGIC software download center", "SIMAGIC", "https://simagic.com/pages/download-center",
-                "3.2.2 addresses repeated Windows app-failure reports and shutdown prompts; historical 3.0.3 addresses EVO startup conflicts. Check generation and hardware; all vendor updates remain manual."),
+                "3.2.3 addresses launch failures and broken reinstall shortcuts; 3.2.2 addresses repeated Windows app-failure reports and shutdown prompts; historical 3.0.3 addresses EVO startup conflicts. Check generation and hardware; all vendor updates remain manual."),
             Community("SimPro Manager suddenly turning off", "SIMAGIC Community", "https://www.reddit.com/r/Simagic/comments/1qgzd6o/simpro_manager_suddenly_turning_off_and_not/",
                 "Users repeatedly report a hidden/stale SimPro process preventing relaunch; closing the stale process restores the app.")
         },

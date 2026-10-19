@@ -232,6 +232,23 @@ def review_records(repo_root: Path) -> list[dict[str, str]]:
     return records
 
 
+def excluded_discovery_link(url: str, label: str) -> bool:
+    """Ignore known shopping routes and explicit trading spam, never repair records."""
+    parsed = urlsplit(url)
+    host = (parsed.hostname or "").lower()
+    if host == "www.fanatec.com" and re.match(r"^/[a-z]{2}/[a-z]{2}/c/", parsed.path):
+        return True
+    if host == "vrs.racing" and parsed.path.startswith("/product/"):
+        return True
+    if host == "simagic.com" and parsed.path.startswith("/pages/details-"):
+        return True
+    if host == "community.lemansultimate.com" and re.search(
+        r"\btrading platform\b|\bcrypto investment\b", label, re.IGNORECASE
+    ):
+        return True
+    return False
+
+
 def candidate_links(
     links: list[tuple[str, str]],
     keywords: list[str],
@@ -245,6 +262,8 @@ def candidate_links(
     for url, label in links:
         parsed = urlsplit(url)
         if parsed.hostname is None or parsed.hostname.lower() not in allowed_hosts:
+            continue
+        if excluded_discovery_link(url, label):
             continue
         searchable = f"{label} {parsed.path} {parsed.query}".casefold()
         if not any(term in searchable for term in lowered_keywords):

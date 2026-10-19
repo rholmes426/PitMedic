@@ -1738,9 +1738,9 @@
       "id": "simucube-tuner-update-guidance",
       "displayKind": "Diagnostic guidance",
       "product": "Simucube Tuner",
-      "issue": "Tuner startup GPU use, saving crashes and pedal mapping",
+      "issue": "Tuner crashes, pedal mapping, force feedback and dash output",
       "detection": "Identify Simucube Tuner and its installed version manually. PitMedic's monitored True Drive process set is separate and does not detect or restart Tuner.",
-      "repair": "Tuner 3.1.4 (August 20, 2026) fixes high GPU use at Windows autostart and a saving crash after a wireless wheel disconnects. 3.1.5 (September 9) fixes swapped-pedal roles lost across restarts and some input-curve mapping failures. Compare the exact symptom and supported hardware, follow Simucube's manual update instructions, and retest. Do not use True Drive recovery for Tuner.",
+      "repair": "Tuner 3.2.0 (October 7, 2026) adds notifications when another app controls wheel LEDs or the dash, profile file export, and Simucube 3 fixes for certain oscillations, weakened direction-change effects and excess force on some DirectInput effects. For missing LEDs or dash data, check whether SimHub or PitStopApp owns the device output before resetting profiles. Use file export to preserve profiles on 3.2.0; older versions need their documented backup method. Hardware/firmware changes remain manual and must not be interrupted. Tuner 3.1.4 (August 20, 2026) fixes high GPU use at Windows autostart and a saving crash after a wireless wheel disconnects. 3.1.5 (September 9) fixes swapped-pedal roles lost across restarts and some input-curve mapping failures. Compare the exact symptom and supported hardware, follow Simucube's manual update instructions, and retest. Do not use True Drive recovery for Tuner.",
       "safety": "Guidance only / manual vendor update or reversible check",
       "signatures": [],
       "references": [
@@ -1754,7 +1754,7 @@
       ],
       "kind": "companion-guidance",
       "status": "guidance",
-      "lastVerified": "2026-10-05",
+      "lastVerified": "2026-10-19",
       "reviewCadenceDays": 180
     },
     {
@@ -1908,7 +1908,7 @@
       "product": "Logitech G HUB",
       "issue": "Recover Logitech G HUB",
       "detection": "Loading-loop, agent-fault, and updater-service recovery",
-      "repair": "PitMedic follows Logitech's loading-loop recovery order: close the G HUB UI and agent, restart the G HUB updater service, relaunch G HUB, and verify that it stays running. For recurring faults, compare the installed version with Logitech's notes: 2026.4.4919028 (July 13, 2026) fixed a registry memory leak and one agent memory-corruption source; 2026.5.939708 (August 11) added a Windows troubleshooting-page reinstall option. These do not explain every fault. Vendor update or reinstall is a manual escalation; PitMedic preserves settings.",
+      "repair": "PitMedic follows Logitech's loading-loop recovery order: close the G HUB UI and agent, restart the G HUB updater service, relaunch G HUB, and verify that it stays running. For recurring faults, compare the installed version with Logitech's notes: 2026.4.4919028 (July 13, 2026) fixed a registry memory leak and one agent memory-corruption source; 2026.5.939708 (August 11) added a Windows troubleshooting-page reinstall option. 2026.6.974819 (September 21, 2026) fixes G29/G920 input not registering inside G HUB, tray-process crashes when Windows switches light/dark mode, and updater memory leaks causing excess memory/disk use during downloads. Match the exact symptom and retest after a supported manual update; missing input inside G HUB does not prove a simulator binding fault. These do not explain every fault. Vendor update or reinstall is a manual escalation; PitMedic preserves settings.",
       "safety": "Ask first / requires elevation",
       "signatures": [],
       "steps": [
@@ -1923,7 +1923,7 @@
           "title": "G HUB release notes",
           "source": "Logitech Support",
           "url": "https://support.logi.com/hc/en-gb/articles/360048967733-G-HUB-Update-Release-Notes",
-          "note": "2026.4 documents memory fixes; 2026.5 adds a manual Windows reinstall option. Match the installed version and symptom before escalating.",
+          "note": "2026.6 documents G29/G920 input, Windows-theme tray crashes and updater memory fixes; 2026.4 documents memory fixes; 2026.5 adds a manual Windows reinstall option. Match the installed version and symptom before escalating.",
           "official": true
         },
         {
@@ -1952,7 +1952,7 @@
       "product": "SIMAGIC SimPro Manager",
       "issue": "Recover SIMAGIC SimPro Manager",
       "detection": "SimPro 2/3 conflict, daemon, crash, and stale-process recovery",
-      "repair": "SimPro 3.2.2 (September 22, 2026) fixes repeated Windows Reliability Monitor app-failure reports and shutdown error prompts. For matching symptoms, compare your installed version and review the supported manual update; preserve genuine fault evidence. For display or game-data problems, check the installed generation and supported hardware: SimPro 3.2.0 (August 19, 2026) improved DPI scaling, stability and EVO data; 3.2.1 (August 25) corrected scaling, iRacing left-rear tyre temperature/left-front wear, and Alpha angle-display stutter. Follow SIMAGIC's update instructions manually. Never run recovery during a firmware update or when its completion is uncertain. PitMedic closes the known SimPro 2, SimPro 3, and SimPro daemon process set, relaunches the validated installed generation, and verifies that it stays running. PitMedic does not flash firmware, downgrade, recalibrate or change profiles.",
+      "repair": "SimPro 3.2.3 (October 14, 2026) fixes some failures to launch and shortcuts that stopped working after reinstalling. If affected on 3.2.2, follow SIMAGIC's supported manual update to 3.2.3 or a later compatible release, with the game and Steam closed. Preserve profiles and verify the installed executable path. GT Neo / Neo X push-pull and three-way paddle fixes involve device firmware and remain a separate manual vendor procedure. SimPro 3.2.2 (September 22, 2026) fixes repeated Windows Reliability Monitor app-failure reports and shutdown error prompts. For matching symptoms, compare your installed version and review the supported manual update; preserve genuine fault evidence. For display or game-data problems, check the installed generation and supported hardware: SimPro 3.2.0 (August 19, 2026) improved DPI scaling, stability and EVO data; 3.2.1 (August 25) corrected scaling, iRacing left-rear tyre temperature/left-front wear, and Alpha angle-display stutter. Follow SIMAGIC's update instructions manually. Never run recovery during a firmware update or when its completion is uncertain. PitMedic closes the known SimPro 2, SimPro 3, and SimPro daemon process set, relaunches the validated installed generation, and verifies that it stays running. PitMedic does not flash firmware, downgrade, recalibrate or change profiles.",
       "safety": "Ask first / controlled restart",
       "signatures": [],
       "steps": [
@@ -1966,7 +1966,7 @@
           "title": "SIMAGIC software download center",
           "source": "SIMAGIC",
           "url": "https://simagic.com/pages/download-center",
-          "note": "3.2.2 addresses repeated Windows app-failure reports and shutdown prompts; historical 3.0.3 addresses EVO startup conflicts. Check generation and hardware; all vendor updates remain manual.",
+          "note": "3.2.3 addresses launch failures and broken reinstall shortcuts; 3.2.2 addresses repeated Windows app-failure reports and shutdown prompts; historical 3.0.3 addresses EVO startup conflicts. Check generation and hardware; all vendor updates remain manual.",
           "official": true
         },
         {
