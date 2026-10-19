@@ -1,39 +1,39 @@
 [
   {
     "url": "https://support.iracing.com/support/solutions/articles/31000179637-2026-season-4-hotfix-1-release-notes-2026-09-11-01-",
-    "status": "queued",
-    "reviewedAt": "2026-09-14T19:00:00Z",
-    "note": "Reviewed guidance: Official fixes for minimize and replay-control crashes; check version and symptoms before resetting graphics."
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Already incorporated in published 1.0.0.3/1.0.0.8; see PENDING-UPDATES.md and Research/KnowledgeScoutReview-2026-10-05.md. Reviewed guidance: Official fixes for minimize and replay-control crashes; check version and symptoms before resetting graphics."
   },
   {
     "url": "https://support.iracing.com/support/solutions/articles/31000179517-2026-season-4-initial-release-notes-2026-09-09-01-",
-    "status": "queued",
-    "reviewedAt": "2026-09-14T19:00:00Z",
-    "note": "Reviewed guidance: Official fixes include AI server-transition and Porsche Mission R crashes."
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Already incorporated in published 1.0.0.3/1.0.0.8; see PENDING-UPDATES.md and Research/KnowledgeScoutReview-2026-10-05.md. Reviewed guidance: Official fixes include AI server-transition and Porsche Mission R crashes."
   },
   {
     "url": "https://lemansultimate.com/community-update-september-2026/",
-    "status": "queued",
-    "reviewedAt": "2026-09-14T19:00:00Z",
-    "note": "Reviewed guidance: Vendor acknowledges online collision issues and describes planned network work. Check subsequent release notes for availability."
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Already incorporated in published 1.0.0.3/1.0.0.8; see PENDING-UPDATES.md and Research/KnowledgeScoutReview-2026-10-05.md. Reviewed guidance: Vendor acknowledges online collision issues and describes planned network work. Check subsequent release notes for availability."
   },
   {
     "url": "https://forum.reizastudios.com/threads/automobilista-2-september-2026-development-update.36665/",
-    "status": "queued",
-    "reviewedAt": "2026-09-14T19:00:00Z",
-    "note": "Reviewed guidance: Official announcement covers weather-transition performance and multiplayer stability. Confirm shipped release details before treating these as resolved."
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Already incorporated in published 1.0.0.3/1.0.0.8; see PENDING-UPDATES.md and Research/KnowledgeScoutReview-2026-10-05.md. Reviewed guidance: Official announcement covers weather-transition performance and multiplayer stability. Confirm shipped release details before treating these as resolved."
   },
   {
     "url": "https://www.fanatec.com/ca/en/s/download-apps-driver",
-    "status": "queued",
-    "reviewedAt": "2026-09-14T19:00:00Z",
-    "note": "Reviewed guidance: Official compatibility guidance distinguishes the Fanatec App from legacy Driver/Control Panel and FanaLab."
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Already incorporated in published 1.0.0.3/1.0.0.8; see PENDING-UPDATES.md and Research/KnowledgeScoutReview-2026-10-05.md. Reviewed guidance: Official compatibility guidance distinguishes the Fanatec App from legacy Driver/Control Panel and FanaLab."
   },
   {
     "url": "https://forum.fanatec.com/topic/20482-fanatec-app-v1541-hotfix/",
-    "status": "queued",
-    "reviewedAt": "2026-09-14T19:00:00Z",
-    "note": "Reviewed guidance: Official CSL DD and GT DD Pro fix for oscillation after returning from menus in RaceRoom and other named titles. Hardware updates remain manual."
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Already incorporated in published 1.0.0.3/1.0.0.8; see PENDING-UPDATES.md and Research/KnowledgeScoutReview-2026-10-05.md. Reviewed guidance: Official CSL DD and GT DD Pro fix for oscillation after returning from menus in RaceRoom and other named titles. Hardware updates remain manual."
   },
   {
     "url": "https://community.lemansultimate.com/index.php?threads/logitech-g29-lmuffb.17859/post-99353",
@@ -76,5 +76,149 @@
     "status": "no-change",
     "reviewedAt": "2026-09-14T19:00:00Z",
     "note": "Unsafe-rejoin wording describes driving conduct, not harmful repair behavior."
+  },
+  {
+    "url": "https://simagic.com/pages/download-center",
+    "status": "queued",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Approved for 1.0.0.9: 3.2.3 launch/shortcut guidance, exact version and symptom scope. Vendor software/firmware updates remain manual."
+  },
+  {
+    "url": "https://docs.simucube.com/TunerSoftware/changelog.html",
+    "status": "queued",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Approved for 1.0.0.9: 3.2.0 output ownership, profile export and Simucube 3 FFB guidance; existing 3.1.4/3.1.5 coverage preserved. No Tuner process recovery."
+  },
+  {
+    "url": "https://support.logi.com/hc/en-gb/articles/360048967733-G-HUB-Update-Release-Notes",
+    "status": "queued",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Approved for 1.0.0.9: 2026.6 G29/G920 input inside G HUB, theme-switch tray crashes and updater resource-use fixes. Older memory-fix wording is not evidence of a harmful PitMedic repair."
+  },
+  {
+    "url": "https://mozaracing.com/pages/download-center",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Reviewed October 19: offline installers/update/rollback tools are download choices, not evidence an existing PitMedic repair causes harm. No automatic firmware update or rollback."
+  },
+  {
+    "url": "https://vrs.racing/downloads",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Reviewed October 19: VRS ONE installer remains dated June 2; no new verified remedy in download listing."
+  },
+  {
+    "url": "https://support.iracing.com/support/solutions/articles/31000179767-2026-season-4-patch-1-release-notes-2026-10-01-01-",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "October display/spotter guidance already shipped in 1.0.0.8; reconciled against the October 5 review and current catalog."
+  },
+  {
+    "url": "https://www.asetek.com/simsports/racehub/",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "RaceHub 4.5.1 guidance already incorporated in 1.0.0.8. This reconciles the October 5 review, not a new vendor-version check."
+  },
+  {
+    "url": "https://forum.reizastudios.com/threads/my-wheel-and-paddles-simply-wont-work.36701/",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Staff-recommended Steam Input check already shipped in 1.0.0.8; not a locally reproduced repair."
+  },
+  {
+    "url": "https://guide.lemansultimate.com/hc/en-gb/articles/17713037697807-V1-4-2-Update-1-4-Patch-2",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Version-specific crash/team-sync guidance already shipped in 1.0.0.8; reconciled October 5 review."
+  },
+  {
+    "url": "https://guide.lemansultimate.com/hc/en-gb/articles/17739847034383-v1-4-2-1-Update-4-Patch-2-Hotfix-1",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Version-specific crash/team-sync guidance already shipped in 1.0.0.8; reconciled October 5 review."
+  },
+  {
+    "url": "https://help.fanatec.com/hc/en-us/articles/51886408760081-Fanatec-App-v1-7-0-7-Release-Notes",
+    "status": "needs-evidence",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "October 19: actual article/thread content could not be verified (retrieval failed or returned forum index). No remedy inferred from title."
+  },
+  {
+    "url": "https://www.assettocorsa.net/forum/index.php?threads/assetto-corsa-evo-%E2%80%93-n%C3%BCrburgring-multiplayer-crash.83960/",
+    "status": "needs-evidence",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "October 19: actual article/thread content could not be verified (retrieval failed or returned forum index). No remedy inferred from title."
+  },
+  {
+    "url": "https://forum.kw-studios.com/index.php?threads/complete-driver-profile-issue.21578/",
+    "status": "needs-evidence",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "October 19: actual article/thread content could not be verified (retrieval failed or returned forum index). No remedy inferred from title."
+  },
+  {
+    "url": "https://www.fanatec.com/ca/en/c/wheel-rims",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Discovery noise: shopping/catalog route or explicit unrelated trading-platform spam. No supported repair is removed."
+  },
+  {
+    "url": "https://community.lemansultimate.com/index.php?threads/steady-deservonage%E2%84%A2-official-website-%E3%80%90updated-2026%E3%80%91-exploring-its-trading-platform-and-features.19081/",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Discovery noise: shopping/catalog route or explicit unrelated trading-platform spam. No supported repair is removed."
+  },
+  {
+    "url": "https://www.fanatec.com/ca/en/c/sim-racing-accessories/wheel-base-accessories",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Discovery noise: shopping/catalog route or explicit unrelated trading-platform spam. No supported repair is removed."
+  },
+  {
+    "url": "https://www.fanatec.com/ca/en/c/sim-racing-accessories/steering-wheel-accessories",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Discovery noise: shopping/catalog route or explicit unrelated trading-platform spam. No supported repair is removed."
+  },
+  {
+    "url": "https://vrs.racing/product/vrs-ascher-ultimate-wheel",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Discovery noise: shopping/catalog route or explicit unrelated trading-platform spam. No supported repair is removed."
+  },
+  {
+    "url": "https://www.fanatec.com/ca/en/c/wheel-bases",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Discovery noise: shopping/catalog route or explicit unrelated trading-platform spam. No supported repair is removed."
+  },
+  {
+    "url": "https://www.fanatec.com/ca/en/c/sim-racing-bundles/wheel-pedal",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Discovery noise: shopping/catalog route or explicit unrelated trading-platform spam. No supported repair is removed."
+  },
+  {
+    "url": "https://www.fanatec.com/ca/en/c/sim-racing-bundles/racing-wheels",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Discovery noise: shopping/catalog route or explicit unrelated trading-platform spam. No supported repair is removed."
+  },
+  {
+    "url": "https://www.fanatec.com/ca/en/c/sim-racing-accessories/wheel-hubs",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Discovery noise: shopping/catalog route or explicit unrelated trading-platform spam. No supported repair is removed."
+  },
+  {
+    "url": "https://simagic.com/pages/details-aston-martin",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Discovery noise: shopping/catalog route or explicit unrelated trading-platform spam. No supported repair is removed."
+  },
+  {
+    "url": "https://www.fanatec.com/ca/en/c/steering-wheels",
+    "status": "no-change",
+    "reviewedAt": "2026-10-19T17:38:57Z",
+    "note": "Discovery noise: shopping/catalog route or explicit unrelated trading-platform spam. No supported repair is removed."
   }
 ]

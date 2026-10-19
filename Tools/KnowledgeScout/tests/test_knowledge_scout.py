@@ -17,6 +17,21 @@ SPEC.loader.exec_module(scout)
 
 
 class KnowledgeScoutTests(unittest.TestCase):
+    def test_shopping_and_trading_spam_do_not_displace_support_evidence(self) -> None:
+        links = [
+            ('https://www.fanatec.com/ca/en/c/wheel-rims', 'Wheel rims'),
+            ('https://vrs.racing/product/wheel', 'Wheel'),
+            ('https://simagic.com/pages/details-aston-martin', 'Wheel'),
+            ('https://community.lemansultimate.com/index.php?threads/spam.1/', 'Official trading platform update'),
+            ('https://help.fanatec.com/hc/en-us/articles/123-Release-Notes', 'Wheel crash fix'),
+            ('https://community.lemansultimate.com/index.php?threads/ffb-freezes.2/', 'Wheel force feedback freezes'),
+            ('https://simagic.com/pages/download-center', 'Wheel software update'),
+        ]
+        found = scout.candidate_links(links, ['wheel', 'update'],
+            {'www.fanatec.com', 'vrs.racing', 'simagic.com',
+             'community.lemansultimate.com', 'help.fanatec.com'}, limit=3)
+        self.assertEqual([u for u, _ in links[4:]], [x['url'] for x in found])
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.registry = json.loads((REPO_ROOT / "Knowledge/source-registry.json").read_text(encoding="utf-8"))

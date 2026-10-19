@@ -841,9 +841,9 @@ public static class RepairKnowledgeBase
             Id = "simucube-tuner-update-guidance",
             Game = "Simucube Tuner",
             IsGuidanceOnly = true,
-            Issue = "Tuner startup GPU use, saving crashes and pedal mapping",
+            Issue = "Tuner crashes, pedal mapping, force feedback and dash output",
             Detection = "Identify Simucube Tuner and its installed version manually. PitMedic's monitored True Drive process set is separate and does not detect or restart Tuner.",
-            RepairStrategy = "Tuner 3.1.4 (August 20, 2026) fixes high GPU use at Windows autostart and a saving crash after a wireless wheel disconnects. 3.1.5 (September 9) fixes swapped-pedal roles lost across restarts and some input-curve mapping failures. Compare the exact symptom and supported hardware, follow Simucube's manual update instructions, and retest. Do not use True Drive recovery for Tuner.",
+            RepairStrategy = "Tuner 3.2.0 (October 7, 2026) adds notifications when another app controls wheel LEDs or the dash, profile file export, and Simucube 3 fixes for certain oscillations, weakened direction-change effects and excess force on some DirectInput effects. For missing LEDs or dash data, check whether SimHub or PitStopApp owns the device output before resetting profiles. Use file export to preserve profiles on 3.2.0; older versions need their documented backup method. Hardware/firmware changes remain manual and must not be interrupted. Tuner 3.1.4 (August 20, 2026) fixes high GPU use at Windows autostart and a saving crash after a wireless wheel disconnects. 3.1.5 (September 9) fixes swapped-pedal roles lost across restarts and some input-curve mapping failures. Compare the exact symptom and supported hardware, follow Simucube's manual update instructions, and retest. Do not use True Drive recovery for Tuner.",
             Safety = "Guidance only / manual vendor update or reversible check",
             Signatures = Array.Empty<string>(),
             References = new[]

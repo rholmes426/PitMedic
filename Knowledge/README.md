@@ -57,6 +57,11 @@ The registry currently monitors 27 focused sources. Search results may help a ma
 
 Support and forum indexes report newly matched issue links without treating routine page churn as a finding. Version-bearing download, release, and single-article pages can also report an in-place text change. The rolling issue state is compressed so the broader link baseline remains within GitHub's issue-body limit, while state written by the earlier Scout remains readable.
 
+Known Fanatec category, VRS product and SIMAGIC product-detail routes, plus explicit
+unrelated trading-platform spam, are excluded from new link discovery. Support and
+release-note links remain eligible. Existing findings require recorded review
+decisions; filtering never changes a repair lifecycle state.
+
 ## Human review outcome
 
 For each useful finding, a maintainer should record one outcome:

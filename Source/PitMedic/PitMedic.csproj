@@ -10,10 +10,10 @@
     <Platforms>AnyCPU;x64</Platforms>
     <AssemblyName>PitMedic</AssemblyName>
     <RootNamespace>PitMedic</RootNamespace>
-    <Version>1.0.0.8</Version>
-    <AssemblyVersion>1.0.0.8</AssemblyVersion>
-    <FileVersion>1.0.0.8</FileVersion>
-    <InformationalVersion>1.0.0.8</InformationalVersion>
+    <Version>1.0.0.9</Version>
+    <AssemblyVersion>1.0.0.9</AssemblyVersion>
+    <FileVersion>1.0.0.9</FileVersion>
+    <InformationalVersion>1.0.0.9</InformationalVersion>
     <ReleaseChannel Condition="'$(ReleaseChannel)' == ''">preview</ReleaseChannel>
     <AssemblyTitle>PitMedic</AssemblyTitle>
     <Product>PitMedic Sim Racing Diagnostics &amp; Repair</Product>
@@ -32,6 +32,6 @@
     <Resource Include="Assets\PitMedic.png" />
     <EmbeddedResource Include="Assets\RaceRoomCars.json" />
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
-    <PackageReference Include="System.Diagnostics.EventLog" Version="10.0.12" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="10.0.13" />
   </ItemGroup>
 </Project>

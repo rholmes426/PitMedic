@@ -7,7 +7,7 @@
   <url><loc>https://pitmedic.com/simulators/automobilista-2/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://pitmedic.com/simulators/raceroom/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://pitmedic.com/simulators/assetto-corsa-evo/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://pitmedic.com/diagnostic-library/</loc><lastmod>2026-10-09</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/</loc><lastmod>2026-10-19</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/lmu-content-corruption/</loc><lastmod>2026-09-29</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/lmu-shader-cache/</loc><lastmod>2026-09-29</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/lmu-startup-config/</loc><lastmod>2026-09-29</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
@@ -64,13 +64,13 @@
   <url><loc>https://pitmedic.com/diagnostic-library/lmu-vendor-update-guidance/</loc><lastmod>2026-10-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/ace-companion-update-guidance/</loc><lastmod>2026-10-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/ams2-steam-input-guidance/</loc><lastmod>2026-10-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://pitmedic.com/diagnostic-library/simucube-tuner-update-guidance/</loc><lastmod>2026-10-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/simucube-tuner-update-guidance/</loc><lastmod>2026-10-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/iracing-season4-update-guidance/</loc><lastmod>2026-10-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/companion-moza-clean-recovery/</loc><lastmod>2026-09-29</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/companion-simucube-clean-recovery/</loc><lastmod>2026-10-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/companion-fanatec-process-recovery/</loc><lastmod>2026-10-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://pitmedic.com/diagnostic-library/companion-logitech-ghub-service-recovery/</loc><lastmod>2026-09-29</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://pitmedic.com/diagnostic-library/companion-simagic-clean-recovery/</loc><lastmod>2026-10-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/companion-logitech-ghub-service-recovery/</loc><lastmod>2026-10-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/companion-simagic-clean-recovery/</loc><lastmod>2026-10-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/companion-asetek-clean-recovery/</loc><lastmod>2026-10-05</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/companion-vrs-clean-recovery/</loc><lastmod>2026-09-29</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

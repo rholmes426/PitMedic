@@ -1,6 +1,26 @@
 # PitMedic pending updates
 
-## Approved 1.0.0.8 — fixes and diagnostic guidance (October 5, 2026)
+## Approved 1.0.0.9 — reviewed companion guidance (October 19, 2026)
+
+The owner explicitly authorized publishing this reviewed batch to both website and
+signed app. Release inputs target 1.0.0.9. Publication is pending required CI,
+protected signing and final website/updater verification.
+
+- Adds SimPro 3.2.3 launch/reinstall guidance, G HUB 2026.6 wheel-input/tray-crash/
+  updater guidance, and Tuner 3.2.0 output ownership/profile export/Simucube 3 FFB
+  guidance to the app and existing Diagnostic Library pages.
+- Preserves earlier checks, manual vendor updates and 65 library records; no new
+  automatic repairs, detector suppression or Tuner process monitoring.
+- Reconciles the Scout review log with shipped October guidance and records current
+  decisions. Narrow shopping/spam discovery filters preserve unresolved evidence.
+- Includes System.Diagnostics.EventLog 10.0.13 from dependency proposal #152.
+- Local validation: 23 Scout tests, 13 release/theme tests, catalog validation and
+  generated-library consistency passed. Full Windows CI remains required.
+- Evidence and limitations: Research/KnowledgeScoutReview-2026-10-19.md.
+- Tuner detection, SIMAGIC firmware observability, unverified Fanatec/EVO/RaceRoom
+  reports, and separate analytics dependency/deployment proposals remain pending.
+
+## Published 1.0.0.8 — fixes and diagnostic guidance (October 5, 2026)
 
 Owner requested all pending app/website updates, the recent fixes and diagnostic
 guidance, and publication. This authorizes the protected signed release and website
@@ -69,7 +89,9 @@ publication for this batch.
   Publication PR #116 synchronizes the website, README and updater; its Pages run
   verifies the live release links and downloaded installer checksum after merge.
 
-Public app baseline: **1.0.0.7**, published October 1, 2026 (Pacific).
+Public app baseline: **1.0.0.8**, published October 6, 2026 (Pacific).
+
+Previous app baseline: **1.0.0.7**, published October 1, 2026 (Pacific).
 
 Previous app baseline: **1.0.0.6**, published September 30, 2026 (Pacific).
 
