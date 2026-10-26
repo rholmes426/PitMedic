@@ -4,7 +4,7 @@
         Title="Help improve PitMedic" Icon="Assets/PitMedic.ico"
         Width="550" SizeToContent="Height" ResizeMode="NoResize"
         Background="{DynamicResource BgBrush}" Foreground="{DynamicResource TextBrush}"
-        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+        FontFamily="{DynamicResource BodyFont}" WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <Grid Margin="28">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -13,7 +13,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel>
-            <TextBlock Text="Help improve PitMedic" FontFamily="Segoe UI Variable Display" FontSize="28" FontWeight="SemiBold"/>
+            <TextBlock Text="Help improve PitMedic" FontFamily="{DynamicResource HeadingFont}" FontSize="28" FontWeight="SemiBold"/>
             <TextBlock Text="Help us understand how many people use PitMedic."
                        Foreground="{DynamicResource MutedBrush}" FontSize="15" Margin="0,7,0,0"/>
         </StackPanel>

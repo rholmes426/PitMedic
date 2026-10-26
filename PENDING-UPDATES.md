@@ -1,10 +1,21 @@
 # PitMedic pending updates
 
-## Approved 1.0.0.9 — reviewed companion guidance (October 19, 2026)
+## App / website visual parity (October 26, 2026)
+
+- Aligns app typography, button and card corners, and header branding with
+  pitmedic.com: Trebuchet MS body text, Segoe UI headings, compact square controls,
+  the existing P icon and a subtle header divider.
+- Applies the styling to the main window, settings, findings, repair and update
+  dialogs, including consent and usage previews. Carbon backgrounds, lime actions
+  and semantic warning/error colors remain aligned with the website.
+- Validation: existing contrast/resource tests and required Windows build/render
+  checks. Queued for the next signed app release.
+
+## Published 1.0.0.9 — reviewed companion guidance (October 19, 2026)
 
 The owner explicitly authorized publishing this reviewed batch to both website and
-signed app. Release inputs target 1.0.0.9. Publication is pending required CI,
-protected signing and final website/updater verification.
+signed app. Signed release and website/updater publication completed October 20;
+the live README, release, homepage, updater and installer checksum checks passed.
 
 - Adds SimPro 3.2.3 launch/reinstall guidance, G HUB 2026.6 wheel-input/tray-crash/
   updater guidance, and Tuner 3.2.0 output ownership/profile export/Simucube 3 FFB

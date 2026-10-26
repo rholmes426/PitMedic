@@ -4,7 +4,7 @@
         Title="Anonymous usage data" Icon="Assets/PitMedic.ico"
         Width="650" Height="540" MinWidth="540" MinHeight="440"
         Background="{DynamicResource BgBrush}" Foreground="{DynamicResource TextBrush}"
-        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+        FontFamily="{DynamicResource BodyFont}" WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
     <Grid Margin="26">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -12,7 +12,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel>
-            <TextBlock Text="Exactly what PitMedic shares" FontFamily="Segoe UI Variable Display" FontSize="25" FontWeight="SemiBold"/>
+            <TextBlock Text="Exactly what PitMedic shares" FontFamily="{DynamicResource HeadingFont}" FontSize="25" FontWeight="SemiBold"/>
             <TextBlock Text="The token values below are descriptions. Real tokens are random-looking, change automatically, and never contain personal or device information."
                        Foreground="{DynamicResource MutedBrush}" FontSize="13" Margin="0,7,0,16"/>
         </StackPanel>

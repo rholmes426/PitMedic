@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="PitMedic Settings" Icon="Assets/PitMedic.ico" Width="860" Height="790" MinWidth="760" MinHeight="620"
         Background="{DynamicResource BgBrush}" Foreground="{DynamicResource TextBrush}" FontSize="14"
-        WindowStartupLocation="CenterOwner">
+        FontFamily="{DynamicResource BodyFont}" WindowStartupLocation="CenterOwner">
     <Window.Resources>
         <Style TargetType="CheckBox" BasedOn="{StaticResource DarkCheckBoxStyle}">
             <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
@@ -27,7 +27,7 @@
 
         <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="24,18">
             <StackPanel>
-                <TextBlock Text="Settings" FontFamily="Segoe UI Variable Display" FontSize="27" FontWeight="SemiBold"/>
+                <TextBlock Text="Settings" FontFamily="{DynamicResource HeadingFont}" FontSize="27" FontWeight="SemiBold"/>
                 <TextBlock Text="Choose what PitMedic monitors and how it behaves." Foreground="{DynamicResource MutedBrush}" FontSize="13" Margin="0,5,0,0"/>
             </StackPanel>
         </Border>
@@ -43,7 +43,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Margin="0,0,24,0">
                             <TextBlock Text="APP UPDATES" Style="{StaticResource SectionHeader}" Foreground="{DynamicResource AccentBrush}"/>
-                            <TextBlock Text="Keep PitMedic current" FontFamily="Segoe UI Variable Display" FontSize="18" FontWeight="SemiBold"/>
+                            <TextBlock Text="Keep PitMedic current" FontFamily="{DynamicResource HeadingFont}" FontSize="18" FontWeight="SemiBold"/>
                             <TextBlock Text="Check for the latest fixes and improvements. PitMedic never downloads or installs an update without your approval."
                                        Foreground="{DynamicResource MutedBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,5,0,7"/>
                             <CheckBox x:Name="CheckForUpdates" Content="Check for PitMedic updates when the app starts"/>
