@@ -30,6 +30,11 @@ class ThemeTests(unittest.TestCase):
 
     def test_shared_identity(self):
         for web, app in {"background": "BgBrush", "surface": "PanelBrush",
+                         "surface-raised": "Panel2Brush", "heading": "TitleTextBrush",
+                         "text": "TextBrush", "muted": "MutedBrush", "line": "BorderBrush",
+                         "accent-hover": "AccentHoverBrush", "accent-pressed": "AccentPressedBrush",
+                         "accent-text": "AccentTextBrush", "accent-soft": "AccentSoftBrush",
+                         "success": "GoodBrush",
                          "accent": "AccentBrush", "warning": "WarnBrush",
                          "caution": "HotspotBrush", "danger": "DangerBrush"}.items():
             self.assertEqual(self.tokens[web].lower(), self.brushes[app].lower())

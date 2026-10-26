@@ -3,6 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
+        <!-- Typography and geometry follow pitmedic.com/styles.css. -->
+        <FontFamily x:Key="BodyFont">Trebuchet MS, Segoe UI</FontFamily>
+        <FontFamily x:Key="HeadingFont">Segoe UI</FontFamily>
+        <CornerRadius x:Key="ControlCornerRadius">2</CornerRadius>
+        <CornerRadius x:Key="CardCornerRadius">2</CornerRadius>
         <!-- PitMedic fixed visual identity: Carbon / Lime dark surfaces with semantic status accents. -->
         <SolidColorBrush x:Key="BgBrush" Color="#0B0F0D"/>
         <SolidColorBrush x:Key="PanelBrush" Color="#171D19"/>
@@ -136,7 +141,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
+                                CornerRadius="{StaticResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="Center"
@@ -186,7 +191,7 @@
                                                 Background="{TemplateBinding Background}"
                                                 BorderBrush="{TemplateBinding BorderBrush}"
                                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                                CornerRadius="7">
+                                                CornerRadius="{StaticResource ControlCornerRadius}">
                                             <ContentPresenter/>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -232,7 +237,7 @@
                                         Background="{DynamicResource InsetBrush}"
                                         BorderBrush="{DynamicResource BorderBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="8">
+                                        CornerRadius="{StaticResource CardCornerRadius}">
                                     <ScrollViewer SnapsToDevicePixels="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                                         <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
                                     </ScrollViewer>
@@ -270,7 +275,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Border" CornerRadius="8" Background="{TemplateBinding Background}"
+                        <Border x:Name="Border" CornerRadius="{StaticResource ControlCornerRadius}" Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -303,7 +308,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="PrimaryBorder" CornerRadius="8"
+                        <Border x:Name="PrimaryBorder" CornerRadius="{StaticResource ControlCornerRadius}"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
@@ -342,7 +347,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="TitleButtonBorder" CornerRadius="7"
+                        <Border x:Name="TitleButtonBorder" CornerRadius="{StaticResource ControlCornerRadius}"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
@@ -372,7 +377,7 @@
             <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="CornerRadius" Value="{StaticResource CardCornerRadius}"/>
             <Setter Property="Padding" Value="18"/>
         </Style>
 
@@ -388,7 +393,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
-                        <Border x:Name="Row" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
+                        <Border x:Name="Row" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{StaticResource CardCornerRadius}">
                             <ContentPresenter/>
                         </Border>
                         <ControlTemplate.Triggers>
