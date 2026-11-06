@@ -25,7 +25,7 @@ RELEASE_VERSION = RELEASE_VERSION_MATCH.group(1)
 LOGO_URL = "https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png"
 # Date of the last editorial change to the collection page itself. Individual
 # guide dates also advance its sitemap entry when the collection changes.
-INDEX_MODIFIED = "2026-10-09"
+INDEX_MODIFIED = "2026-11-06"
 
 GAME_SLUGS = {
     "Le Mans Ultimate": "le-mans-ultimate",
@@ -390,67 +390,210 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
     (destination / "index.html").write_text(page_header(page_title, description, canonical, schema) + body + page_footer(), encoding="utf-8")
 
 
+
+# Stable section anchors preserve guide URLs and avoid duplicate filter landing pages.
+LIBRARY_GROUPS = [
+    {
+        "slug": "iracing",
+        "name": "iRacing",
+        "products": [
+            "iRacing"
+        ],
+        "description": "Loading errors, failed updates, anti-cheat messages, frozen UI, and renderer settings.",
+        "coverage": "iracing"
+    },
+    {
+        "slug": "le-mans-ultimate",
+        "name": "Le Mans Ultimate",
+        "products": [
+            "Le Mans Ultimate"
+        ],
+        "description": "Startup crashes, track loading failures, plugins, overlays, memory, and online sessions.",
+        "coverage": "le-mans-ultimate"
+    },
+    {
+        "slug": "assetto-corsa-competizione",
+        "name": "Assetto Corsa Competizione (ACC)",
+        "products": [
+            "Assetto Corsa Competizione"
+        ],
+        "description": "Display settings, Controls menu crashes, wheel input, force feedback, and damaged game files.",
+        "coverage": "assetto-corsa-competizione"
+    },
+    {
+        "slug": "automobilista-2",
+        "name": "Automobilista 2 (AMS2)",
+        "products": [
+            "Automobilista 2"
+        ],
+        "description": "Graphics and VR configuration, controller calibration, custom force feedback, setups, and profiles.",
+        "coverage": "automobilista-2"
+    },
+    {
+        "slug": "raceroom",
+        "name": "RaceRoom",
+        "products": [
+            "RaceRoom Racing Experience"
+        ],
+        "description": "Error 503, blank UI, graphics settings, shader cache, and damaged configuration.",
+        "coverage": "raceroom"
+    },
+    {
+        "slug": "assetto-corsa-evo",
+        "name": "Assetto Corsa EVO",
+        "products": [
+            "Assetto Corsa EVO"
+        ],
+        "description": "Video settings, launch failures, user profiles, Steam files, and companion conflicts.",
+        "coverage": "assetto-corsa-evo"
+    },
+    {
+        "slug": "companion-software",
+        "name": "Wheelbase and companion software",
+        "products": [
+            "MOZA Pit House",
+            "Simucube True Drive",
+            "Simucube Tuner",
+            "Fanatec software",
+            "Logitech G HUB",
+            "SIMAGIC SimPro Manager",
+            "Asetek RaceHub",
+            "VRS DirectForce"
+        ],
+        "description": "MOZA, Simucube, Fanatec, Logitech, SIMAGIC, Asetek, and VRS app crashes, stale processes, and version-specific guidance.",
+        "coverage": ""
+    }
+]
+SYMPTOM_GUIDES = [
+    {
+        "name": "Loading errors and damaged content",
+        "ids": [
+            "iracing-loading-error-3",
+            "iracing-track-loading-errors",
+            "lmu-content-corruption"
+        ]
+    },
+    {
+        "name": "Launch failures and frozen screens",
+        "ids": [
+            "iracing-ui-cache",
+            "lmu-startup-config",
+            "raceroom-browser-cache"
+        ]
+    },
+    {
+        "name": "Updates and anti-cheat errors",
+        "ids": [
+            "iracing-eac-error73",
+            "iracing-missing-file-privileges",
+            "iracing-content-file-locked"
+        ]
+    },
+    {
+        "name": "Wheel input and force feedback",
+        "ids": [
+            "acc-controls",
+            "ams2-steam-input-guidance",
+            "companion-moza-clean-recovery"
+        ]
+    }
+]
+
+
+def library_title(entry: dict[str, object]) -> str:
+    heading = str(PUBLIC_CONTENT[str(entry["id"])].get("heading") or entry["issue"])
+    product = str(entry["product"])
+    return heading if product.lower() in heading.lower() else f"{product}: {heading}"
+
+
 def write_index(entries: list[dict[str, object]], destination: Path) -> None:
     canonical = f"{BASE_URL}/diagnostic-library/"
-    description = f"Browse {len(entries)} sim-racing troubleshooting guides for iRacing, Le Mans Ultimate, ACC, AMS2, RaceRoom, Assetto Corsa EVO, and companion software."
+    description = "Find fixes for sim racing loading errors, crashes, failed updates, wheel input, and force feedback. Browse by simulator, symptom, or companion software."
     crumb_html, crumb_schema = breadcrumbs([("Home", "/"), ("Diagnostic Library", None)])
     products = sorted({str(entry["product"]) for entry in entries})
     product_options = "".join(f'<option value="{esc(product.lower())}">{esc(product)}</option>' for product in products)
-    cards = []
-    for entry in entries:
-        label = repair_label(str(entry["safety"]))
-        search = " ".join([str(entry["product"]), str(entry["issue"]), str(entry["detection"]), *entry.get("signatures", [])]).lower()
-        cards.append(f'''
+    by_id = {str(entry["id"]): entry for entry in entries}
+    grouped = [(group, [entry for entry in entries if entry["product"] in group["products"]]) for group in LIBRARY_GROUPS]
+    ordered = [entry for _, members in grouped for entry in members]
+    if len(ordered) != len(entries) or len({entry["id"] for entry in ordered}) != len(entries):
+        raise ValueError("Every diagnostic must appear in exactly one library section")
+    topic_links = "".join(
+        f'<a href="#{esc(group["slug"])}"><strong>{esc(group["name"])}</strong><span>{len(members)} guides · {esc(group["description"])}</span></a>'
+        for group, members in grouped
+    )
+    symptoms = []
+    for topic in SYMPTOM_GUIDES:
+        links = "".join(f'<li><a href="/diagnostic-library/{esc(entry_id)}/">{esc(library_title(by_id[entry_id]))}</a></li>' for entry_id in topic["ids"])
+        symptoms.append(f'<section class="library-symptom"><h3>{esc(topic["name"])}</h3><ul>{links}</ul></section>')
+    sections = []
+    for group, members in grouped:
+        cards = []
+        for entry in members:
+            label = repair_label(str(entry["safety"]))
+            title = library_title(entry)
+            summary = str(PUBLIC_CONTENT[str(entry["id"])].get("description") or entry["detection"])
+            search = " ".join([str(entry["product"]), str(group["name"]), str(entry["issue"]), title, summary, str(entry["detection"]), *entry.get("signatures", [])]).lower()
+            cards.append(f'''
         <article class="library-card" data-product="{esc(str(entry["product"]).lower())}" data-kind="{esc(str(entry["kind"]).lower())}" data-repair="{esc(label.lower())}" data-search="{esc(search)}">
           <span class="library-card-product">{esc(entry["product"])}</span>
-          <h2><a href="/diagnostic-library/{esc(entry["id"])}/">{esc(entry["issue"])}</a></h2>
-          <p>{esc(entry["detection"])}</p>
-          <div><span>{esc(label)}</span><a href="/diagnostic-library/{esc(entry["id"])}/">View diagnostic →</a></div>
+          <h3><a href="/diagnostic-library/{esc(entry["id"])}/">{esc(title)}</a></h3>
+          <p>{esc(summary)}</p>
+          <div><span>{esc(label)}</span><a href="/diagnostic-library/{esc(entry["id"])}/" aria-label="Read guide: {esc(title)}">Read guide →</a></div>
         </article>''')
+        coverage = f'<a href="/simulators/{esc(group["coverage"])}/">About {esc(group["name"])} monitoring</a>' if group["coverage"] else ""
+        sections.append(f'''
+    <section class="library-group" id="{esc(group["slug"])}" aria-labelledby="{esc(group["slug"])}-title">
+      <header class="library-group-heading"><h2 id="{esc(group["slug"])}-title">{esc(group["name"])} troubleshooting</h2><p>{esc(group["description"])}</p>{coverage}</header>
+      <div class="library-grid">{"".join(cards)}</div>
+      <a class="library-back" href="#browse-software">Back to software list ↑</a>
+    </section>''')
     schema = {
         "@context": "https://schema.org",
         "@graph": [crumb_schema, {
             "@type": "CollectionPage",
-            "name": "PitMedic Diagnostic Library",
+            "name": "Sim racing troubleshooting guides",
             "description": description,
             "url": canonical,
-            "mainEntity": {"@type": "ItemList", "numberOfItems": len(entries)},
+            "mainEntity": {
+                "@type": "ItemList",
+                "numberOfItems": len(ordered),
+                "itemListElement": [
+                    {"@type": "ListItem", "position": position, "name": library_title(entry), "url": f"{canonical}{entry['id']}/"}
+                    for position, entry in enumerate(ordered, 1)
+                ],
+            },
         }],
     }
     body = f'''
   <section class="library-page">
     {crumb_html}
     <header class="library-hero library-index-hero">
-      <span class="section-kicker">Built into PitMedic</span>
-      <h1>PitMedic Diagnostic Library</h1>
-      <p>Search known sim-racing errors, launch failures, crashes, configuration problems, and companion-software issues. Each guide explains diagnostic evidence, available repairs, or version-specific manual checks.</p>
-      <div class="library-count"><strong>{len(entries)}</strong><span>diagnostic, repair and guidance records</span></div>
+      <span class="section-kicker">PitMedic Diagnostic Library</span>
+      <h1>Sim racing troubleshooting guides</h1>
+      <p>Find your simulator or match the error on your screen. Each guide explains what to check, the expected result, and whether PitMedic offers a repair or manual guidance.</p>
+      <div class="library-count"><strong>{len(entries)}</strong><span>troubleshooting guides</span></div>
     </header>
-    <section class="diagnostic-card diagnostic-guide" aria-labelledby="specific-errors-title">
-      <h2 id="specific-errors-title">Start with your error message</h2>
-      <p>These guides include manual steps, expected results, and when to stop.</p>
-      <ul class="featured-guides">
-        <li><a href="/diagnostic-library/iracing-missing-file-privileges/">iRacing Missing File Privileges</a></li>
-        <li><a href="/diagnostic-library/iracing-content-file-locked/">iRacing Content File Locked in Steam</a></li>
-        <li><a href="/diagnostic-library/iracing-eac-error73/">iRacing Error 73 at startup</a></li>
-      </ul>
+    <section class="library-browse" id="browse-software" aria-labelledby="browse-software-title">
+      <h2 id="browse-software-title">Browse by simulator or software</h2>
+      <nav class="library-topics" aria-label="Jump to simulator and companion guides">{topic_links}</nav>
     </section>
-    <nav class="library-topics" aria-label="Browse troubleshooting guides by simulator">
-      <a href="?software=iracing#library-results" data-product-filter="iracing"><strong>iRacing troubleshooting</strong><span>Loading errors, updates, UI, services, and anti-cheat</span></a>
-      <a href="?software=le%20mans%20ultimate#library-results" data-product-filter="le mans ultimate"><strong>Le Mans Ultimate troubleshooting</strong><span>Startup, content, memory, plugins, and overlays</span></a>
-      <a href="?software=assetto%20corsa%20competizione#library-results" data-product-filter="assetto corsa competizione"><strong>ACC troubleshooting</strong><span>Controls, force feedback, profiles, and Steam files</span></a>
-      <a href="?software=automobilista%202#library-results" data-product-filter="automobilista 2"><strong>Automobilista 2 troubleshooting</strong><span>Graphics, VR, controllers, force feedback, and profiles</span></a>
-      <a href="?software=raceroom%20racing%20experience#library-results" data-product-filter="raceroom racing experience"><strong>RaceRoom troubleshooting</strong><span>Error 503, startup, graphics, cache, and configuration</span></a>
-      <a href="?software=assetto%20corsa%20evo#library-results" data-product-filter="assetto corsa evo"><strong>Assetto Corsa EVO troubleshooting</strong><span>Startup, video settings, profiles, and Steam content</span></a>
-    </nav>
-    <section class="library-controls" aria-label="Filter diagnostics">
-      <label><span>Search</span><input id="library-search" type="search" placeholder="Error message, symptom, or software" autocomplete="off" /></label>
-      <label><span>Software</span><select id="library-product"><option value="">All software</option>{product_options}</select></label>
-      <label><span>Coverage</span><select id="library-repair"><option value="">All coverage</option><option value="automatic repair available">Automatic repair available</option><option value="approval required">Approval required</option><option value="guided diagnosis">Guided diagnosis</option></select></label>
+    <section class="library-symptoms" aria-labelledby="browse-symptoms-title">
+      <h2 id="browse-symptoms-title">Start with your symptom or error message</h2>
+      <div class="library-symptom-grid">{"".join(symptoms)}</div>
     </section>
-    <p class="library-results" id="library-results" role="status" aria-live="polite" tabindex="-1"><strong id="library-visible-count">{len(entries)}</strong> records shown</p>
-    <div class="library-grid" id="library-grid">{''.join(cards)}</div>
-    <p class="library-empty" id="library-empty" hidden>No matching diagnostic records. Try a broader search or clear a filter.</p>
+    <section class="library-search-section" aria-labelledby="search-guides-title">
+      <h2 id="search-guides-title">Search all troubleshooting guides</h2>
+      <div class="library-controls">
+        <label><span>Search</span><input id="library-search" type="search" placeholder="Try iRacing Error 73 or AMS2 wheel" autocomplete="off" /></label>
+        <label><span>Software</span><select id="library-product"><option value="">All software</option>{product_options}</select></label>
+        <label><span>Coverage</span><select id="library-repair"><option value="">All coverage</option><option value="automatic repair available">Automatic repair available</option><option value="approval required">Approval required</option><option value="guided diagnosis">Guided diagnosis</option></select></label>
+      </div>
+      <button class="library-reset" id="library-reset" type="button">Clear filters</button>
+      <p class="library-coverage-note">Coverage labels describe PitMedic's response when matching evidence is found. Guided diagnosis provides manual checks; an automatic repair is not available for every issue.</p>
+    </section>
+    <p class="library-results" id="library-results" role="status" aria-live="polite" tabindex="-1"><strong id="library-visible-count">{len(entries)}</strong> guides shown</p>
+    <div id="library-grid">{"".join(sections)}</div>
+    <p class="library-empty" id="library-empty" hidden>No matching guides. Try a broader search or clear the filters.</p>
   </section>
   <script>
     (() => {{
@@ -460,7 +603,7 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
       const cards = [...document.querySelectorAll('.library-card')];
       const count = document.querySelector('#library-visible-count');
       const empty = document.querySelector('#library-empty');
-      const topics = [...document.querySelectorAll('[data-product-filter]')];
+      const groups = [...document.querySelectorAll('.library-group')];
       const results = document.querySelector('#library-results');
       const readFilters = () => {{
         const params = new URLSearchParams(window.location.search);
@@ -480,34 +623,36 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
         window.history[push ? 'pushState' : 'replaceState'](null, '', url);
       }};
       const filter = () => {{
-        const query = search.value.trim().toLowerCase();
+        const terms = search.value.trim().toLowerCase().split(/\\s+/).filter(Boolean);
         let visible = 0;
         cards.forEach(card => {{
-          const show = (!query || card.dataset.search.includes(query)) && (!product.value || card.dataset.product === product.value) && (!repair.value || card.dataset.repair === repair.value);
+          const show = terms.every(term => card.dataset.search.includes(term)) && (!product.value || card.dataset.product === product.value) && (!repair.value || card.dataset.repair === repair.value);
           card.hidden = !show;
           if (show) visible += 1;
         }});
         count.textContent = visible;
         empty.hidden = visible !== 0;
-        topics.forEach(topic => {{
-          if (topic.dataset.productFilter === product.value) topic.setAttribute('aria-current', 'true');
-          else topic.removeAttribute('aria-current');
+        groups.forEach(group => {{
+          group.hidden = ![...group.querySelectorAll('.library-card')].some(card => !card.hidden);
         }});
       }};
       const update = () => {{ filter(); writeFilters(); }};
       search.addEventListener('input', update);
       product.addEventListener('change', update);
       repair.addEventListener('change', update);
-      topics.forEach(topic => topic.addEventListener('click', event => {{
-        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        event.preventDefault();
-        product.value = topic.dataset.productFilter;
+      document.querySelector('#library-reset').addEventListener('click', () => {{
         search.value = '';
+        product.value = '';
         repair.value = '';
-        filter();
-        writeFilters(true);
-        results.focus({{preventScroll: true}});
-        results.scrollIntoView({{block: 'start'}});
+        update();
+        search.focus();
+      }});
+      document.querySelectorAll('.library-topics a').forEach(link => link.addEventListener('click', event => {{
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        search.value = '';
+        product.value = '';
+        repair.value = '';
+        update();
       }}));
       window.addEventListener('popstate', () => {{ readFilters(); filter(); }});
       readFilters();
@@ -516,7 +661,7 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
   </script>
 '''
     destination.mkdir(parents=True, exist_ok=True)
-    (destination / "index.html").write_text(page_header("PitMedic Diagnostic Library — Known Sim Racing Issues & Fixes", description, canonical, schema) + body + page_footer(), encoding="utf-8")
+    (destination / "index.html").write_text(page_header("Sim Racing Troubleshooting Guides & Fixes | PitMedic", description, canonical, schema) + body + page_footer(), encoding="utf-8")
 
 
 def write_public_json(entries: list[dict[str, object]], destination: Path) -> None:
