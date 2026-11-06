@@ -193,8 +193,26 @@ public static class RepairPlanner
         catch { return false; }
     }
 
-    private static RepairPlan? CreateIRacingPlan(string category, IEnumerable<string> evidence) =>
-        PlanFromEvidence("iRacing", evidence) ?? PlanForCategory(category);
+    private static RepairPlan? CreateIRacingPlan(string category, IEnumerable<string> evidence)
+    {
+        var lines = evidence.ToArray();
+        // The detail can arrive in a later poll than Error 73. Apply this precedence to
+        // live incidents, history, and helper revalidation, including older saved evidence.
+        if (category.Contains("version rejected", StringComparison.OrdinalIgnoreCase)
+            || lines.Any(line => line.Contains("unknown file version", StringComparison.OrdinalIgnoreCase)))
+        {
+            var root = IRacingLocator.FindRoot();
+            if (root is not null && IRacingLocator.IsSteamInstall(root))
+                return Simple("iracing-steam-verify", "Validate iRacing content in Steam",
+                    "Anti-cheat rejected an installed file version. Steam will validate iRacing and reacquire damaged or outdated files. Wait for validation and downloads to finish, then retry the affected session.",
+                    "iRacing", RepairSafety.Reversible, 10, true,
+                    new[] { "Ensure the simulator is closed", "Start Steam validation", "Wait for validation and downloads", "Retry the affected session" }, "266410");
+            // EOS logs are cumulative. Do not pass historical paths to folder-removal
+            // repairs. Direct/unknown installs retain the diagnosis for manual reacquisition.
+            return null;
+        }
+        return PlanFromEvidence("iRacing", lines) ?? PlanForCategory(category);
+    }
 
     private static RepairPlan? PlanFromEvidence(string game, IEnumerable<string> evidence)
     {

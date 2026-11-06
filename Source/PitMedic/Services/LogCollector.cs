@@ -56,6 +56,8 @@ public sealed class LogCollector
             var iracing = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "iRacing");
             logFiles += CopyRecent(iracing, logsDest, logCutoff, f =>
                 f.Name.StartsWith("iRacingSim64Dx11", StringComparison.OrdinalIgnoreCase)
+                || f.Name.Equals("eos_anticheat_errors.txt", StringComparison.OrdinalIgnoreCase)
+                || f.Name.Equals("sim_launch.txt", StringComparison.OrdinalIgnoreCase)
                 || f.Extension.Equals(".log", StringComparison.OrdinalIgnoreCase));
         }
         else if (game.Kind == GameKind.LeMansUltimate)

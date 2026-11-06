@@ -148,6 +148,8 @@ jobs:
         run: dotnet run --project Source/PitMedic.UsageTests/PitMedic.UsageTests.csproj --configuration Release
       - name: Compile PitMedic Release
         run: dotnet build Source/PitMedic/PitMedic.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
+      - name: Test iRacing EOS monitoring and repair selection
+        run: dotnet run --project Source/PitMedic.MonitoringTests/PitMedic.MonitoringTests.csproj --configuration Release
       - name: Render current WPF website captures
         run: dotnet run --project Tools/WebsiteCaptures --configuration Release -- .
       - name: Upload website captures

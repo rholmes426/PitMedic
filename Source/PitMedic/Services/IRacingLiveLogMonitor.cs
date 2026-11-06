@@ -86,8 +86,14 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
             }
             catch { }
         }
+        // EOS reports a generic Error 73 header alongside its specific file rejection.
+        if (found.Any(f => IsContentVersionFault(f.SignatureId)))
+            found.RemoveAll(f => f.SignatureId is "eac-error-73" or "eac-failure");
         return found;
     }
+
+    internal static bool IsContentVersionFault(string id) =>
+        id is "track-file-version" or "car-file-version" or "unknown-file-version";
 
     private static bool TryMatch(string rawLine, out string id, out string category, out string message)
     {
@@ -112,6 +118,16 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
 
         if (ContainsAny(lower, "white screen", "black screen") && lower.Contains("iracing"))
             return Match("ui-render-failure", "iRacing UI startup failure", line, out id, out category, out message);
+
+        if (lower.Contains("unknown file version"))
+        {
+            var normalized = lower.Replace('\\', '/');
+            if (normalized.Contains("(tracks/"))
+                return Match("track-file-version", "iRacing track content version rejected", line, out id, out category, out message);
+            if (normalized.Contains("(cars/"))
+                return Match("car-file-version", "iRacing car content version rejected", line, out id, out category, out message);
+            return Match("unknown-file-version", "iRacing file version rejected", line, out id, out category, out message);
+        }
 
         if (lower.Contains("error 73"))
             return Match("eac-error-73", "Easy Anti-Cheat Error 73", line, out id, out category, out message);
@@ -180,15 +196,17 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
     {
         id = matchId;
         category = matchCategory;
-        message = raw.Length <= 240 ? raw : raw[..240] + "…";
+        message = raw.Length <= 240 ? raw : raw[..240] + ".";
         return true;
     }
 
     private static bool ContainsAny(string text, params string[] values) => values.Any(text.Contains);
 
-    private static IEnumerable<string> CandidateFiles()
+    private static IEnumerable<string> CandidateFiles() => CandidateFiles(
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "iRacing"));
+
+    internal static IEnumerable<string> CandidateFiles(string root)
     {
-        var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "iRacing");
         if (!Directory.Exists(root)) yield break;
 
         var roots = new[] { root, Path.Combine(root, "logs") };
@@ -207,6 +225,7 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
                 var interesting = name.StartsWith("iRacingSim64Dx11", StringComparison.OrdinalIgnoreCase)
                     || name.StartsWith("iRacingSim64DX11", StringComparison.OrdinalIgnoreCase)
                     || name.Equals("sim_launch.txt", StringComparison.OrdinalIgnoreCase)
+                    || name.Equals("eos_anticheat_errors.txt", StringComparison.OrdinalIgnoreCase)
                     || name.Equals("main-ui.log", StringComparison.OrdinalIgnoreCase)
                     || name.Contains("updater", StringComparison.OrdinalIgnoreCase)
                     || name.Contains("service", StringComparison.OrdinalIgnoreCase)
