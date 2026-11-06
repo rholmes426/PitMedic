@@ -15,9 +15,9 @@ public sealed class CrashClassifier
         var maxGpu = recent.Where(x => x.GpuTempC.HasValue).Select(x => x.GpuTempC!.Value).DefaultIfEmpty().Max();
         var maxHotspot = recent.Where(x => x.GpuHotspotC.HasValue).Select(x => x.GpuHotspotC!.Value).DefaultIfEmpty().Max();
 
-        if (maxCpu > 0) evidence.Add($"CPU peaked at {maxCpu:0}°C in the final minute.");
-        if (maxGpu > 0) evidence.Add($"GPU core peaked at {maxGpu:0}°C in the final minute.");
-        if (maxHotspot > 0) evidence.Add($"GPU hotspot peaked at {maxHotspot:0}°C in the final minute.");
+        if (maxCpu > 0) evidence.Add($"CPU peaked at {maxCpu:0}�C in the final minute.");
+        if (maxGpu > 0) evidence.Add($"GPU core peaked at {maxGpu:0}�C in the final minute.");
+        if (maxHotspot > 0) evidence.Add($"GPU hotspot peaked at {maxHotspot:0}�C in the final minute.");
         if (collected.DumpFiles > 0) evidence.Add($"PitMedic collected {collected.DumpFiles} crash dump file(s) written near the exit.");
         foreach (var hint in collected.CrashHints) evidence.Add(hint);
         foreach (var content in collected.AffectedInstalledContent)
@@ -81,7 +81,7 @@ public sealed class CrashClassifier
 
         if (liveFaults is { Count: > 0 })
         {
-            var lead = liveFaults[0];
+            var lead = liveFaults.FirstOrDefault(f => IRacingLiveLogMonitor.IsContentVersionFault(f.SignatureId)) ?? liveFaults[0];
             if (exitCode == 0)
             {
                 return new CrashClassification(lead.Category, 90,

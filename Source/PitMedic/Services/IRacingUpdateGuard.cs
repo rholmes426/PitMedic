@@ -36,7 +36,8 @@ public static class IRacingUpdateGuard
         "verification-failure" or "helper-service" or "waiting-service" or "digital-signature"
         or "content-file-locked" or "missing-file-privileges" or "could-not-find-sim"
         or "ui-welcome" or "ui-render-failure"
-        or "eac-failure" or "eac-error-73" or "eac-error-10011";
+        or "eac-failure" or "eac-error-73" or "eac-error-10011"
+        or "track-file-version" or "car-file-version" or "unknown-file-version";
 
     public static bool BlocksRepair(string repairId, bool updating) =>
         updating && repairId.StartsWith("iracing-", StringComparison.OrdinalIgnoreCase);

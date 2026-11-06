@@ -344,6 +344,7 @@ public sealed class RepairService : IDisposable
     {
         return plan.Id switch
         {
+            "iracing-steam-verify" => await RepairSteamVerifyAsync(incident, plan, backupRoot, token, GameKind.IRacing, "iRacing", "266410"),
             _ when CompanionRecoveryPolicy.IsSupportedRepairId(plan.Id) => await RepairCompanionAppAsync(incident, plan, backupRoot, token),
 
             "lmu-steam-verify" => await RepairLmuSteamVerifyAsync(incident, plan, backupRoot, token),
