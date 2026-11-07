@@ -981,10 +981,11 @@
     ]
   },
   "companion-fanatec-process-recovery": {
-    "modified": "2026-10-05",
+    "modified": "2026-11-07",
     "intro": "A confirmed Fanatec software application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
     "meaning": "A confirmed Fanatec software application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
     "checks": [
+      "Fanatec App 1.7.1.4 addresses force feedback loss in some games, missing game profiles, and certain controls resetting after an update. Compare the installed app version and retest the matching symptom after a supported manual app update. This release contains no firmware changes.",
       "Consult the official 1.5.4.2 release notes for the included 1.5.4.1 CSL DD / GT DD Pro menu-return oscillation fix. Driver and firmware updates remain manual.",
       "Close every supported simulator and save any work in the companion app.",
       "Record whether you use the Fanatec App or legacy Driver/Control Panel and FanaLab. Use the vendor’s compatibility guidance before switching between them.",
@@ -995,10 +996,11 @@
     "limits": "This recovery does not flash firmware, replace drivers, recalibrate devices, or remove wheel profiles. Remaining open for the verification interval does not prove long-term stability or solve every device-detection issue. PitMedic does not uninstall the Fanatec App or migrate a system to legacy software."
   },
   "companion-logitech-ghub-service-recovery": {
-    "modified": "2026-10-19",
+    "modified": "2026-11-07",
     "intro": "A confirmed Logitech G HUB application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
     "meaning": "A confirmed Logitech G HUB application fault or leftover process can justify a controlled restart. First separate an app failure from a device, driver, or firmware issue.",
     "checks": [
+      "G HUB 2026.7.1011216 addresses a blocked app-to-service connection, process update issues, and cases where quitting from the tray left the agent running. Compare the installed version before repeating recovery for those symptoms.",
       "2026.6.974819 (September 21, 2026) fixes G29/G920 input not registering inside G HUB, tray-process crashes when Windows switches light/dark mode, and updater memory leaks causing excess memory/disk use during downloads. Match the exact symptom and retest after a supported manual update; missing input inside G HUB does not prove a simulator binding fault.",
       "Close every supported simulator and save any work in the companion app.",
       "Check whether the UI is stuck loading and whether LGHUBUpdaterService exists. This recovery restarts that specific service and requires elevation.",
@@ -1163,6 +1165,44 @@
     "related": [
       "iracing-renderer-config",
       "iracing-update-verification"
+    ]
+  },
+  "iracing-simucube-link-port-ffb-guidance": {
+    "heading": "Force feedback drops with Simucube ActivePedals and another wheelbase",
+    "modified": "2026-11-07",
+    "title": "Force feedback drops with Simucube ActivePedals and another wheelbase | PitMedic",
+    "description": "Check for force feedback cutting out on a rig with Simucube ActivePedals and no Simucube wheel. Confirm build 2026.11.02.01 or later and look for the existing simucubeTreatLinkPortAsWheel setting in app.ini.",
+    "intro": "For this hardware combination, iRacing documents setting simucubeTreatLinkPortAsWheel to 0 under [Force Feedback]. Close iRacing, let any update finish, and back up app.ini in Documents\\iRacing. Change only the existing setting, then retest force feedback and pedal inputs in a practice session. Restore the original value with iRacing closed if it does not help.",
+    "meaning": "Check for force feedback cutting out on a rig with Simucube ActivePedals and no Simucube wheel. Confirm build 2026.11.02.01 or later and look for the existing simucubeTreatLinkPortAsWheel setting in app.ini.",
+    "checks": [
+      "Confirm the pedals are Simucube ActivePedals and the wheelbase is from another manufacturer. Record the iRacing build and when force feedback drops.",
+      "Close the simulator, let any update finish, and back up Documents\\iRacing\\app.ini. Find simucubeTreatLinkPortAsWheel under [Force Feedback]. If the setting is missing, check the build and the active configuration file before proceeding.",
+      "If the current value is 1, change only that value to 0. Preserve the original value for rollback."
+    ],
+    "result": "Repeat the same scenario in a practice session and verify steering forces and pedal inputs. If the dropout persists, close iRacing and restore the original value.",
+    "limits": "Manual guidance for the specified mixed-hardware setup. Keep the original setting if you use a Simucube wheel. PitMedic does not change this setting automatically.",
+    "related": [
+      "iracing-season4-update-guidance",
+      "simucube-tuner-update-guidance"
+    ]
+  },
+  "raceroom-loading-ffb-update-guidance": {
+    "heading": "Loading-screen crashes and force feedback loss after the Historic Update",
+    "modified": "2026-11-07",
+    "title": "Loading-screen crashes and force feedback loss after the Historic Update | PitMedic",
+    "description": "Check the installed RaceRoom client version and whether the issue occurs at the end of loading, while joining multiplayer, or when using a wheel with a gamepad profile.",
+    "intro": "RaceRoom 0.9.9.14 fixed a crash near the end of loading. Version 0.9.9.15 fixed another end-of-loading crash when joining multiplayer, along with specific wheel force feedback loss and stutter. For matching symptoms on older builds, let Steam apply the current supported update, then retry the same session and controls before resetting graphics or user profiles.",
+    "meaning": "Check the installed RaceRoom client version and whether the issue occurs at the end of loading, while joining multiplayer, or when using a wheel with a gamepad profile.",
+    "checks": [
+      "Record the client version and whether the crash occurs at the end of loading or only when joining multiplayer. For force feedback loss, note the wheelbase and whether the active profile was created for a gamepad.",
+      "If the installed version predates the fix for the matching symptom, allow Steam to finish updating before testing again.",
+      "Keep the current graphics and controller profiles for the first retest so you can compare the same setup."
+    ],
+    "result": "Retry the same loading or multiplayer scenario. For force feedback, confirm steering response in a practice session. If the symptom persists, save the current log and client version for further diagnosis.",
+    "limits": "These fixes apply to the cases documented in the patch notes. A generic crash or force feedback dropout can have other causes.",
+    "related": [
+      "raceroom-steam-content",
+      "raceroom-graphics-config"
     ]
   }
 }

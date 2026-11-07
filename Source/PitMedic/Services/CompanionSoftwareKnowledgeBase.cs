@@ -25,13 +25,14 @@ public static class CompanionSoftwareKnowledgeBase
             Official("Fanatec app telemetry no longer working", "Fanatec Support", "https://help.fanatec.com/hc/en-us/articles/47862678424593-The-game-telemetry-function-of-the-Fanatec-app-is-no-longer-working",
                 "Fanatec documents restarting the app as the first recovery when its telemetry feed stops or the app crashes."),
             Official("Fanatec App and legacy downloads", "Fanatec Support", "https://www.fanatec.com/ca/en/s/download-apps-driver", "Official compatibility guidance distinguishes the Fanatec App from legacy Driver/Control Panel and FanaLab."),
+            Official("Fanatec App 1.7.1.4 release notes", "Fanatec Support", "https://help.fanatec.com/hc/en-us/articles/52640801907473-Fanatec-App-v1-7-1-4-Release-Notes", "App-only update for lost force feedback in some games, missing game profiles and certain settings reverting after an update."),
             Official("Fanatec App 1.5.4.2 release notes", "Fanatec Support", "https://help.fanatec.com/hc/en-us/articles/50512683066513-Fanatec-App-v1-5-4-2-Release-Notes", "Current official record includes the 1.5.4.1 CSL DD / GT DD Pro oscillation fix. Driver and firmware changes remain manual."),
             Official("Fanatec App 1.5.4.1 hotfix", "Fanatec Team", "https://forum.fanatec.com/topic/20482-fanatec-app-v1541-hotfix/", "Official CSL DD and GT DD Pro fix for oscillation after returning from menus in RaceRoom and other named titles. Hardware updates remain manual.")
         },
         CompanionSoftwareKind.LogitechGHub => new[]
         {
             Official("G HUB release notes", "Logitech Support", "https://support.logi.com/hc/en-gb/articles/360048967733-G-HUB-Update-Release-Notes",
-                "2026.6 documents G29/G920 input, Windows-theme tray crashes and updater memory fixes; 2026.4 documents memory fixes; 2026.5 adds a manual Windows reinstall option. Match the installed version and symptom before escalating."),
+                "2026.7 documents app-to-service connectivity, updater, and tray-exit fixes. 2026.6 documents G29/G920 input, Windows-theme tray crashes and updater memory fixes; 2026.4 documents memory fixes; 2026.5 adds a manual Windows reinstall option. Match the installed version and symptom before escalating."),
             Official("G HUB freezes while loading", "Logitech Support", "https://support.logi.com/hc/en-ca/articles/360036179173-G-HUB-freezes-while-loading-and-logo-animation-loops",
                 "Logitech documents closing the G HUB agent/UI processes before restarting the software."),
             Official("G HUB install/uninstall/update troubleshooting", "Logitech Support", "https://support.logi.com/hc/en-150/articles/360023192454-G-HUB-Install-Uninstall-Update-Troubleshooting",

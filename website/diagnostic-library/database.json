@@ -1781,6 +1781,59 @@
       "reviewCadenceDays": 180
     },
     {
+      "id": "iracing-simucube-link-port-ffb-guidance",
+      "displayKind": "Diagnostic guidance",
+      "product": "iRacing",
+      "issue": "Force feedback drops with Simucube ActivePedals and another wheelbase",
+      "detection": "Check for force feedback cutting out on a rig with Simucube ActivePedals and no Simucube wheel. Confirm build 2026.11.02.01 or later and look for the existing simucubeTreatLinkPortAsWheel setting in app.ini.",
+      "repair": "For this hardware combination, iRacing documents setting simucubeTreatLinkPortAsWheel to 0 under [Force Feedback]. Close iRacing, let any update finish, and back up app.ini in Documents\\iRacing. Change only the existing setting, then retest force feedback and pedal inputs in a practice session. Restore the original value with iRacing closed if it does not help.",
+      "safety": "Guidance only / manual vendor update or reversible check",
+      "signatures": [],
+      "references": [
+        {
+          "title": "2026 Season 4 Patch 2",
+          "source": "iRacing Support",
+          "url": "https://support.iracing.com/support/solutions/articles/31000179983-2026-season-4-patch-2-release-notes-2026-11-02-01-",
+          "note": "Introduces the link-port setting for ActivePedals with no Simucube wheel.",
+          "official": true
+        },
+        {
+          "title": "Find the iRacing Force Feedback settings",
+          "source": "Logitech Support",
+          "url": "https://support.logi.com/hc/en-150/articles/43724930421655-How-to-set-up-iRacing-TRUEFORCE-effects",
+          "note": "Shows where iRacing stores app.ini and its Force Feedback section.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-guidance",
+      "status": "guidance",
+      "lastVerified": "2026-11-07",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "raceroom-loading-ffb-update-guidance",
+      "displayKind": "Diagnostic guidance",
+      "product": "RaceRoom Racing Experience",
+      "issue": "Loading-screen crashes and force feedback loss after the Historic Update",
+      "detection": "Check the installed RaceRoom client version and whether the issue occurs at the end of loading, while joining multiplayer, or when using a wheel with a gamepad profile.",
+      "repair": "RaceRoom 0.9.9.14 fixed a crash near the end of loading. Version 0.9.9.15 fixed another end-of-loading crash when joining multiplayer, along with specific wheel force feedback loss and stutter. For matching symptoms on older builds, let Steam apply the current supported update, then retry the same session and controls before resetting graphics or user profiles.",
+      "safety": "Guidance only / manual vendor update or reversible check",
+      "signatures": [],
+      "references": [
+        {
+          "title": "RaceRoom October 24 and 25 patch notes",
+          "source": "RaceRoom on Steam",
+          "url": "https://steamcommunity.com/app/211500/allnews",
+          "note": "Client versions 0.9.9.14 and 0.9.9.15 document the loading fixes and the later force feedback changes.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-guidance",
+      "status": "guidance",
+      "lastVerified": "2026-11-07",
+      "reviewCadenceDays": 180
+    },
+    {
       "id": "companion-moza-clean-recovery",
       "displayKind": "Companion software repair",
       "product": "MOZA Pit House",
@@ -1858,7 +1911,7 @@
       "product": "Fanatec software",
       "issue": "Recover Fanatec software",
       "detection": "Confirmed app fault and process-set recovery",
-      "repair": "Fanatec instructs removing the Fanatec App before choosing legacy Driver/Control Panel and FanaLab; follow vendor instructions manually. For CSL DD or GT DD Pro oscillation after leaving RaceRoom menus, consult the official 1.5.4.2 release notes (including the 1.5.4.1 hotfix) and current supported update. PitMedic does not uninstall software or change drivers, firmware, or profiles. PitMedic closes the Fanatec app, Control Panel, and FanaLab process set, relaunches the validated installed app, and verifies that it stays running.",
+      "repair": "Fanatec instructs removing the Fanatec App before choosing legacy Driver/Control Panel and FanaLab; follow vendor instructions manually. For CSL DD or GT DD Pro oscillation after leaving RaceRoom menus, consult the official 1.5.4.2 release notes (including the 1.5.4.1 hotfix) and current supported update. Fanatec App 1.7.1.4 addresses force feedback loss in some games, missing game profiles, and certain controls resetting after an update. Compare the installed app version and retest the matching symptom after a supported manual app update. This release contains no firmware changes. PitMedic does not uninstall software or change drivers, firmware, or profiles. PitMedic closes the Fanatec app, Control Panel, and FanaLab process set, relaunches the validated installed app, and verifies that it stays running.",
       "safety": "Ask first / controlled restart",
       "signatures": [],
       "steps": [
@@ -1880,6 +1933,13 @@
           "source": "Fanatec Support",
           "url": "https://www.fanatec.com/ca/en/s/download-apps-driver",
           "note": "Official compatibility guidance distinguishes the Fanatec App from legacy Driver/Control Panel and FanaLab.",
+          "official": true
+        },
+        {
+          "title": "Fanatec App 1.7.1.4 release notes",
+          "source": "Fanatec Support",
+          "url": "https://help.fanatec.com/hc/en-us/articles/52640801907473-Fanatec-App-v1-7-1-4-Release-Notes",
+          "note": "App-only update for lost force feedback in some games, missing game profiles and certain settings reverting after an update.",
           "official": true
         },
         {
@@ -1908,7 +1968,7 @@
       "product": "Logitech G HUB",
       "issue": "Recover Logitech G HUB",
       "detection": "Loading-loop, agent-fault, and updater-service recovery",
-      "repair": "PitMedic follows Logitech's loading-loop recovery order: close the G HUB UI and agent, restart the G HUB updater service, relaunch G HUB, and verify that it stays running. For recurring faults, compare the installed version with Logitech's notes: 2026.4.4919028 (July 13, 2026) fixed a registry memory leak and one agent memory-corruption source; 2026.5.939708 (August 11) added a Windows troubleshooting-page reinstall option. 2026.6.974819 (September 21, 2026) fixes G29/G920 input not registering inside G HUB, tray-process crashes when Windows switches light/dark mode, and updater memory leaks causing excess memory/disk use during downloads. Match the exact symptom and retest after a supported manual update; missing input inside G HUB does not prove a simulator binding fault. These do not explain every fault. Vendor update or reinstall is a manual escalation; PitMedic preserves settings.",
+      "repair": "PitMedic follows Logitech's loading-loop recovery order: close the G HUB UI and agent, restart the G HUB updater service, relaunch G HUB, and verify that it stays running. For recurring faults, compare the installed version with Logitech's notes: 2026.4.4919028 (July 13, 2026) fixed a registry memory leak and one agent memory-corruption source; 2026.5.939708 (August 11) added a Windows troubleshooting-page reinstall option. 2026.6.974819 (September 21, 2026) fixes G29/G920 input not registering inside G HUB, tray-process crashes when Windows switches light/dark mode, and updater memory leaks causing excess memory/disk use during downloads. G HUB 2026.7.1011216 addresses a blocked app-to-service connection, process update issues, and cases where quitting from the tray left the agent running. Compare the installed version before repeating recovery for those symptoms. Match the exact symptom and retest after a supported manual update; missing input inside G HUB does not prove a simulator binding fault. These do not explain every fault. Vendor update or reinstall is a manual escalation; PitMedic preserves settings.",
       "safety": "Ask first / requires elevation",
       "signatures": [],
       "steps": [
@@ -1923,7 +1983,7 @@
           "title": "G HUB release notes",
           "source": "Logitech Support",
           "url": "https://support.logi.com/hc/en-gb/articles/360048967733-G-HUB-Update-Release-Notes",
-          "note": "2026.6 documents G29/G920 input, Windows-theme tray crashes and updater memory fixes; 2026.4 documents memory fixes; 2026.5 adds a manual Windows reinstall option. Match the installed version and symptom before escalating.",
+          "note": "2026.7 documents app-to-service connectivity, updater, and tray-exit fixes. 2026.6 documents G29/G920 input, Windows-theme tray crashes and updater memory fixes; 2026.4 documents memory fixes; 2026.5 adds a manual Windows reinstall option. Match the installed version and symptom before escalating.",
           "official": true
         },
         {
