@@ -89,12 +89,21 @@ public sealed class RepairService : IDisposable
         return true;
     }
 
-    private static bool IsProcessRunning(string name, int? exceptPid)
+    private static bool IsProcessRunning(string name, int? exceptPid = null)
     {
         try
         {
             var processes = Process.GetProcessesByName(name);
-            try { return processes.Any(process => process.Id != exceptPid); }
+            try
+            {
+                foreach (var process in processes)
+                {
+                    if (process.Id == exceptPid) continue;
+                    using var lifetime = new ProcessExitMonitor(process);
+                    if (!lifetime.TryGetExitCode(out _)) return true;
+                }
+                return false;
+            }
             finally { foreach (var process in processes) process.Dispose(); }
         }
         catch { return true; } // Unknown process state must not start an automatic repair.
@@ -1275,15 +1284,8 @@ public sealed class RepairService : IDisposable
     {
         if (kind == GameKind.IRacing) IRacingUpdateGuard.EnsureIdle();
         var game = GameDefinition.Supported.First(g => g.Kind == kind);
-        foreach (var alias in game.ProcessNames)
-        {
-            var processes = Process.GetProcessesByName(alias);
-            try
-            {
-                if (processes.Length > 0) throw new InvalidOperationException($"{displayName} is still running. Close the simulator before applying this repair.");
-            }
-            finally { foreach (var p in processes) p.Dispose(); }
-        }
+        if (game.ProcessNames.Any(name => IsProcessRunning(name)))
+            throw new InvalidOperationException($"{displayName} is still running. Close the simulator before applying this repair.");
     }
 
     private static string? ResolveCompanionExecutable(CompanionSoftwareDefinition software, string capturedPath)
@@ -1940,20 +1942,8 @@ public sealed class RepairService : IDisposable
     }
 
     private static bool IsLmuRunning()
-    {
-        foreach (var alias in GameDefinition.Supported.First(g => g.Kind == GameKind.LeMansUltimate).ProcessNames)
-        {
-            try
-            {
-                var processes = Process.GetProcessesByName(alias);
-                var any = processes.Length > 0;
-                foreach (var process in processes) process.Dispose();
-                if (any) return true;
-            }
-            catch { }
-        }
-        return false;
-    }
+        => GameDefinition.Supported.First(g => g.Kind == GameKind.LeMansUltimate)
+            .ProcessNames.Any(name => IsProcessRunning(name));
 
     private static bool IsAdministrator()
     {

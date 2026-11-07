@@ -47,23 +47,25 @@ public sealed class GameWatchService : IDisposable
             if (current is not null && current.Lifetime.TryGetExitCode(out _))
                 TriggerExit(current);
 
-            var process = FindProcess(game);
-            if (process is null) continue;
-
+            TrackedGame? tracked = null;
             try
             {
-                var tracked = new TrackedGame(game, process, SafeStart(process));
+                tracked = FindRunningGame(game);
+                if (tracked is null) continue;
+
                 tracked.LiveLogMonitor = SimulatorLiveLogMonitor.Create(game.Kind);
                 tracked.LiveLogMonitor?.StartSession(tracked.Started);
                 ObserveMainWindow(tracked);
+                AppLog.Write($"Detected {game.DisplayName}: PID {tracked.Process.Id}, process={tracked.Process.ProcessName}");
                 lock (_gate) _tracked[game.Kind] = tracked;
-                AppLog.Write($"Detected {game.DisplayName}: PID {process.Id}, process={process.ProcessName}");
+                tracked = null; // The registered session owns the process handles.
                 GameStatusChanged?.Invoke(game.Kind, true);
             }
             catch (Exception ex)
             {
                 AppLog.Write($"Failed to track {game.DisplayName}: {ex.Message}");
-                process.Dispose();
+                tracked?.Lifetime.Dispose();
+                tracked?.Process.Dispose();
             }
         }
 
@@ -165,7 +167,7 @@ public sealed class GameWatchService : IDisposable
         };
     }
 
-    private static Process? FindProcess(GameDefinition game)
+    private static TrackedGame? FindRunningGame(GameDefinition game)
     {
         var candidates = new List<Process>();
         foreach (var alias in game.ProcessNames)
@@ -173,10 +175,24 @@ public sealed class GameWatchService : IDisposable
             try { candidates.AddRange(Process.GetProcessesByName(alias)); }
             catch { }
         }
-        if (candidates.Count == 0) return null;
-        var selected = candidates.OrderByDescending(SafeStart).First();
-        foreach (var p in candidates.Where(p => p.Id != selected.Id)) p.Dispose();
-        return selected;
+
+        TrackedGame? selected = null;
+        try
+        {
+            foreach (var candidate in candidates.OrderByDescending(SafeStart))
+            {
+                var lifetime = ProcessExitMonitor.AttachToRunningProcess(candidate);
+                if (lifetime is null) continue;
+                selected = new TrackedGame(game, candidate, SafeStart(candidate), lifetime);
+                break;
+            }
+            return selected;
+        }
+        finally
+        {
+            foreach (var candidate in candidates)
+                if (!ReferenceEquals(candidate, selected?.Process)) candidate.Dispose();
+        }
     }
 
     private void PollLiveFaults(TrackedGame tracked)
@@ -335,11 +351,11 @@ public sealed class GameWatchService : IDisposable
         public nint LastMainWindow;
         public bool StoppedForRepair;
 
-        public TrackedGame(GameDefinition game, Process process, DateTimeOffset started)
+        public TrackedGame(GameDefinition game, Process process, DateTimeOffset started, ProcessExitMonitor lifetime)
         {
             Game = game;
             Process = process;
-            Lifetime = new ProcessExitMonitor(process);
+            Lifetime = lifetime;
             Started = started;
         }
     }

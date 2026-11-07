@@ -22,6 +22,16 @@ public sealed class ProcessExitMonitor : IDisposable
             _handle = OpenProcess(0x00100000 | 0x00001000, false, _pid);
     }
 
+    // A process may remain in an enumeration after its lifetime ended. Only attach
+    // the watcher to a process whose exit has not already been confirmed.
+    public static ProcessExitMonitor? AttachToRunningProcess(Process process)
+    {
+        var monitor = new ProcessExitMonitor(process);
+        if (!monitor.TryGetExitCode(out _)) return monitor;
+        monitor.Dispose();
+        return null;
+    }
+
     public bool TryGetExitCode(out int? exitCode)
     {
         lock (_gate) return ReadExitCode(out exitCode);
@@ -34,10 +44,23 @@ public sealed class ProcessExitMonitor : IDisposable
         {
             var wait = WaitForSingleObject(_handle, 0);
             if (wait != 0) return false; // WAIT_TIMEOUT or WAIT_FAILED: keep tracking.
-            if (GetExitCodeProcess(_handle, out var code)) exitCode = unchecked((int)code);
-            return true; // A real process is allowed to terminate with code 259.
+            if (GetExitCodeProcess(_handle, out var code))
+            {
+                // 259 is both STILL_ACTIVE and a possible application exit code.
+                // Require a recorded exit time for that ambiguous value.
+                if (code == 259 && (!GetProcessTimes(_handle, out _, out var exited, out _, out _)
+                    || exited == 0)) return ConfirmByProcessIdentity(out exitCode);
+                exitCode = unchecked((int)code);
+            }
+            return true;
         }
 
+        return ConfirmByProcessIdentity(out exitCode);
+    }
+
+    private bool ConfirmByProcessIdentity(out int? exitCode)
+    {
+        exitCode = null;
         // Access denied is unknown, not exited. A fresh process object avoids cached
         // HasExited state. PID disappearance or reuse confirms the old session ended.
         try
@@ -64,4 +87,8 @@ public sealed class ProcessExitMonitor : IDisposable
     [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool GetExitCodeProcess(SafeWaitHandle handle, out uint exitCode);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetProcessTimes(SafeWaitHandle handle, out long created, out long exited, out long kernel, out long user);
 }
