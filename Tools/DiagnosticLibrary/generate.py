@@ -523,7 +523,7 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
       <span class="section-kicker">Fixes built into PitMedic</span>
       <h1>Diagnostic Library</h1>
       <p>These guides cover the repairs and checks built into PitMedic. The app detects supported issues and performs available fixes for you.</p>
-      <div class="directory-download"><a class="button button-primary" href="{RELEASE_URL}">Download PitMedic — Free</a><span>Windows 10/11 · Repairs and guided checks clearly labeled below</span></div>
+      <div class="directory-download"><a class="button button-primary" href="{RELEASE_URL}">Download PitMedic</a><span>Windows 10/11 · Repairs and guided checks clearly labeled below</span></div>
     </header>
     <form class="directory-search" role="search" onsubmit="return false">
       <label class="directory-search-label" for="library-search">Search {len(entries)} troubleshooting guides</label>
