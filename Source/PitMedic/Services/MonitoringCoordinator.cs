@@ -28,8 +28,8 @@ public sealed class MonitoringCoordinator : IDisposable
     public MonitoringCoordinator(SettingsService settings)
     {
         _settings = settings;
-        _repairs = new RepairService(_usage);
         _games = new GameWatchService(_buffer, _incidents, _settings);
+        _repairs = new RepairService(_usage, games: _games);
         _companions = new CompanionSoftwareWatchService(_buffer, _incidents, _settings);
         _games.GameStatusChanged += (g, running) =>
         {

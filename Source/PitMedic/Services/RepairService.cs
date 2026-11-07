@@ -13,6 +13,7 @@ public sealed class RepairService : IDisposable
 {
     private readonly object _gate = new();
     private readonly UsageStatsService? _usage;
+    private readonly GameWatchService? _games;
     private CancellationTokenSource? _activeCts;
     private RepairStatus? _current;
     private DateTimeOffset _startedAt;
@@ -28,9 +29,11 @@ public sealed class RepairService : IDisposable
         UsageStatsService? usage,
         bool executeElevatedRepairsLocally = false,
         bool persistStatus = true,
-        Guid? repairStatusId = null)
+        Guid? repairStatusId = null,
+        GameWatchService? games = null)
     {
         _usage = usage;
+        _games = games;
         _executeElevatedRepairsLocally = executeElevatedRepairsLocally;
         _persistStatus = persistStatus;
         _repairStatusId = repairStatusId;
@@ -45,11 +48,15 @@ public sealed class RepairService : IDisposable
     {
         if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(incident)
             || LegacyProcessExitPolicy.IsUnverifiedRunningStatus(incident)) return false;
-        // Do not create a progress window for an automatic repair while its simulator
-        // is running (including a restart during evidence collection).
-        if (automatic && GameDefinition.Supported.Any(game =>
-                game.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase)
-                && game.ProcessNames.Any(IsProcessRunning))) return false;
+        // An automatic repair can proceed only if every remaining process is the
+        // tracked session whose simulator window has closed.
+        var game = GameDefinition.Supported.FirstOrDefault(game =>
+            game.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase));
+        if (automatic && game is not null)
+        {
+            var closedPid = IsSimulatorRepairFor(plan, game) ? _games?.ClosedGameProcessId(game.Kind) : null;
+            if (game.ProcessNames.Any(name => IsProcessRunning(name, closedPid))) return false;
+        }
         lock (_gate)
         {
             if (_current?.IsActive == true) return false;
@@ -82,15 +89,65 @@ public sealed class RepairService : IDisposable
         return true;
     }
 
-    private static bool IsProcessRunning(string name)
+    private static bool IsProcessRunning(string name, int? exceptPid)
     {
         try
         {
             var processes = Process.GetProcessesByName(name);
-            try { return processes.Length > 0; }
+            try { return processes.Any(process => process.Id != exceptPid); }
             finally { foreach (var process in processes) process.Dispose(); }
         }
         catch { return true; } // Unknown process state must not start an automatic repair.
+    }
+
+    private static bool IsSimulatorRepairFor(RepairPlan plan, GameDefinition game)
+        => plan.Game.Equals(game.DisplayName, StringComparison.OrdinalIgnoreCase)
+            && plan.Id != "lmu-sync-windows-time";
+
+    private async Task ClearStalledSimulatorAsync(IncidentRecord incident, RepairPlan plan, CancellationToken token)
+    {
+        if (_games is null) return;
+        var game = GameDefinition.Supported.FirstOrDefault(game =>
+            game.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase) && IsSimulatorRepairFor(plan, game));
+        if (game is null || _games.ClosedGameProcessId(game.Kind) is not int pid) return;
+        if (game.ProcessNames.Any(name => IsProcessRunning(name, pid))) return;
+
+        Process process;
+        try { process = Process.GetProcessById(pid); }
+        catch (ArgumentException) { return; } // Shutdown finished before opening the process.
+        using (process)
+        using (var lifetime = new ProcessExitMonitor(process))
+        {
+            Update(incident, plan, 4, "Waiting for simulator shutdown",
+                $"The {game.DisplayName} window closed. Waiting briefly for the remaining process to exit.",
+                $"Checking simulator process {pid} before applying the repair.", 1, Math.Max(1, plan.Steps.Count),
+                true, false, false, null);
+
+            for (var sample = 0; sample < 12; sample++)
+            {
+                await Task.Delay(250, token);
+                if (lifetime.TryGetExitCode(out _) || _games.ClosedGameProcessId(game.Kind) != pid)
+                {
+                    EnsureGameNotRunning(game.Kind, game.DisplayName);
+                    return;
+                }
+            }
+
+            if (!game.ProcessNames.Any(name => IsProcessRunning(name, pid))
+                && _games.TryStopClosedGame(game.Kind, process, token))
+            {
+                AppLog.Write($"Repair ended stalled {game.DisplayName} process {pid} after its window closed.");
+                using var exitTimeout = CancellationTokenSource.CreateLinkedTokenSource(token);
+                exitTimeout.CancelAfter(TimeSpan.FromSeconds(5));
+                try { await process.WaitForExitAsync(exitTimeout.Token); }
+                catch (OperationCanceledException) when (!token.IsCancellationRequested)
+                {
+                    throw new TimeoutException($"{game.DisplayName} did not exit after PitMedic ended its remaining process.");
+                }
+            }
+
+            EnsureGameNotRunning(game.Kind, game.DisplayName);
+        }
     }
 
     private bool DeferIRacingRepair(IncidentRecord incident, RepairPlan plan)
@@ -121,6 +178,8 @@ public sealed class RepairService : IDisposable
     {
         try
         {
+            if (DeferIRacingRepair(incident, plan)) return;
+            await ClearStalledSimulatorAsync(incident, plan, token);
             if (DeferIRacingRepair(incident, plan)) return;
             Update(
                 incident,
@@ -203,6 +262,8 @@ public sealed class RepairService : IDisposable
             if (DeferIRacingRepair(incident, plan)) return;
             if (ElevatedRepairPolicy.RequiresElevation(plan.Id) && !IsAdministrator())
                 throw new InvalidOperationException("The allowlisted repair helper is not running with administrator permissions.");
+            await ClearStalledSimulatorAsync(incident, plan, token);
+            if (DeferIRacingRepair(incident, plan)) return;
 
             if (!plan.Id.Equals("lmu-targeted-content-reacquire", StringComparison.OrdinalIgnoreCase))
             {
@@ -1216,8 +1277,7 @@ public sealed class RepairService : IDisposable
         var game = GameDefinition.Supported.First(g => g.Kind == kind);
         foreach (var alias in game.ProcessNames)
         {
-            Process[] processes;
-            try { processes = Process.GetProcessesByName(alias); } catch { continue; }
+            var processes = Process.GetProcessesByName(alias);
             try
             {
                 if (processes.Length > 0) throw new InvalidOperationException($"{displayName} is still running. Close the simulator before applying this repair.");
