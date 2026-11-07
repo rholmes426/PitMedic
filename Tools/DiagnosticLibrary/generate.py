@@ -610,7 +610,10 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
   </script>
 '''
     destination.mkdir(parents=True, exist_ok=True)
-    (destination / "index.html").write_text(page_header("Sim Racing Troubleshooting Guides & Fixes | PitMedic", description, canonical, schema) + body + page_footer(), encoding="utf-8")
+    header = page_header("Sim Racing Troubleshooting Guides & Fixes | PitMedic", description, canonical, schema)
+    # Fetch the directory styles together with its markup after deployment.
+    header = header.replace('href="/styles.css"', 'href="/styles.css?library=compact-20261106"')
+    (destination / "index.html").write_text(header + body + page_footer(), encoding="utf-8")
 
 
 def write_public_json(entries: list[dict[str, object]], destination: Path) -> None:
