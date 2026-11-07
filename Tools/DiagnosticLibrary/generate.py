@@ -520,9 +520,10 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
   <section class="library-page library-directory">
     {crumb_html}
     <header class="directory-hero">
-      <span class="section-kicker">Sim racing troubleshooting</span>
+      <span class="section-kicker">Fixes built into PitMedic</span>
       <h1>Diagnostic Library</h1>
-      <p>Choose your software to find fixes for errors, crashes, and setup problems.</p>
+      <p>These guides cover the repairs and checks built into PitMedic. The app detects supported issues and performs available fixes for you.</p>
+      <div class="directory-download"><a class="button button-primary" href="{RELEASE_URL}">Download PitMedic — Free</a><span>Windows 10/11 · Repairs and guided checks clearly labeled below</span></div>
     </header>
     <form class="directory-search" role="search" onsubmit="return false">
       <label class="directory-search-label" for="library-search">Search {len(entries)} troubleshooting guides</label>
@@ -612,7 +613,7 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
     destination.mkdir(parents=True, exist_ok=True)
     header = page_header("Sim Racing Troubleshooting Guides & Fixes | PitMedic", description, canonical, schema)
     # Fetch the directory styles together with its markup after deployment.
-    header = header.replace('href="/styles.css"', 'href="/styles.css?library=compact-20261106"')
+    header = header.replace('href="/styles.css"', 'href="/styles.css?library=app-fixes-20261106"')
     (destination / "index.html").write_text(header + body + page_footer(), encoding="utf-8")
 
 
