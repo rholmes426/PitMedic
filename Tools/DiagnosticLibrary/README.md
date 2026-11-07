@@ -59,18 +59,17 @@ version. The generated diagnostic database remains app-owned and unchanged.
 
 ## Collection organization
 
-The library keeps each diagnostic at its existing URL. `LIBRARY_GROUPS` in
-`generate.py` defines the seven visible software sections and stable anchors;
-every record must belong to exactly one section. Add new products to a group
-before generating. Existing simulator overview pages remain the coverage hubs.
+The directory presents seven native expandable software sections. They share a
+`name` so normal browsing opens one section at a time. Search temporarily removes
+that grouping and opens every section with matching guides. Without JavaScript,
+each section still opens normally and every guide remains a direct HTML link.
 
-`SYMPTOM_GUIDES` selects direct guide links for common troubleshooting tasks.
-Use existing record IDs and describe symptoms without implying proven causes.
-Card titles use the editorial heading with the product name when needed.
-The collection's ItemList follows the visible section order and lists every guide.
+`LIBRARY_GROUPS` in `generate.py` defines stable section anchors. Every record must
+belong to exactly one section. Card titles become compact guide rows; the complete
+product-aware titles remain in the collection ItemList. Existing guide URLs,
+canonical tags, query-string filters, and section bookmarks remain supported.
 
-Search and software/coverage filters enhance the static HTML. All guides and
-section headings remain available without JavaScript. Existing query-string
-filters still work; section links clear active filters before navigating.
-Changing this organization requires updating `INDEX_MODIFIED`, regenerating,
-and running the existing generated-file and knowledge checks.
+Update `INDEX_MODIFIED` for collection edits, regenerate, and run the existing
+generated-file and knowledge checks. Keep the directory compact: one search field,
+one software list, and guide titles. Detailed symptoms and repair instructions
+belong on the individual guide pages.

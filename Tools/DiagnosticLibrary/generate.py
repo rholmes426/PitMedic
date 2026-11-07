@@ -464,42 +464,6 @@ LIBRARY_GROUPS = [
         "coverage": ""
     }
 ]
-SYMPTOM_GUIDES = [
-    {
-        "name": "Loading errors and damaged content",
-        "ids": [
-            "iracing-loading-error-3",
-            "iracing-track-loading-errors",
-            "lmu-content-corruption"
-        ]
-    },
-    {
-        "name": "Launch failures and frozen screens",
-        "ids": [
-            "iracing-ui-cache",
-            "lmu-startup-config",
-            "raceroom-browser-cache"
-        ]
-    },
-    {
-        "name": "Updates and anti-cheat errors",
-        "ids": [
-            "iracing-eac-error73",
-            "iracing-missing-file-privileges",
-            "iracing-content-file-locked"
-        ]
-    },
-    {
-        "name": "Wheel input and force feedback",
-        "ids": [
-            "acc-controls",
-            "ams2-steam-input-guidance",
-            "companion-moza-clean-recovery"
-        ]
-    }
-]
-
-
 def library_title(entry: dict[str, object]) -> str:
     heading = str(PUBLIC_CONTENT[str(entry["id"])].get("heading") or entry["issue"])
     product = str(entry["product"])
@@ -508,55 +472,43 @@ def library_title(entry: dict[str, object]) -> str:
 
 def write_index(entries: list[dict[str, object]], destination: Path) -> None:
     canonical = f"{BASE_URL}/diagnostic-library/"
-    description = "Find fixes for sim racing loading errors, crashes, failed updates, wheel input, and force feedback. Browse by simulator, symptom, or companion software."
+    description = "Find sim racing troubleshooting guides for loading errors, crashes, updates, wheel input, and force feedback. Browse by simulator or companion software."
     crumb_html, crumb_schema = breadcrumbs([("Home", "/"), ("Diagnostic Library", None)])
-    products = sorted({str(entry["product"]) for entry in entries})
-    product_options = "".join(f'<option value="{esc(product.lower())}">{esc(product)}</option>' for product in products)
-    by_id = {str(entry["id"]): entry for entry in entries}
     grouped = [(group, [entry for entry in entries if entry["product"] in group["products"]]) for group in LIBRARY_GROUPS]
     ordered = [entry for _, members in grouped for entry in members]
     if len(ordered) != len(entries) or len({entry["id"] for entry in ordered}) != len(entries):
         raise ValueError("Every diagnostic must appear in exactly one library section")
-    topic_links = "".join(
-        f'<a href="#{esc(group["slug"])}"><strong>{esc(group["name"])}</strong><span>{len(members)} guides · {esc(group["description"])}</span></a>'
-        for group, members in grouped
-    )
-    symptoms = []
-    for topic in SYMPTOM_GUIDES:
-        links = "".join(f'<li><a href="/diagnostic-library/{esc(entry_id)}/">{esc(library_title(by_id[entry_id]))}</a></li>' for entry_id in topic["ids"])
-        symptoms.append(f'<section class="library-symptom"><h3>{esc(topic["name"])}</h3><ul>{links}</ul></section>')
     sections = []
     for group, members in grouped:
-        cards = []
+        rows = []
         for entry in members:
+            heading = str(PUBLIC_CONTENT[str(entry["id"])].get("heading") or entry["issue"])
+            # The group heading already identifies the simulator. Retain companion
+            # product names because several different apps share that section.
+            if group["coverage"]:
+                heading = re.sub(rf"^{re.escape(str(entry['product']))}\s*:?\s+", "", heading, flags=re.I)
+                heading = heading[:1].upper() + heading[1:]
             label = repair_label(str(entry["safety"]))
-            title = library_title(entry)
-            summary = str(PUBLIC_CONTENT[str(entry["id"])].get("description") or entry["detection"])
-            search = " ".join([str(entry["product"]), str(group["name"]), str(entry["issue"]), title, summary, str(entry["detection"]), *entry.get("signatures", [])]).lower()
-            cards.append(f'''
-        <article class="library-card" data-product="{esc(str(entry["product"]).lower())}" data-kind="{esc(str(entry["kind"]).lower())}" data-repair="{esc(label.lower())}" data-search="{esc(search)}">
-          <span class="library-card-product">{esc(entry["product"])}</span>
-          <h3><a href="/diagnostic-library/{esc(entry["id"])}/">{esc(title)}</a></h3>
-          <p>{esc(summary)}</p>
-          <div><span>{esc(label)}</span><a href="/diagnostic-library/{esc(entry["id"])}/" aria-label="Read guide: {esc(title)}">Read guide →</a></div>
-        </article>''')
-        coverage = f'<a href="/simulators/{esc(group["coverage"])}/">About {esc(group["name"])} monitoring</a>' if group["coverage"] else ""
+            short_label = {"Automatic repair available": "Automatic repair", "Approval required": "Repair with approval", "Guided diagnosis": "Guided checks"}[label]
+            search = " ".join([str(entry["product"]), str(group["name"]), str(entry["issue"]), library_title(entry), str(entry["detection"]), *entry.get("signatures", [])]).lower()
+            rows.append(f'''
+          <li class="directory-row" data-product="{esc(str(entry["product"]).lower())}" data-repair="{esc(label.lower())}" data-search="{esc(search)}">
+            <a href="/diagnostic-library/{esc(entry['id'])}/"><span class="directory-row-title">{esc(heading)}</span><span class="directory-row-kind">{esc(short_label)}</span><span class="directory-arrow" aria-hidden="true">↗</span></a>
+          </li>''')
+        name = "Companion software" if not group["coverage"] else str(group["name"])
         sections.append(f'''
-    <section class="library-group" id="{esc(group["slug"])}" aria-labelledby="{esc(group["slug"])}-title">
-      <header class="library-group-heading"><h2 id="{esc(group["slug"])}-title">{esc(group["name"])} troubleshooting</h2><p>{esc(group["description"])}</p>{coverage}</header>
-      <div class="library-grid">{"".join(cards)}</div>
-      <a class="library-back" href="#browse-software">Back to software list ↑</a>
-    </section>''')
+      <details class="directory-group" id="{esc(group['slug'])}" name="library-software">
+        <summary><span class="directory-group-name">{esc(name)}</span><span class="directory-group-count">{len(members)} guides</span><span class="directory-chevron" aria-hidden="true"></span></summary>
+        <ul class="directory-list">{"".join(rows)}
+        </ul>
+      </details>''')
     schema = {
         "@context": "https://schema.org",
         "@graph": [crumb_schema, {
-            "@type": "CollectionPage",
-            "name": "Sim racing troubleshooting guides",
-            "description": description,
-            "url": canonical,
+            "@type": "CollectionPage", "name": "PitMedic Diagnostic Library",
+            "description": description, "url": canonical,
             "mainEntity": {
-                "@type": "ItemList",
-                "numberOfItems": len(ordered),
+                "@type": "ItemList", "numberOfItems": len(ordered),
                 "itemListElement": [
                     {"@type": "ListItem", "position": position, "name": library_title(entry), "url": f"{canonical}{entry['id']}/"}
                     for position, entry in enumerate(ordered, 1)
@@ -565,98 +517,95 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
         }],
     }
     body = f'''
-  <section class="library-page">
+  <section class="library-page library-directory">
     {crumb_html}
-    <header class="library-hero library-index-hero">
-      <span class="section-kicker">PitMedic Diagnostic Library</span>
-      <h1>Sim racing troubleshooting guides</h1>
-      <p>Find your simulator or match the error on your screen. Each guide explains what to check, the expected result, and whether PitMedic offers a repair or manual guidance.</p>
-      <div class="library-count"><strong>{len(entries)}</strong><span>troubleshooting guides</span></div>
+    <header class="directory-hero">
+      <span class="section-kicker">Sim racing troubleshooting</span>
+      <h1>Diagnostic Library</h1>
+      <p>Choose your software to find fixes for errors, crashes, and setup problems.</p>
     </header>
-    <section class="library-browse" id="browse-software" aria-labelledby="browse-software-title">
-      <h2 id="browse-software-title">Browse by simulator or software</h2>
-      <nav class="library-topics" aria-label="Jump to simulator and companion guides">{topic_links}</nav>
-    </section>
-    <section class="library-symptoms" aria-labelledby="browse-symptoms-title">
-      <h2 id="browse-symptoms-title">Start with your symptom or error message</h2>
-      <div class="library-symptom-grid">{"".join(symptoms)}</div>
-    </section>
-    <section class="library-search-section" aria-labelledby="search-guides-title">
-      <h2 id="search-guides-title">Search all troubleshooting guides</h2>
-      <div class="library-controls">
-        <label><span>Search</span><input id="library-search" type="search" placeholder="Try iRacing Error 73 or AMS2 wheel" autocomplete="off" /></label>
-        <label><span>Software</span><select id="library-product"><option value="">All software</option>{product_options}</select></label>
-        <label><span>Coverage</span><select id="library-repair"><option value="">All coverage</option><option value="automatic repair available">Automatic repair available</option><option value="approval required">Approval required</option><option value="guided diagnosis">Guided diagnosis</option></select></label>
-      </div>
-      <button class="library-reset" id="library-reset" type="button">Clear filters</button>
-      <p class="library-coverage-note">Coverage labels describe PitMedic's response when matching evidence is found. Guided diagnosis provides manual checks; an automatic repair is not available for every issue.</p>
-    </section>
-    <p class="library-results" id="library-results" role="status" aria-live="polite" tabindex="-1"><strong id="library-visible-count">{len(entries)}</strong> guides shown</p>
-    <div id="library-grid">{"".join(sections)}</div>
-    <p class="library-empty" id="library-empty" hidden>No matching guides. Try a broader search or clear the filters.</p>
+    <form class="directory-search" role="search" onsubmit="return false">
+      <label class="directory-search-label" for="library-search">Search {len(entries)} troubleshooting guides</label>
+      <div class="directory-search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="library-search" type="search" placeholder="Search an error message or symptom…" autocomplete="off" /><button id="library-reset" type="button" hidden>Clear</button></div>
+      <p class="directory-results" id="library-results" role="status" aria-live="polite" hidden></p>
+    </form>
+    <div class="directory-heading"><h2>Browse by software</h2><span>{len(entries)} guides</span></div>
+    <div class="directory-groups">{"".join(sections)}
+    </div>
+    <p class="directory-empty" id="library-empty" hidden>No guides found. Try a different error message or clear your search.</p>
+    <p class="directory-note">Each guide explains what to check and which repairs are available.</p>
   </section>
   <script>
     (() => {{
       const search = document.querySelector('#library-search');
-      const product = document.querySelector('#library-product');
-      const repair = document.querySelector('#library-repair');
-      const cards = [...document.querySelectorAll('.library-card')];
-      const count = document.querySelector('#library-visible-count');
-      const empty = document.querySelector('#library-empty');
-      const groups = [...document.querySelectorAll('.library-group')];
+      const reset = document.querySelector('#library-reset');
       const results = document.querySelector('#library-results');
-      const readFilters = () => {{
-        const params = new URLSearchParams(window.location.search);
-        const requestedProduct = (params.get('software') || '').replaceAll('-', ' ').toLowerCase();
-        product.value = [...product.options].some(option => option.value === requestedProduct) ? requestedProduct : '';
-        const requestedRepair = params.get('coverage') || '';
-        repair.value = [...repair.options].some(option => option.value === requestedRepair) ? requestedRepair : '';
-        search.value = params.get('q') || '';
-      }};
-      const writeFilters = (push = false) => {{
-        const url = new URL(window.location.href);
-        for (const [key, value] of [['software', product.value], ['coverage', repair.value], ['q', search.value.trim()]]) {{
-          if (value) url.searchParams.set(key, value);
-          else url.searchParams.delete(key);
-        }}
-        if (push) url.hash = 'library-results';
-        window.history[push ? 'pushState' : 'replaceState'](null, '', url);
-      }};
+      const empty = document.querySelector('#library-empty');
+      const groups = [...document.querySelectorAll('.directory-group')];
+      const rows = [...document.querySelectorAll('.directory-row')];
+      let requestedProduct = '';
+      let requestedRepair = '';
       const filter = () => {{
         const terms = search.value.trim().toLowerCase().split(/\\s+/).filter(Boolean);
-        let visible = 0;
-        cards.forEach(card => {{
-          const show = terms.every(term => card.dataset.search.includes(term)) && (!product.value || card.dataset.product === product.value) && (!repair.value || card.dataset.repair === repair.value);
-          card.hidden = !show;
-          if (show) visible += 1;
+        const active = terms.length > 0 || !!requestedProduct || !!requestedRepair;
+        rows.forEach(row => {{
+          row.hidden = !terms.every(term => row.dataset.search.includes(term)) ||
+            (!!requestedProduct && row.dataset.product !== requestedProduct) ||
+            (!!requestedRepair && row.dataset.repair !== requestedRepair);
         }});
-        count.textContent = visible;
-        empty.hidden = visible !== 0;
+        // Native details groups share a name for normal browsing. Searching can
+        // show matches in several sections at once.
         groups.forEach(group => {{
-          group.hidden = ![...group.querySelectorAll('.library-card')].some(card => !card.hidden);
+          const matching = [...group.querySelectorAll('.directory-row')].filter(row => !row.hidden).length;
+          if (active) group.removeAttribute('name');
+          group.hidden = active && matching === 0;
+          group.open = active && matching > 0;
+          group.querySelector('.directory-group-count').textContent = `${{matching}} ${{matching === 1 ? 'guide' : 'guides'}}`;
+          if (!active) group.setAttribute('name', 'library-software');
         }});
+        const count = rows.filter(row => !row.hidden).length;
+        results.textContent = `${{count}} matching ${{count === 1 ? 'guide' : 'guides'}}`;
+        results.hidden = !active;
+        reset.hidden = !active;
+        empty.hidden = count !== 0;
       }};
-      const update = () => {{ filter(); writeFilters(); }};
-      search.addEventListener('input', update);
-      product.addEventListener('change', update);
-      repair.addEventListener('change', update);
-      document.querySelector('#library-reset').addEventListener('click', () => {{
+      const readLocation = () => {{
+        const params = new URLSearchParams(location.search);
+        search.value = params.get('q') || '';
+        requestedProduct = (params.get('software') || '').replaceAll('-', ' ').toLowerCase();
+        requestedRepair = params.get('coverage') || '';
+        filter();
+        if (!search.value && !requestedProduct && !requestedRepair) {{
+          const target = groups.find(group => `#${{group.id}}` === location.hash);
+          if (target) target.open = true;
+        }}
+      }};
+      search.addEventListener('input', () => {{
+        requestedProduct = '';
+        requestedRepair = '';
+        filter();
+        const url = new URL(location.href);
+        url.searchParams.delete('software');
+        url.searchParams.delete('coverage');
+        if (search.value.trim()) url.searchParams.set('q', search.value.trim());
+        else url.searchParams.delete('q');
+        url.hash = '';
+        history.replaceState(null, '', url);
+      }});
+      reset.addEventListener('click', () => {{
         search.value = '';
-        product.value = '';
-        repair.value = '';
-        update();
+        requestedProduct = '';
+        requestedRepair = '';
+        filter();
+        const url = new URL(location.href);
+        ['q', 'software', 'coverage'].forEach(key => url.searchParams.delete(key));
+        url.hash = '';
+        history.replaceState(null, '', url);
         search.focus();
       }});
-      document.querySelectorAll('.library-topics a').forEach(link => link.addEventListener('click', event => {{
-        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        search.value = '';
-        product.value = '';
-        repair.value = '';
-        update();
-      }}));
-      window.addEventListener('popstate', () => {{ readFilters(); filter(); }});
-      readFilters();
-      filter();
+      window.addEventListener('popstate', readLocation);
+      window.addEventListener('hashchange', readLocation);
+      readLocation();
     }})();
   </script>
 '''
@@ -763,3 +712,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
