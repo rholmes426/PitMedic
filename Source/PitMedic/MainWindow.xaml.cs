@@ -24,6 +24,7 @@ public partial class MainWindow : Window
     private readonly Dictionary<GameKind, TextBlock> _navStatuses = new();
     private readonly Dictionary<GameKind, System.Windows.Shapes.Ellipse> _navDots = new();
     private bool _allowClose;
+    private int _incidentRefreshRevision;
     private AppSettings _settings;
     private RepairProgressWindow? _repairProgressWindow;
     private bool _repairWasActive;
@@ -42,7 +43,8 @@ public partial class MainWindow : Window
         _updates = updates;
         _settings = monitoring.Settings.Current;
         ConfigureSimulatorNavigation();
-        RefreshIncidents();
+        RefreshSimulatorViews();
+        Loaded += LoadIncidentHistory;
 
         _monitoring.TelemetryUpdated += sample => Dispatcher.BeginInvoke(() => UpdateTelemetry(sample));
         _monitoring.GameStatusChanged += (game, running) => Dispatcher.BeginInvoke(() => UpdateGame(game, running));
@@ -356,11 +358,32 @@ public partial class MainWindow : Window
         _repairProgressWindow.Activate();
     }
 
-    private void RefreshIncidents()
+    private void LoadIncidentHistory(object sender, RoutedEventArgs e)
     {
-        _incidents.Clear();
-        foreach (var item in _monitoring.IncidentHistory()) _incidents.Add(item);
-        RefreshSimulatorViews();
+        Loaded -= LoadIncidentHistory;
+        RefreshIncidents();
+    }
+
+    private async void RefreshIncidents()
+    {
+        var revision = ++_incidentRefreshRevision;
+        var existingFolders = _incidents.Select(item => item.Folder).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        try
+        {
+            var history = await Task.Run(_monitoring.IncidentHistory);
+            if (_allowClose || revision != _incidentRefreshRevision) return;
+            var arrivedDuringLoad = _incidents.Where(item => !existingFolders.Contains(item.Folder));
+            var items = history.Concat(arrivedDuringLoad)
+                .DistinctBy(item => item.Folder, StringComparer.OrdinalIgnoreCase)
+                .OrderByDescending(item => item.Timestamp).Take(500).ToArray();
+            _incidents.Clear();
+            foreach (var item in items) _incidents.Add(item);
+            RefreshSimulatorViews();
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"Could not load simulator incident history: {ex.Message}");
+        }
     }
 
     private void RefreshSimulatorViews()

@@ -45,7 +45,7 @@ internal static class ProcessExitTests
             var sessionRecord = record with { ProcessId = 1234, SessionStarted = DateTimeOffset.UtcNow, IncidentFolder = first };
             File.WriteAllText(Path.Combine(first, "incident.json"), JsonSerializer.Serialize(sessionRecord));
             File.Copy(Path.Combine(root, "repair.json"), Path.Combine(first, "repair.json"));
-            var (sessions, repeated) = LegacyProcessExitPolicy.FindExitAnomalies(sessionRoot);
+            var (sessions, repeated, _) = LegacyProcessExitPolicy.FindExitAnomalies(sessionRoot);
             Check(repeated.Count == 0, "A single 259 record must not be grouped.");
             Check(sessions.Contains(LegacyProcessExitPolicy.SessionKey(sessionRecord)), "Corroboration must clear siblings from the same false-exit loop.");
             Check(!sessions.Contains(LegacyProcessExitPolicy.SessionKey(sessionRecord with { ProcessId = 4567 })), "Different processes must not be suppressed.");
@@ -63,14 +63,17 @@ internal static class ProcessExitTests
                 File.WriteAllText(Path.Combine(folder, "incident.json"), JsonSerializer.Serialize(finding));
             }
 
-            WriteIncident("confirmed-first", confirmed);
-            WriteIncident("confirmed-duplicate", confirmed with { IncidentTime = DateTimeOffset.UtcNow.AddSeconds(1) });
+            WriteIncident("20261107_090000_confirmed", confirmed);
+            WriteIncident("20261107_090001_confirmed", confirmed with { IncidentTime = DateTimeOffset.UtcNow.AddSeconds(1) });
+            WriteIncident("20261107_090002_unverified", confirmed with { ProcessExitConfirmed = false });
             var later = confirmed with { SessionStarted = confirmed.SessionStarted.AddHours(1) };
             WriteIncident("later-same-pid", later);
             WriteIncident("independent-fault", later with { Classification = new("Application fault", 88, "Windows evidence", []) });
             var anomalies = LegacyProcessExitPolicy.FindExitAnomalies(sessionRoot);
             Check(anomalies.Repeated.SetEquals([LegacyProcessExitPolicy.SessionKey(confirmed)]),
                 "Group confirmed duplicate 259 reports only for the exact process lifetime.");
+            Check(anomalies.OlderDuplicates.SetEquals([Path.Combine(sessionRoot, "20261107_090000_confirmed"),
+                Path.Combine(sessionRoot, "20261107_090002_unverified")]), "Keep the newest confirmed representative and skip redundant folder reads.");
             var review = LegacyProcessExitPolicy.AsRepeatedExitReview(confirmed);
             Check(review.Classification.Category == LegacyProcessExitPolicy.RepeatedExitCategory
                 && review.RecommendedRepair is null && RepairPlanner.TryCreateFromIncident(review) is null,

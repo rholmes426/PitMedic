@@ -33,28 +33,48 @@ public static class LegacyProcessExitPolicy
 
     public static (
         HashSet<(string Game, int Pid, DateTimeOffset Started)> LegacyFalse,
-        HashSet<(string Game, int Pid, DateTimeOffset Started)> Repeated)
+        HashSet<(string Game, int Pid, DateTimeOffset Started)> Repeated,
+        HashSet<string> OlderDuplicates)
         FindExitAnomalies(string root)
     {
         var legacyFalse = new HashSet<(string, int, DateTimeOffset)>();
-        var seen = new HashSet<(string, int, DateTimeOffset)>();
         var repeated = new HashSet<(string, int, DateTimeOffset)>();
-        if (!Directory.Exists(root)) return (legacyFalse, repeated);
-        foreach (var folder in Directory.EnumerateDirectories(root))
+        var olderDuplicates = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (!Directory.Exists(root)) return (legacyFalse, repeated, olderDuplicates);
+
+        var newest = new Dictionary<(string, int, DateTimeOffset), (string Folder, bool Confirmed)>();
+        var gate = new object();
+        Parallel.ForEach(Directory.EnumerateDirectories(root), new ParallelOptions { MaxDegreeOfParallelism = 12 }, folder =>
         {
             try
             {
                 var record = JsonSerializer.Deserialize<IncidentRecord>(File.ReadAllText(Path.Combine(folder, "incident.json")));
                 if (record is null || record.ProcessId <= 0 || record.SessionStarted == default || !IsGeneric259Exit(record))
-                    continue;
+                    return;
                 var key = SessionKey(record);
-                if (!seen.Add(key)) repeated.Add(key);
-                if (!record.ProcessExitConfirmed && IsFalseRunningExit(record with { IncidentFolder = folder }))
-                    legacyFalse.Add(key);
+                var falseExit = !record.ProcessExitConfirmed && IsFalseRunningExit(record with { IncidentFolder = folder });
+
+                lock (gate)
+                {
+                    if (falseExit) legacyFalse.Add(key);
+                    if (!newest.TryGetValue(key, out var previous))
+                    {
+                        newest.Add(key, (folder, record.ProcessExitConfirmed));
+                        return;
+                    }
+
+                    repeated.Add(key);
+                    // Prefer a confirmed record when a group contains both old formats.
+                    var replace = record.ProcessExitConfirmed != previous.Confirmed
+                        ? record.ProcessExitConfirmed
+                        : StringComparer.OrdinalIgnoreCase.Compare(folder, previous.Folder) > 0;
+                    if (replace) newest[key] = (folder, record.ProcessExitConfirmed);
+                    olderDuplicates.Add(replace ? previous.Folder : folder);
+                }
             }
             catch { } // Preserve unreadable captures.
-        }
-        return (legacyFalse, repeated);
+        });
+        return (legacyFalse, repeated, olderDuplicates);
     }
 
     public static bool IsFalseRunningExit(IncidentRecord record, string? repairMessage)

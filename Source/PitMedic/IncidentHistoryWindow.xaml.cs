@@ -11,17 +11,19 @@ public partial class IncidentHistoryWindow : Window
 {
     private readonly MonitoringCoordinator _monitoring;
     private readonly ObservableCollection<IncidentSummary> _items = new();
+    private int _refreshRevision;
 
     public IncidentHistoryWindow(MonitoringCoordinator monitoring)
     {
         InitializeComponent();
         _monitoring = monitoring;
         HistoryList.ItemsSource = _items;
-        Refresh();
+        Loaded += LoadHistory;
         _monitoring.IncidentCreated += IncidentCreated;
         _monitoring.RepairStatusChanged += RepairChanged;
         Closed += (_, _) =>
         {
+            _refreshRevision++;
             _monitoring.IncidentCreated -= IncidentCreated;
             _monitoring.RepairStatusChanged -= RepairChanged;
         };
@@ -33,11 +35,29 @@ public partial class IncidentHistoryWindow : Window
         if (status.IsComplete) Dispatcher.BeginInvoke(new Action(Refresh));
     }
 
-    private void Refresh()
+    private void LoadHistory(object sender, RoutedEventArgs e)
     {
-        _items.Clear();
-        foreach (var incident in _monitoring.IncidentHistory()) _items.Add(incident);
-        CountText.Text = $"{_items.Count} {(_items.Count == 1 ? "ISSUE" : "ISSUES")}";
+        Loaded -= LoadHistory;
+        Refresh();
+    }
+
+    private async void Refresh()
+    {
+        var revision = ++_refreshRevision;
+        if (_items.Count == 0) CountText.Text = "LOADING ISSUES…";
+        try
+        {
+            var history = await Task.Run(_monitoring.IncidentHistory);
+            if (revision != _refreshRevision) return;
+            _items.Clear();
+            foreach (var incident in history) _items.Add(incident);
+            CountText.Text = $"{_items.Count} {(_items.Count == 1 ? "ISSUE" : "ISSUES")}";
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"Could not load issue history: {ex.Message}");
+            if (revision == _refreshRevision) CountText.Text = "ISSUE HISTORY UNAVAILABLE";
+        }
     }
 
     private void Details_Click(object sender, RoutedEventArgs e)

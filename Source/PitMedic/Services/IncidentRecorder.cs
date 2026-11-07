@@ -11,10 +11,12 @@ public sealed class IncidentRecorder
     private readonly WindowsEventService _events = new();
     private readonly LogCollector _collector = new();
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+    private readonly object _historyRecordGate = new();
 
     private readonly Lazy<(
         HashSet<(string Game, int Pid, DateTimeOffset Started)> LegacyFalse,
-        HashSet<(string Game, int Pid, DateTimeOffset Started)> Repeated)> _exitAnomalies
+        HashSet<(string Game, int Pid, DateTimeOffset Started)> Repeated,
+        HashSet<string> OlderDuplicates)> _exitAnomalies
         = new(() => LegacyProcessExitPolicy.FindExitAnomalies(AppPaths.Incidents));
 
     public event Action<IncidentSummary>? IncidentCreated;
@@ -231,7 +233,9 @@ public sealed class IncidentRecorder
         {
             var json = Path.Combine(folder, "incident.json");
             if (!File.Exists(json)) return null;
-            var record = JsonSerializer.Deserialize<IncidentRecord>(File.ReadAllText(json), JsonOptions);
+            string original;
+            lock (_historyRecordGate) original = File.ReadAllText(json);
+            var record = JsonSerializer.Deserialize<IncidentRecord>(original, JsonOptions);
             if (record is null) return null;
             if (string.IsNullOrWhiteSpace(record.IncidentFolder) || !Path.GetFullPath(record.IncidentFolder).Equals(Path.GetFullPath(folder), StringComparison.OrdinalIgnoreCase))
                 record = record with { IncidentFolder = folder };
@@ -276,7 +280,16 @@ public sealed class IncidentRecorder
             }
             if (changed)
             {
-                try { File.WriteAllText(json, JsonSerializer.Serialize(record, JsonOptions)); } catch { }
+                try
+                {
+                    lock (_historyRecordGate)
+                    {
+                        // Another refresh may have updated this capture since it was read.
+                        if (File.ReadAllText(json) == original)
+                            File.WriteAllText(json, JsonSerializer.Serialize(record, JsonOptions));
+                    }
+                }
+                catch { }
             }
             return record;
         }
@@ -289,7 +302,7 @@ public sealed class IncidentRecorder
         var list = new List<IncidentSummary>();
         foreach (var folder in Directory.EnumerateDirectories(AppPaths.Incidents).OrderByDescending(x => x))
         {
-            if (IsAcknowledged(folder)) continue;
+            if (IsOlderDuplicate(folder) || IsAcknowledged(folder)) continue;
             var json = Path.Combine(folder, "incident.json");
             try
             {
@@ -322,19 +335,17 @@ public sealed class IncidentRecorder
     {
         if (!Directory.Exists(AppPaths.Incidents)) return Array.Empty<IncidentSummary>();
         var list = new List<IncidentSummary>();
-        var repeatedGroups = new HashSet<(string Game, int Pid, DateTimeOffset Started)>();
         foreach (var folder in Directory.EnumerateDirectories(AppPaths.Incidents).OrderByDescending(x => x))
         {
+            if (IsOlderDuplicate(folder)) continue;
             try
             {
                 var json = Path.Combine(folder, "incident.json");
                 if (File.Exists(json))
                 {
                     var record = LoadRecord(folder);
-                    if (record is null) continue;
+                    if (record is null || IsOlderDuplicate(folder)) continue;
                     if (record.ExitCode == 0 && record.Classification.Category == "Unconfirmed simulator exit") continue;
-                    if (record.Classification.Category == LegacyProcessExitPolicy.RepeatedExitCategory
-                        && !repeatedGroups.Add(LegacyProcessExitPolicy.SessionKey(record))) continue;
                     list.Add(ToSummary(record, record.RecommendedRepair));
                 }
                 else if (LegacyProcessExitPolicy.IsManualSnapshot(folder))
@@ -350,6 +361,9 @@ public sealed class IncidentRecorder
         }
         return list;
     }
+
+    private bool IsOlderDuplicate(string folder)
+        => _exitAnomalies.IsValueCreated && _exitAnomalies.Value.OlderDuplicates.Contains(folder);
 
     public bool Acknowledge(string folder)
     {
