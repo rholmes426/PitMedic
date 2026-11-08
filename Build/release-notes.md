@@ -1,5 +1,7 @@
-Fixes missed iRacing server-entry failures recorded in eos_anticheat_errors.txt. Detects Unknown file version errors for tracks, cars, and other files, retaining the rejected filename even when the user exits the simulator normally.
+Fixes a loop that could report the same simulator shutdown repeatedly, including an Assetto Corsa EVO case where one process filled the incident history. PitMedic keeps the original captures, groups repeated reports into one history entry, and loads the history without blocking the app.
 
-Prioritizes content rejection over generic Error 73 and offers approval-gated Steam content validation for Steam installations. Direct or unlocated installations retain the diagnosis without automatic file deletion. Preserves protection against stale log entries, duplicate callbacks, and updater-time false alarms.
+When a simulator window has closed and the same process stalls during shutdown, PitMedic waits briefly and ends the remaining process before continuing the repair. An open or minimized simulator still blocks the repair.
 
-Validated with 18 new regression checks, the existing release-policy tests, and app and repair-helper Release builds. Steam validation must finish before retrying the affected session.
+Adds Diagnostic Library guidance for iRacing force feedback with Simucube ActivePedals and a non-Simucube wheelbase, plus guidance for Fanatec App 1.7.1.4, Logitech G HUB 2026.7 and RaceRoom 0.9.9.14–0.9.9.15. The iRacing setting remains a manual check.
+
+Updates the Windows Event Log dependency to 10.0.14.
