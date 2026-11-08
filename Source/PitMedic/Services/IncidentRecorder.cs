@@ -11,9 +11,13 @@ public sealed class IncidentRecorder
     private readonly WindowsEventService _events = new();
     private readonly LogCollector _collector = new();
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+    private readonly object _historyRecordGate = new();
 
-    private readonly Lazy<HashSet<(string Game, int Pid, DateTimeOffset Started)>> _falseRunningSessions
-        = new(() => LegacyProcessExitPolicy.FindCorroboratedSessions(AppPaths.Incidents));
+    private readonly Lazy<(
+        HashSet<(string Game, int Pid, DateTimeOffset Started)> LegacyFalse,
+        HashSet<(string Game, int Pid, DateTimeOffset Started)> Repeated,
+        HashSet<string> OlderDuplicates)> _exitAnomalies
+        = new(() => LegacyProcessExitPolicy.FindExitAnomalies(AppPaths.Incidents));
 
     public event Action<IncidentSummary>? IncidentCreated;
 
@@ -229,15 +233,23 @@ public sealed class IncidentRecorder
         {
             var json = Path.Combine(folder, "incident.json");
             if (!File.Exists(json)) return null;
-            var record = JsonSerializer.Deserialize<IncidentRecord>(File.ReadAllText(json), JsonOptions);
+            string original;
+            lock (_historyRecordGate) original = File.ReadAllText(json);
+            var record = JsonSerializer.Deserialize<IncidentRecord>(original, JsonOptions);
             if (record is null) return null;
             if (string.IsNullOrWhiteSpace(record.IncidentFolder) || !Path.GetFullPath(record.IncidentFolder).Equals(Path.GetFullPath(folder), StringComparison.OrdinalIgnoreCase))
                 record = record with { IncidentFolder = folder };
-            // Preserve the original evidence on disk; exclude only corroborated false
-            // STILL_ACTIVE incidents from active/history views and repair reconstruction.
-            if (LegacyProcessExitPolicy.IsUnverifiedRunningExit(record)
-                && (_falseRunningSessions.Value.Contains(LegacyProcessExitPolicy.SessionKey(record))
-                    || LegacyProcessExitPolicy.IsFalseRunningExit(record))) return null;
+            // Group repeated generic 259 reports by the original process lifetime.
+            // A lone confirmed 259 and independent fault evidence remain reviewable.
+            if (LegacyProcessExitPolicy.IsGeneric259Exit(record))
+            {
+                var key = LegacyProcessExitPolicy.SessionKey(record);
+                if (!record.ProcessExitConfirmed
+                    && (_exitAnomalies.Value.LegacyFalse.Contains(key) || LegacyProcessExitPolicy.IsFalseRunningExit(record)))
+                    return null;
+                if (_exitAnomalies.Value.Repeated.Contains(key))
+                    return LegacyProcessExitPolicy.AsRepeatedExitReview(record);
+            }
             if (LegacyProcessExitPolicy.IsUnverifiedRunningStatus(record))
                 return record with { RecommendedRepair = null }; // Other evidence remains reviewable.
             var reassessed = IRacingDiagnosticPolicy.Reassess(record);
@@ -268,7 +280,16 @@ public sealed class IncidentRecorder
             }
             if (changed)
             {
-                try { File.WriteAllText(json, JsonSerializer.Serialize(record, JsonOptions)); } catch { }
+                try
+                {
+                    lock (_historyRecordGate)
+                    {
+                        // Another refresh may have updated this capture since it was read.
+                        if (File.ReadAllText(json) == original)
+                            File.WriteAllText(json, JsonSerializer.Serialize(record, JsonOptions));
+                    }
+                }
+                catch { }
             }
             return record;
         }
@@ -279,10 +300,9 @@ public sealed class IncidentRecorder
     {
         if (!Directory.Exists(AppPaths.Incidents)) return Array.Empty<IncidentSummary>();
         var list = new List<IncidentSummary>();
-        var legacyGroups = new HashSet<(string, int, DateTimeOffset, string)>();
         foreach (var folder in Directory.EnumerateDirectories(AppPaths.Incidents).OrderByDescending(x => x))
         {
-            if (IsAcknowledged(folder)) continue;
+            if (IsOlderDuplicate(folder) || IsAcknowledged(folder)) continue;
             var json = Path.Combine(folder, "incident.json");
             try
             {
@@ -299,7 +319,7 @@ public sealed class IncidentRecorder
                             && !record.Classification.Evidence.Any(e => e.Contains("crash dump", StringComparison.OrdinalIgnoreCase)
                                 || e.Contains("Windows Application Error", StringComparison.OrdinalIgnoreCase)))
                             continue;
-                        if (IsRepeatedLegacyFinding(record, legacyGroups)) continue;
+                        if (record.Classification.Category == LegacyProcessExitPolicy.RepeatedExitCategory) continue;
                         list.Add(ToSummary(record, record.RecommendedRepair));
                     }
                 }
@@ -315,18 +335,17 @@ public sealed class IncidentRecorder
     {
         if (!Directory.Exists(AppPaths.Incidents)) return Array.Empty<IncidentSummary>();
         var list = new List<IncidentSummary>();
-        var legacyGroups = new HashSet<(string, int, DateTimeOffset, string)>();
         foreach (var folder in Directory.EnumerateDirectories(AppPaths.Incidents).OrderByDescending(x => x))
         {
+            if (IsOlderDuplicate(folder)) continue;
             try
             {
                 var json = Path.Combine(folder, "incident.json");
                 if (File.Exists(json))
                 {
                     var record = LoadRecord(folder);
-                    if (record is null) continue;
+                    if (record is null || IsOlderDuplicate(folder)) continue;
                     if (record.ExitCode == 0 && record.Classification.Category == "Unconfirmed simulator exit") continue;
-                    if (IsRepeatedLegacyFinding(record, legacyGroups)) continue;
                     list.Add(ToSummary(record, record.RecommendedRepair));
                 }
                 else if (LegacyProcessExitPolicy.IsManualSnapshot(folder))
@@ -343,11 +362,8 @@ public sealed class IncidentRecorder
         return list;
     }
 
-    private bool IsRepeatedLegacyFinding(IncidentRecord record,
-        HashSet<(string, int, DateTimeOffset, string)> groups)
-        => LegacyProcessExitPolicy.IsUnverifiedRunningStatus(record)
-            && _falseRunningSessions.Value.Contains(LegacyProcessExitPolicy.SessionKey(record))
-            && !groups.Add((record.Game, record.ProcessId, record.SessionStarted, record.Classification.Category));
+    private bool IsOlderDuplicate(string folder)
+        => _exitAnomalies.IsValueCreated && _exitAnomalies.Value.OlderDuplicates.Contains(folder);
 
     public bool Acknowledge(string folder)
     {

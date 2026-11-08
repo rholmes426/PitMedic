@@ -45,10 +45,39 @@ internal static class ProcessExitTests
             var sessionRecord = record with { ProcessId = 1234, SessionStarted = DateTimeOffset.UtcNow, IncidentFolder = first };
             File.WriteAllText(Path.Combine(first, "incident.json"), JsonSerializer.Serialize(sessionRecord));
             File.Copy(Path.Combine(root, "repair.json"), Path.Combine(first, "repair.json"));
-            var sessions = LegacyProcessExitPolicy.FindCorroboratedSessions(sessionRoot);
+            var (sessions, repeated, _) = LegacyProcessExitPolicy.FindExitAnomalies(sessionRoot);
+            Check(repeated.Count == 0, "A single 259 record must not be grouped.");
             Check(sessions.Contains(LegacyProcessExitPolicy.SessionKey(sessionRecord)), "Corroboration must clear siblings from the same false-exit loop.");
             Check(!sessions.Contains(LegacyProcessExitPolicy.SessionKey(sessionRecord with { ProcessId = 4567 })), "Different processes must not be suppressed.");
             Check(!sessions.Contains(LegacyProcessExitPolicy.SessionKey(sessionRecord with { SessionStarted = sessionRecord.SessionStarted.AddHours(1) })), "Reused PIDs in later sessions must not be suppressed.");
+            var confirmed = sessionRecord with
+            {
+                ProcessExitConfirmed = true,
+                SessionStarted = sessionRecord.SessionStarted.AddHours(1),
+                RecommendedRepair = new RepairPlan { Id = "ace-video-settings-reset" }
+            };
+            void WriteIncident(string name, IncidentRecord finding)
+            {
+                var folder = Path.Combine(sessionRoot, name);
+                Directory.CreateDirectory(folder);
+                File.WriteAllText(Path.Combine(folder, "incident.json"), JsonSerializer.Serialize(finding));
+            }
+
+            WriteIncident("20261107_090000_confirmed", confirmed);
+            WriteIncident("20261107_090001_confirmed", confirmed with { IncidentTime = DateTimeOffset.UtcNow.AddSeconds(1) });
+            WriteIncident("20261107_090002_unverified", confirmed with { ProcessExitConfirmed = false });
+            var later = confirmed with { SessionStarted = confirmed.SessionStarted.AddHours(1) };
+            WriteIncident("later-same-pid", later);
+            WriteIncident("independent-fault", later with { Classification = new("Application fault", 88, "Windows evidence", []) });
+            var anomalies = LegacyProcessExitPolicy.FindExitAnomalies(sessionRoot);
+            Check(anomalies.Repeated.SetEquals([LegacyProcessExitPolicy.SessionKey(confirmed)]),
+                "Group confirmed duplicate 259 reports only for the exact process lifetime.");
+            Check(anomalies.OlderDuplicates.SetEquals([Path.Combine(sessionRoot, "20261107_090000_confirmed"),
+                Path.Combine(sessionRoot, "20261107_090002_unverified")]), "Keep the newest confirmed representative and skip redundant folder reads.");
+            var review = LegacyProcessExitPolicy.AsRepeatedExitReview(confirmed);
+            Check(review.Classification.Category == LegacyProcessExitPolicy.RepeatedExitCategory
+                && review.RecommendedRepair is null && RepairPlanner.TryCreateFromIncident(review) is null,
+                "A repeated 259 report must remain reviewable without reconstructing a repair.");
             File.WriteAllText(Path.Combine(root, "repair.json"), "incomplete json");
             Check(!LegacyProcessExitPolicy.IsFalseRunningExit(record), "Corrupt metadata must preserve the finding.");
             Check(!LegacyProcessExitPolicy.IsManualSnapshot(root), "An interrupted incident is not a manual snapshot.");
@@ -70,12 +99,16 @@ internal static class ProcessExitTests
                 using var monitor = new ProcessExitMonitor(child);
                 try
                 {
+                    using var attached = ProcessExitMonitor.AttachToRunningProcess(child);
+                    Check(attached is not null, "A running simulator candidate can be attached.");
                     for (var i = 0; i < 1500; i++)
                         Check(!monitor.TryGetExitCode(out _), "Live process must not produce any exit during repeated polling.");
                     child.StandardInput.WriteLine("continue");
                     child.StandardInput.Flush();
                     Check(child.WaitForExit(10000), "Synthetic child must terminate.");
                     Check(monitor.TryGetExitCode(out var code) && code == expectedCode, "Confirmed termination must preserve the true exit code.");
+                    using var reattached = ProcessExitMonitor.AttachToRunningProcess(child);
+                    Check(reattached is null, "Rediscovery of an exited process must not create a second session.");
                 }
                 finally { if (!child.HasExited) { child.Kill(); child.WaitForExit(); } }
             }

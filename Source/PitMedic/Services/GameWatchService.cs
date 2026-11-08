@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using PitMedic.Models;
 
 namespace PitMedic.Services;
@@ -37,6 +38,7 @@ public sealed class GameWatchService : IDisposable
             {
                 if (_tracked.TryGetValue(game.Kind, out current) && !current.Lifetime.TryGetExitCode(out _))
                 {
+                    ObserveMainWindow(current);
                     PollLiveFaults(current);
                     continue;
                 }
@@ -45,22 +47,25 @@ public sealed class GameWatchService : IDisposable
             if (current is not null && current.Lifetime.TryGetExitCode(out _))
                 TriggerExit(current);
 
-            var process = FindProcess(game);
-            if (process is null) continue;
-
+            TrackedGame? tracked = null;
             try
             {
-                var tracked = new TrackedGame(game, process, SafeStart(process));
+                tracked = FindRunningGame(game);
+                if (tracked is null) continue;
+
                 tracked.LiveLogMonitor = SimulatorLiveLogMonitor.Create(game.Kind);
                 tracked.LiveLogMonitor?.StartSession(tracked.Started);
+                ObserveMainWindow(tracked);
+                AppLog.Write($"Detected {game.DisplayName}: PID {tracked.Process.Id}, process={tracked.Process.ProcessName}");
                 lock (_gate) _tracked[game.Kind] = tracked;
-                AppLog.Write($"Detected {game.DisplayName}: PID {process.Id}, process={process.ProcessName}");
+                tracked = null; // The registered session owns the process handles.
                 GameStatusChanged?.Invoke(game.Kind, true);
             }
             catch (Exception ex)
             {
                 AppLog.Write($"Failed to track {game.DisplayName}: {ex.Message}");
-                process.Dispose();
+                tracked?.Lifetime.Dispose();
+                tracked?.Process.Dispose();
             }
         }
 
@@ -77,6 +82,76 @@ public sealed class GameWatchService : IDisposable
             return _tracked.TryGetValue(kind, out var item) && !item.Lifetime.TryGetExitCode(out _);
     }
 
+    internal int? ClosedGameProcessId(GameKind kind)
+    {
+        lock (_gate)
+        {
+            return _tracked.TryGetValue(kind, out var tracked)
+                && HasClosedMainWindow(tracked) ? tracked.Process.Id : null;
+        }
+    }
+
+    internal bool TryStopClosedGame(GameKind kind, Process process, CancellationToken token)
+    {
+        lock (_gate)
+        {
+            if (!_tracked.TryGetValue(kind, out var tracked)
+                || tracked.Process.Id != process.Id) return false;
+
+            try
+            {
+                // Keep the process object open while checking identity and terminating it.
+                if (process.SafeHandle.IsInvalid
+                    || tracked.Started != new DateTimeOffset(process.StartTime)
+                    || !HasClosedMainWindow(tracked)) return false;
+
+                token.ThrowIfCancellationRequested();
+                if (kind == GameKind.IRacing) IRacingUpdateGuard.EnsureIdle();
+                process.Kill();
+                tracked.StoppedForRepair = true;
+                return true;
+            }
+            catch (InvalidOperationException) when (tracked.Lifetime.TryGetExitCode(out _))
+            {
+                return false; // Normal shutdown won the race.
+            }
+            catch (System.ComponentModel.Win32Exception) when (tracked.Lifetime.TryGetExitCode(out _))
+            {
+                return false;
+            }
+        }
+    }
+
+    private static void ObserveMainWindow(TrackedGame tracked)
+    {
+        try
+        {
+            tracked.Process.Refresh();
+            var window = tracked.Process.MainWindowHandle;
+            if (window != 0) tracked.LastMainWindow = window;
+        }
+        catch (InvalidOperationException) { } // Exited during the sample.
+        catch (System.ComponentModel.Win32Exception) { } // Window state is unavailable.
+    }
+
+    private static bool HasClosedMainWindow(TrackedGame tracked)
+    {
+        if (tracked.LastMainWindow == 0 || tracked.Lifetime.TryGetExitCode(out _)) return false;
+        try
+        {
+            tracked.Process.Refresh();
+            // A hidden or minimized window still exists. Require destruction of the
+            // previously observed window as well as absence of a replacement.
+            return tracked.Process.MainWindowHandle == 0 && !IsWindow(tracked.LastMainWindow);
+        }
+        catch (InvalidOperationException) { return false; }
+        catch (System.ComponentModel.Win32Exception) { return false; }
+    }
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool IsWindow(nint window);
+
     private bool ShouldMonitor(GameKind kind)
     {
         var settings = _settings.Current;
@@ -92,7 +167,7 @@ public sealed class GameWatchService : IDisposable
         };
     }
 
-    private static Process? FindProcess(GameDefinition game)
+    private static TrackedGame? FindRunningGame(GameDefinition game)
     {
         var candidates = new List<Process>();
         foreach (var alias in game.ProcessNames)
@@ -100,10 +175,24 @@ public sealed class GameWatchService : IDisposable
             try { candidates.AddRange(Process.GetProcessesByName(alias)); }
             catch { }
         }
-        if (candidates.Count == 0) return null;
-        var selected = candidates.OrderByDescending(SafeStart).First();
-        foreach (var p in candidates.Where(p => p.Id != selected.Id)) p.Dispose();
-        return selected;
+
+        TrackedGame? selected = null;
+        try
+        {
+            foreach (var candidate in candidates.OrderByDescending(SafeStart))
+            {
+                var lifetime = ProcessExitMonitor.AttachToRunningProcess(candidate);
+                if (lifetime is null) continue;
+                selected = new TrackedGame(game, candidate, SafeStart(candidate), lifetime);
+                break;
+            }
+            return selected;
+        }
+        finally
+        {
+            foreach (var candidate in candidates)
+                if (!ReferenceEquals(candidate, selected?.Process)) candidate.Dispose();
+        }
     }
 
     private void PollLiveFaults(TrackedGame tracked)
@@ -203,6 +292,7 @@ public sealed class GameWatchService : IDisposable
         var outcome = SimulatorSessionOutcome.ResultUnavailable;
         try
         {
+            if (tracked.StoppedForRepair) return; // The repair owns this exit, so do not create a second incident.
             PollLiveFaults(tracked);
             var settings = _settings.Current;
             LiveFaultEvidence[] liveFaults;
@@ -258,12 +348,14 @@ public sealed class GameWatchService : IDisposable
         public object FaultGate { get; } = new();
         public List<LiveFaultEvidence> LiveFaults { get; } = new();
         public int ExitHandled;
+        public nint LastMainWindow;
+        public bool StoppedForRepair;
 
-        public TrackedGame(GameDefinition game, Process process, DateTimeOffset started)
+        public TrackedGame(GameDefinition game, Process process, DateTimeOffset started, ProcessExitMonitor lifetime)
         {
             Game = game;
             Process = process;
-            Lifetime = new ProcessExitMonitor(process);
+            Lifetime = lifetime;
             Started = started;
         }
     }
