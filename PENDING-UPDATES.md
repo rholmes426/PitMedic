@@ -1,5 +1,17 @@
 # PitMedic pending updates
 
+## Knowledge Scout guidance (November 7, 2026)
+
+- Adds iRacing guidance for force feedback dropouts with Simucube ActivePedals
+  and a non-Simucube wheelbase. The installed iRacing configuration contains
+  the vendor-documented setting. Live testing on the matching hardware is
+  pending before offering an opt-in repair.
+- Adds RaceRoom version checks for loading crashes and force feedback loss
+  addressed in client builds 0.9.9.14 and 0.9.9.15.
+- Updates Fanatec App 1.7.1.4 and Logitech G HUB 2026.7 recovery guidance.
+  Vendor software updates remain manual.
+- Queued for the app and Diagnostic Library. No detector or repair action changes.
+
 ## App / website visual parity (October 26, 2026)
 
 - Aligns app typography, button and card corners, and header branding with

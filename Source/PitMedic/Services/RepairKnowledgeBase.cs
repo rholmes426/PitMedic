@@ -866,6 +866,37 @@ public static class RepairKnowledgeBase
                 Ref("2026 Season 4 Patch 1", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000179767-2026-season-4-patch-1-release-notes-2026-10-01-01-", "Specific reference-input display and spotter fixes in build 2026.10.01.01."),
             }
         },
+        new KnowledgeEntry
+        {
+            Id = "iracing-simucube-link-port-ffb-guidance",
+            Game = "iRacing",
+            IsGuidanceOnly = true,
+            Issue = "Force feedback drops with Simucube ActivePedals and another wheelbase",
+            Detection = "Check for force feedback cutting out on a rig with Simucube ActivePedals and no Simucube wheel. Confirm build 2026.11.02.01 or later and look for the existing simucubeTreatLinkPortAsWheel setting in app.ini.",
+            RepairStrategy = "For this hardware combination, iRacing documents setting simucubeTreatLinkPortAsWheel to 0 under [Force Feedback]. Close iRacing, let any update finish, and back up app.ini in Documents\\iRacing. Change only the existing setting, then retest force feedback and pedal inputs in a practice session. Restore the original value with iRacing closed if it does not help.",
+            Safety = "Guidance only / manual vendor update or reversible check",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("2026 Season 4 Patch 2", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000179983-2026-season-4-patch-2-release-notes-2026-11-02-01-", "Introduces the link-port setting for ActivePedals with no Simucube wheel."),
+                Ref("Find the iRacing Force Feedback settings", "Logitech Support", "https://support.logi.com/hc/en-150/articles/43724930421655-How-to-set-up-iRacing-TRUEFORCE-effects", "Shows where iRacing stores app.ini and its Force Feedback section."),
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "raceroom-loading-ffb-update-guidance",
+            Game = "RaceRoom Racing Experience",
+            IsGuidanceOnly = true,
+            Issue = "Loading-screen crashes and force feedback loss after the Historic Update",
+            Detection = "Check the installed RaceRoom client version and whether the issue occurs at the end of loading, while joining multiplayer, or when using a wheel with a gamepad profile.",
+            RepairStrategy = "RaceRoom 0.9.9.14 fixed a crash near the end of loading. Version 0.9.9.15 fixed another end-of-loading crash when joining multiplayer, along with specific wheel force feedback loss and stutter. For matching symptoms on older builds, let Steam apply the current supported update, then retry the same session and controls before resetting graphics or user profiles.",
+            Safety = "Guidance only / manual vendor update or reversible check",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("RaceRoom October 24 and 25 patch notes", "RaceRoom on Steam", "https://steamcommunity.com/app/211500/allnews", "Client versions 0.9.9.14 and 0.9.9.15 document the loading fixes and the later force feedback changes."),
+            }
+        },
     };
 
     public static IReadOnlyList<KnowledgeEntry> GuidanceForProduct(string product) =>

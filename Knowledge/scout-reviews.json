@@ -92,8 +92,8 @@
   {
     "url": "https://support.logi.com/hc/en-gb/articles/360048967733-G-HUB-Update-Release-Notes",
     "status": "queued",
-    "reviewedAt": "2026-10-19T17:38:57Z",
-    "note": "Approved for 1.0.0.9: 2026.6 G29/G920 input inside G HUB, theme-switch tray crashes and updater resource-use fixes. Older memory-fix wording is not evidence of a harmful PitMedic repair."
+    "reviewedAt": "2026-11-07T23:47:16Z",
+    "note": "Queued November 7: 2026.7 app-to-service connectivity, process updates and agent shutdown guidance. Prior 2026.4–2026.6 guidance remains in the catalog. The historical memory fix provides no evidence of harmful PitMedic recovery."
   },
   {
     "url": "https://mozaracing.com/pages/download-center",
@@ -220,5 +220,23 @@
     "status": "no-change",
     "reviewedAt": "2026-10-19T17:38:57Z",
     "note": "Discovery noise: shopping/catalog route or explicit unrelated trading-platform spam. No supported repair is removed."
+  },
+  {
+    "url": "https://help.fanatec.com/hc/en-us/articles/52640801907473-Fanatec-App-v1-7-1-4-Release-Notes",
+    "status": "queued",
+    "reviewedAt": "2026-11-07T23:47:16Z",
+    "note": "App-only 1.7.1.4 symptom and version guidance. Manual vendor update and retest."
+  },
+  {
+    "url": "https://support.iracing.com/support/solutions/articles/31000179983-2026-season-4-patch-2-release-notes-2026-11-02-01-",
+    "status": "queued",
+    "reviewedAt": "2026-11-07T23:47:16Z",
+    "note": "Document the link-port setting for ActivePedals paired with a non-Simucube wheelbase. Confirmed setting and section in installed app.ini. Live hardware verification is pending before adding an opt-in repair."
+  },
+  {
+    "url": "https://steamcommunity.com/app/211500/allnews",
+    "status": "queued",
+    "reviewedAt": "2026-11-07T23:47:16Z",
+    "note": "Official Steam patch notes reviewed after both Scout forum sources returned HTTP 503. Add a version check for the 0.9.9.14/0.9.9.15 loading and wheel force feedback fixes."
   }
 ]
