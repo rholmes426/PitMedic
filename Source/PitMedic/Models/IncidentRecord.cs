@@ -4,7 +4,11 @@ public sealed record CrashClassification(
     string Category,
     int Confidence,
     string Summary,
-    IReadOnlyList<string> Evidence);
+    IReadOnlyList<string> Evidence)
+{
+    public const string ApplicationFault = "Application fault";
+    public const string ApplicationCrashDump = "Application crash dump captured";
+}
 
 public sealed record IncidentRecord
 {

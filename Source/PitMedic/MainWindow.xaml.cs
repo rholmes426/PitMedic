@@ -267,7 +267,19 @@ public partial class MainWindow : Window
         RefreshSimulatorViews();
         RecorderStatus.Text = $"Captured · {incident.Timestamp:h:mm tt}";
 
-        if (!incident.RepairAvailable) return;
+        if (!incident.RepairAvailable)
+        {
+            if (incident.Category is CrashClassification.ApplicationFault or CrashClassification.ApplicationCrashDump
+                && !incident.IsResolved && !incident.IsDismissed
+                && !OwnedWindows.OfType<Window>().Any(window => window.IsVisible))
+            {
+                Show();
+                if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+                Activate();
+                ShowIncidentDetails(incident);
+            }
+            return;
+        }
         _ = Dispatcher.BeginInvoke(async () =>
         {
             await Task.Delay(450);
