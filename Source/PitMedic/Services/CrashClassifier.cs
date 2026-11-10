@@ -68,14 +68,14 @@ public sealed class CrashClassifier
         if (appError is not null)
         {
             evidence.Insert(0, $"Windows Application Error event {appError.EventId} matched the issue window.");
-            return new CrashClassification("Application fault", 88,
+            return new CrashClassification(CrashClassification.ApplicationFault, 88,
                 "Windows recorded an application fault for the simulator.", evidence);
         }
 
         if (collected.DumpFiles > 0)
         {
             evidence.Insert(0, "A new crash dump was found close to the simulator exit.");
-            return new CrashClassification("Application crash dump captured", 86,
+            return new CrashClassification(CrashClassification.ApplicationCrashDump, 86,
                 "A crash dump strongly suggests the simulator terminated unexpectedly.", evidence);
         }
 

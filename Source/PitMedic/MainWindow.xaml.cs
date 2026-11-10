@@ -267,7 +267,13 @@ public partial class MainWindow : Window
         RefreshSimulatorViews();
         RecorderStatus.Text = $"Captured · {incident.Timestamp:h:mm tt}";
 
-        if (!incident.RepairAvailable) return;
+        if (!incident.RepairAvailable)
+        {
+            if (incident.ShouldOpenCrashReview
+                && !Application.Current.Windows.OfType<IncidentDetailsWindow>().Any(window => window.IsVisible))
+                ShowIncidentDetails(incident, automatic: true);
+            return;
+        }
         _ = Dispatcher.BeginInvoke(async () =>
         {
             await Task.Delay(450);
@@ -823,7 +829,7 @@ public partial class MainWindow : Window
         OpenIncident(incident);
     }
 
-    private void ShowIncidentDetails(IncidentSummary incident)
+    private void ShowIncidentDetails(IncidentSummary incident, bool automatic = false)
     {
         var details = _monitoring.GetIncidentDetails(incident.Folder);
         if (details is null)
@@ -841,8 +847,19 @@ public partial class MainWindow : Window
         Func<bool>? acknowledgeFinding = !incident.IsResolved && !incident.IsDismissed
             ? () => AcknowledgeIncident(incident)
             : null;
+        if (automatic && !IsVisible) Show();
+        if (automatic && WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+
         var dialog = new IncidentDetailsWindow(details, runRepair, acknowledgeFinding) { Owner = this };
-        dialog.ShowDialog();
+        if (automatic)
+        {
+            dialog.Show();
+            dialog.Activate();
+        }
+        else
+        {
+            dialog.ShowDialog();
+        }
     }
 
     private bool AcknowledgeIncident(IncidentSummary incident)

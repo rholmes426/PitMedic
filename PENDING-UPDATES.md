@@ -1,5 +1,14 @@
 # PitMedic pending updates
 
+## Simulator crash finding window
+
+- Opens Finding Review from the dashboard or tray for a new simulator crash dump
+  or matching Windows application fault when there is no repair to offer.
+- Keeps one automatic Finding Review visible at a time. Additional findings
+  remain available on the dashboard and in history.
+- Regression coverage checks crash dumps, matching Windows faults, clean and
+  unconfirmed exits, and the existing repair path.
+
 ## Knowledge Scout guidance (November 7, 2026)
 
 - Adds iRacing guidance for force feedback dropouts with Simucube ActivePedals
