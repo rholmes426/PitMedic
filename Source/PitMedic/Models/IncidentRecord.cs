@@ -41,6 +41,9 @@ public sealed record IncidentSummary(
     bool IsDismissed = false,
     bool RequiresRepairApproval = false)
 {
+    public bool ShouldOpenCrashReview => !RepairAvailable && !IsResolved && !IsDismissed
+        && Category is CrashClassification.ApplicationFault or CrashClassification.ApplicationCrashDump;
+
     public string ActionLabel => IsResolved ? "Details" : RepairAvailable ? "Repair" : "Open";
     public string StatusLabel => IsResolved ? (string.IsNullOrWhiteSpace(ResolutionText) ? "RESOLVED" : ResolutionText.ToUpperInvariant()) : string.Empty;
     public string HistoryStatus => IsResolved ? "Resolved" : IsDismissed ? "Acknowledged" : RepairAvailable ? "Repair available" : "Captured";

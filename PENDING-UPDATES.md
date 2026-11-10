@@ -2,9 +2,12 @@
 
 ## Simulator crash finding window
 
-- Opens Finding Review for a newly captured simulator crash dump or Windows
-  application fault when there is no repair to offer. If another PitMedic
-  window is open, the finding is available from the dashboard and history.
+- Opens Finding Review from the dashboard or tray for a new simulator crash dump
+  or matching Windows application fault when there is no repair to offer.
+- Keeps one automatic Finding Review visible at a time. Additional findings
+  remain available on the dashboard and in history.
+- Regression coverage checks crash dumps, matching Windows faults, clean and
+  unconfirmed exits, and the existing repair path.
 
 ## Knowledge Scout guidance (November 7, 2026)
 

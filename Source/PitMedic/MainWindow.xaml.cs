@@ -269,15 +269,9 @@ public partial class MainWindow : Window
 
         if (!incident.RepairAvailable)
         {
-            if (incident.Category is CrashClassification.ApplicationFault or CrashClassification.ApplicationCrashDump
-                && !incident.IsResolved && !incident.IsDismissed
-                && !OwnedWindows.OfType<Window>().Any(window => window.IsVisible))
-            {
-                Show();
-                if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
-                Activate();
-                ShowIncidentDetails(incident);
-            }
+            if (incident.ShouldOpenCrashReview
+                && !Application.Current.Windows.OfType<IncidentDetailsWindow>().Any(window => window.IsVisible))
+                ShowIncidentDetails(incident, automatic: true);
             return;
         }
         _ = Dispatcher.BeginInvoke(async () =>
@@ -835,7 +829,7 @@ public partial class MainWindow : Window
         OpenIncident(incident);
     }
 
-    private void ShowIncidentDetails(IncidentSummary incident)
+    private void ShowIncidentDetails(IncidentSummary incident, bool automatic = false)
     {
         var details = _monitoring.GetIncidentDetails(incident.Folder);
         if (details is null)
@@ -853,8 +847,19 @@ public partial class MainWindow : Window
         Func<bool>? acknowledgeFinding = !incident.IsResolved && !incident.IsDismissed
             ? () => AcknowledgeIncident(incident)
             : null;
+        if (automatic && !IsVisible) Show();
+        if (automatic && WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+
         var dialog = new IncidentDetailsWindow(details, runRepair, acknowledgeFinding) { Owner = this };
-        dialog.ShowDialog();
+        if (automatic)
+        {
+            dialog.Show();
+            dialog.Activate();
+        }
+        else
+        {
+            dialog.ShowDialog();
+        }
     }
 
     private bool AcknowledgeIncident(IncidentSummary incident)

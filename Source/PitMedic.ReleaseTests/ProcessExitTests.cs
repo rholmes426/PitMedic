@@ -7,6 +7,8 @@ internal static class ProcessExitTests
 {
     public static void Run()
     {
+        TestAutomaticCrashReview();
+
         // All supported sims use the same policy. Preserve actual faults, missing
         // evidence, and newly confirmed genuine exit code 259.
         foreach (var game in GameDefinition.Supported)
@@ -118,6 +120,29 @@ internal static class ProcessExitTests
             Check(!liveMonitor.TryGetExitCode(out _), "Disposed .NET process state must not become a crash; the independent handle remains valid.");
         }
         Console.WriteLine("Process-exit and legacy-finding regression tests passed.");
+    }
+
+    private static void TestAutomaticCrashReview()
+    {
+        var classifier = new CrashClassifier();
+        var game = GameDefinition.Supported.Single(g => g.Kind == GameKind.AssettoCorsaEvo);
+        var empty = new CollectedEvidence(0, 0, [], false, [], [], []);
+        var dump = classifier.Classify(game, null, [], [], empty with { DumpFiles = 1 });
+        var applicationFault = new WindowsEventEvidence("Application", null, "Application Error", 1000, "Error", game.ExecutableName);
+        var fault = classifier.Classify(game, null, [applicationFault], [], empty);
+        var clean = classifier.Classify(game, 0, [], [], empty);
+        var ambiguous = classifier.Classify(game, null, [], [], empty);
+
+        IncidentSummary Summary(CrashClassification classification) =>
+            new(DateTimeOffset.UtcNow, game.DisplayName, classification.Category, classification.Confidence, "");
+
+        Check(Summary(dump).ShouldOpenCrashReview, "A captured EVO crash dump must open Finding Review when no repair is available.");
+        Check(Summary(fault).ShouldOpenCrashReview, "A matching Windows application fault must open Finding Review.");
+        Check(!Summary(clean).ShouldOpenCrashReview, "Normal exits must remain quiet.");
+        Check(!Summary(ambiguous).ShouldOpenCrashReview, "An unconfirmed exit must remain quiet.");
+        Check(!(Summary(dump) with { RepairAvailable = true }).ShouldOpenCrashReview, "Repairable incidents must use the existing repair flow.");
+        Check(!(Summary(dump) with { IsResolved = true }).ShouldOpenCrashReview, "Resolved incidents must remain quiet.");
+        Check(!(Summary(dump) with { IsDismissed = true }).ShouldOpenCrashReview, "Acknowledged incidents must remain quiet.");
     }
 
     private static void Check(bool value, string message)

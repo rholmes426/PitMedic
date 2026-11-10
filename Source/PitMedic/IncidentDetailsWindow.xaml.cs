@@ -227,7 +227,7 @@ public partial class IncidentDetailsWindow : Window
 
         if (_acknowledgeFinding())
         {
-            DialogResult = true;
+            Close();
             return;
         }
 
