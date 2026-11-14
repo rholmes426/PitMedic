@@ -1,0 +1,309 @@
+{
+  "schemaVersion": 1,
+  "mode": "manual-only",
+  "baseRegistry": "Knowledge/source-registry.json",
+  "purpose": "Research inventory for user-initiated Scout reviews; not a network allowlist or permission to execute fetched material.",
+  "sourcePolicy": "Use all enabled base sources plus these discovery sources. Recheck identity, availability and actual discussion content per review. Search beyond this inventory when a useful lead warrants it.",
+  "qualification": "Official/developer evidence or independently corroborated first-hand reports may support proposals. Community advice alone remains explicitly unvalidated until current applicability and tests are established.",
+  "additionalSources": [
+    {
+      "id": "steam-lmu",
+      "products": [
+        "Le Mans Ultimate"
+      ],
+      "authority": "community",
+      "category": "steam-discussions",
+      "url": "https://steamcommunity.com/app/2399420/discussions/",
+      "searchTemplate": "site:steamcommunity.com/app/2399420/discussions/ {symptom} (fixed OR solved OR workaround)",
+      "access": "discussion-index-opened",
+      "checkedOn": "2026-11-13",
+      "notes": "Open actual threads and replies; developer posts must be identified individually. Steam hosting does not make user advice official."
+    },
+    {
+      "id": "steam-iracing",
+      "products": [
+        "iRacing"
+      ],
+      "authority": "community",
+      "category": "steam-discussions",
+      "url": "https://steamcommunity.com/app/266410/discussions/",
+      "searchTemplate": "site:steamcommunity.com/app/266410/discussions/ {symptom} (fixed OR solved OR workaround)",
+      "access": "discussion-index-opened",
+      "checkedOn": "2026-11-13",
+      "notes": "Open actual threads and replies; developer posts must be identified individually. Steam hosting does not make user advice official."
+    },
+    {
+      "id": "steam-ace",
+      "products": [
+        "Assetto Corsa EVO"
+      ],
+      "authority": "community",
+      "category": "steam-discussions",
+      "url": "https://steamcommunity.com/app/3058630/discussions/",
+      "searchTemplate": "site:steamcommunity.com/app/3058630/discussions/ {symptom} (fixed OR solved OR workaround)",
+      "access": "discussion-index-opened",
+      "checkedOn": "2026-11-13",
+      "notes": "Open actual threads and replies; developer posts must be identified individually. Steam hosting does not make user advice official."
+    },
+    {
+      "id": "steam-acc",
+      "products": [
+        "Assetto Corsa Competizione"
+      ],
+      "authority": "community",
+      "category": "steam-discussions",
+      "url": "https://steamcommunity.com/app/805550/discussions/",
+      "searchTemplate": "site:steamcommunity.com/app/805550/discussions/ {symptom} (fixed OR solved OR workaround)",
+      "access": "discussion-index-opened",
+      "checkedOn": "2026-11-13",
+      "notes": "Open actual threads and replies; developer posts must be identified individually. Steam hosting does not make user advice official."
+    },
+    {
+      "id": "steam-ams2",
+      "products": [
+        "Automobilista 2"
+      ],
+      "authority": "community",
+      "category": "steam-discussions",
+      "url": "https://steamcommunity.com/app/1066890/discussions/",
+      "searchTemplate": "site:steamcommunity.com/app/1066890/discussions/ {symptom} (fixed OR solved OR workaround)",
+      "access": "discussion-index-opened",
+      "checkedOn": "2026-11-13",
+      "notes": "Open actual threads and replies; developer posts must be identified individually. Steam hosting does not make user advice official."
+    },
+    {
+      "id": "steam-raceroom",
+      "products": [
+        "RaceRoom Racing Experience"
+      ],
+      "authority": "community",
+      "category": "steam-discussions",
+      "url": "https://steamcommunity.com/app/211500/discussions/",
+      "searchTemplate": "site:steamcommunity.com/app/211500/discussions/ {symptom} (fixed OR solved OR workaround)",
+      "access": "discussion-index-opened",
+      "checkedOn": "2026-11-13",
+      "notes": "Open actual threads and replies; developer posts must be identified individually. Steam hosting does not make user advice official."
+    },
+    {
+      "id": "reddit-simracing",
+      "products": [
+        "all"
+      ],
+      "authority": "community",
+      "category": "reddit",
+      "url": "https://www.reddit.com/r/simracing/",
+      "searchTemplate": "site:reddit.com/r/simracing/comments/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "indexed-discussion-leads",
+      "checkedOn": "2026-11-13",
+      "notes": "Read complete accessible posts and outcome replies. Votes and repeated quotations are not independent confirmation."
+    },
+    {
+      "id": "reddit-lmu",
+      "products": [
+        "Le Mans Ultimate"
+      ],
+      "authority": "community",
+      "category": "reddit",
+      "url": "https://www.reddit.com/r/LeMansUltimateWEC/",
+      "searchTemplate": "site:reddit.com/r/LeMansUltimateWEC/comments/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "indexed-discussion-leads",
+      "checkedOn": "2026-11-13",
+      "notes": "Read complete accessible posts and outcome replies. Votes and repeated quotations are not independent confirmation."
+    },
+    {
+      "id": "reddit-iracing",
+      "products": [
+        "iRacing"
+      ],
+      "authority": "community",
+      "category": "reddit",
+      "url": "https://www.reddit.com/r/iRacing/",
+      "searchTemplate": "site:reddit.com/r/iRacing/comments/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "indexed-discussion-leads",
+      "checkedOn": "2026-11-13",
+      "notes": "Read complete accessible posts and outcome replies. Votes and repeated quotations are not independent confirmation."
+    },
+    {
+      "id": "reddit-ace",
+      "products": [
+        "Assetto Corsa EVO"
+      ],
+      "authority": "community",
+      "category": "reddit",
+      "url": "https://www.reddit.com/r/assettocorsaevo/",
+      "searchTemplate": "site:reddit.com/r/assettocorsaevo/comments/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "indexed-discussion-leads",
+      "checkedOn": "2026-11-13",
+      "notes": "Read complete accessible posts and outcome replies. Votes and repeated quotations are not independent confirmation."
+    },
+    {
+      "id": "reddit-acc",
+      "products": [
+        "Assetto Corsa Competizione"
+      ],
+      "authority": "community",
+      "category": "reddit",
+      "url": "https://www.reddit.com/r/ACCompetizione/",
+      "searchTemplate": "site:reddit.com/r/ACCompetizione/comments/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "community-opened",
+      "checkedOn": "2026-11-13",
+      "notes": "Read complete accessible posts and outcome replies. Votes and repeated quotations are not independent confirmation."
+    },
+    {
+      "id": "reddit-ams2",
+      "products": [
+        "Automobilista 2"
+      ],
+      "authority": "community",
+      "category": "reddit",
+      "url": "https://www.reddit.com/r/AUTOMOBILISTA/",
+      "searchTemplate": "site:reddit.com/r/AUTOMOBILISTA/comments/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "indexed-discussion-leads",
+      "checkedOn": "2026-11-13",
+      "notes": "Read complete accessible posts and outcome replies. Votes and repeated quotations are not independent confirmation."
+    },
+    {
+      "id": "reddit-raceroom",
+      "products": [
+        "RaceRoom Racing Experience"
+      ],
+      "authority": "community",
+      "category": "reddit",
+      "url": "https://www.reddit.com/r/RRRE/",
+      "searchTemplate": "site:reddit.com/r/RRRE/comments/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "indexed-discussion-leads",
+      "checkedOn": "2026-11-13",
+      "notes": "Read complete accessible posts and outcome replies. Votes and repeated quotations are not independent confirmation."
+    },
+    {
+      "id": "overtake-forums",
+      "products": [
+        "all"
+      ],
+      "authority": "community",
+      "category": "independent-forum",
+      "url": "https://www.overtake.gg/forums/",
+      "searchTemplate": "site:overtake.gg/threads/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "forum-opened",
+      "checkedOn": "2026-11-13",
+      "notes": "Includes the former RaceDepartment community. Follow actual support threads, not news summaries or mod-download claims."
+    },
+    {
+      "id": "simhub-developer-wiki",
+      "products": [
+        "iRacing",
+        "Le Mans Ultimate",
+        "Automobilista 2",
+        "Assetto Corsa Competizione",
+        "RaceRoom Racing Experience"
+      ],
+      "authority": "developer",
+      "category": "developer-docs",
+      "url": "https://github.com/SHWotever/SimHub/wiki/SimHub-Basics----Games-config-and-troubleshooting",
+      "searchTemplate": "site:github.com/SHWotever/SimHub/wiki {product} {symptom}",
+      "access": "article-body-opened",
+      "checkedOn": "2026-11-13",
+      "notes": "Dependency/interoperability evidence; adding a source does not add SimHub monitoring or runtime support."
+    },
+    {
+      "id": "simhub-developer-issues",
+      "products": [
+        "all"
+      ],
+      "authority": "developer",
+      "category": "issue-tracker",
+      "url": "https://github.com/SHWotever/SimHub/issues",
+      "searchTemplate": "site:github.com/SHWotever/SimHub/issues {product} {symptom}",
+      "access": "issue-index-opened",
+      "checkedOn": "2026-11-13",
+      "notes": "Open discussion and developer resolution; closed/done labels alone do not establish a remedy."
+    },
+    {
+      "id": "thrustmaster-support",
+      "products": [
+        "all"
+      ],
+      "authority": "official",
+      "category": "hardware-support",
+      "url": "https://support.thrustmaster.com/en/product/t598p-en/",
+      "searchTemplate": "site:support.thrustmaster.com {hardware} {symptom}",
+      "access": "indexed-product-and-kb",
+      "checkedOn": "2026-11-13",
+      "notes": "Cross-check T598/T818 and other device-specific knowledge; firmware procedures remain manual."
+    },
+    {
+      "id": "microsoft-runtime",
+      "products": [
+        "all"
+      ],
+      "authority": "official",
+      "category": "platform-support",
+      "url": "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist/",
+      "searchTemplate": "site:learn.microsoft.com {error} {runtime}",
+      "access": "article-search-result",
+      "checkedOn": "2026-11-13",
+      "notes": "Match architecture/runtime generation and the simulator vendor's prerequisite, not generic DLL downloads."
+    },
+    {
+      "id": "steam-support",
+      "products": [
+        "all"
+      ],
+      "authority": "official",
+      "category": "platform-support",
+      "url": "https://help.steampowered.com/",
+      "searchTemplate": "site:help.steampowered.com {symptom} {product}",
+      "access": "seed-follow-official-links",
+      "checkedOn": "2026-11-13",
+      "notes": "Use official app-specific repair procedures; do not infer stable Steam config mutation interfaces."
+    },
+    {
+      "id": "nvidia-driver-support",
+      "products": [
+        "all"
+      ],
+      "authority": "official",
+      "category": "gpu-support",
+      "url": "https://www.nvidia.com/en-us/drivers/",
+      "searchTemplate": "site:nvidia.com {product} {gpu} {symptom} release notes",
+      "access": "indexed-driver-pages",
+      "checkedOn": "2026-11-13",
+      "notes": "Version/GPU-specific diagnosis; do not automatically install or roll back drivers."
+    },
+    {
+      "id": "nvidia-driver-forum",
+      "products": [
+        "all"
+      ],
+      "authority": "vendor-community",
+      "category": "gpu-community",
+      "url": "https://www.nvidia.com/en-us/geforce/forums/game-ready-drivers/13/",
+      "searchTemplate": "site:nvidia.com/en-us/geforce/forums/ {product} {symptom}",
+      "access": "indexed-feedback-thread",
+      "checkedOn": "2026-11-13",
+      "notes": "Separate NVIDIA staff findings from user hypotheses."
+    },
+    {
+      "id": "amd-driver-support",
+      "products": [
+        "all"
+      ],
+      "authority": "official",
+      "category": "gpu-support",
+      "url": "https://www.amd.com/en/support",
+      "searchTemplate": "site:amd.com/en/resources/support-articles/release-notes/ {product} {gpu} {symptom}",
+      "access": "indexed-release-notes",
+      "checkedOn": "2026-11-13",
+      "notes": "Match affected hardware and driver scope; avoid blanket tuning and driver replacement."
+    }
+  ],
+  "queryFamilies": [
+    "{product} {symptom} fixed solved workaround",
+    "{product} {hardware} {error_code} fix",
+    "{product} {config_file_or_setting} reset repair",
+    "site:{source_domain} {product} {symptom}",
+    "{product} {symptom} after update",
+    "{product} controls not detected force feedback missing telemetry not working"
+  ],
+  "publicDiscordPolicy": "Follow public vendor/maintainer-linked troubleshooting resources when readable. Record private or login-only channels as inaccessible; never claim they were searched. Do not join servers, message people, or bypass access controls."
+}

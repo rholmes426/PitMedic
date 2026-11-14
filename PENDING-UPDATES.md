@@ -1,5 +1,31 @@
 # PitMedic pending updates
 
+## Manual Scout process and repair opportunities (November 13, 2026)
+
+Owner requested manual Scout reviews and broader sources. The GitHub cron is
+removed; optional source intake is manual only. The separate ChatGPT review
+remains disabled. Use [the review playbook](Knowledge/SCOUT-REVIEW.md) and
+[expanded source inventory](Knowledge/manual-scout-sources.json).
+
+[Evidence, scope, tradeoffs and acceptance criteria](Research/KnowledgeScoutReview-2026-11-13.md).
+These are proposed engineering work, not implemented or validated app repairs.
+Old Research proposals were checked against current executable coverage rather
+than assumed shipped. No new public Diagnostic Library repair claim is enabled.
+
+| Priority / ID | Proposed automatic work | Required next step |
+| --- | --- | --- |
+| First batch — KS-MAN-IR-SOCKETS | Backed-up core.ini connect_sockets A/B test for exact iRacing socket errors | Add scoped evidence/symptom path, one-key edit, functional retest and Restore |
+| First batch — KS-MAN-LMU-INPUT | Official LMU four-file controller recovery | Confirm installed names/layout, preserve backups, user consent for rebinding, regeneration/restore tests |
+| First batch — KS-MAN-IR-63 | Error 63-specific backed-up app.ini regeneration | Exact error routing, single-file recovery, settings-impact consent and spotter retest |
+| First batch — KS-MAN-IR-77 | Route Error 77 to existing content recovery | Establish safe car/track extraction; no broad deletion or guessed target |
+| Validation — KS-MAN-IR-SIMAGIC | One-setting Simagic/360 Hz stutter A/B test | Current hardware/key scope and tradeoffs; no global automatic disabling |
+| Validation — KS-MAN-IR-SIMHUB | Check/repair missing SimHub iRacing data configuration | Current developer compatibility, settings consent and practice-session validation |
+| Evidence — KS-MAN-LMU-DIRECTINPUT | Pedal-flicker fallback without resetting all bindings | Current-build hardware reproduction or vendor confirmation; community-only lead |
+
+Existing iRacing/Simucube Link-port automation remains pending hardware validation;
+its 1.0.0.11 guidance is already published and is not counted as new. New repairs
+need runtime implementation and tests before app/library publication.
+
 ## Simulator crash finding window
 
 - Opens Finding Review from the dashboard or tray for a new simulator crash dump
