@@ -7,6 +7,79 @@
   ],
   "entries": [
     {
+      "id": "lmu-controller-config",
+      "displayKind": "Simulator repair",
+      "product": "Le Mans Ultimate",
+      "issue": "Wheel, pedal or button configuration no longer works",
+      "detection": "The user selects the matching controls symptom in Repair Tools. A crash or missing optional file alone does not trigger this reset.",
+      "repair": "With explicit consent, preserve and remove only direct input.json, current controls.json, keyboard.json and gamepad.json beneath UserData/player. Let LMU regenerate them, retest input, and use Restore last backup if needed.",
+      "safety": "Ask first / bindings may need remapping / retained backup",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Controller recovery",
+          "source": "Le Mans Ultimate Support",
+          "url": "https://guide.lemansultimate.com/hc/en-gb/articles/13260585473551-Common-Fixes",
+          "note": "Official guidance names the exact four controller files. PitMedic preserves them before resetting.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-repair",
+      "status": "active",
+      "lastVerified": "2026-11-14",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "iracing-socket-connection",
+      "displayKind": "Simulator repair",
+      "product": "iRacing",
+      "issue": "Connection Error 10057, 10035 or 10054",
+      "detection": "An exact supported socket error in current evidence, or the user selecting that symptom in Repair Tools.",
+      "repair": "With iRacing and updates closed, preserve core.ini and change only the existing connect_sockets value from 0 to 1 in [Communications]. Verify the edit, retry the same connection, and offer Restore last backup if ineffective.",
+      "safety": "Ask first / one-key A/B test / retained backup",
+      "signatures": [
+        "PitMedic diagnostic signature: socket-connection-error"
+      ],
+      "references": [
+        {
+          "title": "Error 10057, Error 10035 and Error 10054",
+          "source": "iRacing Support",
+          "url": "https://support.iracing.com/support/solutions/articles/31000156152-error-10057-error-10035-and-error-10054",
+          "note": "Official support documents connect_sockets=1 under [Communications] in core.ini.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-repair",
+      "status": "active",
+      "lastVerified": "2026-11-14",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "iracing-spotter-loading-error-63",
+      "displayKind": "Simulator repair",
+      "product": "iRacing",
+      "issue": "Loading Error 63 while loading a spotter sound",
+      "detection": "Exact Loading Error 63 in current evidence, or the user selecting that error in Repair Tools.",
+      "repair": "With explicit consent, preserve app.ini and remove only its active copy so iRacing can regenerate it. Application preferences may reset. Setups, paints, replays and spotter packages remain in place. Retest and use Restore last backup if ineffective.",
+      "safety": "Ask first / application preferences may reset / retained backup",
+      "signatures": [
+        "PitMedic diagnostic signature: loading-error-63"
+      ],
+      "references": [
+        {
+          "title": "Loading Error 63",
+          "source": "iRacing Support",
+          "url": "https://support.iracing.com/support/solutions/articles/31000156684-loading-error-63",
+          "note": "Official support associates Error 63 with spotter sounds and documents backed-up app.ini regeneration.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-repair",
+      "status": "active",
+      "lastVerified": "2026-11-14",
+      "reviewCadenceDays": 180
+    },
+    {
       "id": "lmu-content-corruption",
       "displayKind": "Simulator repair",
       "product": "Le Mans Ultimate",
