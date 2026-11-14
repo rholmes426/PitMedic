@@ -134,7 +134,8 @@ second review on that date), using the owner's local date. Include:
    validation candidates, guidance-only items and unresolved evidence.
 3. A ranked shortlist with stable IDs, symptom/trigger, source, existing overlap,
    exact proposed mutation, backup/restore, verification, material tradeoffs,
-   acceptance criteria and next action.
+   acceptance criteria, new/existing Diagnostic Library target IDs/status and
+   next action.
 4. Explicit coverage gaps, blocked sources, conflicting evidence and follow-up.
 5. Newly discovered versus newly published versus revalidated old backlog.
 
@@ -152,6 +153,54 @@ The final response should lead with useful repair opportunities, status and the
 best next implementation batch, link the report/PR, and mention material blockers.
 Report guidance separately. If none qualifies, explain why and what was checked;
 do not substitute page-change counts for repair value.
+
+## Diagnostic Library delivery is part of each fix
+
+Every Scout review must assess the public Diagnostic Library as well as runtime
+coverage. Each proposal in the report/queue must name the existing guide IDs it
+changes or a proposed new guide ID, and state its library status: proposed,
+prepared, validated, or published. Record an explicit reason when a finding
+needs no library change. Existing repair improvements must refresh the matching
+guide rather than create duplicate pages.
+
+For each implemented repair or routing change:
+
+1. Update the app-owned knowledge/reference record and corresponding lifecycle
+   metadata in accordance with actual implementation and verification. Add or
+   update `Tools/DiagnosticLibrary/guides.json` with the symptom, applicable
+   versions/hardware, how PitMedic detects or lets the user select the problem,
+   what the app changes, consent/tradeoffs, backups/Restore, expected retest and
+   repair limits. Distinguish automatic operations from remaining manual work.
+2. Generate the library from its sources; do not hand-edit generated pages or
+   invent a separate website repair catalog:
+   `python Tools/DiagnosticLibrary/generate.py`.
+3. Run `python Tools/DiagnosticLibrary/generate.py --check` and
+   `python Tools/KnowledgeScout/knowledge_scout.py --validate-only`, plus the
+   required Build Validation and tests for the changed repair. Include the
+   resulting guide pages, `database.json`, collection/navigation and sitemap
+   outputs changed by the generator. Reuse the correct software group and stable
+   existing URLs; check app-to-guide links where relevant.
+4. Treat runtime implementation and matching library content as one delivery.
+   Prepare both in the implementation PR/release batch, and track them together.
+   Coordinate publication so the public page's available repair claims match a
+   supporting released app version. Clearly identify any future-version status;
+   do not advertise an unreleased or merely proposed repair as currently
+   available. A research-only review can queue the paired work without creating
+   an active public repair page.
+5. When publication is authorized, verify the actual guide, collection search/
+   software navigation, canonical link, sitemap entry and app deep link where
+   relevant. Record app version, library path, validation and publication result.
+   Mark the library work published only after the live check passes.
+
+Verified guidance-only improvements may update an existing guide through the
+normal authorized website workflow; label them as guidance and do not count them
+as automatic repairs. Keep editorial dates separate from evidence verification
+dates. A new source, changed link or proposed repair alone must not alter a
+`lastVerified` date or imply local testing.
+
+The user-facing review summary must state the library result: updated/published
+guides, paired queued guide work, or why no change is justified. A review is not
+complete merely because it adds queue text without identifying the library work.
 
 ## Optional source intake
 

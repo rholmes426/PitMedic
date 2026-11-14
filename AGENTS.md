@@ -21,6 +21,13 @@ Prioritize narrow repair actions and ways to make existing repairs reachable.
 Include user-requested symptom checks when a failure produces no crash.
 Persist evidence, implementation gaps, priority, validation and rollback
 requirements in a dated Research report and deduplicated pending queue.
+Every Scout proposal must include its Diagnostic Library deliverable: a new guide
+or an update to the matching existing guide. Implemented fixes must update app-owned
+knowledge, guide explanations and generated library/navigation/sitemap outputs,
+pass the generation checks, and receive a live-page check when published. Public
+claims must match the supporting released app version. See the playbook's library
+completion checklist.
+
 Distinguish proposed, tested, implemented and published work. Do not claim
 success rates, current applicability or a repair that has not been verified.
 
