@@ -31,7 +31,11 @@ validate actual remedies and outcomes, compare with runtime coverage, and persis
 ranked implementation proposals. Use the expanded
 [manual source inventory](manual-scout-sources.json), which supplements the
 27 enabled vendor sources with 22 community, developer and platform entries.
-A keyword report is intake material, not a completed review.
+A keyword report is intake material, not a completed review. Every proposal must
+include a matching Diagnostic Library deliverable. Implemented fixes update the
+app-owned knowledge and generated guides together, with publication claims tied
+to the supporting released app version. The playbook includes the generation,
+validation and live-page completion checklist.
 
 The separate ChatGPT review remains disabled. The GitHub cron schedule was removed
 at the owner's request on November 13, 2026. Do not enable recurring Scout work

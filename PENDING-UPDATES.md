@@ -1,5 +1,29 @@
 # PitMedic pending updates
 
+## Diagnostic Library work paired with the Scout queue (November 14, 2026)
+
+The owner explicitly requires Diagnostic Library updates alongside Scout fixes.
+Each item below is part of the same implementation/release delivery as its
+corresponding runtime change. Planned IDs are proposals, not existing public
+pages; validate naming/overlap during implementation.
+
+| Scout ID | Library deliverable | Status |
+| --- | --- | --- |
+| KS-MAN-IR-SOCKETS | New planned guide `iracing-socket-connection` | Queued with repair |
+| KS-MAN-LMU-INPUT | New planned guide `lmu-controller-config` | Queued with repair |
+| KS-MAN-IR-63 | New planned guide `iracing-spotter-loading-error-63` | Queued with repair |
+| KS-MAN-IR-77 | Update `iracing-track-loading-errors` and `iracing-car-loading-errors` with exact Error 77 routing and target limits | Queued with routing work |
+| KS-MAN-IR-SIMAGIC | New planned guide `iracing-simagic-stutter` if the scoped repair validates | Awaiting repair validation |
+| KS-MAN-IR-SIMHUB | New planned guide `iracing-simhub-data-config` if current compatibility and repair validate | Awaiting repair validation |
+| KS-MAN-LMU-DIRECTINPUT | New planned guide `lmu-directinput-pedal-flicker`, cross-reference controller recovery and prefer the less disruptive validated option | Awaiting current-build evidence |
+| Existing Simucube Link-port item | Update `iracing-simucube-link-port-ffb-guidance` when automation validates | Current published manual guidance retained |
+
+Completion requires app knowledge/reference/lifecycle changes as applicable,
+guide explanations, generated pages/database/collection/sitemap outputs,
+generation/catalog checks, required CI and live publication verification.
+Public claims must match the supporting released app version. See the
+[playbook checklist](Knowledge/SCOUT-REVIEW.md#diagnostic-library-delivery-is-part-of-each-fix).
+
 ## Manual Scout process and repair opportunities (November 13, 2026)
 
 Owner requested manual Scout reviews and broader sources. The GitHub cron is

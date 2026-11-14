@@ -32,6 +32,24 @@ procedure with explicit scope and direct official links. Verify those instructio
 against the linked vendor article before editing them. They do not change the
 app-owned repair or lifecycle verification dates.
 
+## Scout fixes and library synchronization
+
+The manual [Scout review](../../Knowledge/SCOUT-REVIEW.md) tracks a guide
+deliverable for every repair/routing proposal. New repairs require a matching
+guide; existing repairs update their current guide. Prepare app-owned knowledge,
+`guides.json` and generated outputs as one implementation/release delivery.
+Include clear symptoms, supported versions/hardware, app behavior, remaining
+manual steps, consent, backups/Restore, expected retest, limits and verified
+sources. The existing software grouping, app links, collection and sitemap must
+continue to work.
+
+Use the generation and validation commands above, then required CI. Coordinate
+publication with the supporting app release; public "available repair" claims
+must not precede that release. Research-only proposals stay in the report/queue.
+Guidance-only updates must retain that distinction. On publication, check the
+live guide, search/software navigation, canonical/sitemap and relevant app link,
+then record the result before marking the paired library work complete.
+
 ## Evidence for the September 29, 2026 expansion
 
 All 60 guides were expanded. Eighteen include relevant automated regression
