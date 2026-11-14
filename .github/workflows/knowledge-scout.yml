@@ -1,9 +1,6 @@
-name: Repair knowledge scout and evidence review
+name: Scout source intake (manual only)
 
 on:
-  schedule:
-    # Avoid the start-of-hour congestion window. Times are UTC.
-    - cron: "17 17 * * 2,5"
   workflow_dispatch:
 
 permissions:
@@ -60,7 +57,7 @@ jobs:
             : > prior-report.md
           fi
 
-      - name: Scan sources and review pending candidate evidence
+      - name: Collect source leads for the manual Scout review
         run: |
           python Tools/KnowledgeScout/knowledge_scout.py \
             --prior-report prior-report.md \

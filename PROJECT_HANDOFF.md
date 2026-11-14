@@ -1,5 +1,14 @@
 # PitMedic project handoff
 
+Latest process direction — November 13, 2026: Scout is manual only. Read
+[Knowledge/SCOUT-REVIEW.md](Knowledge/SCOUT-REVIEW.md) and
+[Knowledge/manual-scout-sources.json](Knowledge/manual-scout-sources.json) when the
+owner requests a review. Research useful automatic repairs and actionable coverage
+gaps; the optional intake script does not perform substantive review. Its GitHub
+cron schedule is removed and the separate ChatGPT task remains disabled.
+The current public release was verified as v1.0.0.11 during this change; older
+version statements below are historical and must not override live release data.
+
 October 5: Owner authorized the 1.0.0.8 signed app/website release including recent
 fixes and guidance. PR #134 now implements the six research groups, five new
 manual guidance records, finding-review display and 28 Scout sources. Analytics dependency
@@ -91,6 +100,11 @@ branch protection, then verify README, latest release, homepage, updater, instal
 and SHA-256 checksum.
 
 ## Knowledge Scout rules
+
+Follow the manual review playbook and expanded community/developer source inventory
+for new reviews. Preserve the distinction between researched, implemented, tested
+and published repair actions. The historical rules below still apply.
+
 
 Use actual first-party/vendor-community pages, not titles, snippets, forum indexes, or
 announcements of unshipped fixes. Separate newly discovered from newly published material.

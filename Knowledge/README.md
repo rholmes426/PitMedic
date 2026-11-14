@@ -23,7 +23,21 @@ This directory defines how PitMedic keeps its simulator and companion-software r
 
 Only the first two states are assigned by adding ordinary knowledge. The final three require a reviewed code change with evidence recorded in `lifecycle.json`.
 
-## Automated scout
+## Manual Scout review
+
+Scout is owner-initiated only. When asked for a Scout review, follow
+[SCOUT-REVIEW.md](SCOUT-REVIEW.md): actively search for useful executable repairs,
+validate actual remedies and outcomes, compare with runtime coverage, and persist
+ranked implementation proposals. Use the expanded
+[manual source inventory](manual-scout-sources.json), which supplements the
+27 enabled vendor sources with 22 community, developer and platform entries.
+A keyword report is intake material, not a completed review.
+
+The separate ChatGPT review remains disabled. The GitHub cron schedule was removed
+at the owner's request on November 13, 2026. Do not enable recurring Scout work
+without a new scheduling request.
+
+## Optional manual source intake
 
 `Tools/KnowledgeScout/knowledge_scout.py` performs a read-only review of the configured sources. It:
 
@@ -35,9 +49,9 @@ Only the first two states are assigned by adding ordinary knowledge. The final t
 6. fetches pending candidate pages for a bounded rule-based evidence review during the same run; and
 7. writes discovery and evidence-review results into the same rolling GitHub issue.
 
-The scheduled workflow runs on Tuesday and Friday and can also be started manually. It never commits, opens a pull request, changes a repair state, or publishes a release.
+The source-intake workflow runs only when manually dispatched. It never commits, opens a pull request, changes a repair state, or publishes a release.
 
-The registry currently monitors 27 focused sources. Search results may help a maintainer locate a candidate, but the Scout monitors the direct vendor source rather than a search result, repost, or general social feed.
+The source-intake registry contains 27 enabled focused sources. Search results may help a maintainer locate a candidate, but the Scout monitors the direct vendor source rather than a search result, repost, or general social feed.
 
 | Product | Trusted coverage |
 |---|---|
@@ -75,10 +89,10 @@ For each useful finding, a maintainer should record one outcome:
 
 New automatic repairs still require the normal PitMedic rules: evidence-based detection, backups before mutation, narrow allowlists, simulator-closed checks where relevant, verification after repair, and an explicit user approval step.
 
-## Inline evidence review
+## Source-intake keyword triage
 
-The Scout now reviews both newly discovered and retained pending URLs in the same
-GitHub Actions run. No separate ChatGPT task, model call, API key or AI credits are
+The optional intake script checks both newly discovered and retained pending URLs
+in the same manually dispatched GitHub Actions run. No separate ChatGPT task, model call, API key or AI credits are
 used. This is deterministic evidence triage, not a full semantic or human review.
 It reuses source pages already fetched, groups duplicate candidate URLs, checks
 allowlisted pages, flags inaccessible/redirected content and possible harm wording,
@@ -93,5 +107,5 @@ All candidates remain pending until a maintainer records a decision; no repair
 state, release queue, app code or public release is changed automatically.
 
 The separate scheduled ChatGPT review was disabled on September 18, 2026 to avoid
-duplicate recurring AI usage. A previously requested asynchronous run might
-already be underway; disabling the schedule is not cancellation of an active run.
+duplicate recurring AI usage. On November 13 the owner chose a manual substantive
+review using SCOUT-REVIEW.md instead of either recurring process.
