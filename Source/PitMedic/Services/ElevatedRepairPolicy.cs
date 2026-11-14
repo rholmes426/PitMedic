@@ -4,6 +4,10 @@ public static class ElevatedRepairPolicy
 {
     private static readonly HashSet<string> ElevatedRepairIds = new(StringComparer.OrdinalIgnoreCase)
     {
+        "lmu-controller-config",
+        "lmu-controller-config-restore",
+        "iracing-error77-content-reacquire",
+        "iracing-error77-verify",
         // Le Mans Ultimate files beneath the Steam installation.
         "lmu-targeted-content-reacquire",
         "lmu-shader-cache",

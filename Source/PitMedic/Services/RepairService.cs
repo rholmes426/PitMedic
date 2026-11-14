@@ -46,6 +46,7 @@ public sealed class RepairService : IDisposable
 
     public bool Begin(IncidentRecord incident, RepairPlan plan, AppSettings settings, bool automatic = false)
     {
+        if (automatic && ScopedConfigurationRepair.IsSupported(plan.Id)) return false;
         if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(incident)
             || LegacyProcessExitPolicy.IsUnverifiedRunningStatus(incident)) return false;
         // An automatic repair can proceed only if every remaining process is the
@@ -276,12 +277,13 @@ public sealed class RepairService : IDisposable
 
             if (!plan.Id.Equals("lmu-targeted-content-reacquire", StringComparison.OrdinalIgnoreCase))
             {
-                var standardRepairId = DateTimeOffset.Now.ToString("yyyyMMdd_HHmmss");
+                var standardRepairId = DateTimeOffset.Now.ToString("yyyyMMdd_HHmmss") + "_" + Guid.NewGuid().ToString("N");
                 var standardRepairStorage = _executeElevatedRepairsLocally ? AppPaths.ElevatedRepairs : AppPaths.Repairs;
                 backupRoot = Path.Combine(standardRepairStorage, "Backups", standardRepairId + "_" + SanitizeName(plan.Id));
                 Directory.CreateDirectory(backupRoot);
                 var completion = await RunStandardRepairAsync(incident, plan, backupRoot, token);
-                if (!settings.KeepRepairBackups)
+                if (!settings.KeepRepairBackups && !ScopedConfigurationRepair.IsSupported(plan.Id)
+                    && plan.Id != "iracing-error77-content-reacquire")
                 {
                     try { Directory.Delete(backupRoot, true); backupRoot = null; } catch { }
                 }
@@ -414,6 +416,9 @@ public sealed class RepairService : IDisposable
     {
         return plan.Id switch
         {
+            _ when ScopedConfigurationRepair.IsSupported(plan.Id) => await RepairScopedConfigurationAsync(incident, plan, backupRoot, token),
+            "iracing-error77-verify" => await RepairIRacingError77VerifyAsync(incident, plan, backupRoot, token),
+            "iracing-error77-content-reacquire" => await RepairIRacingError77Async(incident, plan, backupRoot, token),
             "iracing-steam-verify" => await RepairSteamVerifyAsync(incident, plan, backupRoot, token, GameKind.IRacing, "iRacing", "266410"),
             _ when CompanionRecoveryPolicy.IsSupportedRepairId(plan.Id) => await RepairCompanionAppAsync(incident, plan, backupRoot, token),
 
@@ -477,6 +482,58 @@ public sealed class RepairService : IDisposable
             "ams2-steam-verify" => await RepairSteamVerifyAsync(incident, plan, backupRoot, token, GameKind.Automobilista2, "Automobilista 2", "1066890"),
             _ => throw new NotSupportedException($"This repair playbook is not implemented yet: {plan.Id}")
         };
+    }
+
+    private async Task<string> RepairScopedConfigurationAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
+    {
+        var option = ScopedConfigurationRepair.Find(plan.Id) ?? throw new InvalidOperationException("Unsupported configuration repair.");
+        EnsureGameNotRunning(option.Game, plan.Game);
+        var root = option.Game == GameKind.IRacing ? GetIRacingDocumentsRoot()
+            : Path.Combine(SteamLibraryLocator.FindLeMansUltimateRoot()
+                ?? throw new DirectoryNotFoundException("Le Mans Ultimate installation was not found."), "UserData", "player");
+        UpdateSimple(incident, plan, 15, "Preserving configuration", "Backing up the exact configuration files before changing them...", 1, 3, backupRoot);
+        var storage = _executeElevatedRepairsLocally ? AppPaths.ElevatedRepairs : AppPaths.Repairs;
+        var result = ScopedConfigurationRepair.Execute(plan.Id, root, backupRoot, Path.Combine(storage, "Backups"), token);
+        UpdateSimple(incident, plan, 90, "Configuration verified", "File operations completed. Retest the same simulator symptom.", 3, 3, backupRoot);
+        await Task.CompletedTask;
+        return result;
+    }
+
+    private async Task<string> RepairIRacingError77VerifyAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
+    {
+        var root = IRacingLocator.FindRoot() ?? throw new DirectoryNotFoundException("iRacing installation was not found.");
+        return IRacingLocator.IsSteamInstall(root)
+            ? await RepairSteamVerifyAsync(incident, plan, backupRoot, token, GameKind.IRacing, "iRacing", "266410")
+            : await RepairIRacingUpdaterAsync(incident, plan, backupRoot, token, string.Empty);
+    }
+
+    private async Task<string> RepairIRacingError77Async(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
+    {
+        EnsureGameNotRunning(GameKind.IRacing, "iRacing Simulator");
+        var root = IRacingLocator.FindRoot() ?? throw new DirectoryNotFoundException("iRacing installation was not found.");
+        if (plan.AffectedContentRelativePaths.Count != 1) throw new InvalidDataException("Loading Error 77 did not identify one exact content folder.");
+        var relative = plan.AffectedContentRelativePaths[0];
+        var target = IRacingLoadingError77Policy.ValidateTarget(root, relative);
+        UpdateSimple(incident, plan, 15, "Preserving affected content", "Backing up only the car or track named by Error 77...", 1, 4, backupRoot);
+        await BackupPathAsync(target, backupRoot, root, token);
+        IRacingLoadingError77Policy.ValidateTarget(root, relative);
+        try
+        {
+            UpdateSimple(incident, plan, 45, "Isolating affected content", "Removing only the backed-up affected content...", 2, 4, backupRoot);
+            await RemoveInstalledContentAsync(target, token);
+            UpdateSimple(incident, plan, 70, "Starting content reacquisition", "Starting the supported updater. Wait for downloads, then retry the same session.", 3, 4, backupRoot);
+            if (IRacingLocator.IsSteamInstall(root))
+            {
+                using var steam = await SteamClientService.StartValidationAsync("266410", token);
+            }
+            else await LaunchIRacingUpdaterAsync(root, string.Empty, token);
+        }
+        catch
+        {
+            await CopyDirectoryAsync(Path.Combine(backupRoot, "Files", relative.Replace('/', Path.DirectorySeparatorChar)), target, CancellationToken.None);
+            throw;
+        }
+        return "The single affected car/track was preserved and isolated; the updater was started. Wait for downloads to finish, then retest. Original content remains in the repair backup.";
     }
 
     private async Task<string> RepairCompanionAppAsync(

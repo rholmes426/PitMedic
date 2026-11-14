@@ -59,6 +59,11 @@ public partial class IncidentDetailsWindow : Window
 
     private void ConfigureState()
     {
+        if (_details.NeedsRetest)
+        {
+            SetState("RETEST NEEDED", "↻", "WarnSoftBrush", "WarnBorderBrush", "WarnBrush", "WarnTextBrush");
+            return;
+        }
         if (_details.IsResolved)
         {
             SetState("RESOLVED", "✓", "GoodSoftBrush", "GoodBorderBrush", "GoodBrush", "GoodTextBrush");

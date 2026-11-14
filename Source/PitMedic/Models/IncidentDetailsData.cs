@@ -12,6 +12,7 @@ public sealed record IncidentDetailsData
     public IncidentRecord Incident { get; init; } = new();
     public RepairPlan? RepairPlan { get; init; }
     public bool IsResolved { get; init; }
+    public bool NeedsRetest { get; init; }
     public bool RepairAttempted { get; init; }
     public bool RepairInProgress { get; init; }
     public bool RepairCancelled { get; init; }

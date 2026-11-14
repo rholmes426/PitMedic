@@ -21,6 +21,28 @@ public sealed class IncidentRecorder
 
     public event Action<IncidentSummary>? IncidentCreated;
 
+    public IncidentSummary CreateConfigurationRepairRequest(GameKind kind, string repairId)
+    {
+        var plan = ScopedConfigurationRepair.CreatePlan(kind, repairId)
+            ?? throw new InvalidOperationException("This repair is not supported for the selected simulator.");
+        var game = GameDefinition.Supported.Single(x => x.Kind == kind);
+        var now = DateTimeOffset.Now;
+        var folder = Path.Combine(AppPaths.Incidents, now.ToString("yyyyMMdd_HHmmss") + "_requested_" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(folder);
+        var record = new IncidentRecord
+        {
+            Game = game.DisplayName, Executable = game.ExecutableName,
+            IncidentTime = now, SessionStarted = now, IncidentFolder = folder,
+            Classification = new CrashClassification(ScopedConfigurationRepair.RequestCategory, 100,
+                "You requested a repair for a specific symptom. This record is not evidence of a crash. " + plan.Summary,
+                new[] { ScopedConfigurationRepair.RequestPrefix + repairId }),
+            RecommendedRepair = plan
+        };
+        File.WriteAllText(Path.Combine(folder, "incident.json"), JsonSerializer.Serialize(record, JsonOptions));
+        File.WriteAllText(Path.Combine(folder, "summary.txt"), record.Classification.Summary);
+        return ToSummary(record, plan);
+    }
+
     public async Task<IncidentRecord?> RecordAsync(GameDefinition game, int pid, DateTimeOffset started, DateTimeOffset ended,
         int? exitCode, IReadOnlyList<TelemetrySample> telemetry, bool captureEveryExit,
         IReadOnlyList<LiveFaultEvidence>? liveFaults = null)
@@ -406,7 +428,10 @@ public sealed class IncidentRecorder
             if (!doc.RootElement.TryGetProperty("state", out var state)) return (false, string.Empty);
             var complete = state.TryGetProperty("IsComplete", out var completeEl) && completeEl.GetBoolean();
             var success = state.TryGetProperty("Success", out var successEl) && successEl.GetBoolean();
-            return complete && success ? (true, "Resolved") : (false, string.Empty);
+            var retest = doc.RootElement.TryGetProperty("plan", out var plan)
+                && plan.TryGetProperty("Id", out var id)
+                && (ScopedConfigurationRepair.IsSupported(id.GetString() ?? "") || id.GetString()?.StartsWith("iracing-error77-", StringComparison.Ordinal) == true);
+            return complete && success ? (true, retest ? "Applied · retest" : "Resolved") : (false, string.Empty);
         }
         catch { return (false, string.Empty); }
     }

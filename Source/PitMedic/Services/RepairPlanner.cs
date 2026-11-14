@@ -21,7 +21,7 @@ public static class RepairPlanner
             if (signatures.Contains("lmu-memory-allocation")) return null;
             foreach (var signature in new[]
             {
-                "lmu-content-corruption", "lmu-shader-cache", "lmu-startup-config",
+                "lmu-controller-config", "lmu-content-corruption", "lmu-shader-cache", "lmu-startup-config",
                 "lmu-plugin-conflict", "lmu-eac", "lmu-reshade-runtime",
                 "lmu-online-clock-eac", "lmu-overlay-conflict", "lmu-ghub-conflict"
             })
@@ -112,6 +112,8 @@ public static class RepairPlanner
 
     public static RepairPlan? TryCreateFromIncident(IncidentRecord record)
     {
+        if (record.Classification.Category == ScopedConfigurationRepair.RequestCategory)
+            return ScopedConfigurationRepair.FromRequest(record);
         // Reassess old findings before accepting even a serialized repair plan.
         if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(record)
             || LegacyProcessExitPolicy.IsUnverifiedRunningStatus(record)) return null;
@@ -211,6 +213,17 @@ public static class RepairPlanner
             // repairs. Direct/unknown installs retain the diagnosis for manual reacquisition.
             return null;
         }
+        if (lines.Any(line => System.Text.RegularExpressions.Regex.IsMatch(line,
+                @"\b(?:error|socket error)\s*[:#-]?\s*(10057|10035|10054)\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase)))
+            return ScopedConfigurationRepair.CreatePlan(GameKind.IRacing, "iracing-socket-connection");
+        if (lines.Any(line => System.Text.RegularExpressions.Regex.IsMatch(line,
+                @"\bloading\s+error\s*[:#-]?\s*63\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase)))
+            return ScopedConfigurationRepair.CreatePlan(GameKind.IRacing, "iracing-spotter-loading-error-63");
+        if (lines.Any(IRacingLoadingError77Policy.IsError))
+        {
+            var root = IRacingLocator.FindRoot();
+            return IRacingLoadingError77Policy.Create(lines, root is not null && IRacingLocator.IsSteamInstall(root));
+        }
         return PlanFromEvidence("iRacing", lines) ?? PlanForCategory(category);
     }
 
@@ -256,6 +269,9 @@ public static class RepairPlanner
 
     private static RepairPlan? PlanForSignature(string signature) => signature switch
     {
+        "iracing-socket-connection" => ScopedConfigurationRepair.CreatePlan(GameKind.IRacing, signature),
+        "iracing-spotter-loading-error-63" => ScopedConfigurationRepair.CreatePlan(GameKind.IRacing, signature),
+        "lmu-controller-config" => ScopedConfigurationRepair.CreatePlan(GameKind.LeMansUltimate, signature),
         "lmu-content-corruption" => Simple("lmu-steam-verify", "Validate LMU game content",
             "PitMedic could not safely isolate a specific damaged package, so it will ask Steam to validate LMU and reacquire any missing/corrupt files.",
             "Le Mans Ultimate", RepairSafety.Reversible, 8, true,

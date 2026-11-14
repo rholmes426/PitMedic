@@ -594,6 +594,13 @@
       ],
       "references": [
         {
+          "title": "Loading Error 77",
+          "source": "iRacing Support",
+          "url": "https://support.iracing.com/support/solutions/articles/31000147702-loading-error-77",
+          "note": "Official guidance recommends reacquiring the affected track or car. PitMedic 1.0.0.12 uses only a uniquely identified target; ambiguous evidence never selects a folder.",
+          "official": true
+        },
+        {
           "title": "Loading Error 61",
           "source": "iRacing Support",
           "url": "https://support.iracing.com/support/solutions/articles/31000133597-loading-error-61",
@@ -635,6 +642,13 @@
         "car data"
       ],
       "references": [
+        {
+          "title": "Loading Error 77",
+          "source": "iRacing Support",
+          "url": "https://support.iracing.com/support/solutions/articles/31000147702-loading-error-77",
+          "note": "Official guidance recommends reacquiring the affected track or car. PitMedic 1.0.0.12 uses only a uniquely identified target; ambiguous evidence never selects a folder.",
+          "official": true
+        },
         {
           "title": "Loading Error 22",
           "source": "iRacing Support",

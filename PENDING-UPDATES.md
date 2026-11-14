@@ -1,5 +1,13 @@
 # PitMedic pending updates
 
+## 1.0.0.12 — approved app and Diagnostic Library release batch (November 14, 2026)
+
+The owner authorized the next signed public release. Includes the merged crash
+finding window fix, three scoped configuration repairs with Repair Tools/Restore,
+exact Error 77 routing and paired library content. [Scope and validation record](Research/ReleaseReview-2026-11-14.md).
+Implementation and required validation precede protected signing/publication.
+Hardware-specific investigations remain pending as listed below.
+
 ## Diagnostic Library work paired with the Scout queue (November 14, 2026)
 
 The owner explicitly requires Diagnostic Library updates alongside Scout fixes.
@@ -9,10 +17,10 @@ pages; validate naming/overlap during implementation.
 
 | Scout ID | Library deliverable | Status |
 | --- | --- | --- |
-| KS-MAN-IR-SOCKETS | New planned guide `iracing-socket-connection` | Queued with repair |
-| KS-MAN-LMU-INPUT | New planned guide `lmu-controller-config` | Queued with repair |
-| KS-MAN-IR-63 | New planned guide `iracing-spotter-loading-error-63` | Queued with repair |
-| KS-MAN-IR-77 | Update `iracing-track-loading-errors` and `iracing-car-loading-errors` with exact Error 77 routing and target limits | Queued with routing work |
+| KS-MAN-IR-SOCKETS | New planned guide `iracing-socket-connection` | Implemented for 1.0.0.12; paired guide publishes with release |
+| KS-MAN-LMU-INPUT | New planned guide `lmu-controller-config` | Implemented for 1.0.0.12; paired guide publishes with release |
+| KS-MAN-IR-63 | New planned guide `iracing-spotter-loading-error-63` | Implemented for 1.0.0.12; paired guide publishes with release |
+| KS-MAN-IR-77 | Update `iracing-track-loading-errors` and `iracing-car-loading-errors` with exact Error 77 routing and target limits | Implemented for 1.0.0.12; paired guide update prepared |
 | KS-MAN-IR-SIMAGIC | New planned guide `iracing-simagic-stutter` if the scoped repair validates | Awaiting repair validation |
 | KS-MAN-IR-SIMHUB | New planned guide `iracing-simhub-data-config` if current compatibility and repair validate | Awaiting repair validation |
 | KS-MAN-LMU-DIRECTINPUT | New planned guide `lmu-directinput-pedal-flicker`, cross-reference controller recovery and prefer the less disruptive validated option | Awaiting current-build evidence |
@@ -32,7 +40,8 @@ remains disabled. Use [the review playbook](Knowledge/SCOUT-REVIEW.md) and
 [expanded source inventory](Knowledge/manual-scout-sources.json).
 
 [Evidence, scope, tradeoffs and acceptance criteria](Research/KnowledgeScoutReview-2026-11-13.md).
-These are proposed engineering work, not implemented or validated app repairs.
+The four first-batch items below are implemented for 1.0.0.12. Validation/evidence
+items remain proposals; they are not available automatic repairs.
 Old Research proposals were checked against current executable coverage rather
 than assumed shipped. No new public Diagnostic Library repair claim is enabled.
 
@@ -50,7 +59,7 @@ Existing iRacing/Simucube Link-port automation remains pending hardware validati
 its 1.0.0.11 guidance is already published and is not counted as new. New repairs
 need runtime implementation and tests before app/library publication.
 
-## Simulator crash finding window
+## Included in 1.0.0.12 — simulator crash finding window
 
 - Opens Finding Review from the dashboard or tray for a new simulator crash dump
   or matching Windows application fault when there is no repair to offer.
@@ -59,7 +68,7 @@ need runtime implementation and tests before app/library publication.
 - Regression coverage checks crash dumps, matching Windows faults, clean and
   unconfirmed exits, and the existing repair path.
 
-## Knowledge Scout guidance (November 7, 2026)
+## Published in 1.0.0.11 — Knowledge Scout guidance (November 7, 2026)
 
 - Adds iRacing guidance for force feedback dropouts with Simucube ActivePedals
   and a non-Simucube wheelbase. The installed iRacing configuration contains
@@ -71,7 +80,7 @@ need runtime implementation and tests before app/library publication.
   Vendor software updates remain manual.
 - Queued for the app and Diagnostic Library. No detector or repair action changes.
 
-## App / website visual parity (October 26, 2026)
+## Published in 1.0.0.11 — app / website visual parity (October 26, 2026)
 
 - Aligns app typography, button and card corners, and header branding with
   pitmedic.com: Trebuchet MS body text, Segoe UI headings, compact square controls,

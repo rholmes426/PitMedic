@@ -22,6 +22,8 @@ public static class IRacingRepairSignaturePolicy
 
     public static string MapDiagnosticSignature(string signatureId) => signatureId switch
     {
+        "socket-connection-error" => "iracing-socket-connection",
+        "loading-error-63" => "iracing-spotter-loading-error-63",
         "helper-service" => "iracing-helper-service",
         "waiting-service" => "iracing-updater-autoinstall",
         "ui-welcome" => "iracing-ui-safe",

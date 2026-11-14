@@ -117,7 +117,7 @@
   },
   "iracing-car-loading-errors": {
     "heading": "iRacing Loading Error 22 or 71",
-    "modified": "2026-09-29",
+    "modified": "2026-11-14",
     "title": "iRacing Loading Error 22 or 71: Repair Car Files | PitMedic",
     "description": "Loading Error 22 or 71 usually points to damaged or outdated iRacing car content. Identify the affected car, preserve unrelated files, and redownload only what is needed.",
     "intro": "iRacing Loading Errors 22 and 71 usually point to car content that is missing, outdated, or corrupt. PitMedic favors the smallest repair: replace the affected car before considering a reset of shared car metadata.",
@@ -126,7 +126,8 @@
       "Record which car or multiclass session triggers the loading error.",
       "Test a different car at the same track to separate car content from track content.",
       "Close iRacing before changing files in its installation directory.",
-      "Start with the named car when it is identifiable. If several cars fail, review the shared-metadata recovery rather than removing the full cars directory."
+      "Start with the named car when it is identifiable. If several cars fail, review the shared-metadata recovery rather than removing the full cars directory.",
+      "From PitMedic 1.0.0.12, exact Loading Error 77 is routed to supported reacquisition. Only a single car/track folder identified by the Error 77 evidence may be isolated; ambiguous targets use the updater or Steam validation without folder removal."
     ],
     "result": "iRacing should offer the removed car or shared metadata as an update. After it is downloaded again, retry the same car-and-track combination and confirm that other installed content remains available.",
     "related": [
@@ -135,7 +136,7 @@
       "iracing-content-corruption",
       "iracing-update-verification"
     ],
-    "limits": "The exact car folder must be identified before a targeted replacement. Shared metadata resets are broader; do not promise that every car error can be parsed to one folder or erase personal setups and paints."
+    "limits": "The exact car folder must be identified before a targeted replacement. Shared metadata resets are broader; do not promise that every car error can be parsed to one folder or erase personal setups and paints. Error 77 content recovery preserves the affected folder and starts reacquisition; wait for downloads and retest before treating the problem as resolved."
   },
   "iracing-eac-error73": {
     "heading": "iRacing Error 73 / Easy Anti-Cheat failure",
@@ -472,16 +473,17 @@
     "limits": "This record provides guided diagnosis, not a universal one-click repair. Do not broadly move Documents, disable OneDrive backup, uninstall VR software, or change Windows locale settings without understanding the impact and preserving data."
   },
   "iracing-track-loading-errors": {
-    "modified": "2026-09-29",
+    "modified": "2026-11-14",
     "intro": "A numbered track loading error needs the exact code and installation type. Steam Error 49 and direct-install updater failures do not use the same recovery path.",
     "meaning": "A numbered track loading error needs the exact code and installation type. Steam Error 49 and direct-install updater failures do not use the same recovery path.",
     "checks": [
       "Record the complete loading error, track layout, car, and whether the installation is managed by Steam.",
       "Try the same car at another track to see whether the failure follows the track.",
-      "Close iRacing and preserve track index metadata before the supported reset or validation."
+      "Close iRacing and preserve track index metadata before the supported reset or validation.",
+      "From PitMedic 1.0.0.12, exact Loading Error 77 is routed to supported reacquisition. Only a single car/track folder identified by the Error 77 evidence may be isolated; ambiguous targets use the updater or Steam validation without folder removal."
     ],
     "result": "Complete Steam validation or the direct iRacing update, then retry the original track and layout. Check that the exact loading error has cleared.",
-    "limits": "The current built-in strategy resets track index metadata; automatic parsing of an exact track folder is not promised here. Do not delete all tracks or assume every loading error is track corruption."
+    "limits": "The current built-in strategy resets track index metadata; automatic parsing of an exact track folder is not promised here. Do not delete all tracks or assume every loading error is track corruption. Error 77 content recovery preserves the affected folder and starts reacquisition; wait for downloads and retest before treating the problem as resolved."
   },
   "iracing-trueforce-stale-state": {
     "modified": "2026-09-29",
@@ -1204,5 +1206,44 @@
       "raceroom-steam-content",
       "raceroom-graphics-config"
     ]
+  },
+  "lmu-controller-config": {
+    "available_from": "1.0.0.12",
+    "modified": "2026-11-14",
+    "intro": "PitMedic can preserve and reset only LMU's four controller configuration files when wheel, pedal or button bindings stop working.",
+    "meaning": "This is a user-selected configuration test. It does not establish that hardware, firmware or the game itself failed.",
+    "checks": [
+      "Confirm Windows and the wheel/pedal vendor software can see the devices. Try reconnecting and rebinding before resetting.",
+      "Close LMU. Open its simulator page in PitMedic, choose Repair Tools, select the controls symptom and review the repair.",
+      "Confirm that remapping or recalibration may be required. PitMedic preserves the four named files before removing their active copies."
+    ],
+    "result": "Start LMU, remap and calibrate where necessary, then test steering, throttle, brake and buttons. If it does not help, close LMU, choose the same item in Repair Tools and select Restore last backup. Current files are preserved before Restore.",
+    "limits": "Requires PitMedic 1.0.0.12 or later. No other profile files, setups, drivers or firmware are reset. No automatic crash inference or live hardware success is claimed. Missing files alone do not prove a fault."
+  },
+  "iracing-socket-connection": {
+    "available_from": "1.0.0.12",
+    "modified": "2026-11-14",
+    "intro": "PitMedic can apply iRacing's narrowly scoped connection-setting test for Error 10057, 10035 or 10054.",
+    "meaning": "These errors can have several causes. The supported connect_sockets setting is an A/B test, not proof of a network-device fault.",
+    "checks": [
+      "Confirm the exact socket error or select that symptom in iRacing's Repair Tools. Do not use this for a generic internet outage.",
+      "Close the simulator and let any updater finish. Review the repair; PitMedic preserves core.ini and changes only the existing key in [Communications].",
+      "An absent, duplicated or unsupported key stops the edit. An existing value of 1 is a no-op."
+    ],
+    "result": "Repeat the same connection or offline-session test. If it still fails, close iRacing and select Restore last backup for this item in Repair Tools. The current file is preserved before restoring the original.",
+    "limits": "Requires PitMedic 1.0.0.12 or later. Firewall rules, adapters, antivirus and Windows networking are unchanged. The edit is verified, but connection success requires a real retest."
+  },
+  "iracing-spotter-loading-error-63": {
+    "available_from": "1.0.0.12",
+    "modified": "2026-11-14",
+    "intro": "Loading Error 63 identifies a spotter-sound load problem. PitMedic offers the vendor-documented app.ini regeneration procedure.",
+    "meaning": "A custom spotter pack may be broken, but Error 63 alone does not identify a file to delete. The recovery preserves app.ini so it can be restored.",
+    "checks": [
+      "Confirm the exact Loading Error 63. Other loading-error numbers use different repair paths.",
+      "Close iRacing and let updates finish. In Repair Tools, choose Loading Error 63 and review the settings-reset warning.",
+      "PitMedic preserves app.ini and removes only that active file. Setups, replays, paints and spotter packages remain in place."
+    ],
+    "result": "Start the same car/session and test the spotter. Some application settings may need to be re-entered. If ineffective, close iRacing and use Restore last backup for this repair; the regenerated file is preserved first.",
+    "limits": "Requires PitMedic 1.0.0.12 or later. This does not delete custom spotter packs or reinstall iRacing. Successful file regeneration does not prove every sound pack works."
   }
 }
