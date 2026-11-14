@@ -1,9 +1,15 @@
-# Pending fixes
+# Historical fix backlog
+
+Current queue and publication status: [PENDING-UPDATES.md](PENDING-UPDATES.md).
+The checked items below record historical backlog work; inclusion of a research
+lead does not establish an implemented executable repair. The November 14, 2026
+release adds the three scoped repairs and Error 77 routing documented in the
+current queue. Scout is now manual only; its former recurring schedule is removed.
 
 ## v0.6.0.10
 
 - [x] Add a repository-native Knowledge Scout to keep simulator and companion-software fixes current.
-  - Monitor allowlisted official support, vendor community, and forum sources twice weekly and on demand.
+  - Originally monitored allowlisted sources twice weekly and on demand. Recurring runs were removed in November 2026; follow Knowledge/SCOUT-REVIEW.md when the owner requests a review.
   - Compare changed guidance and newly linked issue discussions against state stored in one rolling GitHub issue.
   - Flag possible harm language, unavailable citations, due reviews, and lifecycle/catalog drift without executing fetched content.
   - Never retire a fix because of age, inactivity, or a broken source; keep it active while a replacement citation is researched.

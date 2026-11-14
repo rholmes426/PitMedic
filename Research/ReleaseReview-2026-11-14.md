@@ -52,3 +52,17 @@ being treated as executable fixes. They are not active new repair claims.
 Open backend/analytics/dependency proposals are outside this app repair release.
 No firmware flashing, driver replacement, global security changes, telemetry
 collection or analytics deployment is added.
+
+## Signed publication
+
+Implementation PR #191 passed required Build Validation in run 43631118085.
+Protected release run 43631490230 repeated full validation, then signed and
+verified the exact v1.0.0.12 app, helpers and installer before publishing the
+immutable assets. Publication PR #192 enables the three guides and synchronizes
+the README, homepage, updater and supporting download. Its required CI and
+Pages live release/installer-checksum verification remain deployment gates.
+
+Independent download verification: public installer SHA-256
+`78e58a352b6cf6eb9b71444b9e8be4372e5f41da5826e75e21ff04b37e61946e`;
+Windows Authenticode reported Valid, publisher Robert Holmes, a timestamp and
+file/product version 1.0.0.12. The installer was inspected, not installed.

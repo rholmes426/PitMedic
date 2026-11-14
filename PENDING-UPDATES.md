@@ -1,26 +1,31 @@
 # PitMedic pending updates
 
-## 1.0.0.12 — approved app and Diagnostic Library release batch (November 14, 2026)
+## Published 1.0.0.12 — app and Diagnostic Library (November 14, 2026)
 
 The owner authorized the next signed public release. Includes the merged crash
 finding window fix, three scoped configuration repairs with Repair Tools/Restore,
 exact Error 77 routing and paired library content. [Scope and validation record](Research/ReleaseReview-2026-11-14.md).
-Implementation and required validation precede protected signing/publication.
+Implementation PR #191 passed all required Windows, installer, installed-prerequisite,
+knowledge and backend checks before merge. Protected release run
+[43631490230](https://github.com/rholmes426/PitMedic/actions/runs/43631490230)
+validates, signs and verifies the exact tagged app, helpers and installer.
+The accompanying publication PR synchronizes the README, website, updater and
+70 Diagnostic Library records; Pages verifies the live installer checksum.
 Hardware-specific investigations remain pending as listed below.
 
 ## Diagnostic Library work paired with the Scout queue (November 14, 2026)
 
 The owner explicitly requires Diagnostic Library updates alongside Scout fixes.
 Each item below is part of the same implementation/release delivery as its
-corresponding runtime change. Planned IDs are proposals, not existing public
-pages; validate naming/overlap during implementation.
+corresponding runtime change. The first four items ship in 1.0.0.12; the
+remaining IDs are proposals pending their recorded validation.
 
 | Scout ID | Library deliverable | Status |
 | --- | --- | --- |
-| KS-MAN-IR-SOCKETS | New planned guide `iracing-socket-connection` | Implemented for 1.0.0.12; paired guide publishes with release |
-| KS-MAN-LMU-INPUT | New planned guide `lmu-controller-config` | Implemented for 1.0.0.12; paired guide publishes with release |
-| KS-MAN-IR-63 | New planned guide `iracing-spotter-loading-error-63` | Implemented for 1.0.0.12; paired guide publishes with release |
-| KS-MAN-IR-77 | Update `iracing-track-loading-errors` and `iracing-car-loading-errors` with exact Error 77 routing and target limits | Implemented for 1.0.0.12; paired guide update prepared |
+| KS-MAN-IR-SOCKETS | New guide `iracing-socket-connection` | Published in 1.0.0.12 with its paired guide |
+| KS-MAN-LMU-INPUT | New guide `lmu-controller-config` | Published in 1.0.0.12 with its paired guide |
+| KS-MAN-IR-63 | New guide `iracing-spotter-loading-error-63` | Published in 1.0.0.12 with its paired guide |
+| KS-MAN-IR-77 | Update `iracing-track-loading-errors` and `iracing-car-loading-errors` with exact Error 77 routing and target limits | Published in 1.0.0.12 with the paired guide updates |
 | KS-MAN-IR-SIMAGIC | New planned guide `iracing-simagic-stutter` if the scoped repair validates | Awaiting repair validation |
 | KS-MAN-IR-SIMHUB | New planned guide `iracing-simhub-data-config` if current compatibility and repair validate | Awaiting repair validation |
 | KS-MAN-LMU-DIRECTINPUT | New planned guide `lmu-directinput-pedal-flicker`, cross-reference controller recovery and prefer the less disruptive validated option | Awaiting current-build evidence |
@@ -40,17 +45,17 @@ remains disabled. Use [the review playbook](Knowledge/SCOUT-REVIEW.md) and
 [expanded source inventory](Knowledge/manual-scout-sources.json).
 
 [Evidence, scope, tradeoffs and acceptance criteria](Research/KnowledgeScoutReview-2026-11-13.md).
-The four first-batch items below are implemented for 1.0.0.12. Validation/evidence
+The four first-batch items below ship in 1.0.0.12. Validation/evidence
 items remain proposals; they are not available automatic repairs.
 Old Research proposals were checked against current executable coverage rather
-than assumed shipped. No new public Diagnostic Library repair claim is enabled.
+than assumed shipped. Public repair claims match the released executable coverage.
 
-| Priority / ID | Proposed automatic work | Required next step |
+| Priority / ID | Repair work | Status / remaining validation |
 | --- | --- | --- |
-| First batch — KS-MAN-IR-SOCKETS | Backed-up core.ini connect_sockets A/B test for exact iRacing socket errors | Add scoped evidence/symptom path, one-key edit, functional retest and Restore |
-| First batch — KS-MAN-LMU-INPUT | Official LMU four-file controller recovery | Confirm installed names/layout, preserve backups, user consent for rebinding, regeneration/restore tests |
-| First batch — KS-MAN-IR-63 | Error 63-specific backed-up app.ini regeneration | Exact error routing, single-file recovery, settings-impact consent and spotter retest |
-| First batch — KS-MAN-IR-77 | Route Error 77 to existing content recovery | Establish safe car/track extraction; no broad deletion or guessed target |
+| First batch — KS-MAN-IR-SOCKETS | Backed-up core.ini connect_sockets A/B test for exact iRacing socket errors | Shipped scoped routing, one-key edit, backups and Restore; users retest the same connection |
+| First batch — KS-MAN-LMU-INPUT | Official LMU four-file controller recovery | Shipped exact four-file reset, consent, backups and Restore; live remapping remains user-verified |
+| First batch — KS-MAN-IR-63 | Error 63-specific backed-up app.ini regeneration | Shipped exact error routing, one-file recovery, consent and Restore; users retest spotter loading |
+| First batch — KS-MAN-IR-77 | Route Error 77 to existing content recovery | Shipped exact single-target extraction and bounded recovery; ambiguous evidence uses verification |
 | Validation — KS-MAN-IR-SIMAGIC | One-setting Simagic/360 Hz stutter A/B test | Current hardware/key scope and tradeoffs; no global automatic disabling |
 | Validation — KS-MAN-IR-SIMHUB | Check/repair missing SimHub iRacing data configuration | Current developer compatibility, settings consent and practice-session validation |
 | Evidence — KS-MAN-LMU-DIRECTINPUT | Pedal-flicker fallback without resetting all bindings | Current-build hardware reproduction or vendor confirmation; community-only lead |
@@ -59,7 +64,7 @@ Existing iRacing/Simucube Link-port automation remains pending hardware validati
 its 1.0.0.11 guidance is already published and is not counted as new. New repairs
 need runtime implementation and tests before app/library publication.
 
-## Included in 1.0.0.12 — simulator crash finding window
+## Published in 1.0.0.12 — simulator crash finding window
 
 - Opens Finding Review from the dashboard or tray for a new simulator crash dump
   or matching Windows application fault when there is no repair to offer.
@@ -78,7 +83,7 @@ need runtime implementation and tests before app/library publication.
   addressed in client builds 0.9.9.14 and 0.9.9.15.
 - Updates Fanatec App 1.7.1.4 and Logitech G HUB 2026.7 recovery guidance.
   Vendor software updates remain manual.
-- Queued for the app and Diagnostic Library. No detector or repair action changes.
+- Published in the app and Diagnostic Library. No detector or repair action changes.
 
 ## Published in 1.0.0.11 — app / website visual parity (October 26, 2026)
 
@@ -89,7 +94,7 @@ need runtime implementation and tests before app/library publication.
   dialogs, including consent and usage previews. Carbon backgrounds, lime actions
   and semantic warning/error colors remain aligned with the website.
 - Validation: existing contrast/resource tests and required Windows build/render
-  checks. Queued for the next signed app release.
+  checks. Published in signed 1.0.0.11.
 
 ## Published 1.0.0.9 — reviewed companion guidance (October 19, 2026)
 
@@ -180,7 +185,11 @@ publication for this batch.
   Publication PR #116 synchronizes the website, README and updater; its Pages run
   verifies the live release links and downloaded installer checksum after merge.
 
-Public app baseline: **1.0.0.8**, published October 6, 2026 (Pacific).
+Public app baseline: **1.0.0.12**, published November 14, 2026.
+
+Previous app baseline: **1.0.0.11**.
+
+Previous app baseline: **1.0.0.8**, published October 6, 2026 (Pacific).
 
 Previous app baseline: **1.0.0.7**, published October 1, 2026 (Pacific).
 

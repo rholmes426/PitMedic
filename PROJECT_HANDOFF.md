@@ -1,12 +1,20 @@
 # PitMedic project handoff
 
-Latest process direction — November 13, 2026: Scout is manual only. Read
+Latest release — November 14, 2026: v1.0.0.12 ships the crash-finding window
+fix, three scoped configuration repairs, Repair Tools/Restore and exact Error 77
+routing. Implementation PR #191 and protected release run 43631490230 passed
+Windows/installer tests and signed binary/installer verification. The associated
+publication PR synchronizes README, website, updater and 70 library records.
+Live release/download/checksum verification is the final deployment gate. Tests
+use temporary files and logs; live simulator or wheel efficacy is not claimed.
+
+Scout is manual only. Read
 [Knowledge/SCOUT-REVIEW.md](Knowledge/SCOUT-REVIEW.md) and
 [Knowledge/manual-scout-sources.json](Knowledge/manual-scout-sources.json) when the
 owner requests a review. Research useful automatic repairs and actionable coverage
 gaps; the optional intake script does not perform substantive review. Its GitHub
 cron schedule is removed and the separate ChatGPT task remains disabled.
-The current public release was verified as v1.0.0.11 during this change; older
+The current signed public release is v1.0.0.12; older
 version statements below are historical and must not override live release data.
 
 October 5: Owner authorized the 1.0.0.8 signed app/website release including recent
@@ -22,7 +30,7 @@ workflows, and queued work. Read this file together with `CONTRIBUTING.md`,
 `Build/RELEASING.md`, `CODE_SIGNING_POLICY.md`, `Source/PROJECT_POLICY.md`,
 `Knowledge/README.md`, `PENDING-UPDATES.md`, and `PENDING_FIXES.md`.
 
-## Current state
+## Historical state through October 2026
 
 - October 1: Carbon / Lime logo completion merged in PR #117, with successful
   Windows validation and website deployment. The owner explicitly approved signed
