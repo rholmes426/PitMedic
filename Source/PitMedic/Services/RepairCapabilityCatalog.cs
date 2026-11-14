@@ -6,6 +6,9 @@ public static class RepairCapabilityCatalog
 {
     public static IReadOnlyList<RepairCapability> Capabilities { get; } = new[]
     {
+        new RepairCapability("lmu-controller-config", "Targeted controller recovery with Restore", "Le Mans Ultimate", "Configuration"),
+        new RepairCapability("iracing-socket-connection", "Socket connection error repair with Restore", "iRacing", "Configuration"),
+        new RepairCapability("iracing-spotter-loading-error-63", "Error 63 spotter configuration recovery with Restore", "iRacing", "Configuration"),
         // Le Mans Ultimate
         new RepairCapability("lmu-content", "Damaged track or vehicle content", "Le Mans Ultimate", "Game & Content"),
         new RepairCapability("lmu-shader", "Shader/cache corruption", "Le Mans Ultimate", "Configuration"),

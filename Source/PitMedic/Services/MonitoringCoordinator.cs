@@ -93,6 +93,8 @@ public sealed class MonitoringCoordinator : IDisposable
         var incident = _incidents.LoadRecord(folder);
         return incident is null ? null : IncidentDetailsService.Build(incident);
     }
+    public IncidentSummary CreateConfigurationRepairRequest(GameKind game, string id) => _incidents.CreateConfigurationRepairRequest(game, id);
+
     public bool AcknowledgeIncident(string folder) => _incidents.Acknowledge(folder);
 
     public void CancelRepair() => _repairs.Cancel();

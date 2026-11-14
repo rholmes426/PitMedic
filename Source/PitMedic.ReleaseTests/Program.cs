@@ -2,6 +2,7 @@ using PitMedic.Models;
 using PitMedic.Services;
 using System.Text.Json;
 
+ConfigurationRepairTests.Run();
 ProcessExitTests.Run();
 
 foreach (var invalid in new float?[] { null, 0, -1, float.NaN, float.PositiveInfinity, float.NegativeInfinity })
@@ -224,7 +225,7 @@ finally
 }
 
 AssertTrue(
-    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly) == 53,
+    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly) == 56,
     "Every simulator repair implemented for this release must have a formal knowledge record.");
 AssertTrue(
     RepairKnowledgeBase.DiagnosticLibraryUrlForPlan("ams2-controller-reset")

@@ -17,6 +17,48 @@ public static class RepairKnowledgeBase
     {
         new KnowledgeEntry
         {
+            Id = "lmu-controller-config",
+            Game = "Le Mans Ultimate",
+            Issue = "Wheel, pedal or button configuration no longer works",
+            Detection = "The user selects the matching controls symptom in Repair Tools. A crash or missing optional file alone does not trigger this reset.",
+            RepairStrategy = "With explicit consent, preserve and remove only direct input.json, current controls.json, keyboard.json and gamepad.json beneath UserData/player. Let LMU regenerate them, retest input, and use Restore last backup if needed.",
+            Safety = "Ask first / bindings may need remapping / retained backup",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Controller recovery", "Le Mans Ultimate Support", "https://guide.lemansultimate.com/hc/en-gb/articles/13260585473551-Common-Fixes", "Official guidance names the exact four controller files. PitMedic preserves them before resetting.")
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "iracing-socket-connection",
+            Game = "iRacing",
+            Issue = "Connection Error 10057, 10035 or 10054",
+            Detection = "An exact supported socket error in current evidence, or the user selecting that symptom in Repair Tools.",
+            RepairStrategy = "With iRacing and updates closed, preserve core.ini and change only the existing connect_sockets value from 0 to 1 in [Communications]. Verify the edit, retry the same connection, and offer Restore last backup if ineffective.",
+            Safety = "Ask first / one-key A/B test / retained backup",
+            Signatures = new[] { "PitMedic diagnostic signature: socket-connection-error" },
+            References = new[]
+            {
+                Ref("Error 10057, Error 10035 and Error 10054", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000156152-error-10057-error-10035-and-error-10054", "Official support documents connect_sockets=1 under [Communications] in core.ini.")
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "iracing-spotter-loading-error-63",
+            Game = "iRacing",
+            Issue = "Loading Error 63 while loading a spotter sound",
+            Detection = "Exact Loading Error 63 in current evidence, or the user selecting that error in Repair Tools.",
+            RepairStrategy = "With explicit consent, preserve app.ini and remove only its active copy so iRacing can regenerate it. Application preferences may reset. Setups, paints, replays and spotter packages remain in place. Retest and use Restore last backup if ineffective.",
+            Safety = "Ask first / application preferences may reset / retained backup",
+            Signatures = new[] { "PitMedic diagnostic signature: loading-error-63" },
+            References = new[]
+            {
+                Ref("Loading Error 63", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000156684-loading-error-63", "Official support associates Error 63 with spotter sounds and documents backed-up app.ini regeneration.")
+            }
+        },
+        new KnowledgeEntry
+        {
             Id = "lmu-content-corruption",
             Game = "Le Mans Ultimate",
             Issue = "Installed track or vehicle content cannot be read/decompressed",
@@ -302,6 +344,7 @@ public static class RepairKnowledgeBase
             Signatures = new[] { "Loading Error 49", "Loading Error 61", "Loading Error 62", "Loading Error 72", "tracks.dat", "version.txt" },
             References = new[]
             {
+                Ref("Loading Error 77", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000147702-loading-error-77", "Official guidance recommends reacquiring the affected track or car. PitMedic 1.0.0.12 uses only a uniquely identified target; ambiguous evidence never selects a folder."),
                 Ref("Loading Error 61", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000133597-loading-error-61", "Official guidance identifies damaged track files and recommends redownloading the affected track, then resetting tracks.dat/version.txt if needed."),
                 Ref("Loading Error 62", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000159866-loading-error-62", "Official guidance uses the same targeted track redownload and metadata reset workflow."),
                 Ref("Loading Error 49 for Steam accounts", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000173881-loading-error-49-for-steam-accounts", "Official Steam guidance recommends file validation and deleting tracks.dat."),
@@ -318,6 +361,7 @@ public static class RepairKnowledgeBase
             Signatures = new[] { "Loading Error 22", "Loading Error 71", "cars.dat", "car data" },
             References = new[]
             {
+                Ref("Loading Error 77", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000147702-loading-error-77", "Official guidance recommends reacquiring the affected track or car. PitMedic 1.0.0.12 uses only a uniquely identified target; ambiguous evidence never selects a folder."),
                 Ref("Loading Error 22", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000133596-loading-error-22", "Official guidance says the error usually indicates a bad car file and recommends redownloading the affected car, then resetting cars.dat/version.txt if necessary."),
                 Ref("Loading Error 71", "iRacing Support", "https://support.iracing.com/support/solutions/articles/31000133592-loading-error-71", "Official guidance identifies out-of-date/corrupt car content and describes removing affected car data and car metadata."),
             }
@@ -906,6 +950,7 @@ public static class RepairKnowledgeBase
 
     public static string? PublicIdForPlan(string planId)
     {
+        planId = ScopedConfigurationRepair.IsSupported(planId) ? ScopedConfigurationRepair.BaseId(planId) : planId;
         var id = planId switch
         {
             "lmu-targeted-content-reacquire" => "lmu-content-corruption",
@@ -920,6 +965,8 @@ public static class RepairKnowledgeBase
             "iracing-renderer-reset" => "iracing-renderer-config",
             "iracing-eac-reinstall" => "iracing-eac-error73",
             "iracing-update-reset" => "iracing-update-verification",
+            "iracing-error77-verify" => "iracing-track-loading-errors",
+            "iracing-error77-content-reacquire" => "iracing-track-loading-errors",
             "iracing-track-index-reset" => "iracing-track-loading-errors",
             "iracing-car-index-reset" => "iracing-car-loading-errors",
             "iracing-steam-track-repair" => "iracing-track-loading-errors",

@@ -148,6 +148,13 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
         if (lower.Contains("missing file privileges"))
             return Match("missing-file-privileges", "iRacing Steam file privileges failure", line, out id, out category, out message);
 
+        if (IRacingLoadingError77Policy.IsError(line))
+            return Match("loading-error-77", "iRacing Loading Error 77", line, out id, out category, out message);
+        if (System.Text.RegularExpressions.Regex.IsMatch(lower, @"\bloading\s+error\s*[:#-]?\s*63\b"))
+            return Match("loading-error-63", "iRacing spotter sound load failure", line, out id, out category, out message);
+        if (System.Text.RegularExpressions.Regex.IsMatch(lower, @"\b(?:error|socket error)\s*[:#-]?\s*(10057|10035|10054)\b"))
+            return Match("socket-connection-error", "iRacing socket connection failure", line, out id, out category, out message);
+
         if (lower.Contains("loading error 3"))
             return Match("loading-error-3", "iRacing user configuration/content failure", line, out id, out category, out message);
 

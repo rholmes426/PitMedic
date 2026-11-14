@@ -580,6 +580,7 @@ public partial class MainWindow : Window
         if (SelectedSimulatorTitle is null) return;
 
         var name = UiGameName(_selectedGame);
+        ConfigurationRepairButton.Visibility = ScopedConfigurationRepair.Options.Any(x => x.Game == _selectedGame) ? Visibility.Visible : Visibility.Collapsed;
         var active = ActiveIncidentFor(_selectedGame);
         var latest = IncidentsFor(_selectedGame).FirstOrDefault();
         _selectedPrimaryIncident = active ?? latest;
@@ -1012,6 +1013,12 @@ public partial class MainWindow : Window
         Activate();
         var window = new IncidentHistoryWindow(_monitoring) { Owner = this };
         window.Show();
+    }
+
+    private void OpenConfigurationRepairs_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new ConfigurationRepairWindow(_monitoring, _selectedGame, AddIncident) { Owner = this };
+        window.ShowDialog();
     }
 
     private void OpenIncidents_Click(object sender, RoutedEventArgs e) => OpenIncidentHistory();

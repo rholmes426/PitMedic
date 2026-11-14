@@ -192,7 +192,13 @@ def load_entries() -> list[dict[str, object]]:
         unknown_related = sorted(set(content.get("related", [])) - known_ids)
         if unknown_related:
             raise ValueError(f"{entry_id} public content has unknown related records: {unknown_related}")
-    return entries
+    # New app repairs become public only when release metadata reaches their version.
+    def version(value: str) -> tuple[int, ...]:
+        if not re.fullmatch(r"\d+\.\d+\.\d+\.\d+", value):
+            raise ValueError(f"Invalid guide availability version: {value}")
+        return tuple(map(int, value.split(".")))
+    return [entry for entry in entries
+            if version(str(PUBLIC_CONTENT[entry["id"]].get("available_from", "0.0.0.0"))) <= version(RELEASE_VERSION)]
 
 
 def esc(value: object) -> str:

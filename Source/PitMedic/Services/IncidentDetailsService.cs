@@ -143,6 +143,7 @@ public static class IncidentDetailsService
             Incident = incident,
             RepairPlan = plan,
             IsResolved = resolved,
+            NeedsRetest = resolved && plan is not null && (ScopedConfigurationRepair.IsSupported(plan.Id) || plan.Id.StartsWith("iracing-error77-", StringComparison.Ordinal)),
             RepairAttempted = repairAttempted,
             RepairInProgress = repairInProgress,
             RepairCancelled = repairCancelled,
@@ -173,6 +174,11 @@ public static class IncidentDetailsService
     {
         var isCompanionSoftware = CompanionSoftwareDefinition.Supported.Any(software =>
             software.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase));
+        if (resolved && plan is not null && (ScopedConfigurationRepair.IsSupported(plan.Id) || plan.Id.StartsWith("iracing-error77-", StringComparison.Ordinal)))
+            return ("Repair applied; retest needed", statusMessage,
+                ScopedConfigurationRepair.IsSupported(plan.Id)
+                    ? $"Start {incident.Game} and retry the same symptom. If ineffective, close the simulator and use Restore last backup in Repair Tools."
+                    : "Let downloads finish, then retry the same car/track. Original content remains in the repair backup.");
         if (resolved)
         {
             return (

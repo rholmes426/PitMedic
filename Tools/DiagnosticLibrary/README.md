@@ -32,6 +32,12 @@ procedure with explicit scope and direct official links. Verify those instructio
 against the linked vendor article before editing them. They do not change the
 app-owned repair or lifecycle verification dates.
 
+A guide may specify `available_from` as a four-part app version. The generator
+validates every app/lifecycle/guide record, then withholds newer repair pages from
+the public pages, index, database and sitemap until release metadata reaches that
+version. The signed-publication workflow regenerates them with the matching
+download. Existing guide updates must clearly identify version-specific behavior.
+
 ## Scout fixes and library synchronization
 
 The manual [Scout review](../../Knowledge/SCOUT-REVIEW.md) tracks a guide

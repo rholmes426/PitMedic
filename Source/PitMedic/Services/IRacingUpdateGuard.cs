@@ -36,6 +36,7 @@ public static class IRacingUpdateGuard
         "verification-failure" or "helper-service" or "waiting-service" or "digital-signature"
         or "content-file-locked" or "missing-file-privileges" or "could-not-find-sim"
         or "ui-welcome" or "ui-render-failure"
+        or "loading-error-63" or "loading-error-77" or "socket-connection-error"
         or "eac-failure" or "eac-error-73" or "eac-error-10011"
         or "track-file-version" or "car-file-version" or "unknown-file-version";
 
