@@ -223,15 +223,16 @@ def page_header(title: str, description: str, canonical: str, structured_data: d
   <meta property="og:image" content="{LOGO_URL}" />
   <link rel="icon" href="/assets/brand/pitmedic-carbon-lime.ico" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-carbon-lime.png" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=20261115-design" />
   <script type="application/ld+json">{json.dumps(structured_data, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")}</script>
 </head>
 <body>
+<a class="skip-link" href="#content">Skip to content</a>
 <main>
   <header class="site-header">
     <a class="brand" href="/" aria-label="PitMedic home"><img src="{LOGO_URL}" alt="" /><span>Pit<em>Medic</em></span></a>
     <nav aria-label="Primary navigation"><a href="/#how-it-works">How it works</a><a href="/#simulators">Simulators</a><a class="active" href="/diagnostic-library/">Diagnostic Library</a><a href="/#about">About</a></nav>
-    <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-cta" href="/">Home</a></div>
+    <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-download" href="{RELEASE_URL}" aria-label="Download PitMedic version {RELEASE_VERSION}">Download v{RELEASE_VERSION}<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg></a></div>
   </header>'''
 
 
@@ -371,7 +372,7 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
           <p class="example-evidence"><a href="{esc(example["source"])}">Read the test source</a> · <a href="{esc(example["validation"])}">View the passing Windows test run</a></p>
         </section>'''
     body = f'''
-  <article class="library-page issue-page">
+  <article class="library-page issue-page" id="content" tabindex="-1">
     {crumb_html}
     <header class="library-hero">
       <span class="section-kicker">{esc(entry["displayKind"])}</span>
@@ -499,7 +500,7 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
             search = " ".join([str(entry["product"]), str(group["name"]), str(entry["issue"]), library_title(entry), str(entry["detection"]), *entry.get("signatures", [])]).lower()
             rows.append(f'''
           <li class="directory-row" data-product="{esc(str(entry["product"]).lower())}" data-repair="{esc(label.lower())}" data-search="{esc(search)}">
-            <a href="/diagnostic-library/{esc(entry['id'])}/"><span class="directory-row-title">{esc(heading)}</span><span class="directory-row-kind">{esc(short_label)}</span><span class="directory-arrow" aria-hidden="true">↗</span></a>
+            <a href="/diagnostic-library/{esc(entry['id'])}/"><span class="directory-row-title">{esc(heading)}</span><span class="directory-row-kind">{esc(short_label)}</span><svg class="directory-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11m-4-4 4 4-4 4" /></svg></a>
           </li>''')
         name = "Companion software" if not group["coverage"] else str(group["name"])
         sections.append(f'''
@@ -523,7 +524,7 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
         }],
     }
     body = f'''
-  <section class="library-page library-directory">
+  <section class="library-page library-directory" id="content" tabindex="-1">
     {crumb_html}
     <header class="directory-hero">
       <span class="section-kicker">Fixes built into PitMedic</span>
@@ -618,8 +619,6 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
 '''
     destination.mkdir(parents=True, exist_ok=True)
     header = page_header("Sim Racing Troubleshooting Guides & Fixes | PitMedic", description, canonical, schema)
-    # Fetch the directory styles together with its markup after deployment.
-    header = header.replace('href="/styles.css"', 'href="/styles.css?library=app-fixes-20261106"')
     (destination / "index.html").write_text(header + body + page_footer(), encoding="utf-8")
 
 
