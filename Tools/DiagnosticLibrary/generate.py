@@ -227,7 +227,7 @@ def page_header(title: str, description: str, canonical: str, structured_data: d
   <script type="application/ld+json">{json.dumps(structured_data, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")}</script>
 </head>
 <body>
-<a class="skip-link" href="#content">Skip to content</a>
+<a class="skip-link" href="#pitmedic-content">Skip to content</a>
 <main>
   <header class="site-header">
     <a class="brand" href="/" aria-label="PitMedic home"><img src="{LOGO_URL}" alt="" /><span>Pit<em>Medic</em></span></a>
@@ -372,7 +372,7 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
           <p class="example-evidence"><a href="{esc(example["source"])}">Read the test source</a> · <a href="{esc(example["validation"])}">View the passing Windows test run</a></p>
         </section>'''
     body = f'''
-  <article class="library-page issue-page" id="content" tabindex="-1">
+  <article class="library-page issue-page" id="pitmedic-content" tabindex="-1">
     {crumb_html}
     <header class="library-hero">
       <span class="section-kicker">{esc(entry["displayKind"])}</span>
@@ -524,7 +524,7 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
         }],
     }
     body = f'''
-  <section class="library-page library-directory" id="content" tabindex="-1">
+  <section class="library-page library-directory" id="pitmedic-content" tabindex="-1">
     {crumb_html}
     <header class="directory-hero">
       <span class="section-kicker">Fixes built into PitMedic</span>
