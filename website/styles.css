@@ -91,6 +91,7 @@ button, input, select { font: inherit; }
 }
 .hero-heading span { color: var(--accent); }
 .hero-copy > p { max-width: 490px; margin: 0; color: var(--muted); font-size: 18px; line-height: 1.75; }
+.hero-copy > .hero-description { max-width: 520px; color: #c9d2cb; line-height: 1.65; text-wrap: pretty; }
 .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
 .button {
   min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
