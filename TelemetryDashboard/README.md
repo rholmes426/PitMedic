@@ -44,3 +44,26 @@ and never finalizes a date at or after Google's first incomplete date.
 
 This replaces GSC Wizard with Google's official Search Console API and requires
 no additional paid analytics service.
+
+## Daily GitHub downloads
+
+The App usage tab shows a 30-day table, 14-day chart, observed daily/7-day/30-day
+increases, coverage labels, and an authenticated CSV export. Public release-asset
+counter snapshots are stored in D1 by verified UTC timestamp. An hourly Worker
+cron collects them even when the dashboard is closed; normal app/overview loads
+can refresh the snapshot too. This does not add any client or visitor tracking.
+
+GitHub exposes cumulative counters rather than download event timestamps. Daily
+increases are bucketed by observation day (UTC), so near-midnight downloads can
+fall on the following day. The first snapshot is a baseline, not today's downloads;
+earlier history cannot be recovered. Missing days remain blank. Days without a
+near-midnight baseline or closing observation, the current day, and changed asset
+counters are marked partial. New release assets, deletion, counter decreases,
+repeat requests, and out-of-order observations do not inflate or erase previously
+observed increases. Available-release cumulative totals may decrease after deletion.
+
+Release pagination must finish successfully before a snapshot is accepted. The
+existing GitHub rate-limit retry and stale-cache behavior is retained, with a
+durable last-verified total as fallback after edge-cache eviction. Apply migration
+`0006_github_download_snapshots.sql` before deploying the dashboard (the existing
+analytics deployment workflow applies all migrations first).

@@ -13,7 +13,8 @@ import {
   loadSearchConsoleData,
   type SearchConsoleEnv,
 } from "./search-console";
-import { loadGitHubDownloadData } from "./github-downloads";
+import { downloadHistoryCsv } from "./download-panel";
+import { loadDownloadHistory, loadTrackedDownloads } from "./download-history";
 import { syncSettledSearchConsole } from "./direct-gsc-sync";
 import { renderOverviewDashboard } from "./overview-dashboard";
 import {
@@ -27,15 +28,7 @@ import {
 const DASHBOARD_PATH = "/dashboard";
 const APP_PATH = "/app";
 const WEBSITE_PATH = "/website";
-const WEBSITE_DASHBOARD_STYLES = `${dashboardStyles}
-.search-console .search-table th:not(:first-child){text-align:right}
-.search-console .search-table td.number{font-variant-numeric:tabular-nums}
-.search-console .search-table:has(th:nth-child(4):last-child){table-layout:fixed}
-.search-console .search-table:has(th:nth-child(4):last-child) th:first-child{width:40%}
-.search-console .search-table:has(th:nth-child(4):last-child) th:nth-child(2){width:18%}
-.search-console .search-table:has(th:nth-child(4):last-child) th:nth-child(3){width:24%}
-.search-console .search-table:has(th:nth-child(4):last-child) th:nth-child(4){width:18%}
-`;
+const WEBSITE_DASHBOARD_STYLES = dashboardStyles;
 export type DashboardEnv = Env & DashboardAuthEnv & SearchConsoleEnv & WebsiteAnalyticsEnv;
 
 export default {
@@ -102,7 +95,8 @@ export default {
       url.pathname !== DASHBOARD_PATH &&
       url.pathname !== APP_PATH &&
       url.pathname !== WEBSITE_PATH &&
-      url.pathname !== "/website/details"
+      url.pathname !== "/website/details" &&
+      url.pathname !== "/app/downloads.csv"
     ) {
       return new Response("Not found", {
         status: 404,
@@ -112,15 +106,22 @@ export default {
 
     try {
       const generatedAt = new Date();
+      if (url.pathname === "/app/downloads.csv") {
+        const history = await loadDownloadHistory(env.DB, generatedAt);
+        if (!history.available) return new Response("Download history is temporarily unavailable.", { status: 503, headers: securityHeaders() });
+        return new Response(downloadHistoryCsv(history), { headers: securityHeaders({
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": 'attachment; filename="pitmedic-github-downloads.csv"',
+        }) });
+      }
       let html: string;
       if (url.pathname === "/website/details") {
         html = await renderMetricDetails(url, env, generatedAt, WEBSITE_DASHBOARD_STYLES);
       } else if (url.pathname === APP_PATH) {
-        html = renderDashboard(
-          await loadDashboardData(env.DB, generatedAt),
-          await loadGitHubDownloadData(fetch, caches.default, generatedAt),
-          generatedAt,
-        );
+        const [usage, tracked] = await Promise.all([
+          loadDashboardData(env.DB, generatedAt), loadTrackedDownloads(env.DB, generatedAt),
+        ]);
+        html = renderDashboard(usage, tracked.downloads, generatedAt, tracked.history);
       } else if (url.pathname === WEBSITE_PATH) {
         html = renderWebsiteDashboard(
           await loadWebsiteDashboardData(env),
@@ -129,19 +130,20 @@ export default {
           WEBSITE_DASHBOARD_STYLES,
         );
       } else {
-        const [usage, website, search, downloads] = await Promise.all([
+        const [usage, website, search, tracked] = await Promise.all([
           loadDashboardData(env.DB, generatedAt),
           loadWebsiteDashboardData(env),
           loadSearchConsoleData(env, generatedAt),
-          loadGitHubDownloadData(fetch, caches.default, generatedAt),
+          loadTrackedDownloads(env.DB, generatedAt),
         ]);
         html = renderOverviewDashboard(
           usage,
           website,
           search,
-          downloads,
+          tracked.downloads,
           generatedAt,
           dashboardStyles,
+          tracked.history,
         );
       }
       return new Response(html, {
@@ -165,6 +167,12 @@ export default {
     }
   },
   async scheduled(controller, env, ctx): Promise<void> {
+    // Public download snapshots run independently of the Search Console sync.
+    ctx.waitUntil(loadTrackedDownloads(env.DB, new Date(controller.scheduledTime)).then(
+      () => undefined,
+      () => console.error(JSON.stringify({ event: "github_download_collection_failed" })),
+    ));
+    if (controller.cron === "5 * * * *") return;
     const localHour = new Intl.DateTimeFormat("en-US", {
       timeZone: "America/Los_Angeles", hour: "2-digit", hourCycle: "h23",
     }).format(new Date(controller.scheduledTime));

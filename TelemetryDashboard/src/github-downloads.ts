@@ -1,16 +1,18 @@
 const RELEASES_URL =
   "https://api.github.com/repos/rholmes426/PitMedic/releases?per_page=100";
-const CACHE_URL = "https://pitmedic-usage-dashboard.pitmedic-usage-telemetry.workers.dev/internal-cache/github-downloads-v1";
+const CACHE_URL = "https://pitmedic-usage-dashboard.pitmedic-usage-telemetry.workers.dev/internal-cache/github-downloads-v2";
 const FRESH_MS = 15 * 60_000;
 const RETAIN_MS = 30 * 86400_000;
 type DownloadCache = Pick<Cache, "match" | "put">;
-type Snapshot = { totalDownloads: number | null; verifiedAt: number; retryAt: number };
+export type DownloadAsset = { id: number; count: number; createdAt?: string };
+type Snapshot = { totalDownloads: number | null; verifiedAt: number; retryAt: number; assets?: DownloadAsset[] };
 
 export type GitHubDownloadData = {
   available: boolean;
   totalDownloads: number;
   verifiedAt?: string;
   stale?: boolean;
+  assets?: DownloadAsset[];
 };
 
 export async function loadGitHubDownloadData(
@@ -34,7 +36,7 @@ export async function loadGitHubDownloadData(
     console.warn(JSON.stringify({ event: "github_download_cache_read_failed" }));
   }
   const fromSnapshot = (): GitHubDownloadData => snapshot?.totalDownloads != null ? {
-    available: true, totalDownloads: snapshot.totalDownloads,
+    available: true, totalDownloads: snapshot.totalDownloads, assets: snapshot.assets,
     verifiedAt: new Date(snapshot.verifiedAt).toISOString(),
     stale: timestamp - snapshot.verifiedAt >= FRESH_MS,
   } : unavailableDownloads();
@@ -52,9 +54,23 @@ export async function loadGitHubDownloadData(
       signal: AbortSignal.timeout(8_000),
     });
     if (response.ok) {
-      const data = summarizeGitHubReleases(await response.json());
+      const releases: unknown[] = [];
+      let page = response;
+      for (let pageNumber = 1; ; pageNumber++) {
+        const payload: unknown = await page.json();
+        if (!Array.isArray(payload)) throw new Error("Invalid release page");
+        releases.push(...payload);
+        if (!page.headers.get("Link")?.includes('rel="next"')) break;
+        if (pageNumber >= 20) throw new Error("Release pagination limit reached");
+        page = await fetcher(`${RELEASES_URL}&page=${pageNumber + 1}`, {
+          headers: { Accept: "application/vnd.github+json", "User-Agent": "PitMedic-Usage-Dashboard", "X-GitHub-Api-Version": "2022-11-28" },
+          signal: AbortSignal.timeout(8_000),
+        });
+        if (!page.ok) throw new Error("Release page unavailable");
+      }
+      const data = summarizeGitHubReleases(releases);
       if (data.available) {
-        snapshot = { totalDownloads: data.totalDownloads, verifiedAt: timestamp, retryAt: timestamp + FRESH_MS };
+        snapshot = { totalDownloads: data.totalDownloads, assets: data.assets, verifiedAt: timestamp, retryAt: timestamp + FRESH_MS };
         await saveSnapshot(cache, snapshot);
         return fromSnapshot();
       }
@@ -72,14 +88,14 @@ export async function loadGitHubDownloadData(
   } catch (error) {
     console.warn(JSON.stringify({ event: "github_download_lookup_failed", errorType: error instanceof Error ? error.name : "UnknownError" }));
   }
-  snapshot = { totalDownloads: snapshot?.totalDownloads ?? null, verifiedAt: snapshot?.verifiedAt ?? 0, retryAt };
+  snapshot = { totalDownloads: snapshot?.totalDownloads ?? null, assets: snapshot?.assets, verifiedAt: snapshot?.verifiedAt ?? 0, retryAt };
   await saveSnapshot(cache, snapshot);
   return fromSnapshot();
 }
 
 async function saveSnapshot(cache: DownloadCache | undefined, snapshot: Snapshot): Promise<void> {
   try {
-    // Only a public package-download total and refresh timestamps are cached.
+    // Only public release-asset counters and refresh timestamps are cached.
     await cache?.put(CACHE_URL, Response.json(snapshot, { headers: { "Cache-Control": "public, max-age=2592000" } }));
   } catch {
     console.warn(JSON.stringify({ event: "github_download_cache_write_failed" }));
@@ -97,8 +113,12 @@ export function summarizeGitHubReleases(value: unknown): GitHubDownloadData {
   if (!Array.isArray(value)) return unavailableDownloads();
 
   let totalDownloads = 0;
+  const assets: DownloadAsset[] = [];
+  const seen = new Set<number>();
+  let trackable = true;
   for (const release of value) {
-    if (!isRecord(release) || !Array.isArray(release.assets)) continue;
+    if (!isRecord(release) || !Array.isArray(release.assets)) return unavailableDownloads();
+    if (release.draft === true) continue;
     for (const asset of release.assets) {
       if (!isRecord(asset) || typeof asset.name !== "string") continue;
       if (!isPitMedicAppAsset(asset.name)) continue;
@@ -107,12 +127,18 @@ export function summarizeGitHubReleases(value: unknown): GitHubDownloadData {
         !Number.isSafeInteger(asset.download_count) ||
         asset.download_count < 0
       )
-        continue;
+        return unavailableDownloads();
+      if (typeof asset.id === "number" && Number.isSafeInteger(asset.id)) {
+        if (seen.has(asset.id)) continue;
+        seen.add(asset.id);
+        assets.push({ id: asset.id, count: asset.download_count,
+          ...(typeof asset.created_at === "string" ? { createdAt: asset.created_at } : {}) });
+      } else trackable = false;
       totalDownloads += asset.download_count;
     }
   }
 
-  return { available: true, totalDownloads };
+  return { available: true, totalDownloads, ...(trackable ? { assets } : {}) };
 }
 
 function isPitMedicAppAsset(name: string): boolean {

@@ -15,7 +15,7 @@
     "NEON_ANALYTICS_URL": "https://br-billowing-bar-ayh10nfr-analytics.compute.c-5.us-east-2.aws.neon.tech"
   },
   "triggers": {
-    "crons": ["15 16 * * *", "15 17 * * *"]
+    "crons": ["5 * * * *", "15 16 * * *", "15 17 * * *"]
   },
   "d1_databases": [
     {

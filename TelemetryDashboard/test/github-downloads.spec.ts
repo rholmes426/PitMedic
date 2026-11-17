@@ -47,3 +47,22 @@ describe('GitHub download availability', () => {
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('complete release pagination', () => {
+  it('combines all pages before publishing a snapshot and retains asset identities', async () => {
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(Response.json([{ assets: [{id: 1, name:'PitMedic-Setup-x64.exe', download_count: 10}] }], {headers:{Link:'<https://api.github.com/repos/rholmes426/PitMedic/releases?per_page=100&page=2>; rel="next"'}}))
+      .mockResolvedValueOnce(Response.json([{ assets: [{id: 2, name:'PitMedic-Setup-x64.exe', download_count: 20}] }]));
+    const data = await loadGitHubDownloadData(fetcher);
+    expect(data.totalDownloads).toBe(30);
+    expect(data.assets).toEqual([{id:1,count:10},{id:2,count:20}]);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not save a partial total when a later release page fails', async () => {
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(Response.json([{ assets: [{id: 1, name:'PitMedic-Setup-x64.exe', download_count: 10}] }], {headers:{Link:'<https://api.github.com/repos/rholmes426/PitMedic/releases?per_page=100&page=2>; rel="next"'}}))
+      .mockResolvedValueOnce(new Response('unavailable',{status:503}));
+    expect((await loadGitHubDownloadData(fetcher)).available).toBe(false);
+  });
+});
