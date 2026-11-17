@@ -41,8 +41,9 @@ appropriate to the changed paths, including full release validation for app,
 Build or workflow changes. Preserve unrelated work.
 
 Requested website updates use the normal validation and publication workflow,
-followed by a live check. Public signed app releases require explicit release
-authorization and the protected release workflow. Do not replace published tags
+followed by a live check. Public signed app releases and analytics deployments
+require explicit authorization. App releases use the protected release workflow.
+Do not replace published tags
 or re-sign an existing release. Verify release metadata, installer URLs and
 checksums together.
 
