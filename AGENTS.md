@@ -3,6 +3,11 @@
 Read `CONTRIBUTING.md` and `Source/PROJECT_POLICY.md` before changing this repository.
 Use focused branches, pull requests and required Build Validation. Preserve unrelated work.
 
+Keep chat transcripts, conversation exports and private project-history summaries out
+of this public repository, public issues/pull requests and release archives. Store
+them privately outside the checkout. Public handoffs should contain only the technical
+context needed to maintain the project; do not reproduce private conversations.
+
 ## User-initiated Scout review
 
 When the owner asks for a "Scout review", "run Scout", "check Scout", or an equivalent

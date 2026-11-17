@@ -1,129 +1,60 @@
-# PitMedic project handoff
+# PitMedic technical handoff
 
-Latest release — November 14, 2026: v1.0.0.12 ships the crash-finding window
-fix, three scoped configuration repairs, Repair Tools/Restore and exact Error 77
-routing. Implementation PR #191 and protected release run 43631490230 passed
-Windows/installer tests and signed binary/installer verification. The associated
-publication PR synchronizes README, website, updater and 70 library records.
-Live release/download/checksum verification is the final deployment gate. Tests
-use temporary files and logs; live simulator or wheel efficacy is not claimed.
+Use the repository's current code and technical records for project context.
+Chat transcripts, conversation exports and private conversation summaries do not
+belong in this public repository.
 
-Scout is manual only. Read
-[Knowledge/SCOUT-REVIEW.md](Knowledge/SCOUT-REVIEW.md) and
-[Knowledge/manual-scout-sources.json](Knowledge/manual-scout-sources.json) when the
-owner requests a review. Research useful automatic repairs and actionable coverage
-gaps; the optional intake script does not perform substantive review. Its GitHub
-cron schedule is removed and the separate ChatGPT task remains disabled.
-The current signed public release is v1.0.0.12; older
-version statements below are historical and must not override live release data.
+## Start here
 
-October 5: Owner authorized the 1.0.0.8 signed app/website release including recent
-fixes and guidance. PR #134 now implements the six research groups, five new
-manual guidance records, finding-review display and 28 Scout sources. Analytics dependency
-updates remain separate after an automatic approval block. Public baseline remains 1.0.0.7 until protected publication completes.
-Tuner monitoring, firmware-state detection, inaccessible source evidence and the
-separate Neon function deployment are not claimed complete. See PENDING-UPDATES.md.
+- [Repository instructions](AGENTS.md) and [contributing guide](CONTRIBUTING.md).
+- [Product policy](Source/PROJECT_POLICY.md) and [code signing policy](CODE_SIGNING_POLICY.md).
+- [Release workflow](Build/RELEASING.md).
+- [Published release metadata](website/update.json) and [README](README.md).
+- [Pending updates](PENDING-UPDATES.md) and [pending fixes](PENDING_FIXES.md).
+- [Knowledge catalog](Knowledge/README.md) and [manual Scout review](Knowledge/SCOUT-REVIEW.md).
 
-This file is the working brief for another coding assistant, including GitHub Copilot.
-The repository is the source of truth for code, tests, issues, pull requests, release
-workflows, and queued work. Read this file together with `CONTRIBUTING.md`,
-`Build/RELEASING.md`, `CODE_SIGNING_POLICY.md`, `Source/PROJECT_POLICY.md`,
-`Knowledge/README.md`, `PENDING-UPDATES.md`, and `PENDING_FIXES.md`.
-
-## Historical state through October 2026
-
-- October 1: Carbon / Lime logo completion merged in PR #117, with successful
-  Windows validation and website deployment. The owner explicitly approved signed
-  app release 1.0.0.7, covering logos/icons, button contrast and repair-progress
-  layout. Signing and installer verification passed in release run 36906341052;
-  publication metadata is in PR #119. `Tools/WebsiteCaptures` renders
-  current WPF views without starting production monitoring or repair services.
-
-
-- Owner approved publication of the Carbon / Lime app theme on September 30, 2026.
-  PR #114 passed full Build Validation and is merged. The website theme is live;
-  deployment run 36749437751 passed release/download verification. App release
-  1.0.0.6 passed protected signing/publication in run 36805995891. Publication PR #116
-  synchronizes public downloads and updater metadata. Local interactive
-  visual rendering was blocked by runtime socket permissions.
-
-- Owner approved the cross-simulator false-exit patch and publication on September 27, 2026.
-  Release inputs for 1.0.0.5 are in PR #111. Confirmed Windows process termination now
-  replaces cached/exception-based exit checks across all simulator and companion monitors.
-  Legacy false findings are filtered without deleting diagnostics; repeated independent
-  Windows evidence is grouped and kept diagnostic-only. Version 1.0.0.5 was published;
-  its publication metadata PR #112 is merged.
-
-- Repository: `rholmes426/PitMedic`
-- Main branch: protected; use pull requests and required Build Validation checks.
-- Current public release: `v1.0.0.7`; signed app, helpers and installer verified.
-- Implementation PR #101 and release metadata PR #102 merged. Pages run 35767900939
-  passed final README, website, updater, installer URL and checksum verification.
-- Includes the iRacing repair-selection fix and 12 compatible maintenance proposals.
-- Collector/dashboard deployment run 35680474216 passed. The separate Neon Functions
-  0.11.0 dependency deployment was blocked by approval review and requires separate
-  owner approval; the existing production function remains deployed.
-- Vitest 5 upgrade PRs #92 and #93 remain blocked by the Cloudflare Vitest plugin peer requirement.
-- SIMAGIC firmware interruption protection remains a safety-review item; do not claim it is implemented.
-- Unresolved Knowledge Scout findings remain retained. Broken or inaccessible citations do not retire fixes.
-
-## Product rules
-
-PitMedic is free, ad-free, local-first, and GPL-3.0-or-later. Repairs must be narrow,
-reversible, backed up where applicable, approval-gated when needed, and honest about
-what was verified. Do not add telemetry in the sim-racing sense, diagnostics uploads,
-advertising, payments, credentials, silent downloads, or public releases without the
-protected release workflow.
-
-Do not mark machine dispositions as human approvals. Do not change lifecycle state,
-repair state, signing configuration, or release tags to hide pending decisions.
+Published release metadata and the actual queue take precedence over older notes.
+Keep this handoff technical and concise; use issues, pull requests and release
+notes for the public implementation record.
 
 ## Architecture
 
-- `Source/PitMedic`: .NET 10 WPF app, monitoring, findings, repair planning, settings,
-  companion software recovery, and optional anonymous usage reporting.
+- `Source/PitMedic`: .NET 10 WPF app, monitoring, findings, repair planning,
+  settings, companion software recovery and optional anonymous usage reporting.
 - `Source/PitMedic.RepairHelper`: allowlisted elevated one-shot repairs.
 - `Source/PitMedic.SensorHelper`: read-only protected CPU sensor service.
 - `TelemetryWorker`: Cloudflare Worker and D1 migrations for optional aggregate usage.
 - `TelemetryDashboard`: private dashboard for aggregate app and website data.
 - `NeonAnalytics`: private analytics function.
-- `Tools/KnowledgeScout`: deterministic, read-only source discovery and same-run evidence triage.
-- `Tools/DiagnosticLibrary`: generates the public library from app knowledge.
-- `website`: public site, updater metadata, and diagnostic pages.
+- `Tools/KnowledgeScout`: read-only source discovery and evidence intake.
+- `Tools/DiagnosticLibrary`: generates the public library from app-owned knowledge.
+- `website`: public site, updater metadata and diagnostic pages.
 
-## Release rules
+## Maintenance and publication
 
-The owner approved automatic publication of requested website-only updates on
-September 22, 2026. Validate and merge through required checks, then verify the
-live site. App releases and analytics deployments still need explicit approval.
-Version 1.0.0.4 was explicitly approved and published. Future app releases still
-require explicit approval; website-only standing approval does not extend to analytics.
+Keep PitMedic free, ad-free, local-first and GPL-3.0-or-later. Repairs must remain
+targeted, reversible, backed up where applicable and honest about the evidence.
+Obtain approval before starting a repair expected to exceed two minutes.
 
-Routine changes go through a focused branch and PR. Run the relevant tests and the full
-release validation when app, Build, workflow, or unknown files change. Public signing is
-performed only by `.github/workflows/publish-release.yml` from protected `main`, with an
-explicit approved version. Never replace an existing tag or re-sign a published release.
-The workflow creates a generated metadata PR; inspect and merge that PR through normal
-branch protection, then verify README, latest release, homepage, updater, installer URL,
-and SHA-256 checksum.
+Use focused branches, pull requests and required Build Validation. Run checks
+appropriate to the changed paths, including full release validation for app,
+Build or workflow changes. Preserve unrelated work.
 
-## Knowledge Scout rules
+Requested website updates use the normal validation and publication workflow,
+followed by a live check. Public signed app releases and analytics deployments
+require explicit authorization. App releases use the protected release workflow.
+Do not replace published tags
+or re-sign an existing release. Verify release metadata, installer URLs and
+checksums together.
 
-Follow the manual review playbook and expanded community/developer source inventory
-for new reviews. Preserve the distinction between researched, implemented, tested
-and published repair actions. The historical rules below still apply.
+Scout is manual only. Follow the review playbook and source inventory when a
+review is requested. Distinguish researched, implemented, tested and published
+repairs. Pair every implemented repair with its Diagnostic Library deliverable.
+Do not retire a repair solely because a citation is old or inaccessible.
 
+## Private conversation material
 
-Use actual first-party/vendor-community pages, not titles, snippets, forum indexes, or
-announcements of unshipped fixes. Separate newly discovered from newly published material.
-Classify findings as no-change/duplicate/unrelated, needs-evidence, proposed-guidance,
-proposed-detection, proposed-reversible-repair, or safety-review-required. Preserve
-uncertain findings and never retire an existing fix because it is old or its citation broke.
-
-## Chat history
-
-`CHAT_TRANSCRIPTS/` contains the available project-history index and the instructions for
-adding verbatim exports. The assistant runtime does not expose the complete raw ChatGPT
-transcript as a repository file, so the included history is explicitly labeled as a
-summary/index. Do not present it as a complete verbatim export. If a full export is
-provided later, place it there without rewriting it and record its source/date.
+Store conversation exports and private project-history summaries privately
+outside the public checkout. Do not commit them, attach them to public issues or
+pull requests, or include them in release archives. Maintain public handoffs from
+the technical sources above without reproducing private discussions.
