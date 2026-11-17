@@ -59,6 +59,7 @@ export async function loadWebsiteDashboardData(
 
   const response = await fetcher(`${baseUrl}/v1/website-summary`, {
     headers: { Authorization: `Basic ${credentials}` },
+    signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) throw new Error(`Website analytics source returned ${response.status}`);
 
@@ -101,15 +102,17 @@ export function renderWebsiteDashboard(
       ${metricCard("Last 30 days", data.thirtyDayPageViews, "Page views", href("views"))}
       ${metricCard("Engagement", `${formatNumber(data.engagementRate)}%`, "30 seconds or 50% scroll", href("engaged"))}
       ${metricCard("Organic entries", data.organicEntries, "Search-referred page views", href("organic"))}
-      ${metricCard("Downloads", data.downloads, "Signed installer clicks", href("downloads"))}
+      ${metricCard("Download clicks", data.downloads, "Website clicks · last 30 days", href("downloads"))}
     </section>
+
+    <p class="data-note">Download clicks count website button clicks, which may not result in a completed download. <a class="panel-link" href="/app#github-downloads">View GitHub download counts</a>. Website dates use UTC; Google dates use Pacific time.</p>
 
     ${renderSearchConsole(search)}
 
     <section class="panel trend-panel">
-      <div class="panel-head"><div><span class="eyebrow">DAILY TREND</span><h2>Page views and downloads</h2></div><div class="legend"><span><i class="views"></i>Views</span><span><i class="downloads"></i>Downloads</span></div></div>
+      <div class="panel-head"><div><span class="eyebrow">DAILY TREND</span><h2>Page views and download clicks</h2></div><div class="legend"><span><i class="views"></i>Views</span><span><i class="downloads"></i>Download clicks</span></div></div>
       ${renderTrend(data.daily)}
-      <div class="table-wrap"><table><thead><tr><th>Date (UTC)</th><th>Views</th><th>Downloads</th></tr></thead><tbody>${[...data.daily].reverse().map(row=>`<tr><td>${escapeHtml(formatDay(row.day))}</td><td>${metricLink(row.pageViews,detailUrl("views",row.day,row.day))}</td><td>${metricLink(row.downloads,detailUrl("downloads",row.day,row.day))}</td></tr>`).join("")}</tbody></table></div>
+      <details class="metric-definitions"><summary>Daily website counts · last 30 days</summary><div class="table-wrap bounded-table" tabindex="0" role="region" aria-label="Daily website counts"><table><thead><tr><th>Date (UTC)</th><th class="number">Views</th><th class="number">Download clicks</th></tr></thead><tbody>${[...data.daily].reverse().map(row=>`<tr><td>${escapeHtml(formatDay(row.day))}</td><td class="number">${metricLink(row.pageViews,detailUrl("views",row.day,row.day))}</td><td class="number">${metricLink(row.downloads,detailUrl("downloads",row.day,row.day))}</td></tr>`).join("")}</tbody></table></div></details>
     </section>
 
     <section class="panel">
@@ -171,7 +174,7 @@ function renderSearchDaily(rows: SearchConsoleData["daily"]): string {
   }
 
   const sorted = [...rows].sort((a, b) => b.date.localeCompare(a.date));
-  return `<div style="margin-bottom:22px"><div class="panel-head"><div><span class="eyebrow">DAILY GOOGLE PERFORMANCE</span><h2>Clicks and impressions by date</h2></div></div><div class="table-wrap"><table class="search-table"><thead><tr><th>Date</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Status</th></tr></thead><tbody>${sorted
+  return `<div style="margin-bottom:22px"><div class="panel-head"><div><span class="eyebrow">DAILY GOOGLE PERFORMANCE</span><h2>Clicks and impressions by date</h2></div></div><div class="table-wrap bounded-table" tabindex="0" role="region" aria-label="Daily Google performance"><table class="search-table"><thead><tr><th>Date (Pacific)</th><th class="number">Clicks</th><th class="number">Impressions</th><th class="number">CTR</th><th>Status</th></tr></thead><tbody>${sorted
     .map((row) => {
       const ctr = row.impressions > 0 ? (row.clicks / row.impressions) * 100 : 0;
       const pending = row.status === "pending";
@@ -277,14 +280,14 @@ function renderTrend(points: WebTrendPoint[]): string {
     .map((point) => {
       const viewHeight = Math.max(0, (point.pageViews / maximum) * 100);
       const downloadHeight = Math.max(0, (point.downloads / maximum) * 100);
-      return `<div class="trend-day" title="${escapeHtml(formatDay(point.day))}: ${point.pageViews} views, ${point.downloads} downloads"><div class="trend-columns"><i class="views" style="height:${viewHeight.toFixed(2)}%"></i><i class="downloads" style="height:${downloadHeight.toFixed(2)}%"></i></div><span>${escapeHtml(formatShortDay(point.day))}</span></div>`;
+      return `<div class="trend-day" title="${escapeHtml(formatDay(point.day))}: ${point.pageViews} views, ${point.downloads} download clicks"><div class="trend-columns"><i class="views" style="height:${viewHeight.toFixed(2)}%"></i><i class="downloads" style="height:${downloadHeight.toFixed(2)}%"></i></div><span>${escapeHtml(formatShortDay(point.day))}</span></div>`;
     })
     .join("")}</div>`;
 }
 
 function renderPages(rows: WebPageRow[], range: {start:string;end:string}): string {
   if (rows.length === 0) return empty("No website activity recorded yet.");
-  return `<div class="table-wrap"><table><thead><tr><th>Page</th><th>Views</th><th>Engaged</th><th>Rate</th><th>Downloads</th></tr></thead><tbody>${rows
+  return `<div class="table-wrap"><table><thead><tr><th>Page</th><th>Views</th><th>Engaged</th><th>Rate</th><th>Download clicks</th></tr></thead><tbody>${rows
     .map((row) => {
       const rate = row.pageViews > 0 ? (row.engagedViews / row.pageViews) * 100 : 0;
       return `<tr><td><a class="path-link" href="https://pitmedic.com${escapeHtml(row.path)}" target="_blank" rel="noreferrer">${escapeHtml(pageLabel(row.path))}</a><small class="path">${escapeHtml(row.path)}</small></td><td class="number">${metricLink(row.pageViews,detailUrl("views",range.start,range.end,{page:row.path}))}</td><td class="number">${metricLink(row.engagedViews,detailUrl("engaged",range.start,range.end,{page:row.path}))}</td><td class="number">${metricLink(`${formatNumber(rate)}%`,detailUrl("engaged",range.start,range.end,{page:row.path}))}</td><td class="number">${metricLink(row.downloads,detailUrl("downloads",range.start,range.end,{page:row.path}))}</td></tr>`;

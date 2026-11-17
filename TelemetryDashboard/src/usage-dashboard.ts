@@ -1,3 +1,5 @@
+import { renderDownloadPanel } from "./download-panel";
+import type { DownloadHistory } from "./download-history";
 import { downloadDescription, type GitHubDownloadData } from "./github-downloads";
 
 export type TrendPoint = {
@@ -86,7 +88,7 @@ export async function loadDashboardData(
   const today = isoDay(now);
   const currentMonth = today.slice(0, 7);
   const firstDailyPeriod = isoDay(addUtcMonthsAndDays(now, 0, -29));
-  const firstMonthlyPeriod = isoDay(addUtcMonthsAndDays(now, -11, 0)).slice(
+  const firstMonthlyPeriod = isoDay(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1))).slice(
     0,
     7,
   );
@@ -133,6 +135,7 @@ export function renderDashboard(
   data: DashboardData,
   downloads: GitHubDownloadData,
   generatedAt: Date,
+  history?: DownloadHistory,
 ): string {
   const recentDaily = data.daily.slice(-14);
   const latestMonth = data.monthly.at(-1)?.period ?? "Current month";
@@ -159,8 +162,8 @@ export function renderDashboard(
 
     <section class="cards six" aria-label="Current usage totals">
       ${metricCard("First launches", data.firstLaunches, "Last 30 days · opted-in new profiles")}
-      ${metricCard("Today", data.today, "Daily active installations")}
-      ${metricCard("This month", data.thisMonth, "Monthly active installations")}
+      ${metricCard("Today", data.today, "Daily active · UTC · partial day")}
+      ${metricCard("This month", data.thisMonth, "Month to date · UTC")}
       ${metricCard("30-day average", data.thirtyDayAverage, "Daily active installations")}
       ${metricCard("Current versions", data.currentVersions, "Versions active this month")}
       ${metricCard(
@@ -170,8 +173,10 @@ export function renderDashboard(
       )}
     </section>
 
-    <p>First launches count new local profiles using builds with first-launch reporting, after they opt in. Upgrades of existing profiles are excluded. Reinstalls with retained settings are not new; separate Windows profiles can count separately. Offline reports may arrive later. These are not a complete count of installs.</p>
-    <p>GitHub counts installer and portable ZIP downloads, including repeat downloads; these are not unique users or confirmed installations.</p>
+    ${renderDownloadPanel(history)}
+
+    <details class="metric-definitions"><summary>How app usage is counted</summary><p>First launches count new local profiles using builds with first-launch reporting, after they opt in. Upgrades of existing profiles are excluded. Reinstalls with retained settings are not new; separate Windows profiles can count separately. Offline reports may arrive later. These are not a complete count of installs.</p>
+    <p>GitHub counts installer and portable ZIP downloads, including repeat downloads; these are not unique users or confirmed installations. Daily and monthly app counts include only opted-in profiles; monthly reach cannot be calculated by adding daily counts. Today and this month are still in progress.</p></details>
     <section class="grid">
       <article class="panel daily-panel">
         <div class="panel-head"><div><span class="eyebrow">LAST 14 DAYS</span><h2>Daily active installations</h2></div></div>
@@ -252,7 +257,7 @@ function buildDayPeriods(now: Date, count: number): string[] {
 
 function buildMonthPeriods(now: Date, count: number): string[] {
   return Array.from({ length: count }, (_, index) =>
-    isoDay(addUtcMonthsAndDays(now, index - count + 1, 0)).slice(0, 7),
+    isoDay(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + index - count + 1, 1))).slice(0, 7),
   );
 }
 
@@ -362,4 +367,6 @@ header{gap:22px}.dashboard-nav{display:flex;align-items:center;gap:5px;margin-le
 @media(max-width:500px){header{padding:0 16px}.brand span{display:none}main{padding:28px 14px}.cards{grid-template-columns:1fr 1fr}.metric{padding:16px}.metric>strong{font-size:26px}.panel{padding:17px}.intro h1{font-size:31px}.private-pill{display:none}}
 @media(max-width:1050px){.cards.five{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:820px){.cards.five{grid-template-columns:repeat(2,1fr)}}
+.data-note,.metric-definitions{font-size:12px;color:var(--muted);line-height:1.6}.metric-definitions{margin:16px 0 22px}.metric-definitions summary{cursor:pointer;font-weight:750;color:var(--navy)}.download-panel{margin:22px 0}.download-summary{grid-template-columns:repeat(3,1fr);margin-bottom:12px}.download-bars{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:8px;margin:20px 0}.download-bar{display:grid;grid-template-rows:20px 85px 20px;text-align:center;font-size:10px;color:var(--muted)}.download-value{font-weight:800;color:var(--navy)}.download-track{display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid var(--line)}.download-track i{display:block;width:65%;background:var(--orange);border-radius:4px 4px 0 0}.download-bar>span:last-child{padding-top:6px}.bounded-table{max-height:360px;overflow:auto;scrollbar-gutter:stable}.bounded-table thead{position:sticky;top:0;background:var(--white);z-index:1}.bounded-table th{padding-top:12px}.tag.subdued{background:var(--soft);color:var(--muted)}.overview-stats small{display:block;font-size:11px;color:var(--muted);line-height:1.5;margin-top:5px}.search-grid>article,.overview-grid>article,.web-grid>article{min-width:0}.path,td:first-child{overflow-wrap:anywhere}th.number{font-size:10px;font-weight:800;color:var(--muted)}a:focus-visible,button:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--orange);outline-offset:3px}.search-table th:last-child,.download-panel th:last-child{text-align:left}.search-table td.number,.trend-panel td.number{font-variant-numeric:tabular-nums}
+@media(max-width:500px){header{padding-top:12px;padding-bottom:12px}.cards.six{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-stats{grid-template-columns:1fr}.download-summary{grid-template-columns:1fr}.download-bars{gap:3px}.download-bar{font-size:8px}.dashboard-nav{flex-wrap:wrap}.panel-head{flex-wrap:wrap}.header-actions{gap:8px}.brand{font-size:18px}}
 `;

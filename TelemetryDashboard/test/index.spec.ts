@@ -61,10 +61,25 @@ beforeEach(async () => {
     env.DB.prepare("DELETE FROM daily_rollup"),
     env.DB.prepare("DELETE FROM monthly_rollup"),
     env.DB.prepare("DELETE FROM web_daily_events"),
+    env.DB.prepare("DELETE FROM github_download_snapshots"),
   ]);
 });
 
 describe("private aggregate dashboard", () => {
+  it("protects CSV exports and returns only public counters after login", async () => {
+    const url = "https://stats.example/app/downloads.csv";
+    expect((await worker.fetch(new IncomingRequest(url), dashboardEnv)).status).toBe(303);
+    const cookie = await authenticatedCookie();
+    const response = await worker.fetch(new IncomingRequest(url, { headers: { Cookie: cookie } }), dashboardEnv);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toContain("text/csv");
+    expect(response.headers.get("Cache-Control")).toContain("no-store");
+    const csv = await response.text();
+    expect(csv).toContain("date_utc,downloads_observed,github_total,coverage,last_verified_utc");
+    expect(csv).not.toContain(DAILY_TOKEN);
+    expect(csv).not.toContain(MONTHLY_TOKEN);
+  });
+
   it("protects metric details and rejects invalid filters after login", async () => {
     const url = "https://stats.example/website/details?metric=views&start=bad&end=2026-09-09";
     const unauthenticated = await worker.fetch(new IncomingRequest(url), dashboardEnv);

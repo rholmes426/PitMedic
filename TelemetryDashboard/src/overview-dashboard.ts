@@ -1,3 +1,4 @@
+import type { DownloadHistory } from "./download-history";
 import { detailUrl, metricLink, webRange } from "./metric-details";
 import { downloadDescription, type GitHubDownloadData } from "./github-downloads";
 import type { SearchConsoleData } from "./search-console";
@@ -11,8 +12,11 @@ export function renderOverviewDashboard(
   downloads: GitHubDownloadData,
   generatedAt: Date,
   styles: string,
+  history?: DownloadHistory,
 ): string {
   const range = webRange(generatedAt);
+  const todayDownloads = history?.daily.at(-1)?.downloads;
+  const googlePeriod = `${search.periodStart} – ${search.periodEnd} · Pacific`;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -34,18 +38,19 @@ export function renderOverviewDashboard(
     </section>
 
     <section class="cards six" aria-label="Combined analytics totals">
-      ${metricCard("Active today", usage.today, "Opted-in installations", "/app")}
-      ${metricCard("Active this month", usage.thisMonth, "Opted-in installations", "/app")}
+      ${metricCard("Active today", usage.today, "Opted-in · UTC · partial period", "/app")}
+      ${metricCard("Active this month", usage.thisMonth, "Opted-in · UTC · partial period", "/app")}
       ${metricCard("GitHub downloads", downloads.available ? downloads.totalDownloads : "—", downloadDescription(downloads), "/app")}
       ${metricCard("Website views", website.thirtyDayPageViews, "Last 30 days", detailUrl("views",range.start,range.end))}
-      ${metricCard("Google clicks", search.available ? search.clicks : "—", search.available ? "Search Console period" : "Connection unavailable", detailUrl("google-clicks",search.periodStart,search.periodEnd))}
-      ${metricCard("Google impressions", search.available ? search.impressions : "—", search.available ? "Search Console period" : "Connection unavailable", detailUrl("google-impressions",search.periodStart,search.periodEnd))}
+      ${metricCard("Google clicks", search.available ? search.clicks : "—", search.available ? googlePeriod : "Connection unavailable", detailUrl("google-clicks",search.periodStart,search.periodEnd))}
+      ${metricCard("Google impressions", search.available ? search.impressions : "—", search.available ? googlePeriod : "Connection unavailable", detailUrl("google-impressions",search.periodStart,search.periodEnd))}
     </section>
 
+    <p class="data-note">GitHub counts release-file downloads across available releases. Website views cover ${range.start} to ${range.end} UTC; Google covers ${escapeHtml(googlePeriod)}. Download clicks, package downloads, and opted-in app usage measure different actions.</p>
     <section class="overview-grid">
       <article class="panel overview-card">
         <div class="panel-head"><div><span class="eyebrow">APP</span><h2>Usage and distribution</h2></div><a class="panel-link" href="/app">Open app usage</a></div>
-        <div class="overview-stats"><div><span>30-day daily average</span><strong>${formatNumber(usage.thirtyDayAverage)}</strong></div><div><span>Active versions</span><strong>${formatNumber(usage.currentVersions)}</strong></div><div><span>Package downloads</span><strong>${downloads.available ? formatNumber(downloads.totalDownloads) : "—"}</strong><small>${escapeHtml(downloadDescription(downloads))}</small></div></div>
+        <div class="overview-stats"><div><span>30-day daily average</span><strong>${formatNumber(usage.thirtyDayAverage)}</strong></div><div><span>Active versions</span><strong>${formatNumber(usage.currentVersions)}</strong></div><div><span>Downloads today · observed</span><strong><a class="metric-link" href="/app#github-downloads">${todayDownloads == null ? "—" : formatNumber(todayDownloads)}</a></strong><small>UTC · partial day · hourly snapshots</small></div></div>
         <p>Review daily and monthly adoption, active versions, release channels, and installation types.</p>
       </article>
       <article class="panel overview-card">
