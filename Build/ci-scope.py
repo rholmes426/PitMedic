@@ -4,9 +4,21 @@ import os
 import subprocess
 
 
+# These paths affect repository housekeeping or CI job selection, not the app.
+# The scope regression tests run unconditionally in the changes job, including
+# when this classifier or its dedicated tests change.
+REPOSITORY_ONLY_PATHS = frozenset({
+    '.gitignore',
+    'Build/ci-scope.py',
+    'Build/tests/test_ci_scope.py',
+})
+
+
 def scope(paths):
     result = dict(build=False, knowledge=False, worker=False, dashboard=False)
     for path in paths:
+        if path in REPOSITORY_ONLY_PATHS:
+            continue
         if path.startswith(('Source/', 'Build/', 'Installer/', '.github/')) or path in ('global.json', '.gitattributes'):
             return dict.fromkeys(result, True)
         if path.startswith(('website/', 'Knowledge/', 'Tools/')):

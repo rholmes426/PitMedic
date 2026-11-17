@@ -18,6 +18,6 @@ Thank you for helping make simulator troubleshooting safer and easier.
 2. Explain the user problem and the proposed behavior.
 3. Include or update validation for every changed repair and safety path.
 4. Update documentation and version-specific notes when user-facing behavior changes.
-5. Confirm a Release build completes with the .NET 10 SDK.
+5. Confirm a .NET 10 Release build for changes to app code, installer/SDK inputs, or release/build workflows. Repository housekeeping and CI job-selection-only changes use the always-on Python regression and metadata checks.
 
 Outside pull requests require maintainer review. Merging a contribution licenses it as part of PitMedic under GPL-3.0-or-later; contributors retain copyright in their work.
