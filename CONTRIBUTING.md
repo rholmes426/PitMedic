@@ -10,6 +10,7 @@ Thank you for helping make simulator troubleshooting safer and easier.
 - A repair expected to exceed two minutes must show an estimate and obtain user approval before it starts.
 - Do not add simulator artwork, telemetry collection, advertising, affiliate links, payment handling, credential collection, or silent network uploads.
 - Never commit secrets, signing tokens, certificates, user logs, diagnostic captures, or personal paths.
+- Keep chat transcripts, conversation exports, and private project-history summaries in private storage outside the checkout. Do not include them in public commits, issues, pull requests, or release archives.
 
 ## Pull requests
 

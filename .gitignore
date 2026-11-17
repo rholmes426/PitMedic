@@ -12,6 +12,17 @@ PrivateBuild/
 *.user
 *.suo
 
+# Private conversation exports and assistant context
+# Keep these in private storage outside the public checkout.
+CHAT_TRANSCRIPTS/
+chat-transcripts/
+chat_transcripts/
+conversation-exports/
+conversation_exports/
+conversations.json
+chat.html
+*-chatgpt-export.*
+
 # Logs, diagnostics, and local configuration
 *.log
 *.dmp
