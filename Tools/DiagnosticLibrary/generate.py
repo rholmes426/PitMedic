@@ -401,6 +401,13 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
 # Stable section anchors preserve guide URLs and avoid duplicate filter landing pages.
 LIBRARY_GROUPS = [
     {
+        "slug": "assetto-corsa",
+        "name": "Assetto Corsa (original)",
+        "products": ["Assetto Corsa"],
+        "description": "Original AC display settings, active controls and stock Steam game files.",
+        "coverage": "assetto-corsa"
+    },
+    {
         "slug": "iracing",
         "name": "iRacing",
         "products": [
@@ -487,6 +494,8 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
         raise ValueError("Every diagnostic must appear in exactly one library section")
     sections = []
     for group, members in grouped:
+        if not members:
+            continue
         rows = []
         for entry in members:
             heading = str(PUBLIC_CONTENT[str(entry["id"])].get("heading") or entry["issue"])
@@ -683,6 +692,20 @@ def generate(destination: Path, sitemap: Path) -> None:
     write_sitemap(entries, sitemap)
 
 
+def sync_original_ac_lineup(home: str, entries: list[dict[str, object]]) -> str:
+    """Publish the new simulator's homepage link with its available repair pages."""
+    pattern = r'^([ \t]*)<a class="sim-row" href="/diagnostic-library/#assetto-corsa">.*?</a>\n?'
+    if not any(entry["product"] == "Assetto Corsa" for entry in entries):
+        return re.sub(pattern, "", home, flags=re.M)
+    if re.search(pattern, home, flags=re.M):
+        return home
+    existing = re.search(r'^([ \t]*)<a class="sim-row" href="/diagnostic-library/#assetto-corsa-evo">.*?</a>', home, flags=re.M)
+    if not existing:
+        raise ValueError("Cannot locate the EVO lineup row to publish original Assetto Corsa")
+    row = existing.group(0).replace("#assetto-corsa-evo", "#assetto-corsa").replace(">Assetto Corsa EVO<", ">Assetto Corsa<")
+    return home[:existing.start()] + row + "\n" + home[existing.start():]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true", help="Fail if committed generated files are stale")
@@ -691,6 +714,11 @@ def main() -> int:
         if OUTPUT.exists():
             shutil.rmtree(OUTPUT)
         generate(OUTPUT, WEBSITE / "sitemap.xml")
+        home_path = WEBSITE / "index.html"
+        home = home_path.read_text(encoding="utf-8")
+        updated_home = sync_original_ac_lineup(home, load_entries())
+        if updated_home != home:
+            home_path.write_text(updated_home, encoding="utf-8")
         print(f"Generated {len(load_entries())} Diagnostic Library records.")
         return 0
 
@@ -703,6 +731,9 @@ def main() -> int:
             print("Diagnostic Library output is missing.", file=sys.stderr)
             return 1
         mismatches = []
+        home = (WEBSITE / "index.html").read_text(encoding="utf-8")
+        if sync_original_ac_lineup(home, load_entries()) != home:
+            mismatches.append("../index.html")
         generated_files = {path.relative_to(generated) for path in generated.rglob("*") if path.is_file()}
         committed_files = {path.relative_to(OUTPUT) for path in OUTPUT.rglob("*") if path.is_file()}
         for relative in sorted(generated_files | committed_files):

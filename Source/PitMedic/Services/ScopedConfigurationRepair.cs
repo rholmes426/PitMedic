@@ -17,6 +17,14 @@ public static class ScopedConfigurationRepair
 
     public static IReadOnlyList<ConfigurationRepairOption> Options { get; } = new[]
     {
+        new ConfigurationRepairOption("ac-video-config", GameKind.AssettoCorsa,
+            "Original AC display settings are broken",
+            "Preserve video.ini and let the original Assetto Corsa rebuild its display settings. Close the game, launcher and Content Manager first. Resolution, VR and display preferences may need reconfiguration. Restore is available.",
+            new[] { "video.ini" }),
+        new ConfigurationRepairOption("ac-controls-config", GameKind.AssettoCorsa,
+            "Original AC wheel or pedals do not respond",
+            "Preserve controls.ini and let the original Assetto Corsa rebuild its active bindings. Close the game, launcher and Content Manager first. Remap and recalibrate afterward; saved presets and setups are preserved. Restore is available.",
+            new[] { "controls.ini" }),
         new ConfigurationRepairOption("iracing-socket-connection", GameKind.IRacing,
             "Connection error 10057, 10035 or 10054",
             "Try iRacing's supported connection setting. Changes only connect_sockets in core.ini. Restore the original setting if the same connection test still fails.",

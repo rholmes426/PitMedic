@@ -23,7 +23,7 @@ public sealed class IncidentRecorder
 
     public IncidentSummary CreateConfigurationRepairRequest(GameKind kind, string repairId)
     {
-        var plan = ScopedConfigurationRepair.CreatePlan(kind, repairId)
+        var plan = UserRequestedRepairPolicy.CreatePlan(kind, repairId)
             ?? throw new InvalidOperationException("This repair is not supported for the selected simulator.");
         var game = GameDefinition.Supported.Single(x => x.Kind == kind);
         var now = DateTimeOffset.Now;
@@ -430,7 +430,7 @@ public sealed class IncidentRecorder
             var success = state.TryGetProperty("Success", out var successEl) && successEl.GetBoolean();
             var retest = doc.RootElement.TryGetProperty("plan", out var plan)
                 && plan.TryGetProperty("Id", out var id)
-                && (ScopedConfigurationRepair.IsSupported(id.GetString() ?? "") || id.GetString()?.StartsWith("iracing-error77-", StringComparison.Ordinal) == true);
+                && (ScopedConfigurationRepair.IsSupported(id.GetString() ?? "") || id.GetString()?.StartsWith("iracing-error77-", StringComparison.Ordinal) == true || id.GetString() == "ac-steam-verify");
             return complete && success ? (true, retest ? "Applied · retest" : "Resolved") : (false, string.Empty);
         }
         catch { return (false, string.Empty); }

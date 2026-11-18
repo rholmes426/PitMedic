@@ -73,6 +73,13 @@ public sealed class LogCollector
                     f => f.Extension.Equals(".dmp", StringComparison.OrdinalIgnoreCase));
             }
         }
+        else if (game.Kind == GameKind.AssettoCorsa)
+        {
+            logFiles += CopyRecent(Path.Combine(AssettoCorsaPolicy.DocumentsRoot, "logs"), logsDest, logCutoff,
+                f => f.Name.Equals("log.txt", StringComparison.OrdinalIgnoreCase)
+                    || f.Name.Equals("errors.txt", StringComparison.OrdinalIgnoreCase)
+                    || f.Name.Equals("launcher_debug.log", StringComparison.OrdinalIgnoreCase));
+        }
         else if (game.Kind == GameKind.AssettoCorsaEvo)
         {
             foreach (var ace in GetAceUserDataRoots())
@@ -111,11 +118,13 @@ public sealed class LogCollector
         var crashDumps = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CrashDumps");
         dumpFiles += CopyRecent(crashDumps, dumpsDest, dumpCutoff,
             f => f.Extension.Equals(".dmp", StringComparison.OrdinalIgnoreCase)
-              && game.ProcessNames.Any(p => f.Name.Contains(p, StringComparison.OrdinalIgnoreCase)));
+              && (game.Kind == GameKind.AssettoCorsa ? AssettoCorsaPolicy.IsEngineDumpFile(f.Name)
+                  : game.ProcessNames.Any(p => f.Name.Contains(p, StringComparison.OrdinalIgnoreCase))));
 
         dumpFiles += CopyRecent(Path.GetTempPath(), dumpsDest, dumpCutoff,
             f => f.Extension.Equals(".dmp", StringComparison.OrdinalIgnoreCase)
-              && game.ProcessNames.Any(p => f.Name.Contains(p.Split(' ')[0], StringComparison.OrdinalIgnoreCase)));
+              && (game.Kind == GameKind.AssettoCorsa ? AssettoCorsaPolicy.IsEngineDumpFile(f.Name)
+                  : game.ProcessNames.Any(p => f.Name.Contains(p.Split(' ')[0], StringComparison.OrdinalIgnoreCase))));
 
         try
         {
@@ -224,6 +233,11 @@ public sealed class LogCollector
                 if (lower.Contains("error") || lower.Contains("failed") || lower.Contains("not installed")) signatures.Add("lmu-eac");
             }
             if (lower.Contains("0xc000007b") || (lower.Contains("reshade") && IsFailureText(lower))) signatures.Add("lmu-reshade-runtime");
+        }
+        else if (game.Kind == GameKind.AssettoCorsa)
+        {
+            var match = AssettoCorsaPolicy.MatchLog(lower);
+            if (match is not null) signatures.Add(match.Value.Id);
         }
         else if (game.Kind == GameKind.AssettoCorsaEvo)
         {

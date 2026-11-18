@@ -2,6 +2,8 @@ using System.Reflection;
 using PitMedic.Models;
 using PitMedic.Services;
 
+AssettoCorsaTests.Run();
+
 // No simulator or Steam process is launched. All log fixtures stay in a unique temp directory.
 var root = Path.Combine(Path.GetTempPath(), "PitMedic-monitor-tests-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(Path.Combine(root, "logs"));

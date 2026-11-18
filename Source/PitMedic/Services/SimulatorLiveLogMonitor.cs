@@ -28,6 +28,7 @@ public sealed class SimulatorLiveLogMonitor : ILiveLogMonitor
     public static ILiveLogMonitor? Create(GameKind game) => game switch
     {
         GameKind.IRacing => new IRacingLiveLogMonitor(),
+        GameKind.AssettoCorsa => new SimulatorLiveLogMonitor(game, AssettoCorsaFiles, AssettoCorsaPolicy.MatchLog),
         GameKind.AssettoCorsaEvo => new SimulatorLiveLogMonitor(game, AceFiles, MatchAce),
         GameKind.RaceRoom => new SimulatorLiveLogMonitor(game, RaceRoomFiles, MatchRaceRoom),
         GameKind.AssettoCorsaCompetizione => new SimulatorLiveLogMonitor(game, AccFiles, MatchAcc),
@@ -91,6 +92,16 @@ public sealed class SimulatorLiveLogMonitor : ILiveLogMonitor
         try { files = _candidateFiles(); } catch { yield break; }
         foreach (var file in files.Distinct(StringComparer.OrdinalIgnoreCase))
             if (File.Exists(file)) yield return file;
+    }
+
+    private static IEnumerable<string> AssettoCorsaFiles()
+    {
+        var logs = Path.Combine(AssettoCorsaPolicy.DocumentsRoot, "logs");
+        foreach (var name in new[] { "log.txt", "errors.txt" })
+        {
+            var file = Path.Combine(logs, name);
+            if (File.Exists(file)) yield return file;
+        }
     }
 
     private static IEnumerable<string> AceFiles()
@@ -222,6 +233,7 @@ public sealed class SimulatorLiveLogMonitor : ILiveLogMonitor
 
     internal static (string Id, string Category, string Message)? MatchLine(GameKind game, string raw) => game switch
     {
+        GameKind.AssettoCorsa => AssettoCorsaPolicy.MatchLog(raw),
         GameKind.AssettoCorsaEvo => MatchAce(raw),
         GameKind.RaceRoom => MatchRaceRoom(raw),
         GameKind.AssettoCorsaCompetizione => MatchAcc(raw),

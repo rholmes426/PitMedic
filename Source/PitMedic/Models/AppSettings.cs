@@ -4,6 +4,7 @@ public sealed class AppSettings
 {
     public bool MonitorLeMansUltimate { get; set; } = true;
     public bool MonitorIRacing { get; set; } = true;
+    public bool MonitorAssettoCorsa { get; set; } = true;
     public bool MonitorAssettoCorsaEvo { get; set; } = true;
     public bool MonitorRaceRoom { get; set; } = true;
     public bool MonitorAssettoCorsaCompetizione { get; set; } = true;

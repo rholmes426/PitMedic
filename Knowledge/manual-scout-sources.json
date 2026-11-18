@@ -295,6 +295,84 @@
       "access": "indexed-release-notes",
       "checkedOn": "2026-11-13",
       "notes": "Match affected hardware and driver scope; avoid blanket tuning and driver replacement."
+    },
+    {
+      "id": "asetek-steering-wheel-support",
+      "products": [
+        "Asetek RaceHub"
+      ],
+      "authority": "official",
+      "category": "hardware-support",
+      "url": "https://www.asetek.com/simsports/knowledge-base/steering-wheel-troubleshooting/",
+      "searchTemplate": "site:www.asetek.com/simsports/knowledge-base/steering-wheel-troubleshooting/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "article-body-opened",
+      "checkedOn": "2026-11-17",
+      "notes": "Separates corrupted local wheel/display profiles from firmware, driver and physical faults; verify powered-off and app-closed prerequisites."
+    },
+    {
+      "id": "simhub-developer-forum",
+      "products": [
+        "all"
+      ],
+      "authority": "developer",
+      "category": "developer-forum",
+      "url": "https://www.simhubdash.com/community-2/",
+      "searchTemplate": "site:www.simhubdash.com/community-2/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "developer-reply-opened",
+      "checkedOn": "2026-11-17",
+      "notes": "Identify maintainer answers individually. User replies and a solved label do not establish current applicability."
+    },
+    {
+      "id": "tradingpaints-compatibility",
+      "products": [
+        "iRacing"
+      ],
+      "authority": "official",
+      "category": "integration-support",
+      "url": "https://help.tradingpaints.com/downloader/",
+      "searchTemplate": "site:help.tradingpaints.com/downloader/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "article-body-opened",
+      "checkedOn": "2026-11-17",
+      "notes": "Check cross-app compatibility before changing session-string encoding. Adding this source does not add Trading Paints monitoring."
+    },
+    {
+      "id": "raceroom-steam-news",
+      "products": [
+        "RaceRoom Racing Experience"
+      ],
+      "authority": "official",
+      "category": "publisher-announcements",
+      "url": "https://steamcommunity.com/app/211500/allnews/",
+      "searchTemplate": "site:steamcommunity.com/app/211500/allnews/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "publisher-notes-opened",
+      "checkedOn": "2026-11-17",
+      "notes": "Use dated publisher patch notes as a fallback when KW forum routes fail. A vendor patch is guidance, not a PitMedic executable repair."
+    },
+    {
+      "id": "steam-ac",
+      "products": [
+        "Assetto Corsa"
+      ],
+      "authority": "community",
+      "category": "steam-discussions",
+      "url": "https://steamcommunity.com/app/244210/discussions/",
+      "searchTemplate": "site:steamcommunity.com/app/244210/discussions/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "discussion-and-outcome-opened",
+      "checkedOn": "2026-11-17",
+      "notes": "Original Assetto Corsa, separate from EVO and Competizione. Read outcomes, distinguish launcher from race process and preserve mods/configuration."
+    },
+    {
+      "id": "reddit-ac",
+      "products": [
+        "Assetto Corsa"
+      ],
+      "authority": "community",
+      "category": "reddit",
+      "url": "https://www.reddit.com/r/assettocorsa/",
+      "searchTemplate": "site:www.reddit.com/r/assettocorsa/ {product} {symptom} (fixed OR solved OR workaround)",
+      "access": "indexed-discussion-leads",
+      "checkedOn": "2026-11-17",
+      "notes": "Original Assetto Corsa integration discovery. Open the body and outcome before treating a proposed remedy as verified."
     }
   ],
   "queryFamilies": [

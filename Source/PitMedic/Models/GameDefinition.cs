@@ -7,7 +7,8 @@ public enum GameKind
     AssettoCorsaEvo,
     RaceRoom,
     AssettoCorsaCompetizione,
-    Automobilista2
+    Automobilista2,
+    AssettoCorsa
 }
 
 public sealed record GameDefinition(
@@ -24,6 +25,8 @@ public sealed record GameDefinition(
             new[] { "Le Mans Ultimate", "LeMansUltimate", "LMU" }),
         new GameDefinition(GameKind.IRacing, "iRacing", "iRacingSim64DX11.exe",
             new[] { "iRacingSim64DX11", "iRacingSim64DX11_64" }),
+        new GameDefinition(GameKind.AssettoCorsa, "Assetto Corsa", "acs.exe",
+            new[] { "acs", "acs_x86" }),
         new GameDefinition(GameKind.AssettoCorsaEvo, "Assetto Corsa EVO", "AssettoCorsaEVO.exe",
             new[] { "AssettoCorsaEVO" }),
         new GameDefinition(GameKind.RaceRoom, "RaceRoom Racing Experience", "RRRE64.exe",

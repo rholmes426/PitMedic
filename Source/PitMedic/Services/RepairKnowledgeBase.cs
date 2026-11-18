@@ -17,6 +17,50 @@ public static class RepairKnowledgeBase
     {
         new KnowledgeEntry
         {
+            Id = "ac-video-config",
+            Game = "Assetto Corsa",
+            Issue = "Original Assetto Corsa display configuration recovery",
+            Detection = "An exact current-session video.ini failure, or an explicit display-symptom selection in Repair Tools. Normal INI dumps and generic crashes do not select this repair.",
+            RepairStrategy = "After consent and with the simulator, launcher and Content Manager closed, preserve only Documents/Assetto Corsa/cfg/video.ini and remove its active copy. Let AC rebuild display settings. Retest a stock car and track; Restore last backup preserves the new configuration before restoring the original.",
+            Safety = "Ask first / display settings reset / retained backup and Restore",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Assetto Corsa graphics settings recovery", "OverTake community", "https://www.overtake.gg/threads/assetto-corsa-gfx-pp-settings.121820/", "A first-hand outcome confirms regeneration of the user video.ini. Community evidence, not a vendor or local gameplay-success claim.", false),
+                Ref("Original AC video settings location", "Assetto Corsa Steam Community", "https://steamcommunity.com/app/244210/discussions/0/4853280859653327951/", "Documents/Assetto Corsa/cfg/video.ini is the user display file, separate from installation defaults.", false)
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ac-controls-config",
+            Game = "Assetto Corsa",
+            Issue = "Original Assetto Corsa wheel or pedals do not respond in a race",
+            Detection = "An exact current-session controls.ini failure, or an explicit controls-symptom selection in Repair Tools. Missing inputs alone do not establish damaged settings.",
+            RepairStrategy = "After consent and with the simulator, launcher and Content Manager closed, preserve only Documents/Assetto Corsa/cfg/controls.ini and remove its active copy. Remap and recalibrate in AC or Content Manager, retest, and use Restore last backup if ineffective. Saved controller presets, car setups, mods and other configuration files are preserved.",
+            Safety = "Ask first / active bindings and calibration reset / retained backup and Restore",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Inputs work in settings but not in race", "Assetto Corsa Steam Community", "https://steamcommunity.com/app/244210/discussions/0/2263564102386178208/", "The original reporter confirms controls.ini regeneration followed by manual reassignment restored input. Community evidence; device-specific behavior still needs an in-game retest.", false),
+                Ref("Wheel detected but not working while driving", "Assetto Corsa Steam Community", "https://steamcommunity.com/app/244210/discussions/0/523897277919045091/", "Independent users discuss controls.ini recovery and explicit manual reassignment, with broader mixed steps kept outside PitMedic's action.", false)
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "ac-steam-content",
+            Game = "Assetto Corsa",
+            Issue = "Original Assetto Corsa installed game-file verification",
+            Detection = "The user selects original Assetto Corsa game-file verification in Repair Tools. A generic mod error or clean launcher exit does not automatically start it.",
+            RepairStrategy = "With approval, start Steam validation for app 244210 after closing AC, its launcher and Content Manager. Steam checks packaged stock files. Wait for downloads and test a stock car and track. Steam may replace modified stock files; preserve those separately first. Third-party mods, CSP and Content Manager are not reinstalled or repaired.",
+            Safety = "Ask first / Steam may replace modified stock files / wait for downloads and retest",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Verify integrity of game files", "Steam Support", "https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB", "Valve documents checking installed game files; starting verification is not proof that the game is fixed.")
+            }
+        },
+        new KnowledgeEntry
+        {
             Id = "lmu-controller-config",
             Game = "Le Mans Ultimate",
             Issue = "Wheel, pedal or button configuration no longer works",
@@ -953,6 +997,7 @@ public static class RepairKnowledgeBase
         planId = ScopedConfigurationRepair.IsSupported(planId) ? ScopedConfigurationRepair.BaseId(planId) : planId;
         var id = planId switch
         {
+            "ac-steam-verify" => "ac-steam-content",
             "lmu-targeted-content-reacquire" => "lmu-content-corruption",
             "lmu-steam-verify" => "lmu-content-corruption",
             "lmu-reset-dx11-config" => "lmu-startup-config",
