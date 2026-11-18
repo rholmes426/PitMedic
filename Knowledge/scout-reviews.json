@@ -93,7 +93,7 @@
     "url": "https://support.logi.com/hc/en-gb/articles/360048967733-G-HUB-Update-Release-Notes",
     "status": "queued",
     "reviewedAt": "2026-11-07T23:47:16Z",
-    "note": "Queued November 7: 2026.7 app-to-service connectivity, process updates and agent shutdown guidance. Prior 2026.4–2026.6 guidance remains in the catalog. The historical memory fix provides no evidence of harmful PitMedic recovery."
+    "note": "Queued November 7: 2026.7 app-to-service connectivity, process updates and agent shutdown guidance. Prior 2026.4\u00e2\u20ac\u201c2026.6 guidance remains in the catalog. The historical memory fix provides no evidence of harmful PitMedic recovery."
   },
   {
     "url": "https://mozaracing.com/pages/download-center",
@@ -236,7 +236,43 @@
   {
     "url": "https://steamcommunity.com/app/211500/allnews",
     "status": "queued",
-    "reviewedAt": "2026-11-07T23:47:16Z",
-    "note": "Official Steam patch notes reviewed after both Scout forum sources returned HTTP 503. Add a version check for the 0.9.9.14/0.9.9.15 loading and wheel force feedback fixes."
+    "reviewedAt": "2026-11-18T05:32:05.579107Z",
+    "note": "November 11/15/17 publisher fixes rechecked. Existing RaceRoom update guide gains manual symptom/version checks; no new automatic repair claimed."
+  },
+  {
+    "url": "https://www.asetek.com/simsports/knowledge-base/steering-wheel-troubleshooting/",
+    "status": "queued",
+    "reviewedAt": "2026-11-18T05:32:05.579107Z",
+    "note": "KS-MAN-AS-RACEHUB-CACHE: new scoped wheel/display-profile recovery proposal; powered-off and app-closed prerequisites, retained backup/Restore and live detection retest required. Library work paired in the November 17 review."
+  },
+  {
+    "url": "https://github.com/SHWotever/SimHub/wiki/SimHub-Basics----Games-config-and-troubleshooting",
+    "status": "queued",
+    "reviewedAt": "2026-11-18T05:32:05.579107Z",
+    "note": "KS-MAN-IR-SIMHUB revalidated and narrowed to an existing [Misc] irsdkEnableMem=0 to 1. Preserve logging-rate/encoding settings; no blanket 360 Hz or UTF-8 change. Implementation and functional retest pending."
+  },
+  {
+    "url": "https://github.com/SHWotever/SimHub/issues/2388",
+    "status": "needs-evidence",
+    "reviewedAt": "2026-11-18T05:32:05.579107Z",
+    "note": "KS-MAN-IR-UTF8-COMPAT: maintainer confirms an encoding remedy but warns about incompatible consumers. Trading Paints stable 2.1.5 documents the opposite setting requirement; do not apply a universal change or equate closed with released."
+  },
+  {
+    "url": "https://github.com/SHWotever/SimHub/issues/2260",
+    "status": "needs-evidence",
+    "reviewedAt": "2026-11-18T05:32:05.579107Z",
+    "note": "KS-MAN-SIMPRO-HPR: November 15 maintainer reply supports a legacy SimPro 3.0.3 ownership conflict. Current 3.2.x applicability and firmware-state observability remain unverified; no automatic downgrade/termination."
+  },
+  {
+    "url": "https://guide.lemansultimate.com/hc/en-gb/articles/13240843908623-Known-Issues-and-Advice",
+    "status": "needs-evidence",
+    "reviewedAt": "2026-11-18T05:32:05.579107Z",
+    "note": "KS-MAN-LMU-DIRECTINPUT: official advice strengthens prior community lead, but current file naming conflicts with older notes and V1.4 includes related fixes. Queue a version/layout-gated test; matching controller guide adds separate manual checks."
+  },
+  {
+    "url": "https://docs.simucube.com/TunerSoftware/games/Automobilista2.html",
+    "status": "needs-evidence",
+    "reviewedAt": "2026-11-18T05:32:05.579107Z",
+    "note": "KS-MAN-AMS2-SHARED-MEMORY: vendor documents Project CARS 2 shared-memory mode. No proven stable configuration-write surface in this audit; keep automatic mutation pending format/current-build validation."
   }
 ]

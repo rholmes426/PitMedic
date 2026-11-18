@@ -160,6 +160,7 @@ public partial class MainWindow : Window
     {
         _navButtons[GameKind.LeMansUltimate] = LmuNav;
         _navButtons[GameKind.IRacing] = IRacingNav;
+        _navButtons[GameKind.AssettoCorsa] = AcNav;
         _navButtons[GameKind.AssettoCorsaEvo] = AceNav;
         _navButtons[GameKind.RaceRoom] = RaceRoomNav;
         _navButtons[GameKind.AssettoCorsaCompetizione] = AccNav;
@@ -167,6 +168,7 @@ public partial class MainWindow : Window
 
         _navStatuses[GameKind.LeMansUltimate] = LmuStatus;
         _navStatuses[GameKind.IRacing] = IRacingStatus;
+        _navStatuses[GameKind.AssettoCorsa] = AcStatus;
         _navStatuses[GameKind.AssettoCorsaEvo] = AceStatus;
         _navStatuses[GameKind.RaceRoom] = RaceRoomStatus;
         _navStatuses[GameKind.AssettoCorsaCompetizione] = AccStatus;
@@ -174,6 +176,7 @@ public partial class MainWindow : Window
 
         _navDots[GameKind.LeMansUltimate] = LmuDot;
         _navDots[GameKind.IRacing] = IRacingDot;
+        _navDots[GameKind.AssettoCorsa] = AcDot;
         _navDots[GameKind.AssettoCorsaEvo] = AceDot;
         _navDots[GameKind.RaceRoom] = RaceRoomDot;
         _navDots[GameKind.AssettoCorsaCompetizione] = AccDot;
@@ -440,6 +443,7 @@ public partial class MainWindow : Window
         HomeMonitoringSummary.Text = $"{monitored} monitored · {running} running";
         SetHomeReadiness(HomeLmuStatus, GameKind.LeMansUltimate);
         SetHomeReadiness(HomeIRacingStatus, GameKind.IRacing);
+        SetHomeReadiness(HomeAcStatus, GameKind.AssettoCorsa);
         SetHomeReadiness(HomeAceStatus, GameKind.AssettoCorsaEvo);
         SetHomeReadiness(HomeRaceRoomStatus, GameKind.RaceRoom);
         SetHomeReadiness(HomeAccStatus, GameKind.AssettoCorsaCompetizione);
@@ -580,7 +584,7 @@ public partial class MainWindow : Window
         if (SelectedSimulatorTitle is null) return;
 
         var name = UiGameName(_selectedGame);
-        ConfigurationRepairButton.Visibility = ScopedConfigurationRepair.Options.Any(x => x.Game == _selectedGame) ? Visibility.Visible : Visibility.Collapsed;
+        ConfigurationRepairButton.Visibility = UserRequestedRepairPolicy.OptionsFor(_selectedGame).Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         var active = ActiveIncidentFor(_selectedGame);
         var latest = IncidentsFor(_selectedGame).FirstOrDefault();
         _selectedPrimaryIncident = active ?? latest;
@@ -776,6 +780,7 @@ public partial class MainWindow : Window
     {
         GameKind.LeMansUltimate => _settings.MonitorLeMansUltimate,
         GameKind.IRacing => _settings.MonitorIRacing,
+        GameKind.AssettoCorsa => _settings.MonitorAssettoCorsa,
         GameKind.AssettoCorsaEvo => _settings.MonitorAssettoCorsaEvo,
         GameKind.RaceRoom => _settings.MonitorRaceRoom,
         GameKind.AssettoCorsaCompetizione => _settings.MonitorAssettoCorsaCompetizione,
@@ -787,6 +792,7 @@ public partial class MainWindow : Window
     {
         GameKind.LeMansUltimate => "LMU",
         GameKind.IRacing => "IRACING",
+        GameKind.AssettoCorsa => "ASSETTO CORSA",
         GameKind.AssettoCorsaEvo => "AC EVO",
         GameKind.RaceRoom => "RACEROOM",
         GameKind.AssettoCorsaCompetizione => "ACC",

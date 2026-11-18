@@ -1,5 +1,50 @@
 # PitMedic pending updates
 
+## Queued - original Assetto Corsa support (November 17, 2026)
+
+Implemented for the next supporting app release; public app remains 1.0.0.12.
+
+- Separate original-AC navigation/monitoring setting, tracking `acs`/`acs_x86`
+  races rather than the persistent launcher or Content Manager.
+- Fresh exact log/fault evidence and normal-exit safeguards; no generic mod-crash
+  settings reset. Symptom-selected Repair Tools work without a crash.
+- Approved, backed-up `video.ini` and `controls.ini` recovery with Restore,
+  closed-launcher/Content Manager guards, and original-game Steam verification
+  (244210) with an estimate, modified-stock-file warning and honest retest state.
+- Three paired guides prepared: `ac-video-config`, `ac-controls-config`,
+  `ac-steam-content`. Availability is gated to 1.0.0.13 or later; group, sitemap
+  and homepage original-AC lineup link appear with the supporting release.
+- RaceRoom Racing Experience already has app/library coverage; no duplicate added.
+- Fixture regression and generation validation cover this work; live original-AC
+  gameplay and wheel retests remain user/hardware validation, not claimed success.
+
+## Manual Scout review - November 17, 2026
+
+[Evidence, coverage, exact mutation/rollback plans and paired library work](Research/KnowledgeScoutReview-2026-11-17.md).
+Source inventory expanded from 49 to 55 entries. Manual-only process retained.
+Two repair proposals (one new, one revalidated), two access improvements, four
+validation candidates and three guidance items; original-AC implementation above
+is separate. Research proposals below are not active available repairs.
+
+| Priority / ID | Work and next validation | Diagnostic Library deliverable / status |
+| --- | --- | --- |
+| First batch - KS-MAN-AS-RACEHUB-CACHE | New exact wheel/display-profile recovery; power-off, firmware/update guards, backup/Restore, detection retest | Proposed `asetek-wheel-detection-config`, linked from `companion-asetek-clean-recovery` |
+| First batch - KS-MAN-IR-SIMHUB | Revalidated existing November 13 item: only existing `[Misc] irsdkEnableMem=0` to `1`; close/updater guards, consent, Restore, live data retest | Proposed `iracing-simhub-data-config`; no bundled logging-rate or encoding edit |
+| Access - KS-MAN-COMPANION-REQUEST | User-requested Fanatec/G HUB recovery using validated installed executables and retained firmware/game guards | Proposed updates to `companion-fanatec-clean-recovery` and `companion-logitech-ghub-service-recovery` |
+| Access - KS-MAN-SIM-REQUEST | Reach existing ACC/AMS2/EVO/RaceRoom recovery by symptom after each transaction/Restore validates | Proposed updates to `acc-controls`, `ams2-controller-config`, `ace-video-settings`, `raceroom-graphics-config` |
+| Validation - KS-MAN-IR-UTF8-COMPAT | SimHub decoding advice conflicts with Trading Paints stable 2.1.5; identify consumers/released versions before any setting test | Proposed compatibility section in `iracing-simhub-data-config`; no universal encoding toggle |
+| Validation - KS-MAN-AMS2-SHARED-MEMORY | Project CARS 2 memory mode documented; stable current configuration-write format unverified | Proposed `ams2-companion-telemetry-config` if a narrow action validates |
+| Validation - KS-MAN-SIMPRO-HPR | Legacy SimPro 3.0.3 ownership conflict; current 3.2.4 applicability and firmware state unresolved | Proposed updates to `companion-simagic-clean-recovery` and planned `iracing-simhub-data-config` |
+| Guidance - KS-MAN-LMU-STARTUP-CLAIMS | Align historical CEF claims with current Coherent layout and actual two-INI executor | Queued coordinated app knowledge and `lmu-startup-config` correction |
+
+Existing `KS-MAN-LMU-DIRECTINPUT` is strengthened by current official advice but
+still needs current file/version/hardware validation; its existing queue entry
+below remains the single repair proposal. The prepared `lmu-controller-config`
+guide adds separate manual checks now. Existing RaceRoom update guidance gains
+November 11/15/17 symptom/version checks in the same website publication batch.
+These two guide edits add no automatic repair; live publication must be verified.
+Simagic polling and Simucube Link-port hardware tests remain pending, not new.
+
 ## Published 1.0.0.12 — app and Diagnostic Library (November 14, 2026)
 
 The owner authorized the next signed public release. Includes the merged crash
@@ -28,7 +73,7 @@ remaining IDs are proposals pending their recorded validation.
 | KS-MAN-IR-77 | Update `iracing-track-loading-errors` and `iracing-car-loading-errors` with exact Error 77 routing and target limits | Published in 1.0.0.12 with the paired guide updates |
 | KS-MAN-IR-SIMAGIC | New planned guide `iracing-simagic-stutter` if the scoped repair validates | Awaiting repair validation |
 | KS-MAN-IR-SIMHUB | New planned guide `iracing-simhub-data-config` if current compatibility and repair validate | Awaiting repair validation |
-| KS-MAN-LMU-DIRECTINPUT | New planned guide `lmu-directinput-pedal-flicker`, cross-reference controller recovery and prefer the less disruptive validated option | Awaiting current-build evidence |
+| KS-MAN-LMU-DIRECTINPUT | Existing `lmu-controller-config` manual checks prepared; future `lmu-directinput-pedal-flicker` only with validated narrow repair | Current official advice obtained November 17; filename/version conflict and hardware test remain |
 | Existing Simucube Link-port item | Update `iracing-simucube-link-port-ffb-guidance` when automation validates | Current published manual guidance retained |
 
 Completion requires app knowledge/reference/lifecycle changes as applicable,
@@ -57,8 +102,8 @@ than assumed shipped. Public repair claims match the released executable coverag
 | First batch — KS-MAN-IR-63 | Error 63-specific backed-up app.ini regeneration | Shipped exact error routing, one-file recovery, consent and Restore; users retest spotter loading |
 | First batch — KS-MAN-IR-77 | Route Error 77 to existing content recovery | Shipped exact single-target extraction and bounded recovery; ambiguous evidence uses verification |
 | Validation — KS-MAN-IR-SIMAGIC | One-setting Simagic/360 Hz stutter A/B test | Current hardware/key scope and tradeoffs; no global automatic disabling |
-| Validation — KS-MAN-IR-SIMHUB | Check/repair missing SimHub iRacing data configuration | Current developer compatibility, settings consent and practice-session validation |
-| Evidence — KS-MAN-LMU-DIRECTINPUT | Pedal-flicker fallback without resetting all bindings | Current-build hardware reproduction or vendor confirmation; community-only lead |
+| Validation - KS-MAN-IR-SIMHUB | Narrow existing irsdkEnableMem=0 to 1; no logging-rate/encoding bundle | Revalidated November 17; exact edit/Restore, consent and live data test pending |
+| Evidence - KS-MAN-LMU-DIRECTINPUT | Pedal-flicker fallback without resetting all bindings | Official advice rechecked November 17; current file/version conflict and hardware reproduction remain |
 
 Existing iRacing/Simucube Link-port automation remains pending hardware validation;
 its 1.0.0.11 guidance is already published and is not counted as new. New repairs

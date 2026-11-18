@@ -30,7 +30,8 @@ Scout is owner-initiated only. When asked for a Scout review, follow
 validate actual remedies and outcomes, compare with runtime coverage, and persist
 ranked implementation proposals. Use the expanded
 [manual source inventory](manual-scout-sources.json), which supplements the
-27 enabled vendor sources with 22 community, developer and platform entries.
+27 enabled vendor sources with 28 community, developer and platform entries.
+The expanded inventory includes original Assetto Corsa and cross-app compatibility sources.
 A keyword report is intake material, not a completed review. Every proposal must
 include a matching Diagnostic Library deliverable. Implemented fixes update the
 app-owned knowledge and generated guides together, with publication claims tied

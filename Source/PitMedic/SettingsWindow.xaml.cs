@@ -28,6 +28,7 @@ public partial class SettingsWindow : Window
     {
         MonitorLmu.IsChecked = s.MonitorLeMansUltimate;
         MonitorIRacing.IsChecked = s.MonitorIRacing;
+        MonitorAc.IsChecked = s.MonitorAssettoCorsa;
         MonitorAce.IsChecked = s.MonitorAssettoCorsaEvo;
         MonitorRaceRoom.IsChecked = s.MonitorRaceRoom;
         MonitorAcc.IsChecked = s.MonitorAssettoCorsaCompetizione;
@@ -63,6 +64,7 @@ public partial class SettingsWindow : Window
         {
             MonitorLeMansUltimate = MonitorLmu.IsChecked == true,
             MonitorIRacing = MonitorIRacing.IsChecked == true,
+            MonitorAssettoCorsa = MonitorAc.IsChecked == true,
             MonitorAssettoCorsaEvo = MonitorAce.IsChecked == true,
             MonitorRaceRoom = MonitorRaceRoom.IsChecked == true,
             MonitorAssettoCorsaCompetizione = MonitorAcc.IsChecked == true,

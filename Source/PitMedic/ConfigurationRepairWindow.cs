@@ -9,6 +9,7 @@ public sealed class ConfigurationRepairWindow : Window
 {
     private readonly ComboBox _choices;
     private readonly TextBlock _description;
+    private readonly Button _restore;
     private readonly MonitoringCoordinator _monitoring;
     private readonly GameKind _game;
     private readonly Action<IncidentSummary> _openRequest;
@@ -32,7 +33,7 @@ public sealed class ConfigurationRepairWindow : Window
         });
         _choices = new ComboBox
         {
-            ItemsSource = ScopedConfigurationRepair.Options.Where(x => x.Game == game)
+            ItemsSource = UserRequestedRepairPolicy.OptionsFor(game)
                 .Select(x => new ComboBoxItem { Content = x.Title, Tag = x }).ToArray(),
             SelectedIndex = 0, MinHeight = 38
         };
@@ -43,20 +44,25 @@ public sealed class ConfigurationRepairWindow : Window
         var apply = new Button { Content = "Review repair", Padding = new Thickness(16, 10, 16, 10), Margin = new Thickness(0, 0, 12, 12) };
         apply.SetResourceReference(StyleProperty, "PrimaryButtonStyle");
         apply.Click += (_, _) => Open(false);
-        var restore = new Button { Content = "Restore last backup", Padding = new Thickness(16, 10, 16, 10), Margin = new Thickness(0, 0, 0, 12),
+        _restore = new Button { Content = "Restore last backup", Padding = new Thickness(16, 10, 16, 10), Margin = new Thickness(0, 0, 0, 12),
             ToolTip = "Restore the latest completed backup for the selected repair. Current files are preserved before Restore." };
-        restore.Click += (_, _) => Open(true);
-        actions.Children.Add(apply); actions.Children.Add(restore); panel.Children.Add(actions);
+        _restore.Click += (_, _) => Open(true);
+        actions.Children.Add(apply); actions.Children.Add(_restore); panel.Children.Add(actions);
         panel.Children.Add(new TextBlock
         {
-            Text = "File changes are verified, then you retest the same symptom. A completed repair operation does not guarantee that this was the cause.",
+            Text = "PitMedic records the operation. Retest the same symptom after it finishes; completing an operation does not establish that this was the cause.",
             TextWrapping = TextWrapping.Wrap, FontSize = 12
         });
-        Content = panel;
+        Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         ShowDescription();
     }
 
-    private void ShowDescription() => _description.Text = ((_choices.SelectedItem as ComboBoxItem)?.Tag as ConfigurationRepairOption)?.Description ?? "";
+    private void ShowDescription()
+    {
+        var option = (_choices.SelectedItem as ComboBoxItem)?.Tag as ConfigurationRepairOption;
+        _description.Text = option?.Description ?? "";
+        if (_restore is not null) _restore.IsEnabled = option is not null && option.Files.Length > 0;
+    }
 
     private void Open(bool restore)
     {

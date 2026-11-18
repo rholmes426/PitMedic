@@ -41,6 +41,10 @@ public static class RepairPlanner
             return CreateIRacingPlan(classification.Category, evidence);
         }
 
+        if (game.Kind == GameKind.AssettoCorsa)
+            return AssettoCorsaPolicy.PlanFromEvidence(classification.Evidence.Concat(
+                (liveFaults ?? Array.Empty<LiveFaultEvidence>()).Select(f => f.ToEvidenceText())));
+
         if (game.Kind == GameKind.AssettoCorsaEvo)
         {
             var signatures = collected.RepairSignatureIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -113,13 +117,15 @@ public static class RepairPlanner
     public static RepairPlan? TryCreateFromIncident(IncidentRecord record)
     {
         if (record.Classification.Category == ScopedConfigurationRepair.RequestCategory)
-            return ScopedConfigurationRepair.FromRequest(record);
+            return UserRequestedRepairPolicy.FromRequest(record);
         // Reassess old findings before accepting even a serialized repair plan.
         if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(record)
             || LegacyProcessExitPolicy.IsUnverifiedRunningStatus(record)) return null;
         // Reconstruct iRacing plans even when an older app saved a different recommendation.
         if (record.Game.Equals("iRacing", StringComparison.OrdinalIgnoreCase))
             return CreateIRacingPlan(record.Classification.Category, record.Classification.Evidence);
+        if (record.Game.Equals("Assetto Corsa", StringComparison.OrdinalIgnoreCase))
+            return AssettoCorsaPolicy.PlanFromEvidence(record.Classification.Evidence);
         if (record.RecommendedRepair is not null
             && !record.RecommendedRepair.Id.Equals("companion-app-restart", StringComparison.OrdinalIgnoreCase))
             return record.RecommendedRepair;

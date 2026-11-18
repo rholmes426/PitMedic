@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../PitMedic/Services/AssettoCorsaPolicy.cs" Link="AssettoCorsaPolicy.cs" />
+    <Compile Include="../PitMedic/Services/UserRequestedRepairPolicy.cs" Link="UserRequestedRepairPolicy.cs" />
     <Compile Include="../PitMedic/Services/ScopedConfigurationRepair.cs" Link="ScopedConfigurationRepair.cs" />
     <Compile Include="../PitMedic/Services/IRacingLoadingError77Policy.cs" Link="IRacingLoadingError77Policy.cs" />
     <Compile Include="../PitMedic/Services/IRacingLocator.cs" Link="IRacingLocator.cs" />
