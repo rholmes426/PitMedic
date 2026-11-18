@@ -273,7 +273,7 @@ finally
 }
 
 AssertTrue(
-    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly) == 59,
+    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly) == 60,
     "Every simulator repair implemented for this release must have a formal knowledge record.");
 AssertTrue(
     RepairKnowledgeBase.DiagnosticLibraryUrlForPlan("ams2-controller-reset")
