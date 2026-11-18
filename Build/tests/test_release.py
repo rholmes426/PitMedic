@@ -37,6 +37,9 @@ class ReleaseTests(unittest.TestCase):
             auth = request.get_header('Authorization') if isinstance(request, release.urllib.request.Request) else None
             observed.append((url, auth))
             if url.startswith('https://api.github.com/'):
+                redirected = release.urllib.request.HTTPRedirectHandler().redirect_request(
+                    request, None, 302, 'Found', {}, 'https://example.invalid/redirect')
+                self.assertIsNone(redirected.get_header('Authorization'))
                 body = json.dumps(dict(tag_name='v1.0.0.12', draft=False, prerelease=False,
                     assets=[dict(name='PitMedic-Setup-x64.exe', browser_download_url=manifest['downloadUrl'],
                         digest='sha256:' + ('wrong' if bad_asset else checksum))])).encode()
