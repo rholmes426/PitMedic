@@ -1,5 +1,6 @@
 import importlib.util
 from pathlib import Path
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -30,6 +31,25 @@ class LibraryAvailabilityTests(unittest.TestCase):
         current = {entry["id"] for entry in generator.load_entries()}
         self.assertEqual(NEW_IDS, current - previous)
         self.assertTrue(previous <= current)
+
+    def test_rfactor2_section_is_published_with_its_first_supported_release(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for version, expected in (("1.0.0.12", False), ("1.0.0.13", True)):
+                with self.subTest(version=version):
+                    generator.RELEASE_VERSION = version
+                    destination = root / version
+                    sitemap = root / f"sitemap-{version}.xml"
+                    generator.generate(destination, sitemap)
+                    index = (destination / "index.html").read_text(encoding="utf-8")
+                    self.assertEqual('id="rfactor2"' in index, expected)
+                    for guide in ("rfactor2-steam-content", "rfactor2-trace-log"):
+                        self.assertEqual((destination / guide / "index.html").is_file(), expected)
+                        self.assertEqual(guide in sitemap.read_text(encoding="utf-8"), expected)
+                    if expected:
+                        page = (destination / "rfactor2-steam-content" / "index.html").read_text(encoding="utf-8")
+                        self.assertIn("Start this check in PitMedic", page)
+                        self.assertIn("Verify Steam files", page)
 
     def test_bad_availability_metadata_stops_generation(self):
         item = generator.PUBLIC_CONTENT["lmu-controller-config"]

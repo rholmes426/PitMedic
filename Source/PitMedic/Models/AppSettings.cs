@@ -7,6 +7,7 @@ public sealed class AppSettings
     public bool MonitorAssettoCorsaEvo { get; set; } = true;
     public bool MonitorRaceRoom { get; set; } = true;
     public bool MonitorAssettoCorsaCompetizione { get; set; } = true;
+    public bool MonitorRFactor2 { get; set; } = true;
     public bool MonitorAutomobilista2 { get; set; } = true;
     public bool MonitorCompanionSoftware { get; set; } = true;
 

@@ -1,5 +1,14 @@
 # PitMedic pending updates
 
+## Queued for next app release
+
+- rFactor 2 Steam client monitoring and a dedicated simulator page, with optional
+  Studio 397 trace logs preserved for review alongside Windows crash evidence.
+- **Verify Steam files** requests Steam verification after approval without guessing
+  a repair from a generic crash. Wait for Steam Downloads before retesting.
+- The Diagnostic Library generates the rFactor 2 section and both guides when the
+  published download reaches 1.0.0.13 or later.
+
 ## Published 1.0.0.12 — app and Diagnostic Library (November 14, 2026)
 
 The owner authorized the next signed public release. Includes the merged crash

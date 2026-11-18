@@ -7,7 +7,8 @@ public enum GameKind
     AssettoCorsaEvo,
     RaceRoom,
     AssettoCorsaCompetizione,
-    Automobilista2
+    Automobilista2,
+    RFactor2
 }
 
 public sealed record GameDefinition(
@@ -31,6 +32,8 @@ public sealed record GameDefinition(
         new GameDefinition(GameKind.AssettoCorsaCompetizione, "Assetto Corsa Competizione", "AC2-Win64-Shipping.exe",
             new[] { "AC2-Win64-Shipping", "AC2" }),
         new GameDefinition(GameKind.Automobilista2, "Automobilista 2", "AMS2AVX.exe",
-            new[] { "AMS2AVX", "AMS2" })
+            new[] { "AMS2AVX", "AMS2" }),
+        new GameDefinition(GameKind.RFactor2, "rFactor 2", "rFactor2.exe",
+            new[] { "rFactor2" })
     };
 }

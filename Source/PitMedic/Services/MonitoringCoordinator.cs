@@ -95,6 +95,8 @@ public sealed class MonitoringCoordinator : IDisposable
     }
     public IncidentSummary CreateConfigurationRepairRequest(GameKind game, string id) => _incidents.CreateConfigurationRepairRequest(game, id);
 
+    public IncidentSummary CreateRFactor2VerificationRequest() => _incidents.CreateRFactor2VerificationRequest();
+
     public bool AcknowledgeIncident(string folder) => _incidents.Acknowledge(folder);
 
     public void CancelRepair() => _repairs.Cancel();

@@ -164,6 +164,7 @@ public partial class MainWindow : Window
         _navButtons[GameKind.RaceRoom] = RaceRoomNav;
         _navButtons[GameKind.AssettoCorsaCompetizione] = AccNav;
         _navButtons[GameKind.Automobilista2] = Ams2Nav;
+        _navButtons[GameKind.RFactor2] = RFactor2Nav;
 
         _navStatuses[GameKind.LeMansUltimate] = LmuStatus;
         _navStatuses[GameKind.IRacing] = IRacingStatus;
@@ -171,6 +172,7 @@ public partial class MainWindow : Window
         _navStatuses[GameKind.RaceRoom] = RaceRoomStatus;
         _navStatuses[GameKind.AssettoCorsaCompetizione] = AccStatus;
         _navStatuses[GameKind.Automobilista2] = Ams2Status;
+        _navStatuses[GameKind.RFactor2] = RFactor2Status;
 
         _navDots[GameKind.LeMansUltimate] = LmuDot;
         _navDots[GameKind.IRacing] = IRacingDot;
@@ -178,6 +180,7 @@ public partial class MainWindow : Window
         _navDots[GameKind.RaceRoom] = RaceRoomDot;
         _navDots[GameKind.AssettoCorsaCompetizione] = AccDot;
         _navDots[GameKind.Automobilista2] = Ams2Dot;
+        _navDots[GameKind.RFactor2] = RFactor2Dot;
 
         foreach (var button in _navButtons.Values)
             button.Checked += SimulatorNav_Checked;
@@ -444,6 +447,7 @@ public partial class MainWindow : Window
         SetHomeReadiness(HomeRaceRoomStatus, GameKind.RaceRoom);
         SetHomeReadiness(HomeAccStatus, GameKind.AssettoCorsaCompetizione);
         SetHomeReadiness(HomeAms2Status, GameKind.Automobilista2);
+        SetHomeReadiness(HomeRFactor2Status, GameKind.RFactor2);
         RefreshHomeCompanionSoftware(companions);
 
         if (_monitoring.CurrentRepair?.IsActive == true)
@@ -581,6 +585,7 @@ public partial class MainWindow : Window
 
         var name = UiGameName(_selectedGame);
         ConfigurationRepairButton.Visibility = ScopedConfigurationRepair.Options.Any(x => x.Game == _selectedGame) ? Visibility.Visible : Visibility.Collapsed;
+        RFactor2VerifyButton.Visibility = _selectedGame == GameKind.RFactor2 ? Visibility.Visible : Visibility.Collapsed;
         var active = ActiveIncidentFor(_selectedGame);
         var latest = IncidentsFor(_selectedGame).FirstOrDefault();
         _selectedPrimaryIncident = active ?? latest;
@@ -780,6 +785,7 @@ public partial class MainWindow : Window
         GameKind.RaceRoom => _settings.MonitorRaceRoom,
         GameKind.AssettoCorsaCompetizione => _settings.MonitorAssettoCorsaCompetizione,
         GameKind.Automobilista2 => _settings.MonitorAutomobilista2,
+        GameKind.RFactor2 => _settings.MonitorRFactor2,
         _ => false
     };
 
@@ -791,6 +797,7 @@ public partial class MainWindow : Window
         GameKind.RaceRoom => "RACEROOM",
         GameKind.AssettoCorsaCompetizione => "ACC",
         GameKind.Automobilista2 => "AMS2",
+        GameKind.RFactor2 => "RFACTOR 2",
         _ => "SIMULATOR"
     };
 
@@ -1019,6 +1026,33 @@ public partial class MainWindow : Window
     {
         var window = new ConfigurationRepairWindow(_monitoring, _selectedGame, AddIncident) { Owner = this };
         window.ShowDialog();
+    }
+
+    private void OpenRFactor2Verification_Click(object sender, RoutedEventArgs e)
+    {
+        if (_monitoring.CurrentRepair?.IsActive == true)
+        {
+            MessageBox.Show(this, "Wait for the current repair to finish.", "PitMedic");
+            return;
+        }
+        if (_monitoring.IsGameRunning(GameKind.RFactor2))
+        {
+            MessageBox.Show(this, "Close rFactor 2 before verifying its files.", "PitMedic");
+            return;
+        }
+        try
+        {
+            AddIncident(_monitoring.CreateRFactor2VerificationRequest());
+        }
+        catch (IOException ex)
+        {
+            MessageBox.Show(this, ex.Message, "rFactor 2 file verification", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            MessageBox.Show(this, "PitMedic could not save the repair request.", "rFactor 2 file verification",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     private void OpenIncidents_Click(object sender, RoutedEventArgs e) => OpenIncidentHistory();

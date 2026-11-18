@@ -289,6 +289,13 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
     display_issue = f"{product} crash or stale-process recovery" if is_companion else issue
     canonical = f"{BASE_URL}/diagnostic-library/{entry['id']}/"
     editorial = PUBLIC_CONTENT.get(str(entry["id"]), {})
+    user_requested = editorial.get("user_requested", False)
+    aside_heading = "Compare your symptoms" if is_guidance else "Let PitMedic check it"
+    aside_summary = ("This is version-specific guidance for manual review. It does not add automatic detection or a repair action."
+                     if is_guidance else "PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.")
+    if user_requested:
+        aside_heading = "Start this check in PitMedic"
+        aside_summary = "Open the simulator page and choose Verify Steam files. PitMedic asks for approval before it hands the request to Steam."
     display_issue = str(editorial.get("heading") or display_issue)
     description = str(editorial.get("description") or (
         f"How PitMedic detects and performs a controlled recovery after a {product} crash or stale process."
@@ -383,11 +390,11 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
-{explanation_html}{manual_html}        <section class="diagnostic-card"><h2>{"When to consider this guidance" if is_guidance else "How PitMedic recognizes it"}</h2><p>{esc(entry["detection"])}</p>{details}</section>
+{explanation_html}{manual_html}        <section class="diagnostic-card"><h2>{"When to consider this guidance" if is_guidance else "When to use this check" if user_requested else "How PitMedic recognizes it"}</h2><p>{esc(entry["detection"])}</p>{details}</section>
         <section class="diagnostic-card"><h2>{"Suggested manual checks" if is_guidance else "Built-in response"}</h2><p>{esc(entry["repair"])}</p><div class="safety-note"><strong>Repair safety</strong><span>{esc(entry["safety"])}</span></div></section>
 {examples_html}        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list">{source_items}</ul></section>
       </div>
-      <aside class="library-aside"><h2>{"Compare your symptoms" if is_guidance else "Let PitMedic check it"}</h2><p>{"This is version-specific guidance for manual review. It does not add automatic detection or a repair action." if is_guidance else "PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present."}</p><a class="button button-primary" href="{RELEASE_URL}">Download v{RELEASE_VERSION}</a>{product_link}<small>Free and open source · Windows 10/11</small></aside>
+      <aside class="library-aside"><h2>{esc(aside_heading)}</h2><p>{esc(aside_summary)}</p><a class="button button-primary" href="{RELEASE_URL}">Download v{RELEASE_VERSION}</a>{product_link}<small>Free and open source · Windows 10/11</small></aside>
     </div>
     <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>{"Other companion software recoveries" if is_companion else "More for " + esc(product)}</h2><div>{related_html}</div></nav>
   </article>
@@ -455,6 +462,13 @@ LIBRARY_GROUPS = [
         "coverage": "assetto-corsa-evo"
     },
     {
+        "slug": "rfactor2",
+        "name": "rFactor 2",
+        "products": ["rFactor 2"],
+        "description": "Steam file verification and trace logging for unexpected exits.",
+        "coverage": "rfactor2"
+    },
+    {
         "slug": "companion-software",
         "name": "Wheelbase and companion software",
         "products": [
@@ -487,6 +501,8 @@ def write_index(entries: list[dict[str, object]], destination: Path) -> None:
         raise ValueError("Every diagnostic must appear in exactly one library section")
     sections = []
     for group, members in grouped:
+        if not members:
+            continue
         rows = []
         for entry in members:
             heading = str(PUBLIC_CONTENT[str(entry["id"])].get("heading") or entry["issue"])

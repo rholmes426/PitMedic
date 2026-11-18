@@ -17,6 +17,36 @@ public static class RepairKnowledgeBase
     {
         new KnowledgeEntry
         {
+            Id = "rfactor2-steam-content",
+            Game = "rFactor 2",
+            Issue = "rFactor 2 missing or damaged Steam game files",
+            Detection = "Use Verify Steam files on the rFactor 2 page when the game reports missing or unreadable installed content, or to check the base installation after a failed update.",
+            RepairStrategy = "After approval and with rFactor 2 closed, hand a verification request to Steam for the rFactor 2 client. Steam checks its managed files and may download replacements. Wait for Steam Downloads to settle and retest.",
+            Safety = "Ask first / Steam may replace modified managed files",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Verify integrity of game files", "Steam Support", "https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB", "Valve documents file verification for missing game content and crashes."),
+                Ref("rFactor 2 on Steam", "Studio 397", "https://store.steampowered.com/app/365960/", "Identifies the Steam client targeted by the verification request.")
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "rfactor2-trace-log",
+            Game = "rFactor 2",
+            Issue = "rFactor 2 crashes or exits unexpectedly",
+            IsGuidanceOnly = true,
+            Detection = "Use this guide for an unexpected rFactor 2 exit, especially one that repeats while loading the same car or track.",
+            RepairStrategy = "Use Studio 397's trace logging options when more evidence is needed. Compare the saved trace with the exit time, Windows events and any crash dump. Test with known-good content to help isolate the failure.",
+            Safety = "Guidance only / logging options are user-controlled",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Diagnosing issues using logging", "Studio 397", "https://docs.studio-397.com/pages/viewpage.action?pageId=86638877", "Documents the trace launch arguments, log location and crash reporting.")
+            }
+        },
+        new KnowledgeEntry
+        {
             Id = "lmu-controller-config",
             Game = "Le Mans Ultimate",
             Issue = "Wheel, pedal or button configuration no longer works",

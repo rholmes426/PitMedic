@@ -29,6 +29,7 @@ public static class ExitLogEvidencePolicy
         // iRacing, ACE, RaceRoom and ACC have offset-based live monitors that see only lines written
         // after PitMedic attaches. AMS2 has no sufficiently reliable support log. Their copied log
         // tails remain in the incident folder for review, but cannot create an incident by themselves.
+        // rFactor 2 trace logging is optional and its copied traces are also context only.
         return evidence with { CrashHints = Array.Empty<string>() };
     }
 }

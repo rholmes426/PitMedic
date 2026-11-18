@@ -21,7 +21,8 @@ public partial class IncidentDetailsWindow : Window
         _runAutomaticRepair = runAutomaticRepair;
         _acknowledgeFinding = acknowledgeFinding;
         _diagnosticLibraryUrl = details.RepairPlan is null
-            ? null
+            ? RepairKnowledgeBase.DiagnosticLibraryUrlForPlan(
+                details.VendorGuidance.FirstOrDefault(entry => entry.Id == "rfactor2-trace-log")?.Id ?? "")
             : RepairKnowledgeBase.DiagnosticLibraryUrlForPlan(details.RepairPlan.Id);
         var incident = details.Incident;
 

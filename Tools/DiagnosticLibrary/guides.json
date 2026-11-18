@@ -1,4 +1,62 @@
 {
+  "rfactor2-steam-content": {
+    "heading": "rFactor 2 missing or damaged Steam game files",
+    "intro": "If rFactor 2 reports missing installed files or an update was interrupted, Steam can check the base installation and download replacements.",
+    "meaning": "Verification checks Steam-managed files against the installed build. A crash by itself does not identify damaged files.",
+    "checks": [
+      "Record the exact error and check whether the same failure happens with a stock car and track.",
+      "Close rFactor 2 and its tools, let Steam updates finish, and back up any manually modified game files you want to keep."
+    ],
+    "result": "Choose Verify Steam files on the rFactor 2 page, review the estimate, and approve. Wait for Steam Downloads to finish, then retry the original launch or load.",
+    "limits": "PitMedic hands the request to Steam. Steam may overwrite modified files it manages. Verification cannot diagnose a broken Workshop mod or guarantee that the original issue is resolved.",
+    "manual_intro": "Start the same check from Steam if you are troubleshooting without PitMedic.",
+    "manual_steps": [
+      "In the Steam Library, open rFactor 2’s Properties.",
+      "Under Installed Files, click Verify integrity of game files and wait for Steam to finish.",
+      "Relaunch the game and retry the same activity."
+    ],
+    "manual_sources": [
+      {
+        "title": "Steam Support: Verify integrity of game files",
+        "url": "https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB"
+      }
+    ],
+    "user_requested": true,
+    "related": [
+      "rfactor2-trace-log"
+    ],
+    "modified": "2026-11-17",
+    "available_from": "1.0.0.13"
+  },
+  "rfactor2-trace-log": {
+    "heading": "rFactor 2 crashes or exits unexpectedly",
+    "intro": "If rFactor 2 exits unexpectedly, Windows may record an application fault or save a crash dump. A trace can add context about what the simulator was doing.",
+    "meaning": "Studio 397 documents optional trace logging. PitMedic keeps recent trace files written during the monitored session with the local finding when it can locate the running client.",
+    "checks": [
+      "Record the approximate time and whether the problem occurs at startup, while loading a car or track, or during driving.",
+      "Try to reproduce it once with a stock car and track. Compare the result with the original combination.",
+      "Check whether the finding includes a recent trace. If more detail is needed, enable tracing for one reproduction."
+    ],
+    "result": "Compare the trace, crash dump, and Windows event against the same incident time. A problem that reliably follows one car or track narrows the investigation.",
+    "limits": "A trace line alone does not confirm a crash or justify a repair. PitMedic does not change Steam launch options, remove mods, or reset the profile.",
+    "manual_intro": "Studio 397 documents how to enable a trace for a session.",
+    "manual_steps": [
+      "In Steam, open rFactor 2 Properties and add the documented +trace=2 +traceFlush options while preserving existing launch options.",
+      "Reproduce the issue once, then open UserData\\Log under the rFactor 2 installation. Check trace.txt and any recently written timestamped traces.",
+      "Remove the added launch options once you have captured the evidence."
+    ],
+    "manual_sources": [
+      {
+        "title": "Studio 397: Diagnosing issues using logging",
+        "url": "https://docs.studio-397.com/pages/viewpage.action?pageId=86638877"
+      }
+    ],
+    "related": [
+      "rfactor2-steam-content"
+    ],
+    "modified": "2026-11-17",
+    "available_from": "1.0.0.13"
+  },
   "iracing-missing-file-privileges": {
     "heading": "iRacing Missing File Privileges during a Steam update",
     "modified": "2026-10-09",

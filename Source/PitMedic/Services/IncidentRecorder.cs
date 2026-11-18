@@ -25,6 +25,21 @@ public sealed class IncidentRecorder
     {
         var plan = ScopedConfigurationRepair.CreatePlan(kind, repairId)
             ?? throw new InvalidOperationException("This repair is not supported for the selected simulator.");
+        return CreateRepairRequest(kind, plan, ScopedConfigurationRepair.RequestCategory,
+            ScopedConfigurationRepair.RequestPrefix + repairId);
+    }
+
+    public IncidentSummary CreateRFactor2VerificationRequest()
+    {
+        if (!SteamLibraryLocator.HasRFactor2Install())
+            throw new FileNotFoundException("PitMedic could not find rFactor 2 in the configured Steam libraries.");
+
+        return CreateRepairRequest(GameKind.RFactor2, RepairPlanner.CreateRFactor2Verification(),
+            RepairPlanner.RFactor2VerificationRequest, RepairPlanner.RFactor2VerificationId);
+    }
+
+    private IncidentSummary CreateRepairRequest(GameKind kind, RepairPlan plan, string category, string evidence)
+    {
         var game = GameDefinition.Supported.Single(x => x.Kind == kind);
         var now = DateTimeOffset.Now;
         var folder = Path.Combine(AppPaths.Incidents, now.ToString("yyyyMMdd_HHmmss") + "_requested_" + Guid.NewGuid().ToString("N"));
@@ -33,9 +48,9 @@ public sealed class IncidentRecorder
         {
             Game = game.DisplayName, Executable = game.ExecutableName,
             IncidentTime = now, SessionStarted = now, IncidentFolder = folder,
-            Classification = new CrashClassification(ScopedConfigurationRepair.RequestCategory, 100,
+            Classification = new CrashClassification(category, 100,
                 "You requested a repair for a specific symptom. This record is not evidence of a crash. " + plan.Summary,
-                new[] { ScopedConfigurationRepair.RequestPrefix + repairId }),
+                new[] { evidence }),
             RecommendedRepair = plan
         };
         File.WriteAllText(Path.Combine(folder, "incident.json"), JsonSerializer.Serialize(record, JsonOptions));
@@ -45,7 +60,7 @@ public sealed class IncidentRecorder
 
     public async Task<IncidentRecord?> RecordAsync(GameDefinition game, int pid, DateTimeOffset started, DateTimeOffset ended,
         int? exitCode, IReadOnlyList<TelemetrySample> telemetry, bool captureEveryExit,
-        IReadOnlyList<LiveFaultEvidence>? liveFaults = null)
+        IReadOnlyList<LiveFaultEvidence>? liveFaults = null, string? executablePath = null)
     {
         await Task.Delay(5500);
 
@@ -53,7 +68,7 @@ public sealed class IncidentRecorder
         var folder = Path.Combine(AppPaths.Incidents, $"{ended:yyyyMMdd_HHmmss}_{slug}");
         Directory.CreateDirectory(folder);
 
-        var collected = _collector.Collect(game, started, ended, folder);
+        var collected = _collector.Collect(game, started, ended, folder, executablePath);
         var windowsEvents = _events.GetAround(ended, game.ExecutableName, TimeSpan.FromSeconds(45));
         var classification = _classifier.Classify(game, exitCode, windowsEvents, telemetry, collected, liveFaults);
 
