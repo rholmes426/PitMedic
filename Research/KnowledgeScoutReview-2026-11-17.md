@@ -21,7 +21,7 @@ Results, kept separate to avoid counting existing repairs as new:
   symptom-based access to existing simulator repairs.
 - **Four validation candidates:** iRacing UTF-8 compatibility, AMS2 shared memory,
   LMU DirectInput fallback, legacy SimPro/HPR output ownership.
-- **Three guidance items:** two existing website guides prepared for publication;
+- **Three guidance items:** two existing website guides published and live-verified;
   one queued LMU startup-claim correction requiring coordinated app knowledge.
 - Two existing hardware-validation items carried forward: Simagic polling and
   Simucube Link-port behavior. Neither is counted as new.
@@ -175,14 +175,14 @@ implementation or success claim is made for either.
 
 ## Guidance and app-owned claim audit
 
-1. **RaceRoom existing guide prepared:** `raceroom-loading-ffb-update-guidance`
+1. **RaceRoom existing guide published:** `raceroom-loading-ffb-update-guidance`
    adds manual version checks for official publisher fixes: 0.9.9.24 cold-start
    error 11001/stale steering force; 0.9.9.27 Drive/Resume USB freeze; 0.9.9.28
    resolution/window-mode crash with FXAA/sharpening and connection-limited ISP
    loading. [Publisher notes](https://steamcommunity.com/app/211500/allnews)
    were read through November 17. Retain earlier checks. Updating the game is
    manual; no blanket VPN, DNS or IPv6 mutation and no new PitMedic repair.
-2. **LMU existing guide prepared:** `lmu-controller-config` explains the current
+2. **LMU existing guide published:** `lmu-controller-config` explains the current
    backend-test evidence, conflicting filenames and update/calibration-first
    checks separately from the shipped four-file operation.
 3. **KS-MAN-LMU-STARTUP-CLAIMS queued:** `RepairKnowledgeBase.cs` describes CEF
@@ -238,12 +238,20 @@ The actual WPF home markup and original-AC Repair Tools render correctly;
 Steam verification disables Restore. No production monitors or repairs run in
 this visual fixture. Release-policy tests and 48 Python tests pass.
 Catalog validation reports 73 implemented records; only 70 are publicly available
-with .12. Required protected PR Build Validation remains the merge gate.
+with .12. [PR #206](https://github.com/rholmes426/PitMedic/pull/206) passed required
+Build Validation, including Windows installer/prerequisite checks, and is merged.
 
 No local sim, Steam operation, firmware update or device was exercised. Hardware
 retest requirements above remain open. No public app release is initiated.
-Publication of the two existing guidance pages must receive an actual live check;
-the three original-AC pages remain prepared until their supporting app ships.
+The two existing guidance pages are live-verified: both return 200 with the new
+manual checks and correct canonicals, collection links and sitemap entries.
+Homepage download remains .12; original-AC group/lineup are absent and its new
+guide route returns 404. The three original-AC pages remain prepared until their
+supporting app ships. [Pages run 44247245456](https://github.com/rholmes426/PitMedic/actions/runs/44247245456)
+uploaded successfully but its final release API check failed with 403 rate-limit
+exceeded. A follow-up uses the existing workflow token only for the read-only
+GitHub API request, with tests that public-page/download requests receive no
+token and that release/digest mismatches still fail. No check is bypassed.
 
 Access limits: individual Kunos routes returned forum indexes, not readable
 threads; earlier KW forum failures are not presented as a fresh forum audit.

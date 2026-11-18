@@ -131,8 +131,13 @@ def verify():
                 raise RuntimeError('Live website/updater does not match deployment')
             with urllib.request.urlopen(f'https://raw.githubusercontent.com/{repo}/main/README.md' + query, timeout=30) as r:
                 check_readme(r.read().decode('utf-8'), expected)
+            headers = {'User-Agent': 'PitMedic-release-verification'}
+            if token := os.environ.get('GITHUB_TOKEN'):
+                headers['Authorization'] = f'Bearer {token}'
+            # Keep authentication on this API request only, never on public
+            # website, raw README or redirected installer download requests.
             request = urllib.request.Request(f'https://api.github.com/repos/{repo}/releases/latest',
-                                             headers={'User-Agent': 'PitMedic-release-verification'})
+                                             headers=headers)
             with urllib.request.urlopen(request, timeout=30) as r:
                 latest = json.load(r)
             installer = next((a for a in latest.get('assets', []) if a['name'] == 'PitMedic-Setup-x64.exe'), {})
