@@ -23,23 +23,10 @@ public sealed class IncidentRecorder
 
     public IncidentSummary CreateConfigurationRepairRequest(GameKind kind, string repairId)
     {
-        var plan = ScopedConfigurationRepair.CreatePlan(kind, repairId)
+        var plan = UserRequestedRepairPolicy.CreatePlan(kind, repairId)
             ?? throw new InvalidOperationException("This repair is not supported for the selected simulator.");
-        return CreateRepairRequest(kind, plan, ScopedConfigurationRepair.RequestCategory,
-            ScopedConfigurationRepair.RequestPrefix + repairId);
-    }
-
-    public IncidentSummary CreateRFactor2VerificationRequest()
-    {
-        if (!SteamLibraryLocator.HasRFactor2Install())
+        if (plan.Id == UserRequestedRepairPolicy.RFactor2VerificationId && !SteamLibraryLocator.HasRFactor2Install())
             throw new FileNotFoundException("PitMedic could not find rFactor 2 in the configured Steam libraries.");
-
-        return CreateRepairRequest(GameKind.RFactor2, RepairPlanner.CreateRFactor2Verification(),
-            RepairPlanner.RFactor2VerificationRequest, RepairPlanner.RFactor2VerificationId);
-    }
-
-    private IncidentSummary CreateRepairRequest(GameKind kind, RepairPlan plan, string category, string evidence)
-    {
         var game = GameDefinition.Supported.Single(x => x.Kind == kind);
         var now = DateTimeOffset.Now;
         var folder = Path.Combine(AppPaths.Incidents, now.ToString("yyyyMMdd_HHmmss") + "_requested_" + Guid.NewGuid().ToString("N"));
@@ -48,9 +35,9 @@ public sealed class IncidentRecorder
         {
             Game = game.DisplayName, Executable = game.ExecutableName,
             IncidentTime = now, SessionStarted = now, IncidentFolder = folder,
-            Classification = new CrashClassification(category, 100,
+            Classification = new CrashClassification(ScopedConfigurationRepair.RequestCategory, 100,
                 "You requested a repair for a specific symptom. This record is not evidence of a crash. " + plan.Summary,
-                new[] { evidence }),
+                new[] { ScopedConfigurationRepair.RequestPrefix + repairId }),
             RecommendedRepair = plan
         };
         File.WriteAllText(Path.Combine(folder, "incident.json"), JsonSerializer.Serialize(record, JsonOptions));
@@ -443,9 +430,13 @@ public sealed class IncidentRecorder
             if (!doc.RootElement.TryGetProperty("state", out var state)) return (false, string.Empty);
             var complete = state.TryGetProperty("IsComplete", out var completeEl) && completeEl.GetBoolean();
             var success = state.TryGetProperty("Success", out var successEl) && successEl.GetBoolean();
-            var retest = doc.RootElement.TryGetProperty("plan", out var plan)
-                && plan.TryGetProperty("Id", out var id)
-                && (ScopedConfigurationRepair.IsSupported(id.GetString() ?? "") || id.GetString()?.StartsWith("iracing-error77-", StringComparison.Ordinal) == true);
+            var planId = doc.RootElement.TryGetProperty("plan", out var plan) && plan.TryGetProperty("Id", out var id)
+                ? id.GetString() ?? ""
+                : "";
+            var retest = ScopedConfigurationRepair.IsSupported(planId)
+                || planId.StartsWith("iracing-error77-", StringComparison.Ordinal) || planId == "ac-steam-verify";
+            if (complete && success && planId == UserRequestedRepairPolicy.RFactor2VerificationId)
+                return (true, "Verification requested · retest");
             return complete && success ? (true, retest ? "Applied · retest" : "Resolved") : (false, string.Empty);
         }
         catch { return (false, string.Empty); }

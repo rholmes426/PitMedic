@@ -17,7 +17,7 @@
     <ReleaseChannel Condition="'$(ReleaseChannel)' == ''">preview</ReleaseChannel>
     <AssemblyTitle>PitMedic</AssemblyTitle>
     <Product>PitMedic Sim Racing Diagnostics &amp; Repair</Product>
-    <Description>Background simulator monitoring, diagnostics, and guided repair for Le Mans Ultimate, iRacing, Assetto Corsa EVO, RaceRoom Racing Experience, Assetto Corsa Competizione, and Automobilista 2.</Description>
+    <Description>Background simulator monitoring, diagnostics, and guided repair for Le Mans Ultimate, iRacing, Assetto Corsa, Assetto Corsa EVO, RaceRoom Racing Experience, Assetto Corsa Competizione, and Automobilista 2.</Description>
     <Company>PitMedic Project</Company>
     <Authors>PitMedic Project</Authors>
     <Copyright>Copyright (c) 2026 PitMedic contributors</Copyright>

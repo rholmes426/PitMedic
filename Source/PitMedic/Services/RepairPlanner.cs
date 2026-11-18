@@ -4,16 +4,6 @@ namespace PitMedic.Services;
 
 public static class RepairPlanner
 {
-    public const string RFactor2VerificationId = "rfactor2-steam-content";
-    public const string RFactor2VerificationRequest = "Requested rFactor 2 file verification";
-
-    public static RepairPlan CreateRFactor2Verification() => Simple(
-        RFactor2VerificationId, "Verify rFactor 2 game files",
-        "PitMedic will ask Steam to verify the game and download replacements for missing or damaged Steam-managed files. Steam may overwrite manually modified game files. Wait for Steam to finish before testing again.",
-        "rFactor 2", RepairSafety.Significant, 8, true,
-        new[] { "Confirm rFactor 2 is closed", "Send the verification request to Steam", "Wait for Steam Downloads before retesting" },
-        "365960");
-
     public static RepairPlan? Create(GameDefinition game, CrashClassification classification, CollectedEvidence collected,
         IReadOnlyList<LiveFaultEvidence>? liveFaults = null)
     {
@@ -50,6 +40,10 @@ public static class RepairPlanner
                 (liveFaults ?? Array.Empty<LiveFaultEvidence>()).Select(f => f.ToEvidenceText()));
             return CreateIRacingPlan(classification.Category, evidence);
         }
+
+        if (game.Kind == GameKind.AssettoCorsa)
+            return AssettoCorsaPolicy.PlanFromEvidence(classification.Evidence.Concat(
+                (liveFaults ?? Array.Empty<LiveFaultEvidence>()).Select(f => f.ToEvidenceText())));
 
         if (game.Kind == GameKind.AssettoCorsaEvo)
         {
@@ -123,18 +117,17 @@ public static class RepairPlanner
     public static RepairPlan? TryCreateFromIncident(IncidentRecord record)
     {
         if (record.Classification.Category == ScopedConfigurationRepair.RequestCategory)
-            return ScopedConfigurationRepair.FromRequest(record);
+            return UserRequestedRepairPolicy.FromRequest(record);
         // Reassess old findings before accepting even a serialized repair plan.
         if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(record)
             || LegacyProcessExitPolicy.IsUnverifiedRunningStatus(record)) return null;
         // Reconstruct iRacing plans even when an older app saved a different recommendation.
         if (record.Game.Equals("iRacing", StringComparison.OrdinalIgnoreCase))
             return CreateIRacingPlan(record.Classification.Category, record.Classification.Evidence);
-        if (record.Game.Equals("rFactor 2", StringComparison.OrdinalIgnoreCase))
-            return record.Classification.Category == RFactor2VerificationRequest
-                && record.Classification.Evidence.Contains(RFactor2VerificationId, StringComparer.Ordinal)
-                ? CreateRFactor2Verification()
-                : null;
+        if (record.Game.Equals("Assetto Corsa", StringComparison.OrdinalIgnoreCase))
+            return AssettoCorsaPolicy.PlanFromEvidence(record.Classification.Evidence);
+        // rFactor 2 verification is available only as an explicit Repair Tools request.
+        if (record.Game.Equals("rFactor 2", StringComparison.OrdinalIgnoreCase)) return null;
         if (record.RecommendedRepair is not null
             && !record.RecommendedRepair.Id.Equals("companion-app-restart", StringComparison.OrdinalIgnoreCase))
             return record.RecommendedRepair;

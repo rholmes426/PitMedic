@@ -295,7 +295,7 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
                      if is_guidance else "PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.")
     if user_requested:
         aside_heading = "Start this check in PitMedic"
-        aside_summary = "Open the simulator page and choose Verify Steam files. PitMedic asks for approval before it hands the request to Steam."
+        aside_summary = "Open the simulator page and choose Repair Tools, then Verify Steam files. PitMedic asks for approval before it hands the request to Steam."
     display_issue = str(editorial.get("heading") or display_issue)
     description = str(editorial.get("description") or (
         f"How PitMedic detects and performs a controlled recovery after a {product} crash or stale process."
@@ -407,6 +407,13 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
 
 # Stable section anchors preserve guide URLs and avoid duplicate filter landing pages.
 LIBRARY_GROUPS = [
+    {
+        "slug": "assetto-corsa",
+        "name": "Assetto Corsa (original)",
+        "products": ["Assetto Corsa"],
+        "description": "Original AC display settings, active controls and stock Steam game files.",
+        "coverage": "assetto-corsa"
+    },
     {
         "slug": "iracing",
         "name": "iRacing",
@@ -699,6 +706,24 @@ def generate(destination: Path, sitemap: Path) -> None:
     write_sitemap(entries, sitemap)
 
 
+def sync_simulator_lineup(home: str, entries: list[dict[str, object]]) -> str:
+    """Publish each new simulator's homepage link with its available guides."""
+    for product, slug, anchor, anchor_name in (
+        ("Assetto Corsa", "assetto-corsa", "assetto-corsa-evo", "Assetto Corsa EVO"),
+        ("rFactor 2", "rfactor2", "raceroom", "RaceRoom Racing Experience"),
+    ):
+        pattern = rf'^([ \t]*)<a class="sim-row" href="/diagnostic-library/#{slug}">.*?</a>\n?'
+        if not any(entry["product"] == product for entry in entries):
+            home = re.sub(pattern, "", home, flags=re.M)
+        elif not re.search(pattern, home, flags=re.M):
+            existing = re.search(rf'^([ \t]*)<a class="sim-row" href="/diagnostic-library/#{anchor}">.*?</a>', home, flags=re.M)
+            if not existing:
+                raise ValueError(f"Cannot locate the {anchor_name} lineup row to publish {product}")
+            row = existing.group(0).replace(f"#{anchor}", f"#{slug}").replace(f">{anchor_name}<", f">{product}<")
+            home = home[:existing.start()] + row + "\n" + home[existing.start():]
+    return home
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true", help="Fail if committed generated files are stale")
@@ -707,6 +732,11 @@ def main() -> int:
         if OUTPUT.exists():
             shutil.rmtree(OUTPUT)
         generate(OUTPUT, WEBSITE / "sitemap.xml")
+        home_path = WEBSITE / "index.html"
+        home = home_path.read_text(encoding="utf-8")
+        updated_home = sync_simulator_lineup(home, load_entries())
+        if updated_home != home:
+            home_path.write_text(updated_home, encoding="utf-8")
         print(f"Generated {len(load_entries())} Diagnostic Library records.")
         return 0
 
@@ -719,6 +749,9 @@ def main() -> int:
             print("Diagnostic Library output is missing.", file=sys.stderr)
             return 1
         mismatches = []
+        home = (WEBSITE / "index.html").read_text(encoding="utf-8")
+        if sync_simulator_lineup(home, load_entries()) != home:
+            mismatches.append("../index.html")
         generated_files = {path.relative_to(generated) for path in generated.rglob("*") if path.is_file()}
         committed_files = {path.relative_to(OUTPUT) for path in OUTPUT.rglob("*") if path.is_file()}
         for relative in sorted(generated_files | committed_files):

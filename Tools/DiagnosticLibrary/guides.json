@@ -7,7 +7,7 @@
       "Record the exact error and check whether the same failure happens with a stock car and track.",
       "Close rFactor 2 and its tools, let Steam updates finish, and back up any manually modified game files you want to keep."
     ],
-    "result": "Choose Verify Steam files on the rFactor 2 page, review the estimate, and approve. Wait for Steam Downloads to finish, then retry the original launch or load.",
+    "result": "On the rFactor 2 page, open Repair Tools, select Verify Steam files, and approve after reviewing the estimate. Wait for Steam Downloads to finish, then retry the original launch or load.",
     "limits": "PitMedic hands the request to Steam. Steam may overwrite modified files it manages. Verification cannot diagnose a broken Workshop mod or guarantee that the original issue is resolved.",
     "manual_intro": "Start the same check from Steam if you are troubleshooting without PitMedic.",
     "manual_steps": [
@@ -1247,14 +1247,15 @@
     ]
   },
   "raceroom-loading-ffb-update-guidance": {
-    "heading": "Loading-screen crashes and force feedback loss after the Historic Update",
-    "modified": "2026-11-07",
-    "title": "Loading-screen crashes and force feedback loss after the Historic Update | PitMedic",
+    "heading": "RaceRoom startup, loading and force feedback update checks",
+    "modified": "2026-11-17",
+    "title": "RaceRoom startup, loading and force feedback update checks | PitMedic",
     "description": "Check the installed RaceRoom client version and whether the issue occurs at the end of loading, while joining multiplayer, or when using a wheel with a gamepad profile.",
     "intro": "RaceRoom 0.9.9.14 fixed a crash near the end of loading. Version 0.9.9.15 fixed another end-of-loading crash when joining multiplayer, along with specific wheel force feedback loss and stutter. For matching symptoms on older builds, let Steam apply the current supported update, then retry the same session and controls before resetting graphics or user profiles.",
     "meaning": "Check the installed RaceRoom client version and whether the issue occurs at the end of loading, while joining multiplayer, or when using a wheel with a gamepad profile.",
     "checks": [
       "Record the client version and whether the crash occurs at the end of loading or only when joining multiplayer. For force feedback loss, note the wheelbase and whether the active profile was created for a gamepad.",
+      "For newer regressions, match the symptom to the publisher notes: 0.9.9.24 addresses a cold-start Error 11001 and stale steering force; 0.9.9.27 addresses some USB-device Drive/Resume freezes; 0.9.9.28 addresses a resolution/window-mode crash with FXAA plus sharpening and some ISP connection limits.",
       "If the installed version predates the fix for the matching symptom, allow Steam to finish updating before testing again.",
       "Keep the current graphics and controller profiles for the first retest so you can compare the same setup."
     ],
@@ -1263,20 +1264,53 @@
     "related": [
       "raceroom-steam-content",
       "raceroom-graphics-config"
+    ],
+    "manual_intro": "These are manual Steam update checks for vendor fixes. They do not add a PitMedic repair action or establish that every freeze/network problem shares the same cause.",
+    "manual_steps": [
+      "Record the installed client version and reproduce the exact symptom before changing profiles.",
+      "Let Steam finish applying the current supported RaceRoom build, then retry the same stock session with the same controls.",
+      "If the problem remains, keep the new log and version. Do not change global DNS, disable IPv6 or install a VPN merely because a similar report mentioned them."
+    ],
+    "manual_sources": [
+      {
+        "title": "RaceRoom publisher patch notes, November 11/15/17, 2026",
+        "url": "https://steamcommunity.com/app/211500/allnews/"
+      }
     ]
   },
   "lmu-controller-config": {
     "available_from": "1.0.0.12",
-    "modified": "2026-11-14",
+    "modified": "2026-11-17",
     "intro": "PitMedic can preserve and reset only LMU's four controller configuration files when wheel, pedal or button bindings stop working.",
     "meaning": "This is a user-selected configuration test. It does not establish that hardware, firmware or the game itself failed.",
     "checks": [
       "Confirm Windows and the wheel/pedal vendor software can see the devices. Try reconnecting and rebinding before resetting.",
+      "Check the installed LMU version before resetting bindings. The V1.4 notes include a fix for some devices that failed with DirectInput Fallback false. Current vendor advice still describes a fallback for certain GameInput-incompatible pedals; consult its version-specific instructions rather than guessing a JSON filename.",
       "Close LMU. Open its simulator page in PitMedic, choose Repair Tools, select the controls symptom and review the repair.",
       "Confirm that remapping or recalibration may be required. PitMedic preserves the four named files before removing their active copies."
     ],
     "result": "Start LMU, remap and calibrate where necessary, then test steering, throttle, brake and buttons. If it does not help, close LMU, choose the same item in Repair Tools and select Restore last backup. Current files are preserved before Restore.",
-    "limits": "Requires PitMedic 1.0.0.12 or later. No other profile files, setups, drivers or firmware are reset. No automatic crash inference or live hardware success is claimed. Missing files alone do not prove a fault."
+    "limits": "Requires PitMedic 1.0.0.12 or later. No other profile files, setups, drivers or firmware are reset. No automatic crash inference or live hardware success is claimed. Missing files alone do not prove a fault.",
+    "manual_intro": "A vendor-documented input-backend test can be less disruptive for matching pedal calibration problems. It is separate from PitMedic’s four-file repair and is not performed automatically by this app version.",
+    "manual_steps": [
+      "Confirm that Windows/vendor software sees the pedals and that the problem matches calibration or GameInput compatibility. A USB disconnect or a failed firmware update needs different support.",
+      "Read the linked current known issues and release notes. Older guidance names current controls.json, while another vendor page says controls.json; back up the actual installed file and resolve the correct layout before any manual edit.",
+      "Prefer the supported game update and normal in-game calibration first. If following the documented fallback test, preserve the original setting and retest all axes; restore it if ineffective."
+    ],
+    "manual_sources": [
+      {
+        "title": "LMU known issues and controller advice",
+        "url": "https://guide.lemansultimate.com/hc/en-gb/articles/13240843908623-Known-Issues-and-Advice"
+      },
+      {
+        "title": "LMU V1.0.2.2 input-backend workaround",
+        "url": "https://guide.lemansultimate.com/hc/en-gb/articles/13755123150991-V1-0-2-2-Patch-2-Hotfix-2"
+      },
+      {
+        "title": "LMU V1.4 input fixes",
+        "url": "https://guide.lemansultimate.com/hc/en-gb/articles/16987981296015-V1-4-release-notes"
+      }
+    ]
   },
   "iracing-socket-connection": {
     "available_from": "1.0.0.12",
@@ -1303,5 +1337,56 @@
     ],
     "result": "Start the same car/session and test the spotter. Some application settings may need to be re-entered. If ineffective, close iRacing and use Restore last backup for this repair; the regenerated file is preserved first.",
     "limits": "Requires PitMedic 1.0.0.12 or later. This does not delete custom spotter packs or reinstall iRacing. Successful file regeneration does not prove every sound pack works."
+  },
+  "ac-video-config": {
+    "available_from": "1.0.0.13",
+    "modified": "2026-11-17",
+    "intro": "For the original Assetto Corsa, PitMedic can preserve and reset only the user video.ini when display settings prevent a session from opening correctly.",
+    "meaning": "This is a targeted configuration test supported by community reports. It does not diagnose every black screen, driver failure or CSP/mod problem.",
+    "checks": [
+      "Test a stock car and stock track first. Record the monitor layout, resolution and VR mode before resetting.",
+      "Close acs.exe/acs_x86.exe, the AssettoCorsa launcher and Content Manager so they cannot overwrite the configuration.",
+      "In the Assetto Corsa page, select Repair Tools and review the display-settings repair. Display preferences may need reconfiguration."
+    ],
+    "result": "Start AC, choose the correct resolution/display mode and test a stock session. If ineffective, close AC and Content Manager, choose the same repair and Restore last backup. Current settings are preserved before restoring.",
+    "limits": "Requires PitMedic 1.0.0.13 or later. Preserves cfg/video.ini only; installation defaults, controls, presets, setups, mods, CSP and Content Manager settings are not reset. File-operation tests do not establish live gameplay success.",
+    "related": [
+      "ac-controls-config",
+      "ac-steam-content"
+    ]
+  },
+  "ac-controls-config": {
+    "available_from": "1.0.0.13",
+    "modified": "2026-11-17",
+    "intro": "PitMedic can preserve and regenerate the original Assetto Corsa's active controls.ini when the wheel or pedals work in configuration menus but not in a race.",
+    "meaning": "Try device detection, the correct saved preset and reassignment first. A reset is an optional, consented configuration test rather than proof that the hardware failed.",
+    "checks": [
+      "Confirm Windows and the vendor software see the wheel and pedals. Select or reapply the intended preset before resetting.",
+      "Close the race process, original launcher and Content Manager. Open the original Assetto Corsa page in PitMedic and choose Repair Tools.",
+      "Review the controls reset and its remapping/calibration warning. Only the active cfg/controls.ini is preserved and removed."
+    ],
+    "result": "Reassign steering, pedals and buttons, verify axis direction and test a stock practice session. If the test fails, close configuration tools and use Restore last backup; current data is preserved first.",
+    "limits": "Requires PitMedic 1.0.0.13 or later. Does not delete saved control presets, car setups, mods, firmware or drivers. Content Manager may reapply a preset, so avoid concurrent edits. Live wheel compatibility still needs a functional retest.",
+    "related": [
+      "ac-video-config",
+      "ac-steam-content"
+    ]
+  },
+  "ac-steam-content": {
+    "available_from": "1.0.0.13",
+    "modified": "2026-11-17",
+    "intro": "PitMedic can start Steam's installed-file verification for the original Assetto Corsa when stock game content needs checking.",
+    "meaning": "Steam checks packaged files for app 244210. Download acceptance is separate from completion, and mods can fail even when the stock installation verifies correctly.",
+    "checks": [
+      "Save any modifications to stock game files separately: Steam may replace those files during verification.",
+      "Close Assetto Corsa, its launcher and Content Manager, then choose the game-file check in Repair Tools.",
+      "Approve the estimate, let Steam finish and use a stock car and track for the first retest."
+    ],
+    "result": "Confirm Steam has finished checking/downloading and retry a stock session. If only a modded combination fails, investigate that mod and its compatible CSP/Content Manager version separately.",
+    "limits": "Requires PitMedic 1.0.0.13 or later. This starts supported Steam verification, not a mod/CSP installer, full-profile reset or an automatic driver/runtime change. Steam verification has no PitMedic one-click Restore; preserve modified stock files before starting.",
+    "related": [
+      "ac-video-config",
+      "ac-controls-config"
+    ]
   }
 }

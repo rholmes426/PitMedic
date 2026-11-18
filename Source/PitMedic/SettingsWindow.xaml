@@ -62,6 +62,7 @@
                         <WrapPanel>
                             <CheckBox x:Name="MonitorLmu" Content="Le Mans Ultimate"/>
                             <CheckBox x:Name="MonitorIRacing" Content="iRacing"/>
+                            <CheckBox x:Name="MonitorAc" Content="Assetto Corsa"/>
                             <CheckBox x:Name="MonitorAce" Content="Assetto Corsa EVO"/>
                             <CheckBox x:Name="MonitorRaceRoom" Content="RaceRoom"/>
                             <CheckBox x:Name="MonitorAcc" Content="Assetto Corsa Competizione"/>

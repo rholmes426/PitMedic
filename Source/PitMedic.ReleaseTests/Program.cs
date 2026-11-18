@@ -29,7 +29,10 @@ try
         "rFactor 2 trace text is context and must not create a finding or select a repair by itself.");
 
     var crash = new CrashClassification(CrashClassification.ApplicationFault, 88, "Windows recorded a fault.", []);
-    var verification = RepairPlanner.CreateRFactor2Verification();
+    var verification = UserRequestedRepairPolicy.CreatePlan(GameKind.RFactor2, UserRequestedRepairPolicy.RFactor2VerificationId)
+        ?? throw new InvalidOperationException("Expected rFactor 2 verification in Repair Tools.");
+    AssertTrue(UserRequestedRepairPolicy.OptionsFor(GameKind.RFactor2).Single().Id == verification.Id,
+        "rFactor 2 verification must be reachable before a crash occurs.");
     var incident = new IncidentRecord { Game = rfactor2.DisplayName, Classification = crash, RecommendedRepair = verification };
     AssertTrue(RepairPlanner.Create(rfactor2, crash, evidence) is null
         && RepairPlanner.TryCreateFromIncident(incident) is null,
@@ -37,8 +40,8 @@ try
 
     var request = incident with
     {
-        Classification = new CrashClassification(RepairPlanner.RFactor2VerificationRequest, 100, "User requested verification.",
-            [RepairPlanner.RFactor2VerificationId]),
+        Classification = new CrashClassification(ScopedConfigurationRepair.RequestCategory, 100, "User requested verification.",
+            [ScopedConfigurationRepair.RequestPrefix + UserRequestedRepairPolicy.RFactor2VerificationId]),
         RecommendedRepair = null
     };
     var plan = RepairPlanner.TryCreateFromIncident(request);
@@ -270,7 +273,7 @@ finally
 }
 
 AssertTrue(
-    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly) == 56,
+    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly) == 59,
     "Every simulator repair implemented for this release must have a formal knowledge record.");
 AssertTrue(
     RepairKnowledgeBase.DiagnosticLibraryUrlForPlan("ams2-controller-reset")

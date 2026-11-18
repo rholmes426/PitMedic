@@ -62,9 +62,10 @@ public sealed class CrashClassifier
             (e.Provider.Equals("Application Error", StringComparison.OrdinalIgnoreCase)
                 || e.Provider.Equals("Windows Error Reporting", StringComparison.OrdinalIgnoreCase)
                 || e.EventId is 1000 or 1001)
-            && (e.Message.Contains(game.ExecutableName, StringComparison.OrdinalIgnoreCase)
-                || game.ProcessNames.Any(name => e.Message.Contains(name, StringComparison.OrdinalIgnoreCase))
-                || e.Message.Contains(game.DisplayName, StringComparison.OrdinalIgnoreCase)));
+            && (game.Kind == GameKind.AssettoCorsa ? AssettoCorsaPolicy.MatchesEngineEvidence(e.Message)
+                : e.Message.Contains(game.ExecutableName, StringComparison.OrdinalIgnoreCase)
+                    || game.ProcessNames.Any(name => e.Message.Contains(name, StringComparison.OrdinalIgnoreCase))
+                    || e.Message.Contains(game.DisplayName, StringComparison.OrdinalIgnoreCase)));
         if (appError is not null)
         {
             evidence.Insert(0, $"Windows Application Error event {appError.EventId} matched the issue window.");
@@ -85,10 +86,10 @@ public sealed class CrashClassifier
             if (exitCode == 0)
             {
                 return new CrashClassification(lead.Category, 90,
-                    $"iRacing reported {lead.Category.ToLowerInvariant()} while the simulator was still running. The user then exited normally, so PitMedic preserved the session as a diagnostic issue.", evidence);
+                    $"{game.DisplayName} reported {lead.Category.ToLowerInvariant()} while the simulator was still running. The user then exited normally, so PitMedic preserved the session as a diagnostic issue.", evidence);
             }
             return new CrashClassification(lead.Category, 92,
-                $"iRacing reported {lead.Category.ToLowerInvariant()} before the simulator process ended.", evidence);
+                $"{game.DisplayName} reported {lead.Category.ToLowerInvariant()} before the simulator process ended.", evidence);
         }
 
         if (exitCode == 0 && collected.CleanExitDetected)

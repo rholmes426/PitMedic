@@ -6,6 +6,9 @@ public static class RepairCapabilityCatalog
 {
     public static IReadOnlyList<RepairCapability> Capabilities { get; } = new[]
     {
+        new RepairCapability("ac-video-config", "Original AC display configuration with Restore", "Assetto Corsa", "Configuration"),
+        new RepairCapability("ac-controls-config", "Original AC active controls with Restore", "Assetto Corsa", "Configuration"),
+        new RepairCapability("ac-steam-content", "Original AC Steam game-file verification", "Assetto Corsa", "Game & Content"),
         new RepairCapability("lmu-controller-config", "Targeted controller recovery with Restore", "Le Mans Ultimate", "Configuration"),
         new RepairCapability("iracing-socket-connection", "Socket connection error repair with Restore", "iRacing", "Configuration"),
         new RepairCapability("iracing-spotter-loading-error-63", "Error 63 spotter configuration recovery with Restore", "iRacing", "Configuration"),

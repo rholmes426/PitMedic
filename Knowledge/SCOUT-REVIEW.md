@@ -46,7 +46,7 @@ Steam/Microsoft support and GPU-vendor sources. This is a research inventory,
 not a change to the scanner's network allowlist or an endorsement of every post.
 
 Default scope is every currently supported simulator and companion app. Start
-with the six sims and seven companion products in the current catalogs; update
+with the seven sims and seven companion products in the current catalogs; update
 the matrix if the product changes. Include related software such as SimHub,
 overlays, audio tools and VR runtimes when they affect supported software;
 a source addition does not automatically add app monitoring support.

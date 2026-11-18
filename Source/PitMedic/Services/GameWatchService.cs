@@ -159,6 +159,7 @@ public sealed class GameWatchService : IDisposable
         {
             GameKind.LeMansUltimate => settings.MonitorLeMansUltimate,
             GameKind.IRacing => settings.MonitorIRacing,
+            GameKind.AssettoCorsa => settings.MonitorAssettoCorsa,
             GameKind.AssettoCorsaEvo => settings.MonitorAssettoCorsaEvo,
             GameKind.RaceRoom => settings.MonitorRaceRoom,
             GameKind.AssettoCorsaCompetizione => settings.MonitorAssettoCorsaCompetizione,

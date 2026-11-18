@@ -144,7 +144,8 @@ public static class IncidentDetailsService
             RepairPlan = plan,
             IsResolved = resolved,
             NeedsRetest = resolved && plan is not null && (ScopedConfigurationRepair.IsSupported(plan.Id)
-                || plan.Id.StartsWith("iracing-error77-", StringComparison.Ordinal) || plan.Id == RepairPlanner.RFactor2VerificationId),
+                || plan.Id.StartsWith("iracing-error77-", StringComparison.Ordinal)
+                || plan.Id is "ac-steam-verify" or UserRequestedRepairPolicy.RFactor2VerificationId),
             RepairAttempted = repairAttempted,
             RepairInProgress = repairInProgress,
             RepairCancelled = repairCancelled,
@@ -175,14 +176,16 @@ public static class IncidentDetailsService
     {
         var isCompanionSoftware = CompanionSoftwareDefinition.Supported.Any(software =>
             software.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase));
-        if (resolved && plan?.Id == RepairPlanner.RFactor2VerificationId)
+        if (resolved && plan?.Id == UserRequestedRepairPolicy.RFactor2VerificationId)
             return ("Steam verification requested", statusMessage,
                 "Check Steam Downloads and wait for any verification and downloads to finish. Relaunch rFactor 2 and retry the same activity.");
-        if (resolved && plan is not null && (ScopedConfigurationRepair.IsSupported(plan.Id) || plan.Id.StartsWith("iracing-error77-", StringComparison.Ordinal)))
-            return ("Repair applied; retest needed", statusMessage,
+        if (resolved && plan is not null && (ScopedConfigurationRepair.IsSupported(plan.Id) || plan.Id.StartsWith("iracing-error77-", StringComparison.Ordinal) || plan.Id == "ac-steam-verify"))
+            return (plan.Id == "ac-steam-verify" ? "Verification started; retest needed" : "Repair applied; retest needed", statusMessage,
                 ScopedConfigurationRepair.IsSupported(plan.Id)
                     ? $"Start {incident.Game} and retry the same symptom. If ineffective, close the simulator and use Restore last backup in Repair Tools."
-                    : "Let downloads finish, then retry the same car/track. Original content remains in the repair backup.");
+                    : plan.Id == "ac-steam-verify"
+                        ? "Wait for Steam to finish, then test a stock car and track. Third-party mods may need separate troubleshooting."
+                        : "Let downloads finish, then retry the same car/track. Original content remains in the repair backup.");
         if (resolved)
         {
             return (

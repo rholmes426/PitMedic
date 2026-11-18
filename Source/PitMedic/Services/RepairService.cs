@@ -46,7 +46,7 @@ public sealed class RepairService : IDisposable
 
     public bool Begin(IncidentRecord incident, RepairPlan plan, AppSettings settings, bool automatic = false)
     {
-        if (automatic && (ScopedConfigurationRepair.IsSupported(plan.Id) || plan.Id == RepairPlanner.RFactor2VerificationId)) return false;
+        if (automatic && (ScopedConfigurationRepair.IsSupported(plan.Id) || plan.Id == UserRequestedRepairPolicy.RFactor2VerificationId)) return false;
         if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(incident)
             || LegacyProcessExitPolicy.IsUnverifiedRunningStatus(incident)) return false;
         // An automatic repair can proceed only if every remaining process is the
@@ -113,7 +113,7 @@ public sealed class RepairService : IDisposable
     private static bool IsSimulatorRepairFor(RepairPlan plan, GameDefinition game)
         => plan.Game.Equals(game.DisplayName, StringComparison.OrdinalIgnoreCase)
             && plan.Id != "lmu-sync-windows-time"
-            && plan.Id != RepairPlanner.RFactor2VerificationId;
+            && plan.Id != UserRequestedRepairPolicy.RFactor2VerificationId;
 
     private async Task ClearStalledSimulatorAsync(IncidentRecord incident, RepairPlan plan, CancellationToken token)
     {
@@ -289,7 +289,7 @@ public sealed class RepairService : IDisposable
                     try { Directory.Delete(backupRoot, true); backupRoot = null; } catch { }
                 }
                 _usage?.RecordRepairCompleted(plan, automatic);
-                var steamHandOff = plan.Id == RepairPlanner.RFactor2VerificationId;
+                var steamHandOff = plan.Id == UserRequestedRepairPolicy.RFactor2VerificationId;
                 Update(incident, plan, 100, steamHandOff ? "Verification requested" : "Repair complete", completion,
                     steamHandOff ? "Check Steam Downloads for progress before retesting."
                         : "The repair actions completed successfully. PitMedic retained the issue evidence and repair history for review.",
@@ -420,6 +420,7 @@ public sealed class RepairService : IDisposable
     {
         return plan.Id switch
         {
+            "ac-steam-verify" => await RepairAssettoCorsaVerifyAsync(incident, plan, backupRoot, token),
             _ when ScopedConfigurationRepair.IsSupported(plan.Id) => await RepairScopedConfigurationAsync(incident, plan, backupRoot, token),
             "iracing-error77-verify" => await RepairIRacingError77VerifyAsync(incident, plan, backupRoot, token),
             "iracing-error77-content-reacquire" => await RepairIRacingError77Async(incident, plan, backupRoot, token),
@@ -464,7 +465,7 @@ public sealed class RepairService : IDisposable
             "raceroom-graphics-reset" => await RepairRaceRoomGraphicsAsync(incident, plan, backupRoot, token),
             "raceroom-shader-reset" => await RepairRaceRoomShaderAsync(incident, plan, backupRoot, token),
             "raceroom-profile-reset" => await RepairRaceRoomProfileAsync(incident, plan, backupRoot, token),
-            RepairPlanner.RFactor2VerificationId => await RequestRFactor2VerificationAsync(incident, plan, backupRoot, token),
+            UserRequestedRepairPolicy.RFactor2VerificationId => await RequestRFactor2VerificationAsync(incident, plan, backupRoot, token),
             "raceroom-steam-verify" => await RepairRaceRoomSteamVerifyAsync(incident, plan, backupRoot, token),
 
             "acc-game-user-settings-reset" => await RepairAccFileAsync(incident, plan, backupRoot, token, "GameUserSettings.ini", Path.Combine(GetAccLocalConfigRoot(), "GameUserSettings.ini"), "display/startup settings"),
@@ -493,7 +494,9 @@ public sealed class RepairService : IDisposable
     {
         var option = ScopedConfigurationRepair.Find(plan.Id) ?? throw new InvalidOperationException("Unsupported configuration repair.");
         EnsureGameNotRunning(option.Game, plan.Game);
-        var root = option.Game == GameKind.IRacing ? GetIRacingDocumentsRoot()
+        if (option.Game == GameKind.AssettoCorsa) AssettoCorsaPolicy.EnsureConfigurationWritersClosed();
+        var root = option.Game == GameKind.AssettoCorsa ? AssettoCorsaPolicy.ConfigurationRoot
+            : option.Game == GameKind.IRacing ? GetIRacingDocumentsRoot()
             : Path.Combine(SteamLibraryLocator.FindLeMansUltimateRoot()
                 ?? throw new DirectoryNotFoundException("Le Mans Ultimate installation was not found."), "UserData", "player");
         UpdateSimple(incident, plan, 15, "Preserving configuration", "Backing up the exact configuration files before changing them...", 1, 3, backupRoot);
@@ -502,6 +505,13 @@ public sealed class RepairService : IDisposable
         UpdateSimple(incident, plan, 90, "Configuration verified", "File operations completed. Retest the same simulator symptom.", 3, 3, backupRoot);
         await Task.CompletedTask;
         return result;
+    }
+
+    private async Task<string> RepairAssettoCorsaVerifyAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
+    {
+        AssettoCorsaPolicy.EnsureConfigurationWritersClosed();
+        await RepairSteamVerifyAsync(incident, plan, backupRoot, token, GameKind.AssettoCorsa, "Assetto Corsa", AssettoCorsaPolicy.SteamAppId);
+        return "Steam verification for original Assetto Corsa was started. Wait for Steam to finish and test a stock car and track. Steam may replace modified stock files; third-party mods are not repaired.";
     }
 
     private async Task<string> RepairIRacingError77VerifyAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
@@ -1338,7 +1348,7 @@ public sealed class RepairService : IDisposable
             throw new InvalidOperationException("Close rFactor 2 Mod Mode or Dedicated Server before verifying files.");
 
         UpdateSimple(incident, plan, 30, "Opening Steam", "Requesting file verification for rFactor 2.", 2, 3, backupRoot);
-        using var steam = await SteamClientService.StartValidationAsync("365960", token);
+        using var steam = await SteamClientService.StartValidationAsync(UserRequestedRepairPolicy.RFactor2SteamAppId, token);
         return "PitMedic sent the file verification request to Steam. Wait for verification and any downloads to finish before relaunching rFactor 2.";
     }
 

@@ -9,6 +9,7 @@ generator = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(generator)
 
 NEW_IDS = {"lmu-controller-config", "iracing-socket-connection", "iracing-spotter-loading-error-63"}
+AC_IDS = {"ac-video-config", "ac-controls-config", "ac-steam-content"}
 
 
 class LibraryAvailabilityTests(unittest.TestCase):
@@ -46,6 +47,10 @@ class LibraryAvailabilityTests(unittest.TestCase):
                     for guide in ("rfactor2-steam-content", "rfactor2-trace-log"):
                         self.assertEqual((destination / guide / "index.html").is_file(), expected)
                         self.assertEqual(guide in sitemap.read_text(encoding="utf-8"), expected)
+                    home = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+                    lineup = generator.sync_simulator_lineup(home, generator.load_entries())
+                    self.assertEqual('href="/diagnostic-library/#rfactor2"' in lineup, expected)
+                    self.assertEqual(lineup, generator.sync_simulator_lineup(lineup, generator.load_entries()))
                     if expected:
                         page = (destination / "rfactor2-steam-content" / "index.html").read_text(encoding="utf-8")
                         self.assertIn("Start this check in PitMedic", page)
@@ -60,3 +65,32 @@ class LibraryAvailabilityTests(unittest.TestCase):
                 generator.load_entries()
         finally:
             item["available_from"] = original
+
+    def test_original_ac_is_published_with_the_supporting_app(self):
+        generator.RELEASE_VERSION = "1.0.0.12"
+        before = generator.load_entries()
+        self.assertTrue({x["id"] for x in before}.isdisjoint(AC_IDS))
+        home = (ROOT / "website/index.html").read_text(encoding="utf-8")
+        self.assertNotIn('href="/diagnostic-library/#assetto-corsa"', generator.sync_simulator_lineup(home, before))
+        generator.RELEASE_VERSION = "1.0.0.13"
+        after = generator.load_entries()
+        self.assertEqual(AC_IDS, {x["id"] for x in after if x["product"] == "Assetto Corsa"})
+        self.assertFalse(AC_IDS & {x["id"] for x in before})
+        updated = generator.sync_simulator_lineup(home, after)
+        self.assertIn('href="/diagnostic-library/#assetto-corsa"', updated)
+        self.assertIn('href="/diagnostic-library/#assetto-corsa-evo"', updated)
+        self.assertIn('href="/diagnostic-library/#assetto-corsa-competizione"', updated)
+        self.assertEqual(updated, generator.sync_simulator_lineup(updated, after))
+
+    def test_original_ac_group_and_pages_appear_together(self):
+        for version, available in (("1.0.0.12", False), ("1.0.0.13", True)):
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as temp:
+                generator.RELEASE_VERSION = version
+                root = Path(temp)
+                generator.generate(root / "library", root / "sitemap.xml")
+                index = (root / "library/index.html").read_text(encoding="utf-8")
+                self.assertEqual(available, 'id="assetto-corsa"' in index)
+                for guide in AC_IDS:
+                    self.assertEqual(available, (root / "library" / guide / "index.html").exists())
+                    self.assertEqual(available, f"/diagnostic-library/{guide}/" in index)
+                    self.assertEqual(available, f"/diagnostic-library/{guide}/" in (root / "sitemap.xml").read_text(encoding="utf-8"))
