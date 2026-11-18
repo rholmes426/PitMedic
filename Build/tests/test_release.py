@@ -1,4 +1,6 @@
 import importlib.util
+import hashlib
+import io
 import json
 from pathlib import Path
 import tempfile
@@ -21,6 +23,60 @@ recovery = load('recovery', 'verify-signed-run.py')
 
 
 class ReleaseTests(unittest.TestCase):
+    def verify_fixture(self, token='', bad_asset=False, bad_download=False):
+        payload = b'validated installer fixture'
+        checksum = hashlib.sha256(payload).hexdigest()
+        manifest = dict(latestVersion='1.0.0.12',
+            releaseUrl='https://github.com/owner/repo/releases/tag/v1.0.0.12',
+            downloadUrl='https://github.com/owner/repo/releases/download/v1.0.0.12/PitMedic-Setup-x64.exe',
+            sha256=checksum)
+        observed = []
+
+        def response(request, **kwargs):
+            url = request.full_url if isinstance(request, release.urllib.request.Request) else request
+            auth = request.get_header('Authorization') if isinstance(request, release.urllib.request.Request) else None
+            observed.append((url, auth))
+            if url.startswith('https://api.github.com/'):
+                redirected = release.urllib.request.HTTPRedirectHandler().redirect_request(
+                    request, None, 302, 'Found', {}, 'https://example.invalid/redirect')
+                self.assertIsNone(redirected.get_header('Authorization'))
+                body = json.dumps(dict(tag_name='v1.0.0.12', draft=False, prerelease=False,
+                    assets=[dict(name='PitMedic-Setup-x64.exe', browser_download_url=manifest['downloadUrl'],
+                        digest='sha256:' + ('wrong' if bad_asset else checksum))])).encode()
+            elif '/update.json?' in url: body = json.dumps(manifest).encode()
+            elif url.startswith('https://pitmedic.com/'):
+                body = f'Download v1.0.0.12 {manifest["downloadUrl"]}'.encode()
+            elif url.startswith('https://raw.githubusercontent.com/'): body = release.readme_release(manifest).encode()
+            elif url == manifest['downloadUrl']: body = b'wrong payload' if bad_download else payload
+            else: raise AssertionError('Unexpected network request: ' + url)
+            return io.BytesIO(body)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / 'website').mkdir()
+            (root / 'website/update.json').write_text(json.dumps(manifest))
+            with patch.object(release, 'ROOT', root), patch.object(release, 'check_metadata'), \
+                 patch.object(release.urllib.request, 'urlopen', side_effect=response), \
+                 patch.object(release.time, 'sleep'), \
+                 patch('sys.stdout', new_callable=io.StringIO), \
+                 patch.dict(release.os.environ, {'GITHUB_TOKEN': token, 'GITHUB_STEP_SUMMARY': ''}):
+                release.verify()
+        return observed
+
+    def test_verification_authenticates_only_the_github_api(self):
+        for token in ('fixture-token', ''):
+            with self.subTest(authenticated=bool(token)):
+                observed = self.verify_fixture(token)
+                api = [(url, auth) for url, auth in observed if url.startswith('https://api.github.com/')]
+                self.assertEqual(len(api), 1)
+                self.assertEqual(api[0][1], 'Bearer fixture-token' if token else None)
+                self.assertTrue(all(auth is None for url, auth in observed if not url.startswith('https://api.github.com/')))
+
+    def test_authenticated_verification_still_rejects_release_and_download_mismatches(self):
+        for options in ({'bad_asset': True}, {'bad_download': True}):
+            with self.subTest(options=options), self.assertRaises(RuntimeError):
+                self.verify_fixture('fixture-token', **options)
+
     def test_finds_draft_across_release_pages(self):
         draft = dict(tag_name='v0.6.0.17', draft=True, assets=[])
         with patch.object(release, 'gh', return_value=json.dumps([

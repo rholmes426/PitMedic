@@ -39,11 +39,18 @@ is separate. Research proposals below are not active available repairs.
 
 Existing `KS-MAN-LMU-DIRECTINPUT` is strengthened by current official advice but
 still needs current file/version/hardware validation; its existing queue entry
-below remains the single repair proposal. The prepared `lmu-controller-config`
+below remains the single repair proposal. The published `lmu-controller-config`
 guide adds separate manual checks now. Existing RaceRoom update guidance gains
 November 11/15/17 symptom/version checks in the same website publication batch.
-These two guide edits add no automatic repair; live publication must be verified.
+These two guide edits add no automatic repair. Both are published and live-verified
+after PR #206: content, canonical links, collection navigation and sitemap match.
+Public download remains .12; the three original-AC pages/group are not advertised.
 Simagic polling and Simucube Link-port hardware tests remain pending, not new.
+
+The Pages upload succeeded in run 44247245456, but its final release check hit
+GitHub's unauthenticated API rate limit (403). A follow-up scopes the existing
+workflow token to that read-only API request; checksum and metadata validation
+remain required. This changes no app release or download.
 
 ## Published 1.0.0.12 — app and Diagnostic Library (November 14, 2026)
 
@@ -73,7 +80,7 @@ remaining IDs are proposals pending their recorded validation.
 | KS-MAN-IR-77 | Update `iracing-track-loading-errors` and `iracing-car-loading-errors` with exact Error 77 routing and target limits | Published in 1.0.0.12 with the paired guide updates |
 | KS-MAN-IR-SIMAGIC | New planned guide `iracing-simagic-stutter` if the scoped repair validates | Awaiting repair validation |
 | KS-MAN-IR-SIMHUB | New planned guide `iracing-simhub-data-config` if current compatibility and repair validate | Awaiting repair validation |
-| KS-MAN-LMU-DIRECTINPUT | Existing `lmu-controller-config` manual checks prepared; future `lmu-directinput-pedal-flicker` only with validated narrow repair | Current official advice obtained November 17; filename/version conflict and hardware test remain |
+| KS-MAN-LMU-DIRECTINPUT | Existing `lmu-controller-config` manual checks published; future `lmu-directinput-pedal-flicker` only with validated narrow repair | Current official advice obtained November 17; filename/version conflict and hardware test remain |
 | Existing Simucube Link-port item | Update `iracing-simucube-link-port-ffb-guidance` when automation validates | Current published manual guidance retained |
 
 Completion requires app knowledge/reference/lifecycle changes as applicable,
