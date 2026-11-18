@@ -7,6 +7,8 @@
     "support.iracing.com",
     "www.assettocorsa.net",
     "forum.kw-studios.com",
+    "docs.studio-397.com",
+    "support.studio-397.com",
     "forum.reizastudios.com",
     "mozaracing.com",
     "support.mozaracing.com",
@@ -182,6 +184,18 @@
       "discoverLinks": true,
       "reportTextChanges": false,
       "maxLinks": 40,
+      "enabled": true
+    },
+    {
+      "id": "rfactor2-support",
+      "product": "rFactor 2",
+      "productType": "simulator",
+      "authority": "official",
+      "sourceRole": "support",
+      "url": "https://support.studio-397.com/hc/en-us",
+      "sourceType": "html",
+      "discoverLinks": true,
+      "reportTextChanges": false,
       "enabled": true
     },
     {

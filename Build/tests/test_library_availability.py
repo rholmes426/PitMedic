@@ -1,7 +1,7 @@
 import importlib.util
 from pathlib import Path
-import unittest
 import tempfile
+import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("library_generator", ROOT / "Tools/DiagnosticLibrary/generate.py")
@@ -33,6 +33,29 @@ class LibraryAvailabilityTests(unittest.TestCase):
         self.assertEqual(NEW_IDS, current - previous)
         self.assertTrue(previous <= current)
 
+    def test_rfactor2_section_is_published_with_its_first_supported_release(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for version, expected in (("1.0.0.12", False), ("1.0.0.13", True)):
+                with self.subTest(version=version):
+                    generator.RELEASE_VERSION = version
+                    destination = root / version
+                    sitemap = root / f"sitemap-{version}.xml"
+                    generator.generate(destination, sitemap)
+                    index = (destination / "index.html").read_text(encoding="utf-8")
+                    self.assertEqual('id="rfactor2"' in index, expected)
+                    for guide in ("rfactor2-steam-content", "rfactor2-trace-log"):
+                        self.assertEqual((destination / guide / "index.html").is_file(), expected)
+                        self.assertEqual(guide in sitemap.read_text(encoding="utf-8"), expected)
+                    home = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
+                    lineup = generator.sync_simulator_lineup(home, generator.load_entries())
+                    self.assertEqual('href="/diagnostic-library/#rfactor2"' in lineup, expected)
+                    self.assertEqual(lineup, generator.sync_simulator_lineup(lineup, generator.load_entries()))
+                    if expected:
+                        page = (destination / "rfactor2-steam-content" / "index.html").read_text(encoding="utf-8")
+                        self.assertIn("Start this check in PitMedic", page)
+                        self.assertIn("Verify Steam files", page)
+
     def test_bad_availability_metadata_stops_generation(self):
         item = generator.PUBLIC_CONTENT["lmu-controller-config"]
         original = item["available_from"]
@@ -48,15 +71,16 @@ class LibraryAvailabilityTests(unittest.TestCase):
         before = generator.load_entries()
         self.assertTrue({x["id"] for x in before}.isdisjoint(AC_IDS))
         home = (ROOT / "website/index.html").read_text(encoding="utf-8")
-        self.assertNotIn('href="/diagnostic-library/#assetto-corsa"', generator.sync_original_ac_lineup(home, before))
+        self.assertNotIn('href="/diagnostic-library/#assetto-corsa"', generator.sync_simulator_lineup(home, before))
         generator.RELEASE_VERSION = "1.0.0.13"
         after = generator.load_entries()
-        self.assertEqual(AC_IDS, {x["id"] for x in after} - {x["id"] for x in before})
-        updated = generator.sync_original_ac_lineup(home, after)
+        self.assertEqual(AC_IDS, {x["id"] for x in after if x["product"] == "Assetto Corsa"})
+        self.assertFalse(AC_IDS & {x["id"] for x in before})
+        updated = generator.sync_simulator_lineup(home, after)
         self.assertIn('href="/diagnostic-library/#assetto-corsa"', updated)
         self.assertIn('href="/diagnostic-library/#assetto-corsa-evo"', updated)
         self.assertIn('href="/diagnostic-library/#assetto-corsa-competizione"', updated)
-        self.assertEqual(updated, generator.sync_original_ac_lineup(updated, after))
+        self.assertEqual(updated, generator.sync_simulator_lineup(updated, after))
 
     def test_original_ac_group_and_pages_appear_together(self):
         for version, available in (("1.0.0.12", False), ("1.0.0.13", True)):

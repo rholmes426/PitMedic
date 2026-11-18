@@ -33,6 +33,7 @@ public partial class SettingsWindow : Window
         MonitorRaceRoom.IsChecked = s.MonitorRaceRoom;
         MonitorAcc.IsChecked = s.MonitorAssettoCorsaCompetizione;
         MonitorAms2.IsChecked = s.MonitorAutomobilista2;
+        MonitorRFactor2.IsChecked = s.MonitorRFactor2;
         MonitorCompanionSoftware.IsChecked = s.MonitorCompanionSoftware;
         CpuTemp.IsChecked = s.MonitorCpuTemperature;
         CpuLoad.IsChecked = s.MonitorCpuLoad;
@@ -69,6 +70,7 @@ public partial class SettingsWindow : Window
             MonitorRaceRoom = MonitorRaceRoom.IsChecked == true,
             MonitorAssettoCorsaCompetizione = MonitorAcc.IsChecked == true,
             MonitorAutomobilista2 = MonitorAms2.IsChecked == true,
+            MonitorRFactor2 = MonitorRFactor2.IsChecked == true,
             MonitorCompanionSoftware = MonitorCompanionSoftware.IsChecked == true,
             MonitorCpuTemperature = CpuTemp.IsChecked == true,
             MonitorCpuLoad = CpuLoad.IsChecked == true,

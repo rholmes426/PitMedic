@@ -14,7 +14,8 @@ internal static class AssettoCorsaTests
             count++;
         }
         var game = GameDefinition.Supported.Single(x => x.Kind == GameKind.AssettoCorsa);
-        Check(GameDefinition.Supported.Count == 7, "Seven distinct simulators are configured.");
+        Check(GameDefinition.Supported.Select(definition => definition.Kind).Distinct().Count() == GameDefinition.Supported.Count,
+            "Each configured simulator has a distinct game kind.");
         Check((int)GameKind.Automobilista2 == 5 && (int)GameKind.RaceRoom == 3 && (int)GameKind.AssettoCorsa == 6,
             "Existing persisted enum values are unchanged.");
         Check(game.DisplayName == "Assetto Corsa" && game.ProcessNames.SequenceEqual(new[] { "acs", "acs_x86" }),

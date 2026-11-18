@@ -5,6 +5,54 @@ using System.Text.Json;
 ConfigurationRepairTests.Run();
 ProcessExitTests.Run();
 
+var rfactor2 = GameDefinition.Supported.Single(game => game.Kind == GameKind.RFactor2);
+var rfactor2Root = Path.Combine(Path.GetTempPath(), "PitMedic-rFactor2-" + Guid.NewGuid().ToString("N"));
+try
+{
+    var logFolder = Path.Combine(rfactor2Root, "UserData", "Log");
+    var incidentFolder = Path.Combine(rfactor2Root, "Incident");
+    Directory.CreateDirectory(logFolder);
+    var started = DateTimeOffset.UtcNow.AddMinutes(-1);
+    var ended = started.AddSeconds(30);
+    var trace = Path.Combine(logFolder, "trace.txt");
+    var oldTrace = Path.Combine(logFolder, "trace_older.txt");
+    File.WriteAllText(trace, "fatal error");
+    File.SetLastWriteTimeUtc(trace, started.UtcDateTime.AddSeconds(5));
+    File.WriteAllText(oldTrace, "fatal error");
+    File.SetLastWriteTimeUtc(oldTrace, started.UtcDateTime.AddMinutes(-1));
+
+    var evidence = new LogCollector().Collect(rfactor2, started, ended, incidentFolder,
+        Path.Combine(rfactor2Root, "Bin64", rfactor2.ExecutableName));
+    AssertTrue(evidence.LogFiles == 1 && File.Exists(Path.Combine(incidentFolder, "Logs", "trace.txt")),
+        "Only traces written during the monitored rFactor 2 session should be collected.");
+    AssertTrue(evidence.CrashHints.Count == 0 && evidence.RepairSignatureIds.Count == 0,
+        "rFactor 2 trace text is context and must not create a finding or select a repair by itself.");
+
+    var crash = new CrashClassification(CrashClassification.ApplicationFault, 88, "Windows recorded a fault.", []);
+    var verification = UserRequestedRepairPolicy.CreatePlan(GameKind.RFactor2, UserRequestedRepairPolicy.RFactor2VerificationId)
+        ?? throw new InvalidOperationException("Expected rFactor 2 verification in Repair Tools.");
+    AssertTrue(UserRequestedRepairPolicy.OptionsFor(GameKind.RFactor2).Single().Id == verification.Id,
+        "rFactor 2 verification must be reachable before a crash occurs.");
+    var incident = new IncidentRecord { Game = rfactor2.DisplayName, Classification = crash, RecommendedRepair = verification };
+    AssertTrue(RepairPlanner.Create(rfactor2, crash, evidence) is null
+        && RepairPlanner.TryCreateFromIncident(incident) is null,
+        "A generic crash or serialized recommendation must not create an rFactor 2 verification request.");
+
+    var request = incident with
+    {
+        Classification = new CrashClassification(ScopedConfigurationRepair.RequestCategory, 100, "User requested verification.",
+            [ScopedConfigurationRepair.RequestPrefix + UserRequestedRepairPolicy.RFactor2VerificationId]),
+        RecommendedRepair = null
+    };
+    var plan = RepairPlanner.TryCreateFromIncident(request);
+    AssertTrue(plan is { RequiresApproval: true, SteamAppId: "365960", EstimatedMinutes: > 2 },
+        "An explicit rFactor 2 request must reconstruct an approval-gated check for the Steam client only.");
+    AssertTrue(RepairKnowledgeBase.DiagnosticLibraryUrlForPlan(verification.Id)
+        == "https://pitmedic.com/diagnostic-library/rfactor2-steam-content/",
+        "The requested Steam check must link to its matching guide.");
+}
+finally { Directory.Delete(rfactor2Root, recursive: true); }
+
 foreach (var invalid in new float?[] { null, 0, -1, float.NaN, float.PositiveInfinity, float.NegativeInfinity })
 {
     AssertFalse(CpuSensorPolicy.PositiveReading(invalid).HasValue, "Invalid CPU readings must be unavailable.");
@@ -225,7 +273,7 @@ finally
 }
 
 AssertTrue(
-    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly) == 59,
+    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly) == 60,
     "Every simulator repair implemented for this release must have a formal knowledge record.");
 AssertTrue(
     RepairKnowledgeBase.DiagnosticLibraryUrlForPlan("ams2-controller-reset")

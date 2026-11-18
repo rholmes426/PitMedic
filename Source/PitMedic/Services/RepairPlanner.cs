@@ -126,6 +126,8 @@ public static class RepairPlanner
             return CreateIRacingPlan(record.Classification.Category, record.Classification.Evidence);
         if (record.Game.Equals("Assetto Corsa", StringComparison.OrdinalIgnoreCase))
             return AssettoCorsaPolicy.PlanFromEvidence(record.Classification.Evidence);
+        // rFactor 2 verification is available only as an explicit Repair Tools request.
+        if (record.Game.Equals("rFactor 2", StringComparison.OrdinalIgnoreCase)) return null;
         if (record.RecommendedRepair is not null
             && !record.RecommendedRepair.Id.Equals("companion-app-restart", StringComparison.OrdinalIgnoreCase))
             return record.RecommendedRepair;

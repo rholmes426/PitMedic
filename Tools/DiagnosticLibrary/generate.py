@@ -289,6 +289,13 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
     display_issue = f"{product} crash or stale-process recovery" if is_companion else issue
     canonical = f"{BASE_URL}/diagnostic-library/{entry['id']}/"
     editorial = PUBLIC_CONTENT.get(str(entry["id"]), {})
+    user_requested = editorial.get("user_requested", False)
+    aside_heading = "Compare your symptoms" if is_guidance else "Let PitMedic check it"
+    aside_summary = ("This is version-specific guidance for manual review. It does not add automatic detection or a repair action."
+                     if is_guidance else "PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.")
+    if user_requested:
+        aside_heading = "Start this check in PitMedic"
+        aside_summary = "Open the simulator page and choose Repair Tools, then Verify Steam files. PitMedic asks for approval before it hands the request to Steam."
     display_issue = str(editorial.get("heading") or display_issue)
     description = str(editorial.get("description") or (
         f"How PitMedic detects and performs a controlled recovery after a {product} crash or stale process."
@@ -383,11 +390,11 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
     </header>
     <div class="diagnostic-layout">
       <div class="diagnostic-main">
-{explanation_html}{manual_html}        <section class="diagnostic-card"><h2>{"When to consider this guidance" if is_guidance else "How PitMedic recognizes it"}</h2><p>{esc(entry["detection"])}</p>{details}</section>
+{explanation_html}{manual_html}        <section class="diagnostic-card"><h2>{"When to consider this guidance" if is_guidance else "When to use this check" if user_requested else "How PitMedic recognizes it"}</h2><p>{esc(entry["detection"])}</p>{details}</section>
         <section class="diagnostic-card"><h2>{"Suggested manual checks" if is_guidance else "Built-in response"}</h2><p>{esc(entry["repair"])}</p><div class="safety-note"><strong>Repair safety</strong><span>{esc(entry["safety"])}</span></div></section>
 {examples_html}        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list">{source_items}</ul></section>
       </div>
-      <aside class="library-aside"><h2>{"Compare your symptoms" if is_guidance else "Let PitMedic check it"}</h2><p>{"This is version-specific guidance for manual review. It does not add automatic detection or a repair action." if is_guidance else "PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present."}</p><a class="button button-primary" href="{RELEASE_URL}">Download v{RELEASE_VERSION}</a>{product_link}<small>Free and open source · Windows 10/11</small></aside>
+      <aside class="library-aside"><h2>{esc(aside_heading)}</h2><p>{esc(aside_summary)}</p><a class="button button-primary" href="{RELEASE_URL}">Download v{RELEASE_VERSION}</a>{product_link}<small>Free and open source · Windows 10/11</small></aside>
     </div>
     <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>{"Other companion software recoveries" if is_companion else "More for " + esc(product)}</h2><div>{related_html}</div></nav>
   </article>
@@ -460,6 +467,13 @@ LIBRARY_GROUPS = [
         ],
         "description": "Video settings, launch failures, user profiles, Steam files, and companion conflicts.",
         "coverage": "assetto-corsa-evo"
+    },
+    {
+        "slug": "rfactor2",
+        "name": "rFactor 2",
+        "products": ["rFactor 2"],
+        "description": "Steam file verification and trace logging for unexpected exits.",
+        "coverage": "rfactor2"
     },
     {
         "slug": "companion-software",
@@ -692,18 +706,22 @@ def generate(destination: Path, sitemap: Path) -> None:
     write_sitemap(entries, sitemap)
 
 
-def sync_original_ac_lineup(home: str, entries: list[dict[str, object]]) -> str:
-    """Publish the new simulator's homepage link with its available repair pages."""
-    pattern = r'^([ \t]*)<a class="sim-row" href="/diagnostic-library/#assetto-corsa">.*?</a>\n?'
-    if not any(entry["product"] == "Assetto Corsa" for entry in entries):
-        return re.sub(pattern, "", home, flags=re.M)
-    if re.search(pattern, home, flags=re.M):
-        return home
-    existing = re.search(r'^([ \t]*)<a class="sim-row" href="/diagnostic-library/#assetto-corsa-evo">.*?</a>', home, flags=re.M)
-    if not existing:
-        raise ValueError("Cannot locate the EVO lineup row to publish original Assetto Corsa")
-    row = existing.group(0).replace("#assetto-corsa-evo", "#assetto-corsa").replace(">Assetto Corsa EVO<", ">Assetto Corsa<")
-    return home[:existing.start()] + row + "\n" + home[existing.start():]
+def sync_simulator_lineup(home: str, entries: list[dict[str, object]]) -> str:
+    """Publish each new simulator's homepage link with its available guides."""
+    for product, slug, anchor, anchor_name in (
+        ("Assetto Corsa", "assetto-corsa", "assetto-corsa-evo", "Assetto Corsa EVO"),
+        ("rFactor 2", "rfactor2", "raceroom", "RaceRoom Racing Experience"),
+    ):
+        pattern = rf'^([ \t]*)<a class="sim-row" href="/diagnostic-library/#{slug}">.*?</a>\n?'
+        if not any(entry["product"] == product for entry in entries):
+            home = re.sub(pattern, "", home, flags=re.M)
+        elif not re.search(pattern, home, flags=re.M):
+            existing = re.search(rf'^([ \t]*)<a class="sim-row" href="/diagnostic-library/#{anchor}">.*?</a>', home, flags=re.M)
+            if not existing:
+                raise ValueError(f"Cannot locate the {anchor_name} lineup row to publish {product}")
+            row = existing.group(0).replace(f"#{anchor}", f"#{slug}").replace(f">{anchor_name}<", f">{product}<")
+            home = home[:existing.start()] + row + "\n" + home[existing.start():]
+    return home
 
 
 def main() -> int:
@@ -716,7 +734,7 @@ def main() -> int:
         generate(OUTPUT, WEBSITE / "sitemap.xml")
         home_path = WEBSITE / "index.html"
         home = home_path.read_text(encoding="utf-8")
-        updated_home = sync_original_ac_lineup(home, load_entries())
+        updated_home = sync_simulator_lineup(home, load_entries())
         if updated_home != home:
             home_path.write_text(updated_home, encoding="utf-8")
         print(f"Generated {len(load_entries())} Diagnostic Library records.")
@@ -732,7 +750,7 @@ def main() -> int:
             return 1
         mismatches = []
         home = (WEBSITE / "index.html").read_text(encoding="utf-8")
-        if sync_original_ac_lineup(home, load_entries()) != home:
+        if sync_simulator_lineup(home, load_entries()) != home:
             mismatches.append("../index.html")
         generated_files = {path.relative_to(generated) for path in generated.rglob("*") if path.is_file()}
         committed_files = {path.relative_to(OUTPUT) for path in OUTPUT.rglob("*") if path.is_file()}

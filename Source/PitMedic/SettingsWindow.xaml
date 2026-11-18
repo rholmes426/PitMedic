@@ -67,6 +67,7 @@
                             <CheckBox x:Name="MonitorRaceRoom" Content="RaceRoom"/>
                             <CheckBox x:Name="MonitorAcc" Content="Assetto Corsa Competizione"/>
                             <CheckBox x:Name="MonitorAms2" Content="Automobilista 2"/>
+                            <CheckBox x:Name="MonitorRFactor2" Content="rFactor 2"/>
                         </WrapPanel>
                     </StackPanel>
                 </Border>

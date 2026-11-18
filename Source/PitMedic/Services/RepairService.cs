@@ -46,7 +46,7 @@ public sealed class RepairService : IDisposable
 
     public bool Begin(IncidentRecord incident, RepairPlan plan, AppSettings settings, bool automatic = false)
     {
-        if (automatic && ScopedConfigurationRepair.IsSupported(plan.Id)) return false;
+        if (automatic && (ScopedConfigurationRepair.IsSupported(plan.Id) || plan.Id == UserRequestedRepairPolicy.RFactor2VerificationId)) return false;
         if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(incident)
             || LegacyProcessExitPolicy.IsUnverifiedRunningStatus(incident)) return false;
         // An automatic repair can proceed only if every remaining process is the
@@ -112,7 +112,8 @@ public sealed class RepairService : IDisposable
 
     private static bool IsSimulatorRepairFor(RepairPlan plan, GameDefinition game)
         => plan.Game.Equals(game.DisplayName, StringComparison.OrdinalIgnoreCase)
-            && plan.Id != "lmu-sync-windows-time";
+            && plan.Id != "lmu-sync-windows-time"
+            && plan.Id != UserRequestedRepairPolicy.RFactor2VerificationId;
 
     private async Task ClearStalledSimulatorAsync(IncidentRecord incident, RepairPlan plan, CancellationToken token)
     {
@@ -288,7 +289,10 @@ public sealed class RepairService : IDisposable
                     try { Directory.Delete(backupRoot, true); backupRoot = null; } catch { }
                 }
                 _usage?.RecordRepairCompleted(plan, automatic);
-                Update(incident, plan, 100, "Repair complete", completion, "The repair actions completed successfully. PitMedic retained the issue evidence and repair history for review.",
+                var steamHandOff = plan.Id == UserRequestedRepairPolicy.RFactor2VerificationId;
+                Update(incident, plan, 100, steamHandOff ? "Verification requested" : "Repair complete", completion,
+                    steamHandOff ? "Check Steam Downloads for progress before retesting."
+                        : "The repair actions completed successfully. PitMedic retained the issue evidence and repair history for review.",
                     Math.Max(1, plan.Steps.Count), Math.Max(1, plan.Steps.Count), false, true, true, backupRoot);
                 return;
             }
@@ -461,6 +465,7 @@ public sealed class RepairService : IDisposable
             "raceroom-graphics-reset" => await RepairRaceRoomGraphicsAsync(incident, plan, backupRoot, token),
             "raceroom-shader-reset" => await RepairRaceRoomShaderAsync(incident, plan, backupRoot, token),
             "raceroom-profile-reset" => await RepairRaceRoomProfileAsync(incident, plan, backupRoot, token),
+            UserRequestedRepairPolicy.RFactor2VerificationId => await RequestRFactor2VerificationAsync(incident, plan, backupRoot, token),
             "raceroom-steam-verify" => await RepairRaceRoomSteamVerifyAsync(incident, plan, backupRoot, token),
 
             "acc-game-user-settings-reset" => await RepairAccFileAsync(incident, plan, backupRoot, token, "GameUserSettings.ini", Path.Combine(GetAccLocalConfigRoot(), "GameUserSettings.ini"), "display/startup settings"),
@@ -1331,6 +1336,20 @@ public sealed class RepairService : IDisposable
         await File.WriteAllTextAsync(Path.Combine(backupRoot, "ams2-profile-backup-location.txt"), destination, token);
         UpdateSimple(incident, plan, 80, "Preparing clean AMS2 profile", "Automobilista 2 will create clean user data on next launch...", 2, 3, backupRoot);
         return $"Automobilista 2 user data was moved to '{destination}'.";
+    }
+
+    private async Task<string> RequestRFactor2VerificationAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
+    {
+        if (!SteamLibraryLocator.HasRFactor2Install())
+            throw new FileNotFoundException("PitMedic could not find rFactor 2 in the configured Steam libraries.");
+        EnsureGameNotRunning(GameKind.RFactor2, "rFactor 2");
+        // The tools share game data with the Steam client but are not race sessions.
+        if (IsProcessRunning("rFactor2 Mod Mode") || IsProcessRunning("rFactor2 Dedicated"))
+            throw new InvalidOperationException("Close rFactor 2 Mod Mode or Dedicated Server before verifying files.");
+
+        UpdateSimple(incident, plan, 30, "Opening Steam", "Requesting file verification for rFactor 2.", 2, 3, backupRoot);
+        using var steam = await SteamClientService.StartValidationAsync(UserRequestedRepairPolicy.RFactor2SteamAppId, token);
+        return "PitMedic sent the file verification request to Steam. Wait for verification and any downloads to finish before relaunching rFactor 2.";
     }
 
     private async Task<string> RepairSteamVerifyAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token,

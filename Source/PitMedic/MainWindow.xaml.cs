@@ -165,6 +165,7 @@ public partial class MainWindow : Window
         _navButtons[GameKind.RaceRoom] = RaceRoomNav;
         _navButtons[GameKind.AssettoCorsaCompetizione] = AccNav;
         _navButtons[GameKind.Automobilista2] = Ams2Nav;
+        _navButtons[GameKind.RFactor2] = RFactor2Nav;
 
         _navStatuses[GameKind.LeMansUltimate] = LmuStatus;
         _navStatuses[GameKind.IRacing] = IRacingStatus;
@@ -173,6 +174,7 @@ public partial class MainWindow : Window
         _navStatuses[GameKind.RaceRoom] = RaceRoomStatus;
         _navStatuses[GameKind.AssettoCorsaCompetizione] = AccStatus;
         _navStatuses[GameKind.Automobilista2] = Ams2Status;
+        _navStatuses[GameKind.RFactor2] = RFactor2Status;
 
         _navDots[GameKind.LeMansUltimate] = LmuDot;
         _navDots[GameKind.IRacing] = IRacingDot;
@@ -181,6 +183,7 @@ public partial class MainWindow : Window
         _navDots[GameKind.RaceRoom] = RaceRoomDot;
         _navDots[GameKind.AssettoCorsaCompetizione] = AccDot;
         _navDots[GameKind.Automobilista2] = Ams2Dot;
+        _navDots[GameKind.RFactor2] = RFactor2Dot;
 
         foreach (var button in _navButtons.Values)
             button.Checked += SimulatorNav_Checked;
@@ -448,6 +451,7 @@ public partial class MainWindow : Window
         SetHomeReadiness(HomeRaceRoomStatus, GameKind.RaceRoom);
         SetHomeReadiness(HomeAccStatus, GameKind.AssettoCorsaCompetizione);
         SetHomeReadiness(HomeAms2Status, GameKind.Automobilista2);
+        SetHomeReadiness(HomeRFactor2Status, GameKind.RFactor2);
         RefreshHomeCompanionSoftware(companions);
 
         if (_monitoring.CurrentRepair?.IsActive == true)
@@ -785,6 +789,7 @@ public partial class MainWindow : Window
         GameKind.RaceRoom => _settings.MonitorRaceRoom,
         GameKind.AssettoCorsaCompetizione => _settings.MonitorAssettoCorsaCompetizione,
         GameKind.Automobilista2 => _settings.MonitorAutomobilista2,
+        GameKind.RFactor2 => _settings.MonitorRFactor2,
         _ => false
     };
 
@@ -797,6 +802,7 @@ public partial class MainWindow : Window
         GameKind.RaceRoom => "RACEROOM",
         GameKind.AssettoCorsaCompetizione => "ACC",
         GameKind.Automobilista2 => "AMS2",
+        GameKind.RFactor2 => "RFACTOR 2",
         _ => "SIMULATOR"
     };
 

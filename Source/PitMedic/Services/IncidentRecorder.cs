@@ -25,6 +25,8 @@ public sealed class IncidentRecorder
     {
         var plan = UserRequestedRepairPolicy.CreatePlan(kind, repairId)
             ?? throw new InvalidOperationException("This repair is not supported for the selected simulator.");
+        if (plan.Id == UserRequestedRepairPolicy.RFactor2VerificationId && !SteamLibraryLocator.HasRFactor2Install())
+            throw new FileNotFoundException("PitMedic could not find rFactor 2 in the configured Steam libraries.");
         var game = GameDefinition.Supported.Single(x => x.Kind == kind);
         var now = DateTimeOffset.Now;
         var folder = Path.Combine(AppPaths.Incidents, now.ToString("yyyyMMdd_HHmmss") + "_requested_" + Guid.NewGuid().ToString("N"));
@@ -45,7 +47,7 @@ public sealed class IncidentRecorder
 
     public async Task<IncidentRecord?> RecordAsync(GameDefinition game, int pid, DateTimeOffset started, DateTimeOffset ended,
         int? exitCode, IReadOnlyList<TelemetrySample> telemetry, bool captureEveryExit,
-        IReadOnlyList<LiveFaultEvidence>? liveFaults = null)
+        IReadOnlyList<LiveFaultEvidence>? liveFaults = null, string? executablePath = null)
     {
         await Task.Delay(5500);
 
@@ -53,7 +55,7 @@ public sealed class IncidentRecorder
         var folder = Path.Combine(AppPaths.Incidents, $"{ended:yyyyMMdd_HHmmss}_{slug}");
         Directory.CreateDirectory(folder);
 
-        var collected = _collector.Collect(game, started, ended, folder);
+        var collected = _collector.Collect(game, started, ended, folder, executablePath);
         var windowsEvents = _events.GetAround(ended, game.ExecutableName, TimeSpan.FromSeconds(45));
         var classification = _classifier.Classify(game, exitCode, windowsEvents, telemetry, collected, liveFaults);
 
@@ -428,9 +430,13 @@ public sealed class IncidentRecorder
             if (!doc.RootElement.TryGetProperty("state", out var state)) return (false, string.Empty);
             var complete = state.TryGetProperty("IsComplete", out var completeEl) && completeEl.GetBoolean();
             var success = state.TryGetProperty("Success", out var successEl) && successEl.GetBoolean();
-            var retest = doc.RootElement.TryGetProperty("plan", out var plan)
-                && plan.TryGetProperty("Id", out var id)
-                && (ScopedConfigurationRepair.IsSupported(id.GetString() ?? "") || id.GetString()?.StartsWith("iracing-error77-", StringComparison.Ordinal) == true || id.GetString() == "ac-steam-verify");
+            var planId = doc.RootElement.TryGetProperty("plan", out var plan) && plan.TryGetProperty("Id", out var id)
+                ? id.GetString() ?? ""
+                : "";
+            var retest = ScopedConfigurationRepair.IsSupported(planId)
+                || planId.StartsWith("iracing-error77-", StringComparison.Ordinal) || planId == "ac-steam-verify";
+            if (complete && success && planId == UserRequestedRepairPolicy.RFactor2VerificationId)
+                return (true, "Verification requested · retest");
             return complete && success ? (true, retest ? "Applied · retest" : "Resolved") : (false, string.Empty);
         }
         catch { return (false, string.Empty); }

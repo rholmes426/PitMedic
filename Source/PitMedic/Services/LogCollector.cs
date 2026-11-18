@@ -31,7 +31,8 @@ public sealed class LogCollector
         "Still has 0 bytes allocated"
     };
 
-    public CollectedEvidence Collect(GameDefinition game, DateTimeOffset sessionStarted, DateTimeOffset incidentTime, string incidentFolder)
+    public CollectedEvidence Collect(GameDefinition game, DateTimeOffset sessionStarted, DateTimeOffset incidentTime, string incidentFolder,
+        string? executablePath = null)
     {
         var logsDest = Path.Combine(incidentFolder, "Logs");
         var dumpsDest = Path.Combine(incidentFolder, "Dumps");
@@ -107,6 +108,16 @@ public sealed class LogCollector
             logFiles += CopyRecent(Path.Combine(saved, "Logs"), logsDest, logCutoff, f => f.Extension.Equals(".log", StringComparison.OrdinalIgnoreCase) || f.Extension.Equals(".txt", StringComparison.OrdinalIgnoreCase));
             dumpFiles += CopyRecent(Path.Combine(saved, "Crashes"), dumpsDest, dumpCutoff, f => f.Extension.Equals(".dmp", StringComparison.OrdinalIgnoreCase) || f.Extension.Equals(".log", StringComparison.OrdinalIgnoreCase));
         }
+        else if (game.Kind == GameKind.RFactor2)
+        {
+            var traceFolder = RFactor2TraceFolder(executablePath);
+            if (traceFolder is not null)
+                logFiles += CopyRecent(traceFolder, logsDest, sessionStarted,
+                    f => f.LastWriteTimeUtc <= incidentTime.UtcDateTime.AddSeconds(2)
+                        && f.Name.StartsWith("trace", StringComparison.OrdinalIgnoreCase)
+                        && f.Extension.Equals(".txt", StringComparison.OrdinalIgnoreCase),
+                    SearchOption.TopDirectoryOnly);
+        }
         else if (game.Kind == GameKind.Automobilista2)
         {
             var ams2 = GetAms2DocumentsRoot();
@@ -119,12 +130,14 @@ public sealed class LogCollector
         dumpFiles += CopyRecent(crashDumps, dumpsDest, dumpCutoff,
             f => f.Extension.Equals(".dmp", StringComparison.OrdinalIgnoreCase)
               && (game.Kind == GameKind.AssettoCorsa ? AssettoCorsaPolicy.IsEngineDumpFile(f.Name)
+                  : game.Kind == GameKind.RFactor2 ? IsRFactor2CrashDump(f.Name)
                   : game.ProcessNames.Any(p => f.Name.Contains(p, StringComparison.OrdinalIgnoreCase))));
 
-        dumpFiles += CopyRecent(Path.GetTempPath(), dumpsDest, dumpCutoff,
-            f => f.Extension.Equals(".dmp", StringComparison.OrdinalIgnoreCase)
-              && (game.Kind == GameKind.AssettoCorsa ? AssettoCorsaPolicy.IsEngineDumpFile(f.Name)
-                  : game.ProcessNames.Any(p => f.Name.Contains(p.Split(' ')[0], StringComparison.OrdinalIgnoreCase))));
+        if (game.Kind != GameKind.RFactor2)
+            dumpFiles += CopyRecent(Path.GetTempPath(), dumpsDest, dumpCutoff,
+                f => f.Extension.Equals(".dmp", StringComparison.OrdinalIgnoreCase)
+                  && (game.Kind == GameKind.AssettoCorsa ? AssettoCorsaPolicy.IsEngineDumpFile(f.Name)
+                      : game.ProcessNames.Any(p => f.Name.Contains(p.Split(' ')[0], StringComparison.OrdinalIgnoreCase))));
 
         try
         {
@@ -143,8 +156,9 @@ public sealed class LogCollector
                     }
                 }
 
-                foreach (var relative in LmuLogEvidenceParser.ExtractAffectedInstalledContent(text))
-                    affectedContent.Add(relative);
+                if (game.Kind == GameKind.LeMansUltimate)
+                    foreach (var relative in LmuLogEvidenceParser.ExtractAffectedInstalledContent(text))
+                        affectedContent.Add(relative);
 
                 DetectRepairSignatures(game, text, repairSignatures);
 
@@ -410,13 +424,32 @@ public sealed class LogCollector
         return reader.ReadToEnd();
     }
 
-    private static int CopyRecent(string source, string destination, DateTimeOffset cutoff, Func<FileInfo, bool> predicate)
+    private static bool IsRFactor2CrashDump(string fileName)
+        => fileName.Equals("rFactor2.dmp", StringComparison.OrdinalIgnoreCase)
+            || fileName.StartsWith("rFactor2.exe.", StringComparison.OrdinalIgnoreCase);
+
+    private static string? RFactor2TraceFolder(string? executablePath)
+    {
+        if (string.IsNullOrEmpty(executablePath) || !Path.IsPathFullyQualified(executablePath)
+            || !Path.GetFileName(executablePath).Equals("rFactor2.exe", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        var bin = Path.GetDirectoryName(executablePath);
+        if (bin is null || !Path.GetFileName(bin).Equals("Bin64", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        var root = Path.GetDirectoryName(bin);
+        return root is null ? null : Path.Combine(root, "UserData", "Log");
+    }
+
+    private static int CopyRecent(string source, string destination, DateTimeOffset cutoff,
+        Func<FileInfo, bool> predicate, SearchOption searchOption = SearchOption.AllDirectories)
     {
         if (!Directory.Exists(source)) return 0;
         var copied = 0;
         try
         {
-            foreach (var path in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+            foreach (var path in Directory.EnumerateFiles(source, "*", searchOption))
             {
                 FileInfo info;
                 try { info = new FileInfo(path); } catch { continue; }

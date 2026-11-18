@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.RegularExpressions;
+using Microsoft.Win32;
 
 namespace PitMedic.Services;
 
@@ -14,6 +15,17 @@ public static class SteamLibraryLocator
         foreach (var candidate in new[] { Path.Combine(programFilesX86, "Steam"), Path.Combine(programFiles, "Steam") })
         {
             if (Directory.Exists(candidate)) roots.Add(candidate);
+        }
+
+        if (OperatingSystem.IsWindows())
+        {
+            try
+            {
+                if (Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath", null) is string steamPath
+                    && Path.IsPathFullyQualified(steamPath) && Directory.Exists(steamPath))
+                    roots.Add(steamPath);
+            }
+            catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException) { }
         }
 
         foreach (var steamRoot in roots.ToArray())
@@ -46,5 +58,8 @@ public static class SteamLibraryLocator
 
     public static string? FindLeMansUltimateRoot() => FindGameRoot("Le Mans Ultimate");
     public static string? FindAssettoCorsaEvoRoot() => FindGameRoot("Assetto Corsa EVO");
+    public static bool HasRFactor2Install() => GetLibraries().Any(library =>
+        File.Exists(Path.Combine(library, "steamapps", "appmanifest_365960.acf")));
+
     public static string? FindRaceRoomRoot() => FindGameRoot("raceroom racing experience");
 }

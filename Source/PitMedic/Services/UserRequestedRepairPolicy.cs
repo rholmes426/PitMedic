@@ -10,19 +10,30 @@ public static class UserRequestedRepairPolicy
         "Ask Steam to check the original game's files. Close the game, launcher and Content Manager first. Steam may replace modified stock files; back those up before continuing. This does not install or repair third-party mods.",
         Array.Empty<string>());
 
+    public const string RFactor2VerificationId = "rfactor2-steam-content";
+    public const string RFactor2SteamAppId = "365960";
+
+    private static readonly ConfigurationRepairOption RFactor2Verification = new(
+        RFactor2VerificationId, GameKind.RFactor2, "Verify Steam files",
+        "Ask Steam to check rFactor 2 for missing or damaged game files. Close rFactor 2 and its tools first. Steam may replace manually modified game files. Back up changes you want to keep and wait for Steam to finish before retesting.",
+        Array.Empty<string>());
+
+    private static readonly ConfigurationRepairOption[] SteamVerifications = { AcVerification, RFactor2Verification };
+
     public static IReadOnlyList<ConfigurationRepairOption> OptionsFor(GameKind game) =>
-        ScopedConfigurationRepair.Options.Where(x => x.Game == game)
-            .Concat(game == GameKind.AssettoCorsa ? new[] { AcVerification } : Array.Empty<ConfigurationRepairOption>()).ToArray();
+        ScopedConfigurationRepair.Options.Concat(SteamVerifications).Where(x => x.Game == game).ToArray();
 
     public static RepairPlan? CreatePlan(GameKind game, string id)
     {
-        if (game != GameKind.AssettoCorsa || id != AcVerification.Id)
-            return ScopedConfigurationRepair.CreatePlan(game, id);
+        var verification = SteamVerifications.FirstOrDefault(option => option.Game == game && option.Id == id);
+        if (verification is null) return ScopedConfigurationRepair.CreatePlan(game, id);
+        var displayName = GameDefinition.Supported.Single(definition => definition.Kind == game).DisplayName;
         return new RepairPlan
         {
-            Id = id, Game = "Assetto Corsa", Title = AcVerification.Title, Summary = AcVerification.Description,
-            Safety = RepairSafety.Reversible, RequiresApproval = true, EstimatedMinutes = 8,
-            SteamAppId = AssettoCorsaPolicy.SteamAppId,
+            Id = id, Game = displayName, Title = verification.Title, Summary = verification.Description,
+            Safety = game == GameKind.RFactor2 ? RepairSafety.Significant : RepairSafety.Reversible,
+            RequiresApproval = true, EstimatedMinutes = 8,
+            SteamAppId = game == GameKind.RFactor2 ? RFactor2SteamAppId : AssettoCorsaPolicy.SteamAppId,
             Steps = new[] { "Close the game and configuration tools", "Start Steam verification", "Wait for Steam to finish, then test a stock car and track" },
             References = RepairKnowledgeBase.ReferencesForPlan(id)
         };

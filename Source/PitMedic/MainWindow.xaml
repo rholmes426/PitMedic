@@ -141,8 +141,11 @@
                             <RadioButton x:Name="AccNav" Style="{StaticResource SimulatorNavStyle}" GroupName="Simulators" Tag="AssettoCorsaCompetizione" Margin="0,0,0,8">
                                 <Grid MinHeight="58"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="Assetto Corsa Competizione" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" FontWeight="SemiBold" FontSize="15"/><TextBlock x:Name="AccStatus" Text="Not running" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" Opacity="0.72" FontSize="12.5" Margin="0,4,0,0"/></StackPanel><Ellipse x:Name="AccDot" Grid.Column="1" Width="9" Height="9" Fill="{StaticResource SidebarMutedBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/></Grid>
                             </RadioButton>
-                            <RadioButton x:Name="Ams2Nav" Style="{StaticResource SimulatorNavStyle}" GroupName="Simulators" Tag="Automobilista2">
+                            <RadioButton x:Name="Ams2Nav" Style="{StaticResource SimulatorNavStyle}" GroupName="Simulators" Tag="Automobilista2" Margin="0,0,0,8">
                                 <Grid MinHeight="48"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="Automobilista 2" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" FontWeight="SemiBold" FontSize="15"/><TextBlock x:Name="Ams2Status" Text="Not running" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" Opacity="0.72" FontSize="12.5" Margin="0,4,0,0"/></StackPanel><Ellipse x:Name="Ams2Dot" Grid.Column="1" Width="9" Height="9" Fill="{StaticResource SidebarMutedBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/></Grid>
+                            </RadioButton>
+                            <RadioButton x:Name="RFactor2Nav" Style="{StaticResource SimulatorNavStyle}" GroupName="Simulators" Tag="RFactor2">
+                                <Grid MinHeight="48"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel VerticalAlignment="Center"><TextBlock Text="rFactor 2" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" FontWeight="SemiBold" FontSize="15"/><TextBlock x:Name="RFactor2Status" Text="Not running" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" Opacity="0.72" FontSize="12.5" Margin="0,4,0,0"/></StackPanel><Ellipse x:Name="RFactor2Dot" Grid.Column="1" Width="9" Height="9" Fill="{StaticResource SidebarMutedBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/></Grid>
                             </RadioButton>
                         </StackPanel>
                     </ScrollViewer>
@@ -243,6 +246,7 @@
                                         <Grid Margin="0,5"><TextBlock Text="RaceRoom" FontWeight="SemiBold"/><TextBlock x:Name="HomeRaceRoomStatus" Text="Ready" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"/></Grid>
                                         <Grid Margin="0,5"><TextBlock Text="Assetto Corsa Competizione" FontWeight="SemiBold"/><TextBlock x:Name="HomeAccStatus" Text="Ready" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"/></Grid>
                                         <Grid Margin="0,5"><TextBlock Text="Automobilista 2" FontWeight="SemiBold"/><TextBlock x:Name="HomeAms2Status" Text="Ready" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"/></Grid>
+                                        <Grid Margin="0,5"><TextBlock Text="rFactor 2" FontWeight="SemiBold"/><TextBlock x:Name="HomeRFactor2Status" Text="Ready" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"/></Grid>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>

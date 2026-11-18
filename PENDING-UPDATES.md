@@ -1,5 +1,14 @@
 # PitMedic pending updates
 
+## Queued - rFactor 2 support
+
+- rFactor 2 Steam client monitoring and a dedicated simulator page, with optional
+  Studio 397 trace logs preserved for review alongside Windows crash evidence.
+- **Repair Tools → Verify Steam files** requests Steam verification after approval without guessing
+  a repair from a generic crash. Wait for Steam Downloads before retesting.
+- The Diagnostic Library generates the rFactor 2 section and both guides when the
+  published download reaches 1.0.0.13 or later.
+
 ## Queued - original Assetto Corsa support (November 17, 2026)
 
 Implemented for the next supporting app release; public app remains 1.0.0.12.

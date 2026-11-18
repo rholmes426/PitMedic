@@ -164,6 +164,7 @@ public sealed class GameWatchService : IDisposable
             GameKind.RaceRoom => settings.MonitorRaceRoom,
             GameKind.AssettoCorsaCompetizione => settings.MonitorAssettoCorsaCompetizione,
             GameKind.Automobilista2 => settings.MonitorAutomobilista2,
+            GameKind.RFactor2 => settings.MonitorRFactor2,
             _ => false
         };
     }
@@ -185,6 +186,12 @@ public sealed class GameWatchService : IDisposable
                 var lifetime = ProcessExitMonitor.AttachToRunningProcess(candidate);
                 if (lifetime is null) continue;
                 selected = new TrackedGame(game, candidate, SafeStart(candidate), lifetime);
+                if (game.Kind == GameKind.RFactor2)
+                {
+                    try { selected.ExecutablePath = candidate.MainModule?.FileName; }
+                    catch (InvalidOperationException) { }
+                    catch (System.ComponentModel.Win32Exception) { }
+                }
                 break;
             }
             return selected;
@@ -299,7 +306,7 @@ public sealed class GameWatchService : IDisposable
             LiveFaultEvidence[] liveFaults;
             lock (tracked.FaultGate) liveFaults = tracked.LiveFaults.ToArray();
             var incident = await _recorder.RecordAsync(tracked.Game, pid, tracked.Started, ended, exitCode,
-                _buffer.Snapshot(settings.BufferMinutes), settings.CaptureEveryGameExit, liveFaults);
+                _buffer.Snapshot(settings.BufferMinutes), settings.CaptureEveryGameExit, liveFaults, tracked.ExecutablePath);
             outcome = SimulatorSessionPolicy.OutcomeFor(incident);
         }
         catch (Exception ex)
@@ -345,6 +352,7 @@ public sealed class GameWatchService : IDisposable
         public Process Process { get; }
         public ProcessExitMonitor Lifetime { get; }
         public DateTimeOffset Started { get; }
+        public string? ExecutablePath { get; set; }
         public ILiveLogMonitor? LiveLogMonitor { get; set; }
         public object FaultGate { get; } = new();
         public List<LiveFaultEvidence> LiveFaults { get; } = new();

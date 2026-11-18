@@ -143,7 +143,9 @@ public static class IncidentDetailsService
             Incident = incident,
             RepairPlan = plan,
             IsResolved = resolved,
-            NeedsRetest = resolved && plan is not null && (ScopedConfigurationRepair.IsSupported(plan.Id) || plan.Id.StartsWith("iracing-error77-", StringComparison.Ordinal) || plan.Id == "ac-steam-verify"),
+            NeedsRetest = resolved && plan is not null && (ScopedConfigurationRepair.IsSupported(plan.Id)
+                || plan.Id.StartsWith("iracing-error77-", StringComparison.Ordinal)
+                || plan.Id is "ac-steam-verify" or UserRequestedRepairPolicy.RFactor2VerificationId),
             RepairAttempted = repairAttempted,
             RepairInProgress = repairInProgress,
             RepairCancelled = repairCancelled,
@@ -174,6 +176,9 @@ public static class IncidentDetailsService
     {
         var isCompanionSoftware = CompanionSoftwareDefinition.Supported.Any(software =>
             software.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase));
+        if (resolved && plan?.Id == UserRequestedRepairPolicy.RFactor2VerificationId)
+            return ("Steam verification requested", statusMessage,
+                "Check Steam Downloads and wait for any verification and downloads to finish. Relaunch rFactor 2 and retry the same activity.");
         if (resolved && plan is not null && (ScopedConfigurationRepair.IsSupported(plan.Id) || plan.Id.StartsWith("iracing-error77-", StringComparison.Ordinal) || plan.Id == "ac-steam-verify"))
             return (plan.Id == "ac-steam-verify" ? "Verification started; retest needed" : "Repair applied; retest needed", statusMessage,
                 ScopedConfigurationRepair.IsSupported(plan.Id)
