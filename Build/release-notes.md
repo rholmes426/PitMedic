@@ -1,13 +1,13 @@
-PitMedic now opens the main window and Finding Review when a simulator crash dump or matching Windows application fault is captured without a repair to offer. Additional findings remain available in history without opening duplicate review windows.
+## rFactor 2
 
-Adds Repair Tools on the iRacing and Le Mans Ultimate pages for specific problems that can occur without a crash:
+- Adds a dedicated simulator page, session and exit monitoring, and capture of recent trace logs when available.
+- **Repair Tools → Rebuild shader and track caches** backs up and clears recognized generated files for recurring rendering issues. Use **Restore last backup** if the change does not help. Allow extra time for the first track load.
+- **Repair Tools → Verify Steam files** asks Steam to check the base game installation after approval. Wait for Steam to finish before retesting.
 
-- iRacing connection Errors 10057, 10035 and 10054: a backed-up, one-key core.ini connection test.
-- iRacing Loading Error 63: preserve app.ini and let iRacing regenerate it, with an explicit settings-reset warning.
-- Le Mans Ultimate controls: preserve and reset only the four vendor-documented controller files, with a remapping warning.
+## Original Assetto Corsa
 
-Each new configuration repair requires approval, retains its recovery files and offers Restore last backup. Restore preserves the current configuration before replacing it. Locked, ambiguous, unsupported and linked paths stop the operation. File operations are verified; the result is marked for a functional retest rather than assuming the original symptom is resolved.
+- Adds monitoring for the original 32-bit and 64-bit race processes.
+- Adds backed-up display and active control resets to **Repair Tools**, with **Restore last backup**. Display settings and controls may need to be set up again after the reset.
+- Adds Steam file verification from **Repair Tools**.
 
-Adds exact iRacing Loading Error 77 routing. PitMedic isolates content only when one car/track folder is identified in that error's evidence; otherwise it starts supported verification without removing guessed folders. Downloads must finish before retesting.
-
-Updates the Diagnostic Library with three matching repair guides and Error 77 coverage. New repair pages are published with the supporting app version. Scout remains manual, using the expanded source inventory when the owner requests a review.
+The Diagnostic Library includes matching guides for both simulators. Repairs require approval and report when to retest the original symptom.

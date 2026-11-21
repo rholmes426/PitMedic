@@ -1,4 +1,34 @@
 {
+  "rfactor2-shader-cache": {
+    "heading": "rFactor 2 black track surfaces or rendering glitches",
+    "intro": "If a track repeatedly loads with black surfaces, dark boxes or other rendering artifacts, a rebuild of the generated shader and track caches is worth trying.",
+    "meaning": "Studio 397 has documented clearing these caches for specific rendering artifacts. The same symptom can also come from a car or track mod, display configuration, or the graphics driver.",
+    "checks": [
+      "Test the same symptom on a stock track and car. If only one mod shows the problem, check for an update to that content.",
+      "Close rFactor 2, Mod Mode and Dedicated Server, and let any Steam update finish before opening Repair Tools."
+    ],
+    "result": "Choose Rebuild shader and track caches and approve. Start the simulator and retry the same track. The first load can take longer. If the issue persists, close the simulator and choose Restore last backup for this repair.",
+    "limits": "PitMedic only backs up and clears recognized .rrshd and .cbash files in the respective Shaders and CBash folders under UserData\\Log. It leaves trace logs, graphics settings and installed content alone. If the recognized files are absent, PitMedic stops without changing anything.",
+    "manual_intro": "Use the generated-cache locations documented by Studio 397.",
+    "manual_steps": [
+      "With the game and tools closed, use Steam to browse the local rFactor 2 installation.",
+      "Open UserData\\Log. Move .rrshd files from Shaders and .cbash files from CBash into separate backup folders. Keep the original directories.",
+      "Relaunch and retry the same track. To undo the change, close the simulator before restoring the backed-up files to their original folders."
+    ],
+    "manual_sources": [
+      {
+        "title": "Studio 397 rendering troubleshooting",
+        "url": "https://www.studio-397.com/category/news/release/page/6/"
+      }
+    ],
+    "user_requested": true,
+    "related": [
+      "rfactor2-steam-content",
+      "rfactor2-trace-log"
+    ],
+    "modified": "2026-11-21",
+    "available_from": "1.0.0.13"
+  },
   "rfactor2-steam-content": {
     "heading": "rFactor 2 missing or damaged Steam game files",
     "intro": "If rFactor 2 reports missing installed files or an update was interrupted, Steam can check the base installation and download replacements.",

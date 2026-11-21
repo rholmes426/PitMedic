@@ -44,7 +44,7 @@ class LibraryAvailabilityTests(unittest.TestCase):
                     generator.generate(destination, sitemap)
                     index = (destination / "index.html").read_text(encoding="utf-8")
                     self.assertEqual('id="rfactor2"' in index, expected)
-                    for guide in ("rfactor2-steam-content", "rfactor2-trace-log"):
+                    for guide in ("rfactor2-steam-content", "rfactor2-trace-log", "rfactor2-shader-cache"):
                         self.assertEqual((destination / guide / "index.html").is_file(), expected)
                         self.assertEqual(guide in sitemap.read_text(encoding="utf-8"), expected)
                     home = (ROOT / "website" / "index.html").read_text(encoding="utf-8")
@@ -55,6 +55,9 @@ class LibraryAvailabilityTests(unittest.TestCase):
                         page = (destination / "rfactor2-steam-content" / "index.html").read_text(encoding="utf-8")
                         self.assertIn("Start this check in PitMedic", page)
                         self.assertIn("Verify Steam files", page)
+                        cache = (destination / "rfactor2-shader-cache" / "index.html").read_text(encoding="utf-8")
+                        self.assertIn("Start this check in PitMedic", cache)
+                        self.assertIn("Restore last backup", cache)
 
     def test_bad_availability_metadata_stops_generation(self):
         item = generator.PUBLIC_CONTENT["lmu-controller-config"]

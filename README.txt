@@ -1,4 +1,4 @@
-PITMEDIC v1.0.0.7 - FULL DEVELOPMENT PACKAGE
+PITMEDIC v1.0.0.13 - FULL DEVELOPMENT PACKAGE
 ===============================================
 
 PitMedic is a free, open-source Windows sim-racing diagnostics and automated
@@ -10,7 +10,15 @@ This repository contains the full source tree, PitMedic assets, repair knowledge
 base, documentation, website, telemetry services, and Windows build/run command
 file. It is not a patch-only package.
 
-WHAT CHANGED IN v1.0.0.7
+WHAT CHANGED IN v1.0.0.13
+-------------------------
+- rFactor 2 monitoring with optional trace capture, Steam file verification, and
+  shader and track cache recovery with Restore last backup.
+- Original Assetto Corsa monitoring with backed-up display and control resets,
+  and Steam file verification.
+- Matching Diagnostic Library guides for both simulators.
+
+PREVIOUS UPDATE v1.0.0.7
 -------------------------
 - Carbon / Lime logos in app windows, desktop/Start menu shortcuts and the tray.
 - Dark-on-lime primary labels and readable warning-colored button text.

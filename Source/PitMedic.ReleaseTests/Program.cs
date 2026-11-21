@@ -31,7 +31,7 @@ try
     var crash = new CrashClassification(CrashClassification.ApplicationFault, 88, "Windows recorded a fault.", []);
     var verification = UserRequestedRepairPolicy.CreatePlan(GameKind.RFactor2, UserRequestedRepairPolicy.RFactor2VerificationId)
         ?? throw new InvalidOperationException("Expected rFactor 2 verification in Repair Tools.");
-    AssertTrue(UserRequestedRepairPolicy.OptionsFor(GameKind.RFactor2).Single().Id == verification.Id,
+    AssertTrue(UserRequestedRepairPolicy.OptionsFor(GameKind.RFactor2).Any(option => option.Id == verification.Id),
         "rFactor 2 verification must be reachable before a crash occurs.");
     var incident = new IncidentRecord { Game = rfactor2.DisplayName, Classification = crash, RecommendedRepair = verification };
     AssertTrue(RepairPlanner.Create(rfactor2, crash, evidence) is null
@@ -50,6 +50,63 @@ try
     AssertTrue(RepairKnowledgeBase.DiagnosticLibraryUrlForPlan(verification.Id)
         == "https://pitmedic.com/diagnostic-library/rfactor2-steam-content/",
         "The requested Steam check must link to its matching guide.");
+
+    var cacheId = ScopedConfigurationRepair.RFactor2CacheId;
+    AssertTrue(UserRequestedRepairPolicy.OptionsFor(GameKind.RFactor2).Any(option => option.Id == cacheId),
+        "The cache rebuild must be reachable from rFactor 2 Repair Tools.");
+    var cacheRequest = request with
+    {
+        Classification = new CrashClassification(ScopedConfigurationRepair.RequestCategory, 100, "User requested a cache rebuild.",
+            [ScopedConfigurationRepair.RequestPrefix + cacheId])
+    };
+    var cachePlan = RepairPlanner.TryCreateFromIncident(cacheRequest);
+    AssertTrue(cachePlan is { RequiresApproval: true, EstimatedMinutes: > 2 }
+        && UserRequestedRepairPolicy.CreatePlan(GameKind.LeMansUltimate, cacheId) is null
+        && RepairPlanner.TryCreateFromIncident(incident with { RecommendedRepair = cachePlan }) is null,
+        "Only an explicit rFactor 2 request may select the approved cache rebuild.");
+    AssertTrue(RepairKnowledgeBase.PublicIdForPlan(cacheId + "-restore") == cacheId,
+        "The cache Restore must link to the same Diagnostic Library guide.");
+
+    var shaderFolder = Path.Combine(logFolder, "Shaders");
+    var trackFolder = Path.Combine(logFolder, "CBash");
+    var backupParent = Path.Combine(rfactor2Root, "Backups");
+    Directory.CreateDirectory(shaderFolder);
+    Directory.CreateDirectory(trackFolder);
+    var shader = Path.Combine(shaderFolder, "stock-track.rrshd");
+    var track = Path.Combine(trackFolder, "stock-track.cbash");
+    var unrelated = Path.Combine(shaderFolder, "notes.txt");
+    var nested = Path.Combine(shaderFolder, "Custom");
+    Directory.CreateDirectory(nested);
+    var nestedShader = Path.Combine(nested, "mod.rrshd");
+    File.WriteAllText(shader, "old shaders");
+    File.WriteAllText(track, "old track cache");
+    File.WriteAllText(unrelated, "leave this alone");
+    File.WriteAllText(nestedShader, "leave nested files alone");
+
+    using (File.Open(track, FileMode.Open, FileAccess.Read, FileShare.None))
+    {
+        var blocked = false;
+        try
+        {
+            ScopedConfigurationRepair.Execute(cacheId, logFolder, Path.Combine(backupParent, "blocked"), backupParent, default);
+        }
+        catch (IOException) { blocked = true; }
+        AssertTrue(blocked && File.Exists(shader) && File.Exists(track),
+            "A locked cache file must stop the repair before either original is removed.");
+    }
+
+    var backup = Path.Combine(backupParent, "rebuild");
+    ScopedConfigurationRepair.Execute(cacheId, logFolder, backup, backupParent, default);
+    AssertTrue(!File.Exists(shader) && !File.Exists(track) && File.Exists(unrelated) && File.Exists(nestedShader)
+        && File.Exists(trace) && Directory.Exists(shaderFolder) && Directory.Exists(trackFolder),
+        "Cache rebuild clears only recognized top-level cache files and preserves trace logs and the cache directories.");
+    File.WriteAllText(shader, "rebuilt shaders");
+    var restore = Path.Combine(backupParent, "restore");
+    ScopedConfigurationRepair.Execute(cacheId + "-restore", logFolder, restore, backupParent, default);
+    AssertTrue(File.ReadAllText(shader) == "old shaders" && File.ReadAllText(track) == "old track cache"
+        && File.ReadAllText(Path.Combine(restore, "Files", "Shaders", "stock-track.rrshd")) == "rebuilt shaders",
+        "Restore must return the prior cache files and retain the regenerated copy.");
+
 }
 finally { Directory.Delete(rfactor2Root, recursive: true); }
 
@@ -273,7 +330,7 @@ finally
 }
 
 AssertTrue(
-    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly) == 60,
+    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly) == 61,
     "Every simulator repair implemented for this release must have a formal knowledge record.");
 AssertTrue(
     RepairKnowledgeBase.DiagnosticLibraryUrlForPlan("ams2-controller-reset")

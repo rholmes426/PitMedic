@@ -6,8 +6,10 @@
   Studio 397 trace logs preserved for review alongside Windows crash evidence.
 - **Repair Tools → Verify Steam files** requests Steam verification after approval without guessing
   a repair from a generic crash. Wait for Steam Downloads before retesting.
-- The Diagnostic Library generates the rFactor 2 section and both guides when the
-  published download reaches 1.0.0.13 or later.
+- **Repair Tools → Rebuild shader and track caches** backs up and clears supported
+  generated cache files after approval. Restore last backup brings those files back.
+- The Diagnostic Library generates the rFactor 2 section and its three guides when
+  the published download reaches 1.0.0.13 or later.
 
 ## Queued - original Assetto Corsa support (November 17, 2026)
 

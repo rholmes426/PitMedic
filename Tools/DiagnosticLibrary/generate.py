@@ -472,7 +472,7 @@ LIBRARY_GROUPS = [
         "slug": "rfactor2",
         "name": "rFactor 2",
         "products": ["rFactor 2"],
-        "description": "Steam file verification and trace logging for unexpected exits.",
+        "description": "Shader and track cache repair, Steam file verification, and trace logging for unexpected exits.",
         "coverage": "rfactor2"
     },
     {
