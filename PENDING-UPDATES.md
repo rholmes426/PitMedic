@@ -1,6 +1,15 @@
 # PitMedic pending updates
 
-## Queued - iRacing Loading Error 63 detection
+## Signed 1.0.0.13 — November 21, 2026
+
+[Signed release](https://github.com/rholmes426/PitMedic/releases/tag/v1.0.0.13)
+and [protected signing run](https://github.com/rholmes426/PitMedic/actions/runs/44938571634).
+The publication PR synchronizes the GitHub README, website, updater and six
+new Diagnostic Library guides. Pages verifies the live installer checksum.
+Windows validation includes fixture tests. Simulator behavior still needs a live
+retest with iRacing, rFactor 2, or the original Assetto Corsa installed.
+
+### iRacing Loading Error 63 detection
 
 - Keep one iRacing log cursor across launcher, simulator startup and exit. Recognize
   the exact code in current log entries and supported Windows dialogs.
@@ -10,7 +19,7 @@
   the Helper Service if the process being absent is the only signal.
 - Update the matching Diagnostic Library guide.
 
-## Queued - rFactor 2 support
+### rFactor 2 support
 
 - rFactor 2 Steam client monitoring and a dedicated simulator page, with optional
   Studio 397 trace logs preserved for review alongside Windows crash evidence.
@@ -21,9 +30,7 @@
 - The Diagnostic Library generates the rFactor 2 section and its three guides when
   the published download reaches 1.0.0.13 or later.
 
-## Queued - original Assetto Corsa support (November 17, 2026)
-
-Implemented for the next supporting app release; public app remains 1.0.0.12.
+### Original Assetto Corsa support
 
 - Separate original-AC navigation/monitoring setting, tracking `acs`/`acs_x86`
   races rather than the persistent launcher or Content Manager.
@@ -65,7 +72,6 @@ guide adds separate manual checks now. Existing RaceRoom update guidance gains
 November 11/15/17 symptom/version checks in the same website publication batch.
 These two guide edits add no automatic repair. Both are published and live-verified
 after PR #206: content, canonical links, collection navigation and sitemap match.
-Public download remains .12; the three original-AC pages/group are not advertised.
 Simagic polling and Simucube Link-port hardware tests remain pending, not new.
 
 The Pages upload succeeded in run 44247245456, but its final release check hit
