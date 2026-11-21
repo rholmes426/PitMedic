@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>rFactor 2 black track surfaces or rendering glitches — rFactor 2 | PitMedic</title>
+  <meta name="description" content="How PitMedic detects and safely responds to rfactor 2 black track surfaces or rendering glitches in rFactor 2." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://pitmedic.com/diagnostic-library/rfactor2-shader-cache/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="PitMedic" />
+  <meta property="og:title" content="rFactor 2 black track surfaces or rendering glitches — rFactor 2 | PitMedic" />
+  <meta property="og:description" content="How PitMedic detects and safely responds to rfactor 2 black track surfaces or rendering glitches in rFactor 2." />
+  <meta property="og:url" content="https://pitmedic.com/diagnostic-library/rfactor2-shader-cache/" />
+  <meta property="og:image" content="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" />
+  <link rel="icon" href="/assets/brand/pitmedic-carbon-lime.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-carbon-lime.png" />
+  <link rel="stylesheet" href="/styles.css?v=20261115-design" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"rFactor 2"}]},{"@type":"TechArticle","headline":"rFactor 2: rFactor 2 black track surfaces or rendering glitches","description":"How PitMedic detects and safely responds to rfactor 2 black track surfaces or rendering glitches in rFactor 2.","url":"https://pitmedic.com/diagnostic-library/rfactor2-shader-cache/","dateModified":"2026-11-21","author":{"@type":"Organization","name":"PitMedic Project"},"about":"rFactor 2"}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#pitmedic-content">Skip to content</a>
+<main>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="PitMedic home"><img src="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" alt="" /><span>Pit<em>Medic</em></span></a>
+    <nav aria-label="Primary navigation"><a href="/#how-it-works">How it works</a><a href="/#simulators">Simulators</a><a class="active" href="/diagnostic-library/">Diagnostic Library</a><a href="/#about">About</a></nav>
+    <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-download" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.13/PitMedic-Setup-x64.exe" aria-label="Download PitMedic version 1.0.0.13">Download v1.0.0.13<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg></a></div>
+  </header>
+  <article class="library-page issue-page" id="pitmedic-content" tabindex="-1">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><a href="/diagnostic-library/">Diagnostic Library</a><span>›</span><span>rFactor 2</span></nav>
+    <header class="library-hero">
+      <span class="section-kicker">Simulator repair</span>
+      <p class="library-product">rFactor 2</p>
+      <h1>rFactor 2 black track surfaces or rendering glitches</h1>
+      <p>If a track repeatedly loads with black surfaces, dark boxes or other rendering artifacts, a rebuild of the generated shader and track caches is worth trying.</p>
+      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Evidence reviewed 2026-11-21</span><span>Guide updated 2026-11-21</span></div>
+    </header>
+    <div class="diagnostic-layout">
+      <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2><p>Studio 397 has documented clearing these caches for specific rendering artifacts. The same symptom can also come from a car or track mod, display configuration, or the graphics driver.</p>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Test the same symptom on a stock track and car. If only one mod shows the problem, check for an update to that content.</li><li>Close rFactor 2, Mod Mode and Dedicated Server, and let any Steam update finish before opening Repair Tools.</li></ul>
+          <h3>How to confirm the result</h3><p>Choose Rebuild shader and track caches and approve. Start the simulator and retry the same track. The first load can take longer. If the issue persists, close the simulator and choose Restore last backup for this repair.</p>
+          <h3>Repair limits and when to stop</h3><p>PitMedic only backs up and clears recognized .rrshd and .cbash files in the respective Shaders and CBash folders under UserData\Log. It leaves trace logs, graphics settings and installed content alone. If the recognized files are absent, PitMedic stops without changing anything.</p>
+        </section>
+<section class="diagnostic-card diagnostic-guide">
+          <h2>Manual steps without PitMedic</h2>
+          <p>Use the generated-cache locations documented by Studio 397.</p>
+          <ol class="guide-checks"><li>With the game and tools closed, use Steam to browse the local rFactor 2 installation.</li><li>Open UserData\Log. Move .rrshd files from Shaders and .cbash files from CBash into separate backup folders. Keep the original directories.</li><li>Relaunch and retry the same track. To undo the change, close the simulator before restoring the backed-up files to their original folders.</li></ol>
+          <h3>Official instructions</h3><ul><li><a href="https://www.studio-397.com/category/news/release/page/6/">Studio 397 rendering troubleshooting</a></li></ul>
+        </section>        <section class="diagnostic-card"><h2>When to use this check</h2><p>Choose Rebuild shader and track caches in Repair Tools for repeatable graphical artifacts, such as black track surfaces, that may be related to the generated cache.</p></section>
+        <section class="diagnostic-card"><h2>Built-in response</h2><p>With rFactor 2 and its tools closed, preserve and clear only recognized .rrshd and .cbash files in the corresponding cache directories. Relaunch to rebuild and retest the same track. Restore last backup is available.</p><div class="safety-note"><strong>Repair safety</strong><span>Ask first / backed up / first track load may take longer</span></div></section>
+        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>rFactor 2 rendering troubleshooting</strong><span>Studio 397 · Official source</span><p>Studio 397 documented clearing the Shaders and CBash cache directories for specific graphical artifacts in its DX11 release notes.</p></div><a href="https://www.studio-397.com/category/news/release/page/6/" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>rFactor 2 shader and track cache formats</strong><span>Studio 397 · Official source</span><p>The build notes identify the RRSHD and CBASH cache formats and describe pre-built caches.</p></div><a href="https://www.studio-397.com/2021/12/rfactor-2-new-build-available-now/" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+      </div>
+      <aside class="library-aside"><h2>Start this check in PitMedic</h2><p>Open the simulator page and choose Repair Tools, then Verify Steam files. PitMedic asks for approval before it hands the request to Steam.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.13/PitMedic-Setup-x64.exe">Download v1.0.0.13</a><a class="button button-secondary" href="/diagnostic-library/">Browse all diagnostics</a><small>Free and open source · Windows 10/11</small></aside>
+    </div>
+    <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>More for rFactor 2</h2><div><a href="/diagnostic-library/rfactor2-steam-content/"><strong>rFactor 2 missing or damaged Steam game files</strong><span>Approval required</span></a><a href="/diagnostic-library/rfactor2-trace-log/"><strong>rFactor 2 crashes or exits unexpectedly</strong><span>Guided diagnosis</span></a></div></nav>
+  </article>
+  <footer>
+    <a class="brand" href="/"><img src="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" alt="" /><span>Pit<em>Medic</em></span></a>
+    <p>A free open-source project for the sim-racing community.</p>
+    <div><a href="/diagnostic-library/">Diagnostic Library</a><a href="/#simulators">Simulators</a><a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a><a href="https://github.com/rholmes426/PitMedic">GitHub</a><a href="https://paypal.me/PitMedicApp">Support</a></div>
+  </footer>
+</main>
+<script defer src="/analytics.js"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5a4e361a3e0d4f838478d54e24d8f925"}'></script>
+</body>
+</html>

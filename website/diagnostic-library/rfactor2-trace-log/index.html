@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>rFactor 2 crashes or exits unexpectedly — rFactor 2 | PitMedic</title>
+  <meta name="description" content="How PitMedic detects and safely responds to rfactor 2 crashes or exits unexpectedly in rFactor 2." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://pitmedic.com/diagnostic-library/rfactor2-trace-log/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="PitMedic" />
+  <meta property="og:title" content="rFactor 2 crashes or exits unexpectedly — rFactor 2 | PitMedic" />
+  <meta property="og:description" content="How PitMedic detects and safely responds to rfactor 2 crashes or exits unexpectedly in rFactor 2." />
+  <meta property="og:url" content="https://pitmedic.com/diagnostic-library/rfactor2-trace-log/" />
+  <meta property="og:image" content="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" />
+  <link rel="icon" href="/assets/brand/pitmedic-carbon-lime.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-carbon-lime.png" />
+  <link rel="stylesheet" href="/styles.css?v=20261115-design" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"rFactor 2"}]},{"@type":"TechArticle","headline":"rFactor 2: rFactor 2 crashes or exits unexpectedly","description":"How PitMedic detects and safely responds to rfactor 2 crashes or exits unexpectedly in rFactor 2.","url":"https://pitmedic.com/diagnostic-library/rfactor2-trace-log/","dateModified":"2026-11-17","author":{"@type":"Organization","name":"PitMedic Project"},"about":"rFactor 2"}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#pitmedic-content">Skip to content</a>
+<main>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="PitMedic home"><img src="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" alt="" /><span>Pit<em>Medic</em></span></a>
+    <nav aria-label="Primary navigation"><a href="/#how-it-works">How it works</a><a href="/#simulators">Simulators</a><a class="active" href="/diagnostic-library/">Diagnostic Library</a><a href="/#about">About</a></nav>
+    <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-download" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.13/PitMedic-Setup-x64.exe" aria-label="Download PitMedic version 1.0.0.13">Download v1.0.0.13<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg></a></div>
+  </header>
+  <article class="library-page issue-page" id="pitmedic-content" tabindex="-1">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><a href="/diagnostic-library/">Diagnostic Library</a><span>›</span><span>rFactor 2</span></nav>
+    <header class="library-hero">
+      <span class="section-kicker">Diagnostic guidance</span>
+      <p class="library-product">rFactor 2</p>
+      <h1>rFactor 2 crashes or exits unexpectedly</h1>
+      <p>If rFactor 2 exits unexpectedly, Windows may record an application fault or save a crash dump. A trace can add context about what the simulator was doing.</p>
+      <div class="issue-status"><span>Guided diagnosis</span><span>Guidance</span><span>Evidence reviewed 2026-11-17</span><span>Guide updated 2026-11-17</span></div>
+    </header>
+    <div class="diagnostic-layout">
+      <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2><p>Studio 397 documents optional trace logging. PitMedic keeps recent trace files written during the monitored session with the local finding when it can locate the running client.</p>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Record the approximate time and whether the problem occurs at startup, while loading a car or track, or during driving.</li><li>Try to reproduce it once with a stock car and track. Compare the result with the original combination.</li><li>Check whether the finding includes a recent trace. If more detail is needed, enable tracing for one reproduction.</li></ul>
+          <h3>How to confirm the result</h3><p>Compare the trace, crash dump, and Windows event against the same incident time. A problem that reliably follows one car or track narrows the investigation.</p>
+          <h3>Repair limits and when to stop</h3><p>A trace line alone does not confirm a crash or justify a repair. PitMedic does not change Steam launch options, remove mods, or reset the profile.</p>
+        </section>
+<section class="diagnostic-card diagnostic-guide">
+          <h2>Manual steps without PitMedic</h2>
+          <p>Studio 397 documents how to enable a trace for a session.</p>
+          <ol class="guide-checks"><li>In Steam, open rFactor 2 Properties and add the documented +trace=2 +traceFlush options while preserving existing launch options.</li><li>Reproduce the issue once, then open UserData\Log under the rFactor 2 installation. Check trace.txt and any recently written timestamped traces.</li><li>Remove the added launch options once you have captured the evidence.</li></ol>
+          <h3>Official instructions</h3><ul><li><a href="https://docs.studio-397.com/pages/viewpage.action?pageId=86638877">Studio 397: Diagnosing issues using logging</a></li></ul>
+        </section>        <section class="diagnostic-card"><h2>When to consider this guidance</h2><p>Use this guide for an unexpected rFactor 2 exit, especially one that repeats while loading the same car or track.</p></section>
+        <section class="diagnostic-card"><h2>Suggested manual checks</h2><p>Use Studio 397&#x27;s trace logging options when more evidence is needed. Compare the saved trace with the exit time, Windows events and any crash dump. Test with known-good content to help isolate the failure.</p><div class="safety-note"><strong>Repair safety</strong><span>Guidance only / logging options are user-controlled</span></div></section>
+        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Diagnosing issues using logging</strong><span>Studio 397 · Official source</span><p>Documents the trace launch arguments, log location and crash reporting.</p></div><a href="https://docs.studio-397.com/pages/viewpage.action?pageId=86638877" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+      </div>
+      <aside class="library-aside"><h2>Compare your symptoms</h2><p>This is version-specific guidance for manual review. It does not add automatic detection or a repair action.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.13/PitMedic-Setup-x64.exe">Download v1.0.0.13</a><a class="button button-secondary" href="/diagnostic-library/">Browse all diagnostics</a><small>Free and open source · Windows 10/11</small></aside>
+    </div>
+    <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>More for rFactor 2</h2><div><a href="/diagnostic-library/rfactor2-steam-content/"><strong>rFactor 2 missing or damaged Steam game files</strong><span>Approval required</span></a></div></nav>
+  </article>
+  <footer>
+    <a class="brand" href="/"><img src="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" alt="" /><span>Pit<em>Medic</em></span></a>
+    <p>A free open-source project for the sim-racing community.</p>
+    <div><a href="/diagnostic-library/">Diagnostic Library</a><a href="/#simulators">Simulators</a><a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a><a href="https://github.com/rholmes426/PitMedic">GitHub</a><a href="https://paypal.me/PitMedicApp">Support</a></div>
+  </footer>
+</main>
+<script defer src="/analytics.js"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5a4e361a3e0d4f838478d54e24d8f925"}'></script>
+</body>
+</html>
