@@ -5,6 +5,7 @@ namespace PitMedic.Services;
 public static class IRacingDiagnosticPolicy
 {
     public const string StatusOnlyCategory = "iRacing installation status check";
+    internal const string HelperProcessAbsent = "iRacing UI is running but the iRacing Helper Service is not running.";
 
     // An installation probe is not evidence that a simulator launch was attempted or failed.
     // Match the known status payload narrowly; appended launch errors remain actionable.

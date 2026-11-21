@@ -11,7 +11,7 @@ public sealed class GameWatchService : IDisposable
     private readonly TelemetryBuffer _buffer;
     private readonly IncidentRecorder _recorder;
     private readonly SettingsService _settings;
-    private readonly IRacingLiveLogMonitor _iracingGlobalMonitor = new();
+    private readonly IRacingLiveLogMonitor _iracingMonitor = new(isSpotterDialogVisible: IRacingLoadingDialog.IsError63Visible);
     private int _globalFaultRecording;
     private DateTimeOffset _lastHelperServiceFault;
 
@@ -24,7 +24,7 @@ public sealed class GameWatchService : IDisposable
         _buffer = buffer;
         _recorder = recorder;
         _settings = settings;
-        _iracingGlobalMonitor.StartSession(DateTimeOffset.Now);
+        _iracingMonitor.StartSession(DateTimeOffset.Now);
     }
 
     public void Scan()
@@ -53,13 +53,23 @@ public sealed class GameWatchService : IDisposable
                 tracked = FindRunningGame(game);
                 if (tracked is null) continue;
 
-                tracked.LiveLogMonitor = SimulatorLiveLogMonitor.Create(game.Kind);
-                tracked.LiveLogMonitor?.StartSession(tracked.Started);
+                if (game.Kind == GameKind.IRacing)
+                {
+                    tracked.LiveLogMonitor = _iracingMonitor;
+                    _iracingMonitor.BeginTrackedSession(tracked.Started);
+                }
+                else
+                {
+                    tracked.LiveLogMonitor = SimulatorLiveLogMonitor.Create(game.Kind);
+                    tracked.LiveLogMonitor?.StartSession(tracked.Started);
+                }
                 ObserveMainWindow(tracked);
                 AppLog.Write($"Detected {game.DisplayName}: PID {tracked.Process.Id}, process={tracked.Process.ProcessName}");
                 lock (_gate) _tracked[game.Kind] = tracked;
+                var registered = tracked;
                 tracked = null; // The registered session owns the process handles.
                 GameStatusChanged?.Invoke(game.Kind, true);
+                if (game.Kind == GameKind.IRacing) PollLiveFaults(registered);
             }
             catch (Exception ex)
             {
@@ -203,14 +213,20 @@ public sealed class GameWatchService : IDisposable
         }
     }
 
-    private void PollLiveFaults(TrackedGame tracked)
+    private void PollLiveFaults(TrackedGame tracked, bool simulatorExited = false)
     {
         if (tracked.LiveLogMonitor is null) return;
-        foreach (var fault in tracked.LiveLogMonitor.Poll())
+        var faults = tracked.LiveLogMonitor is IRacingLiveLogMonitor iRacing
+            ? iRacing.Poll(simulatorExited)
+            : tracked.LiveLogMonitor.Poll();
+        foreach (var fault in faults)
         {
+            if (fault.SignatureId == "helper-service" && _iracingMonitor.SawRecentSpotterError) continue;
             lock (tracked.FaultGate) tracked.LiveFaults.Add(fault);
             AppLog.Write($"Live {tracked.Game.DisplayName} fault detected: {fault.Category} | {fault.Message}");
             LiveFaultDetected?.Invoke(fault);
+            if (!simulatorExited && fault.SignatureId == IRacingLiveLogMonitor.SpotterErrorSignature)
+                tracked.SpotterIncident ??= RecordIRacingSpotterFaultAsync(fault, tracked);
         }
     }
 
@@ -219,25 +235,45 @@ public sealed class GameWatchService : IDisposable
         // The "System Not in Service" condition can prevent the simulator process from ever
         // starting, and some UI builds do not reliably write the dialog text to a log. Detect
         // the condition directly whenever the iRacing UI is open but the helper service is absent.
+        var faults = _iracingMonitor.Poll();
         var now = DateTimeOffset.Now;
-        if (!IRacingUpdateGuard.IsBusy()
+        if (!_iracingMonitor.SawRecentSpotterError && !IRacingUpdateGuard.IsBusy()
             && IsAnyProcessRunning("iRacingUI", "iRacingUI64")
             && !IsAnyProcessRunning("iRacingService64", "iRacingService")
             && now - _lastHelperServiceFault > TimeSpan.FromSeconds(75))
         {
             _lastHelperServiceFault = now;
             var serviceFault = new LiveFaultEvidence(now, "helper-service", "iRacing Helper Service failure",
-                "iRacing UI is running but the iRacing Helper Service is not running.", "process-state", GameKind.IRacing);
+                IRacingDiagnosticPolicy.HelperProcessAbsent, "process-state", GameKind.IRacing);
             AppLog.Write($"Live iRacing service-state fault detected: {serviceFault.Message}");
             LiveFaultDetected?.Invoke(serviceFault);
             _ = RecordGlobalIRacingFaultAsync(serviceFault);
         }
 
-        foreach (var fault in _iracingGlobalMonitor.Poll())
+        foreach (var fault in faults)
         {
-            AppLog.Write($"Live iRacing UI/service fault detected before simulator start: {fault.Category} | {fault.Message}");
+            if (fault.SignatureId == "helper-service" && _iracingMonitor.SawRecentSpotterError) continue;
+            AppLog.Write($"Live iRacing UI/service fault detected outside a tracked session: {fault.Category} | {fault.Message}");
             LiveFaultDetected?.Invoke(fault);
-            _ = RecordGlobalIRacingFaultAsync(fault);
+            if (fault.SignatureId == IRacingLiveLogMonitor.SpotterErrorSignature)
+                _ = RecordIRacingSpotterFaultAsync(fault);
+            else
+                _ = RecordGlobalIRacingFaultAsync(fault);
+        }
+    }
+
+    private async Task<IncidentRecord?> RecordIRacingSpotterFaultAsync(LiveFaultEvidence fault, TrackedGame? tracked = null)
+    {
+        try
+        {
+            var game = GameDefinition.Supported.First(g => g.Kind == GameKind.IRacing);
+            return await _recorder.RecordLiveFaultAsync(game, fault, _buffer.Snapshot(_settings.Current.BufferMinutes),
+                tracked?.Process.Id ?? 0, tracked?.Started);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"Could not record live iRacing Loading Error 63: {ex}");
+            return null;
         }
     }
 
@@ -293,21 +329,22 @@ public sealed class GameWatchService : IDisposable
                 _tracked.Remove(tracked.Game.Kind);
         }
         GameStatusChanged?.Invoke(tracked.Game.Kind, false);
-        if (tracked.Game.Kind == GameKind.IRacing)
-            _iracingGlobalMonitor.StartSession(ended);
         AppLog.Write($"{tracked.Game.DisplayName} exited: PID {pid}, exitCode={(exitCode.HasValue ? $"0x{unchecked((uint)exitCode.Value):X8}" : "unknown")}");
 
         var outcome = SimulatorSessionOutcome.ResultUnavailable;
         try
         {
             if (tracked.StoppedForRepair) return; // The repair owns this exit, so do not create a second incident.
-            PollLiveFaults(tracked);
+            PollLiveFaults(tracked, simulatorExited: true);
             var settings = _settings.Current;
             LiveFaultEvidence[] liveFaults;
             lock (tracked.FaultGate) liveFaults = tracked.LiveFaults.ToArray();
+            var spotterIncident = tracked.SpotterIncident is { } pending ? await pending : null;
+            if (spotterIncident is not null)
+                liveFaults = liveFaults.Where(f => f.SignatureId is not (IRacingLiveLogMonitor.SpotterErrorSignature or "helper-service")).ToArray();
             var incident = await _recorder.RecordAsync(tracked.Game, pid, tracked.Started, ended, exitCode,
                 _buffer.Snapshot(settings.BufferMinutes), settings.CaptureEveryGameExit, liveFaults, tracked.ExecutablePath);
-            outcome = SimulatorSessionPolicy.OutcomeFor(incident);
+            outcome = SimulatorSessionPolicy.OutcomeFor(incident ?? spotterIncident);
         }
         catch (Exception ex)
         {
@@ -356,6 +393,7 @@ public sealed class GameWatchService : IDisposable
         public ILiveLogMonitor? LiveLogMonitor { get; set; }
         public object FaultGate { get; } = new();
         public List<LiveFaultEvidence> LiveFaults { get; } = new();
+        public Task<IncidentRecord?>? SpotterIncident { get; set; }
         public int ExitHandled;
         public nint LastMainWindow;
         public bool StoppedForRepair;

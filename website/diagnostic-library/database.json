@@ -59,7 +59,7 @@
       "displayKind": "Simulator repair",
       "product": "iRacing",
       "issue": "Loading Error 63 while loading a spotter sound",
-      "detection": "Exact Loading Error 63 in current evidence, or the user selecting that error in Repair Tools.",
+      "detection": "Exact Loading Error 63 in a current iRacing log or supported loading dialog, or the user selecting that error in Repair Tools.",
       "repair": "With explicit consent, preserve app.ini and remove only its active copy so iRacing can regenerate it. Application preferences may reset. Setups, paints, replays and spotter packages remain in place. Retest and use Restore last backup if ineffective.",
       "safety": "Ask first / application preferences may reset / retained backup",
       "signatures": [
@@ -392,7 +392,7 @@
       "displayKind": "Simulator repair",
       "product": "iRacing",
       "issue": "iRacing Helper Service stopped / UI cannot launch",
-      "detection": "iRacing.com Helper Service absent or stopped while UI launch fails or reports Not In Service.",
+      "detection": "An explicit Not In Service message or a stopped Helper Service. When process state is the only evidence, review and approve the restart first.",
       "repair": "Restart the iRacing service using the installed service/start-stop helpers, then verify service state.",
       "safety": "Automatic / short",
       "signatures": [

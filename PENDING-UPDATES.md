@@ -1,5 +1,15 @@
 # PitMedic pending updates
 
+## Queued - iRacing Loading Error 63 detection
+
+- Keep one iRacing log cursor across launcher, simulator startup and exit. Recognize
+  the exact code in current log entries and supported Windows dialogs.
+- Offer approval-gated app.ini recovery while the finding is current and keep
+  a single Error 63 alert when logs and the dialog report the same issue.
+- Prefer the spotter repair over generic service evidence. Ask before restarting
+  the Helper Service if the process being absent is the only signal.
+- Update the matching Diagnostic Library guide.
+
 ## Queued - rFactor 2 support
 
 - rFactor 2 Steam client monitoring and a dedicated simulator page, with optional

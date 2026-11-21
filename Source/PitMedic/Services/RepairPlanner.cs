@@ -206,6 +206,9 @@ public static class RepairPlanner
     private static RepairPlan? CreateIRacingPlan(string category, IEnumerable<string> evidence)
     {
         var lines = evidence.ToArray();
+        if (lines.Any(IRacingLiveLogMonitor.IsLoadingError63))
+            return ScopedConfigurationRepair.CreatePlan(GameKind.IRacing, "iracing-spotter-loading-error-63");
+
         // The detail can arrive in a later poll than Error 73. Apply this precedence to
         // live incidents, history, and helper revalidation, including older saved evidence.
         if (category.Contains("version rejected", StringComparison.OrdinalIgnoreCase)
@@ -224,15 +227,16 @@ public static class RepairPlanner
         if (lines.Any(line => System.Text.RegularExpressions.Regex.IsMatch(line,
                 @"\b(?:error|socket error)\s*[:#-]?\s*(10057|10035|10054)\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase)))
             return ScopedConfigurationRepair.CreatePlan(GameKind.IRacing, "iracing-socket-connection");
-        if (lines.Any(line => System.Text.RegularExpressions.Regex.IsMatch(line,
-                @"\bloading\s+error\s*[:#-]?\s*63\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase)))
-            return ScopedConfigurationRepair.CreatePlan(GameKind.IRacing, "iracing-spotter-loading-error-63");
         if (lines.Any(IRacingLoadingError77Policy.IsError))
         {
             var root = IRacingLocator.FindRoot();
             return IRacingLoadingError77Policy.Create(lines, root is not null && IRacingLocator.IsSteamInstall(root));
         }
-        return PlanFromEvidence("iRacing", lines) ?? PlanForCategory(category);
+        var plan = PlanFromEvidence("iRacing", lines) ?? PlanForCategory(category);
+        if (plan?.Id == "iracing-helper-service"
+            && lines.Any(line => line.Contains(IRacingDiagnosticPolicy.HelperProcessAbsent, StringComparison.OrdinalIgnoreCase)))
+            return plan with { RequiresApproval = true, Safety = RepairSafety.Reversible };
+        return plan;
     }
 
     private static RepairPlan? PlanFromEvidence(string game, IEnumerable<string> evidence)

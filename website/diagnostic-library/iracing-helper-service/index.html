@@ -42,7 +42,7 @@
           <h3>How to confirm the result</h3><p>After the service restart, confirm its state is Running and retry opening the UI and a test session. A service that immediately stops again needs its error investigated.</p>
           <h3>Repair limits and when to stop</h3><p>Restarting the service does not repair a damaged car, UI cache, or mismatched installation. A missing service may require the vendor installation workflow rather than repeated restart attempts.</p>
         </section>
-        <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>iRacing.com Helper Service absent or stopped while UI launch fails or reports Not In Service.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>Not In Service</code></li><li><code>iRacing.com Helper Service</code></li><li><code>iRacingService</code></li></ul></section>
+        <section class="diagnostic-card"><h2>How PitMedic recognizes it</h2><p>An explicit Not In Service message or a stopped Helper Service. When process state is the only evidence, review and approve the restart first.</p><h3>Signals PitMedic may recognize</h3><ul class="signal-list"><li><code>Not In Service</code></li><li><code>iRacing.com Helper Service</code></li><li><code>iRacingService</code></li></ul></section>
         <section class="diagnostic-card"><h2>Built-in response</h2><p>Restart the iRacing service using the installed service/start-stop helpers, then verify service state.</p><div class="safety-note"><strong>Repair safety</strong><span>Automatic / short</span></div></section>
 <section class="diagnostic-card diagnostic-example">
           <h2>Specific evidence survives a saved-finding round trip</h2>
