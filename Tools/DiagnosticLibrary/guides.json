@@ -1357,16 +1357,16 @@
   },
   "iracing-spotter-loading-error-63": {
     "available_from": "1.0.0.12",
-    "modified": "2026-11-14",
-    "intro": "Loading Error 63 identifies a spotter-sound load problem. PitMedic offers the vendor-documented app.ini regeneration procedure.",
+    "modified": "2026-11-21",
+    "intro": "Loading Error 63 identifies a spotter-sound load problem. PitMedic offers the app.ini recovery documented by iRacing.",
     "meaning": "A custom spotter pack may be broken, but Error 63 alone does not identify a file to delete. The recovery preserves app.ini so it can be restored.",
     "checks": [
       "Confirm the exact Loading Error 63. Other loading-error numbers use different repair paths.",
-      "Close iRacing and let updates finish. In Repair Tools, choose Loading Error 63 and review the settings-reset warning.",
+      "Close iRacing and let updates finish before approving the repair. If the alert did not appear, choose Loading Error 63 in Repair Tools and review the settings-reset warning.",
       "PitMedic preserves app.ini and removes only that active file. Setups, replays, paints and spotter packages remain in place."
     ],
     "result": "Start the same car/session and test the spotter. Some application settings may need to be re-entered. If ineffective, close iRacing and use Restore last backup for this repair; the regenerated file is preserved first.",
-    "limits": "Requires PitMedic 1.0.0.12 or later. This does not delete custom spotter packs or reinstall iRacing. Successful file regeneration does not prove every sound pack works."
+    "limits": "Repair Tools supports this fix from 1.0.0.12. From 1.0.0.13, PitMedic can watch for the exact error in current iRacing logs or supported Windows loading dialogs before the simulator closes. The repair leaves spotter packs and game files in place. Test the original session after app.ini regenerates."
   },
   "ac-video-config": {
     "available_from": "1.0.0.13",

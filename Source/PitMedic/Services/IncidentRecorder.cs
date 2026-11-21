@@ -185,16 +185,16 @@ public sealed class IncidentRecorder
     }
 
     public async Task<IncidentRecord?> RecordLiveFaultAsync(GameDefinition game, LiveFaultEvidence fault,
-        IReadOnlyList<TelemetrySample> telemetry)
+        IReadOnlyList<TelemetrySample> telemetry, int processId = 0, DateTimeOffset? sessionStarted = null)
     {
         var now = DateTimeOffset.Now;
         var slug = game.DisplayName.Replace(" ", "_");
-        var folder = Path.Combine(AppPaths.Incidents, $"{now:yyyyMMdd_HHmmss}_{slug}_Live");
+        var folder = Path.Combine(AppPaths.Incidents, $"{now:yyyyMMdd_HHmmss}_{slug}_Live_{Guid.NewGuid():N}");
         Directory.CreateDirectory(folder);
 
         try
         {
-            var started = fault.Timestamp.AddMinutes(-2);
+            var started = sessionStarted ?? fault.Timestamp.AddMinutes(-2);
             var collected = _collector.Collect(game, started, now, folder);
             var windowsEvents = _events.GetAround(now, game.ExecutableName, TimeSpan.FromSeconds(60));
             var evidence = new List<string> { fault.ToEvidenceText() };
@@ -205,14 +205,14 @@ public sealed class IncidentRecorder
             var classification = new CrashClassification(
                 fault.Category,
                 90,
-                $"{game.DisplayName} reported a recoverable software problem while PitMedic was passively monitoring its support logs/state: {fault.Message}",
+                $"{game.DisplayName} reported a recoverable software problem. Source: {fault.SourceFile}. {fault.Message}",
                 evidence.Distinct().ToArray());
             var repairPlan = RepairPlanner.Create(game, classification, collected, new[] { fault });
             var record = new IncidentRecord
             {
                 Game = game.DisplayName,
                 Executable = game.ExecutableName,
-                ProcessId = 0,
+                ProcessId = processId,
                 SessionStarted = started,
                 IncidentTime = fault.Timestamp,
                 ExitCode = null,

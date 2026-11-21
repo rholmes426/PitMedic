@@ -154,6 +154,64 @@ internal static class ConfigurationRepairTests
                 Check(selected?.Id == (fault.SignatureId == "loading-error-63" ? "iracing-spotter-loading-error-63" : "iracing-socket-connection"),
                     "Live faults must reach the exact executable repair.");
             }
+            var startupLog = Path.Combine(root, "startup.log");
+            File.WriteAllText(startupLog, "Loading Error 63\n");
+            var dialogVisible = false;
+            var clock = now;
+            var startup = new IRacingLiveLogMonitor(() => busy, () => new[] { startupLog }, () => clock, () => dialogVisible);
+            startup.StartSession(now);
+            File.AppendAllText(startupLog, "System Not in Service\nLoading Err");
+            Check(startup.Poll().Single().SignatureId == "helper-service", "A split log entry stays pending until complete.");
+            clock = clock.AddSeconds(2);
+            startup.BeginTrackedSession(clock);
+            File.AppendAllText(startupLog, "or (63)\n");
+            var launchFault = startup.Poll().Single();
+            Check(launchFault.SignatureId == IRacingLiveLogMonitor.SpotterErrorSignature,
+                "Exact startup errors written during attachment must survive the log-monitor handoff.");
+            dialogVisible = true;
+            Check(startup.Poll().Count == 0, "A matching native dialog and log must produce only one Error 63 finding.");
+            Check(startup.Poll(simulatorExited: true).Count == 0, "A previously detected error must not be replayed when the simulator closes.");
+
+            var dialogOnly = new IRacingLiveLogMonitor(() => busy, () => Array.Empty<string>(), () => clock, () => dialogVisible);
+            dialogOnly.StartSession(clock);
+            var dialogFault = dialogOnly.Poll().Single();
+            Check(dialogFault.SourceFile == "iRacing dialog" && dialogFault.SignatureId == IRacingLiveLogMonitor.SpotterErrorSignature,
+                "An exact native iRacing dialog can produce a finding without a log or a process exit.");
+            clock = clock.AddMinutes(2);
+            Check(dialogOnly.Poll().Count == 0, "Leaving the same dialog open must not repeatedly alert.");
+            dialogVisible = false;
+            dialogOnly.Poll();
+            busy = true;
+            dialogVisible = true;
+            Check(dialogOnly.Poll().Count == 0, "A dialog observed during an update must not offer a repair.");
+            busy = false;
+            Check(dialogOnly.Poll().Count == 0, "An update-time dialog must not replay when the update ends.");
+            Check(!IRacingLiveLogMonitor.IsLoadingError63("Loading Error 630") && !IRacingLiveLogMonitor.IsLoadingError63("Error 63"),
+                "The dialog must identify the entire Loading Error 63 code.");
+
+            var simultaneous = new IRacingLiveLogMonitor(() => false, () => new[] { startupLog }, () => clock);
+            simultaneous.StartSession(now);
+            File.AppendAllText(startupLog, "System Not in Service\nLoading Error: 63\n");
+            Check(simultaneous.Poll().Single().SignatureId == IRacingLiveLogMonitor.SpotterErrorSignature,
+                "A generic service error in the same log poll must not displace Error 63.");
+
+            var processOnly = new LiveFaultEvidence(now, "helper-service", "iRacing Helper Service failure",
+                IRacingDiagnosticPolicy.HelperProcessAbsent, "process-state", GameKind.IRacing);
+            var explicitService = processOnly with { Message = "System Not in Service", SourceFile = "main-ui.log" };
+            IncidentRecord WithEvidence(params LiveFaultEvidence[] events) => new()
+            {
+                Game = "iRacing",
+                Classification = new CrashClassification(processOnly.Category, 90, processOnly.Message,
+                    events.Select(fault => fault.ToEvidenceText()).ToArray())
+            };
+            Check(RepairPlanner.TryCreateFromIncident(WithEvidence(processOnly)) is { Id: "iracing-helper-service", RequiresApproval: true },
+                "The process-only fallback must ask before restarting the service.");
+            Check(RepairPlanner.TryCreateFromIncident(WithEvidence(explicitService)) is { Id: "iracing-helper-service", RequiresApproval: false },
+                "A clear service failure retains its confirmed service route.");
+            Check(RepairPlanner.TryCreateFromIncident(WithEvidence(processOnly, dialogFault))
+                is { Id: "iracing-spotter-loading-error-63", RequiresApproval: true },
+                "Exact Error 63 evidence overrides a service finding and selects only the backed-up app.ini recovery.");
+
             var detailFolder = Path.Combine(root, "detail-record");
             Directory.CreateDirectory(detailFolder);
             var detailRecord = record with { IncidentFolder = detailFolder, RecommendedRepair = plan };

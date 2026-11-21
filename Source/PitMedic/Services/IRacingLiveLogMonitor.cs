@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using PitMedic.Models;
 
 namespace PitMedic.Services;
@@ -10,46 +11,70 @@ namespace PitMedic.Services;
 /// </summary>
 public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
 {
-    private readonly Dictionary<string, long> _offsets = new(StringComparer.OrdinalIgnoreCase);
+    internal const string SpotterErrorSignature = "loading-error-63";
+    internal const string SpotterErrorCategory = "iRacing spotter sound load failure";
+    private const string SpotterErrorMessage = "Loading Error 63 while loading a spotter sound.";
+    private static readonly Regex LoadingError63 = new(@"\bloading\s+error\s*[:#-]?\s*(?:63\b|\(\s*63\s*\))",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private readonly record struct LogPosition(long Offset, DateTime Created, string PartialLine);
+    private readonly Dictionary<string, LogPosition> _positions = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, DateTimeOffset> _seenSignatures = new(StringComparer.OrdinalIgnoreCase);
     private DateTimeOffset _sessionStarted;
     private readonly Func<bool> _isUpdating;
     private readonly Func<IEnumerable<string>> _candidateFiles;
     private readonly Func<DateTimeOffset> _now;
+    private readonly Func<bool>? _isSpotterDialogVisible;
+    private bool _spotterDialogWasVisible;
 
     public IRacingLiveLogMonitor(Func<bool>? isUpdating = null,
-        Func<IEnumerable<string>>? candidateFiles = null, Func<DateTimeOffset>? now = null)
+        Func<IEnumerable<string>>? candidateFiles = null, Func<DateTimeOffset>? now = null,
+        Func<bool>? isSpotterDialogVisible = null)
     {
         _isUpdating = isUpdating ?? IRacingUpdateGuard.IsBusy;
         _candidateFiles = candidateFiles ?? CandidateFiles;
         _now = now ?? (() => DateTimeOffset.Now);
+        _isSpotterDialogVisible = isSpotterDialogVisible;
     }
 
     public void StartSession(DateTimeOffset started)
     {
         _sessionStarted = started;
-        _offsets.Clear();
+        _positions.Clear();
         _seenSignatures.Clear();
+        _spotterDialogWasVisible = false;
 
         foreach (var file in _candidateFiles())
         {
             try
             {
                 var info = new FileInfo(file);
-                // Establish a clean baseline at the moment PitMedic attaches. This deliberately
-                // avoids importing error text from a previous iRacing session. Any lines written
-                // after attachment are monitored live; exit-time collection still captures startup
-                // evidence that occurred before attachment.
-                _offsets[file] = info.Length;
+                // Baseline old log text when PitMedic begins monitoring. Keep these positions
+                // when control passes between the launcher and a simulator session.
+                _positions[file] = new LogPosition(info.Length, info.CreationTimeUtc, string.Empty);
             }
             catch { }
         }
     }
 
-    public IReadOnlyList<LiveFaultEvidence> Poll()
+    internal void BeginTrackedSession(DateTimeOffset started)
+    {
+        foreach (var signature in _seenSignatures.Where(entry => entry.Value < started).Select(entry => entry.Key).ToArray())
+            _seenSignatures.Remove(signature);
+    }
+
+    public IReadOnlyList<LiveFaultEvidence> Poll() => Poll(simulatorExited: false);
+
+    internal IReadOnlyList<LiveFaultEvidence> Poll(bool simulatorExited)
     {
         var found = new List<LiveFaultEvidence>();
         var updating = _isUpdating();
+        if (!simulatorExited && _isSpotterDialogVisible is not null)
+        {
+            var visible = _isSpotterDialogVisible();
+            if (visible && !_spotterDialogWasVisible)
+                AddFault(SpotterErrorSignature, SpotterErrorCategory, SpotterErrorMessage, "iRacing dialog", updating, found);
+            _spotterDialogWasVisible = visible;
+        }
         foreach (var file in _candidateFiles())
         {
             try
@@ -57,40 +82,51 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
                 var info = new FileInfo(file);
                 if (info.LastWriteTimeUtc < _sessionStarted.AddSeconds(-8).UtcDateTime) continue;
 
-                if (!_offsets.TryGetValue(file, out var offset))
-                    offset = 0; // New session log created after monitoring began.
-
-                if (info.Length < offset) offset = 0; // Log rotated/truncated.
-                if (info.Length == offset) continue;
-
-                var maxStart = Math.Max(0, info.Length - 256 * 1024);
-                if (offset < maxStart) offset = maxStart;
+                var created = info.CreationTimeUtc;
+                var minOffset = Math.Max(0, info.Length - 256 * 1024);
+                if (!_positions.TryGetValue(file, out var position) || position.Created != created || position.Offset > info.Length)
+                    position = new LogPosition(0, created, string.Empty);
+                if (position.Offset < minOffset)
+                    position = new LogPosition(minOffset, created, string.Empty);
+                if (info.Length == position.Offset && (!simulatorExited || position.PartialLine.Length == 0)) continue;
 
                 using var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-                stream.Seek(offset, SeekOrigin.Begin);
-                using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true);
-                var text = reader.ReadToEnd();
-                _offsets[file] = stream.Position;
+                stream.Seek(position.Offset, SeekOrigin.Begin);
+                using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: position.Offset == 0, leaveOpen: true);
+                var text = position.PartialLine + reader.ReadToEnd();
+                var lastBreak = text.LastIndexOfAny(new[] { '\r', '\n' });
+                var tail = simulatorExited ? string.Empty : text[(lastBreak + 1)..];
+                // Do not carry an update-time partial line into a later diagnostic poll.
+                _positions[file] = new LogPosition(stream.Position, created, !updating && tail.Length <= 1024 ? tail : string.Empty);
 
-                foreach (var line in text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    if (!TryMatch(line, out var id, out var category, out var message)) continue;
-                    // Consume update-time lines without replaying them as failures afterward.
-                    if (IRacingUpdateGuard.SuppressDiagnostic(id, updating)) continue;
-                    // Avoid duplicate UI/log lines while still allowing the same fault to be retested after a repair.
-                    var now = _now();
-                    if (_seenSignatures.TryGetValue(id, out var last) && now - last < TimeSpan.FromSeconds(75)) continue;
-                    _seenSignatures[id] = now;
-                    found.Add(new LiveFaultEvidence(now, id, category, message, Path.GetFileName(file), GameKind.IRacing));
-                }
+                var complete = simulatorExited ? text : text[..(lastBreak + 1)];
+                foreach (var line in complete.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
+                    if (TryMatch(line, out var id, out var category, out var message))
+                        AddFault(id, category, message, Path.GetFileName(file), updating, found);
             }
             catch { }
         }
         // EOS reports a generic Error 73 header alongside its specific file rejection.
         if (found.Any(f => IsContentVersionFault(f.SignatureId)))
             found.RemoveAll(f => f.SignatureId is "eac-error-73" or "eac-failure");
+        if (found.Any(f => f.SignatureId == SpotterErrorSignature))
+            found.RemoveAll(f => f.SignatureId == "helper-service");
         return found;
     }
+
+    private void AddFault(string id, string category, string message, string source, bool updating, List<LiveFaultEvidence> found)
+    {
+        if (IRacingUpdateGuard.SuppressDiagnostic(id, updating)) return;
+        var now = _now();
+        if (_seenSignatures.TryGetValue(id, out var last) && now - last < TimeSpan.FromSeconds(75)) return;
+        _seenSignatures[id] = now;
+        found.Add(new LiveFaultEvidence(now, id, category, message, source, GameKind.IRacing));
+    }
+
+    internal bool SawRecentSpotterError =>
+        _seenSignatures.TryGetValue(SpotterErrorSignature, out var seen) && _now() - seen < TimeSpan.FromSeconds(75);
+
+    internal static bool IsLoadingError63(string text) => LoadingError63.IsMatch(text);
 
     internal static bool IsContentVersionFault(string id) =>
         id is "track-file-version" or "car-file-version" or "unknown-file-version";
@@ -102,6 +138,8 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
         if (line.Length == 0 || IRacingDiagnosticPolicy.IsInstallationProbe(line)) return false;
         var lower = line.ToLowerInvariant();
 
+        if (IsLoadingError63(line))
+            return Match(SpotterErrorSignature, SpotterErrorCategory, SpotterErrorMessage, out id, out category, out message);
         if (lower.Contains("could not find sim"))
             return Match("could-not-find-sim", "Could not find simulator", line, out id, out category, out message);
 
@@ -150,8 +188,6 @@ public sealed class IRacingLiveLogMonitor : ILiveLogMonitor
 
         if (IRacingLoadingError77Policy.IsError(line))
             return Match("loading-error-77", "iRacing Loading Error 77", line, out id, out category, out message);
-        if (System.Text.RegularExpressions.Regex.IsMatch(lower, @"\bloading\s+error\s*[:#-]?\s*63\b"))
-            return Match("loading-error-63", "iRacing spotter sound load failure", line, out id, out category, out message);
         if (System.Text.RegularExpressions.Regex.IsMatch(lower, @"\b(?:error|socket error)\s*[:#-]?\s*(10057|10035|10054)\b"))
             return Match("socket-connection-error", "iRacing socket connection failure", line, out id, out category, out message);
 
