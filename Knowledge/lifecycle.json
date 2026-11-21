@@ -8,6 +8,7 @@
     "retainHistoricalEntries": true
   },
   "entries": [
+    { "id": "rfactor2-shader-cache", "kind": "simulator-repair", "status": "active", "lastVerified": "2026-11-21", "reviewCadenceDays": 180 },
     { "id": "rfactor2-steam-content", "kind": "simulator-repair", "status": "active", "lastVerified": "2026-11-17", "reviewCadenceDays": 180 },
     { "id": "rfactor2-trace-log", "kind": "simulator-guidance", "status": "guidance", "lastVerified": "2026-11-17", "reviewCadenceDays": 180 },
     { "id": "lmu-content-corruption", "kind": "simulator-repair", "status": "active", "lastVerified": "2026-09-01", "reviewCadenceDays": 180 },

@@ -113,7 +113,8 @@ public sealed class RepairService : IDisposable
     private static bool IsSimulatorRepairFor(RepairPlan plan, GameDefinition game)
         => plan.Game.Equals(game.DisplayName, StringComparison.OrdinalIgnoreCase)
             && plan.Id != "lmu-sync-windows-time"
-            && plan.Id != UserRequestedRepairPolicy.RFactor2VerificationId;
+            && plan.Id != UserRequestedRepairPolicy.RFactor2VerificationId
+            && ScopedConfigurationRepair.BaseId(plan.Id) != ScopedConfigurationRepair.RFactor2CacheId;
 
     private async Task ClearStalledSimulatorAsync(IncidentRecord incident, RepairPlan plan, CancellationToken token)
     {
@@ -495,14 +496,20 @@ public sealed class RepairService : IDisposable
         var option = ScopedConfigurationRepair.Find(plan.Id) ?? throw new InvalidOperationException("Unsupported configuration repair.");
         EnsureGameNotRunning(option.Game, plan.Game);
         if (option.Game == GameKind.AssettoCorsa) AssettoCorsaPolicy.EnsureConfigurationWritersClosed();
-        var root = option.Game == GameKind.AssettoCorsa ? AssettoCorsaPolicy.ConfigurationRoot
-            : option.Game == GameKind.IRacing ? GetIRacingDocumentsRoot()
-            : Path.Combine(SteamLibraryLocator.FindLeMansUltimateRoot()
-                ?? throw new DirectoryNotFoundException("Le Mans Ultimate installation was not found."), "UserData", "player");
-        UpdateSimple(incident, plan, 15, "Preserving configuration", "Backing up the exact configuration files before changing them...", 1, 3, backupRoot);
+        if (option.Game == GameKind.RFactor2) EnsureRFactor2ToolsClosed();
+        var root = option.Game switch
+        {
+            GameKind.AssettoCorsa => AssettoCorsaPolicy.ConfigurationRoot,
+            GameKind.IRacing => GetIRacingDocumentsRoot(),
+            GameKind.RFactor2 => Path.Combine(SteamLibraryLocator.FindRFactor2RootForRepair(), "UserData", "Log"),
+            GameKind.LeMansUltimate => Path.Combine(SteamLibraryLocator.FindLeMansUltimateRoot()
+                ?? throw new DirectoryNotFoundException("Le Mans Ultimate installation was not found."), "UserData", "player"),
+            _ => throw new InvalidOperationException("Unsupported configuration repair.")
+        };
+        UpdateSimple(incident, plan, 15, "Creating backup", "Preserving the repair's files before making changes...", 1, 3, backupRoot);
         var storage = _executeElevatedRepairsLocally ? AppPaths.ElevatedRepairs : AppPaths.Repairs;
         var result = ScopedConfigurationRepair.Execute(plan.Id, root, backupRoot, Path.Combine(storage, "Backups"), token);
-        UpdateSimple(incident, plan, 90, "Configuration verified", "File operations completed. Retest the same simulator symptom.", 3, 3, backupRoot);
+        UpdateSimple(incident, plan, 90, "File changes verified", "File operations completed. Retest the same simulator symptom.", 3, 3, backupRoot);
         await Task.CompletedTask;
         return result;
     }
@@ -1343,13 +1350,17 @@ public sealed class RepairService : IDisposable
         if (!SteamLibraryLocator.HasRFactor2Install())
             throw new FileNotFoundException("PitMedic could not find rFactor 2 in the configured Steam libraries.");
         EnsureGameNotRunning(GameKind.RFactor2, "rFactor 2");
-        // The tools share game data with the Steam client but are not race sessions.
-        if (IsProcessRunning("rFactor2 Mod Mode") || IsProcessRunning("rFactor2 Dedicated"))
-            throw new InvalidOperationException("Close rFactor 2 Mod Mode or Dedicated Server before verifying files.");
+        EnsureRFactor2ToolsClosed();
 
         UpdateSimple(incident, plan, 30, "Opening Steam", "Requesting file verification for rFactor 2.", 2, 3, backupRoot);
         using var steam = await SteamClientService.StartValidationAsync(UserRequestedRepairPolicy.RFactor2SteamAppId, token);
         return "PitMedic sent the file verification request to Steam. Wait for verification and any downloads to finish before relaunching rFactor 2.";
+    }
+
+    private static void EnsureRFactor2ToolsClosed()
+    {
+        if (IsProcessRunning("rFactor2 Mod Mode") || IsProcessRunning("rFactor2 Dedicated"))
+            throw new InvalidOperationException("Close rFactor 2 Mod Mode and Dedicated Server before repairing files.");
     }
 
     private async Task<string> RepairSteamVerifyAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token,

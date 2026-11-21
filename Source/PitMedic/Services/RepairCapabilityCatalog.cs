@@ -76,6 +76,7 @@ public static class RepairCapabilityCatalog
         new RepairCapability("ams2-content-capability", "Missing or damaged Steam game files", "Automobilista 2", "Game & Content"),
 
         // rFactor 2
+        new RepairCapability("rfactor2-shader-cache", "Rebuild generated shader and track caches with Restore", "rFactor 2", "Configuration"),
         new RepairCapability("rfactor2-steam-content", "Verify Steam-managed game files on request", "rFactor 2", "Game & Content"),
 
         // Detected companion software

@@ -17,6 +17,21 @@ public static class RepairKnowledgeBase
     {
         new KnowledgeEntry
         {
+            Id = "rfactor2-shader-cache",
+            Game = "rFactor 2",
+            Issue = "rFactor 2 black track surfaces or rendering glitches",
+            Detection = "Choose Rebuild shader and track caches in Repair Tools for repeatable graphical artifacts, such as black track surfaces, that may be related to the generated cache.",
+            RepairStrategy = "With rFactor 2 and its tools closed, preserve and clear only recognized .rrshd and .cbash files in the corresponding cache directories. Relaunch to rebuild and retest the same track. Restore last backup is available.",
+            Safety = "Ask first / backed up / first track load may take longer",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("rFactor 2 rendering troubleshooting", "Studio 397", "https://www.studio-397.com/category/news/release/page/6/", "Studio 397 documented clearing the Shaders and CBash cache directories for specific graphical artifacts in its DX11 release notes."),
+                Ref("rFactor 2 shader and track cache formats", "Studio 397", "https://www.studio-397.com/2021/12/rfactor-2-new-build-available-now/", "The build notes identify the RRSHD and CBASH cache formats and describe pre-built caches.")
+            }
+        },
+        new KnowledgeEntry
+        {
             Id = "rfactor2-steam-content",
             Game = "rFactor 2",
             Issue = "rFactor 2 missing or damaged Steam game files",

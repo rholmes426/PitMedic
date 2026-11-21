@@ -61,5 +61,21 @@ public static class SteamLibraryLocator
     public static bool HasRFactor2Install() => GetLibraries().Any(library =>
         File.Exists(Path.Combine(library, "steamapps", "appmanifest_365960.acf")));
 
+    public static string FindRFactor2RootForRepair()
+    {
+        var found = GetLibraries()
+            .Where(library => File.Exists(Path.Combine(library, "steamapps", "appmanifest_365960.acf")))
+            .Select(library => Path.GetFullPath(Path.Combine(library, "steamapps", "common", "rFactor 2")))
+            .Where(root => File.Exists(Path.Combine(root, "Bin64", "rFactor2.exe")))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Take(2).ToArray();
+        return found.Length switch
+        {
+            1 => found[0],
+            0 => throw new DirectoryNotFoundException("PitMedic could not find the installed Steam rFactor 2 client."),
+            _ => throw new InvalidOperationException("PitMedic found more than one rFactor 2 installation and could not safely select one.")
+        };
+    }
+
     public static string? FindRaceRoomRoot() => FindGameRoot("raceroom racing experience");
 }

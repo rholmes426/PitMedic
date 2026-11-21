@@ -6,7 +6,7 @@ using PitMedic.Models;
 
 namespace PitMedic.Services;
 
-public sealed record ConfigurationRepairOption(string Id, GameKind Game, string Title, string Description, string[] Files);
+public sealed record ConfigurationRepairOption(string Id, GameKind Game, string Title, string Description, string[] Files, bool IsCache = false);
 
 public static class ScopedConfigurationRepair
 {
@@ -14,9 +14,16 @@ public static class ScopedConfigurationRepair
     public const string RequestPrefix = "PitMedic requested repair: ";
     private const string ManifestName = "configuration-backup.json";
     private const int MaxFileBytes = 8 * 1024 * 1024;
+    private const int MaxCacheFiles = 512;
+    private const int MaxCacheBytes = 128 * 1024 * 1024;
+    public const string RFactor2CacheId = "rfactor2-shader-cache";
 
     public static IReadOnlyList<ConfigurationRepairOption> Options { get; } = new[]
     {
+        new ConfigurationRepairOption(RFactor2CacheId, GameKind.RFactor2,
+            "Rebuild shader and track caches",
+            "Back up generated shaders and track cache files for rFactor 2 to rebuild. Close the simulator and its tools first. The first track load can take longer. Restore is available.",
+            new[] { "Shaders", "CBash" }, IsCache: true),
         new ConfigurationRepairOption("ac-video-config", GameKind.AssettoCorsa,
             "Original AC display settings are broken",
             "Preserve video.ini and let the original Assetto Corsa rebuild its display settings. Close the game, launcher and Content Manager first. Resolution, VR and display preferences may need reconfiguration. Restore is available.",
@@ -56,13 +63,15 @@ public static class ScopedConfigurationRepair
         return new RepairPlan
         {
             Id = id, Game = GameDefinition.Supported.Single(x => x.Kind == game).DisplayName,
-            Title = restore ? "Restore previous configuration" : option.Title,
+            Title = restore ? (option.IsCache ? "Restore previous shader and track caches" : "Restore previous configuration") : option.Title,
             Summary = restore
                 ? "Restore the latest successful backup for this repair. Current files are preserved separately first. Close the simulator and any update before continuing."
                 : option.Description,
-            Safety = RepairSafety.Significant, RequiresApproval = true, EstimatedMinutes = 1,
+            Safety = RepairSafety.Significant, RequiresApproval = true, EstimatedMinutes = option.IsCache ? 3 : 1,
             Steps = new[] { "Confirm simulator and updates are closed", "Preserve original files",
-                restore ? "Restore the previous configuration" : "Apply the scoped configuration repair",
+                option.IsCache
+                    ? (restore ? "Restore backed-up cache files" : "Clear the generated cache files")
+                    : (restore ? "Restore the previous configuration" : "Apply the scoped configuration repair"),
                 "Verify file changes, then retest the same symptom" },
             References = RepairKnowledgeBase.ReferencesForPlan(option.Id)
         };
@@ -88,7 +97,9 @@ public static class ScopedConfigurationRepair
         if (IsRestore(id)) return Restore(option, root, backupRoot, backupsParent, token);
 
         var originals = ReadFiles(option, root);
-        if (originals.Count == 0) throw new FileNotFoundException("None of the expected configuration files exists. Nothing was changed.");
+        if (originals.Count == 0) throw new FileNotFoundException(option.IsCache
+            ? "No recognized rFactor 2 cache files were found. Nothing was changed."
+            : "None of the expected configuration files exists. Nothing was changed.");
         var replacements = new Dictionary<string, byte[]?>(StringComparer.OrdinalIgnoreCase);
         foreach (var (name, bytes) in originals)
             replacements[name] = option.Id == "iracing-socket-connection" ? EnableSocketConnection(bytes) : null;
@@ -127,6 +138,8 @@ public static class ScopedConfigurationRepair
             }
             throw;
         }
+        if (option.IsCache)
+            return "The generated rFactor 2 cache files were backed up and cleared. Relaunch rFactor 2 and retry the same track. Use Restore last backup if needed.";
         return option.Id == "iracing-socket-connection"
             ? "connect_sockets was set to 1 in [Communications]. The original core.ini is preserved. Retry the same connection; use Restore last backup if it does not help."
             : "The selected configuration files were preserved and removed from the active folder. Start the simulator to regenerate them, then retest. Use Restore last backup to return to the previous configuration.";
@@ -164,14 +177,55 @@ public static class ScopedConfigurationRepair
     private static Dictionary<string, byte[]> ReadFiles(ConfigurationRepairOption option, string root)
     {
         var result = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
-        foreach (var name in option.Files)
+        var files = option.IsCache ? EnumerateCacheFiles(option, root) : option.Files;
+        var bytesRemaining = option.IsCache ? MaxCacheBytes : int.MaxValue;
+        foreach (var name in files)
         {
             var path = CheckPath(root, name);
             if (!File.Exists(path)) continue;
-            if (new FileInfo(path).Length > MaxFileBytes) throw new InvalidDataException("A configuration file is unexpectedly large.");
-            result[name] = File.ReadAllBytes(path);
+            if (option.IsCache && result.Count == MaxCacheFiles)
+                throw new InvalidDataException("The cache has too many files for this repair. Nothing was changed.");
+            var bytes = ReadBounded(path, option.IsCache ? bytesRemaining : MaxFileBytes);
+            bytesRemaining -= bytes.Length;
+            result.Add(name, bytes);
         }
         return result;
+    }
+
+    private static IEnumerable<string> EnumerateCacheFiles(ConfigurationRepairOption option, string root)
+    {
+        foreach (var directory in option.Files)
+        {
+            var path = CheckPath(root, directory);
+            if (!Directory.Exists(path)) continue;
+            foreach (var file in Directory.EnumerateFiles(path))
+            {
+                var name = Path.Combine(directory, Path.GetFileName(file));
+                if (IsAllowedFile(option, name)) yield return name;
+            }
+        }
+    }
+
+    private static bool IsAllowedFile(ConfigurationRepairOption option, string name)
+    {
+        if (!option.IsCache) return option.Files.Contains(name, StringComparer.OrdinalIgnoreCase);
+        var directory = Path.GetDirectoryName(name);
+        var leaf = Path.GetFileName(name);
+        if (string.IsNullOrEmpty(directory) || string.IsNullOrEmpty(leaf)
+            || leaf.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0
+            || !option.Files.Contains(directory, StringComparer.OrdinalIgnoreCase)) return false;
+        var extension = directory.Equals("Shaders", StringComparison.OrdinalIgnoreCase) ? ".rrshd" : ".cbash";
+        return Path.GetExtension(leaf).Equals(extension, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static byte[] ReadBounded(string path, int maximumBytes)
+    {
+        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        if (stream.Length > maximumBytes)
+            throw new InvalidDataException("The files exceed the supported backup size. Nothing was changed.");
+        var bytes = new byte[(int)stream.Length];
+        stream.ReadExactly(bytes);
+        return bytes;
     }
 
     private sealed record Snapshot(string Name, string Sha256);
@@ -186,8 +240,8 @@ public static class ScopedConfigurationRepair
         foreach (var (name, bytes) in originals)
         {
             var folder = Path.Combine(backupRoot, "Files");
-            Directory.CreateDirectory(folder);
             var target = CheckPath(folder, name);
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             using var stream = new FileStream(target, FileMode.CreateNew, FileAccess.Write, FileShare.None);
             stream.Write(bytes);
             stream.Flush(true);
@@ -206,7 +260,7 @@ public static class ScopedConfigurationRepair
         foreach (var folder in candidates)
         {
             var path = CheckPath(folder, ManifestName);
-            if (!File.Exists(path) || new FileInfo(path).Length > 32768) continue;
+            if (!File.Exists(path) || new FileInfo(path).Length > (option.IsCache ? 256 * 1024 : 32768)) continue;
             Manifest? manifest;
             try { manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllText(path)); } catch { continue; }
             if (manifest is null || !manifest.Completed || manifest.IsRestore || manifest.RepairId != option.Id
@@ -214,18 +268,19 @@ public static class ScopedConfigurationRepair
             selected = manifest; selectedFolder = folder; break;
         }
         if (selected is null || selectedFolder is null) throw new FileNotFoundException("No completed backup for this repair and configuration folder was found.");
-        if (selected.Files.Length == 0 || selected.Files.Length > option.Files.Length
+        if (selected.Files.Length == 0 || selected.Files.Length > (option.IsCache ? MaxCacheFiles : option.Files.Length)
             || selected.Files.Select(x => x.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count() != selected.Files.Length)
             throw new InvalidDataException("The repair backup manifest is invalid.");
         var restoreFiles = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
+        var bytesRemaining = option.IsCache ? MaxCacheBytes : int.MaxValue;
         foreach (var snapshot in selected.Files)
         {
-            if (!option.Files.Contains(snapshot.Name, StringComparer.OrdinalIgnoreCase)) throw new InvalidDataException("The backup contains an unexpected file.");
+            if (!IsAllowedFile(option, snapshot.Name)) throw new InvalidDataException("The backup contains an unexpected file.");
             var file = CheckPath(Path.Combine(selectedFolder, "Files"), snapshot.Name);
-            if (new FileInfo(file).Length > MaxFileBytes) throw new InvalidDataException("The backup is unexpectedly large.");
-            var bytes = File.ReadAllBytes(file);
-            if (bytes.Length > MaxFileBytes || Hash(bytes) != snapshot.Sha256) throw new InvalidDataException("The backup failed its integrity check.");
+            var bytes = ReadBounded(file, option.IsCache ? bytesRemaining : MaxFileBytes);
+            if (Hash(bytes) != snapshot.Sha256) throw new InvalidDataException("The backup failed its integrity check.");
             restoreFiles.Add(snapshot.Name, bytes);
+            bytesRemaining -= bytes.Length;
         }
         var current = ReadFiles(option, root);
         var safety = Preserve(option, root, backupRoot, current, true);
@@ -239,6 +294,7 @@ public static class ScopedConfigurationRepair
                 if (current.TryGetValue(name, out var original)) RequireBytes(path, original);
                 else if (File.Exists(path)) throw new IOException("Configuration changed during restore.");
                 changed.Add(name);
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                 WriteAtomic(path, bytes);
                 RequireBytes(path, bytes);
             }
@@ -257,7 +313,9 @@ public static class ScopedConfigurationRepair
             }
             throw;
         }
-        return "The original configuration was restored. Files that were present before Restore are preserved in this repair's backup. Retest the same simulator session.";
+        return option.IsCache
+            ? "The backed-up rFactor 2 cache files were restored. Files that were present before Restore are preserved in this repair's backup. Retest the same track."
+            : "The original configuration was restored. Files that were present before Restore are preserved in this repair's backup. Retest the same simulator session.";
     }
 
     private static void WriteManifest(string root, Manifest value) =>
@@ -266,19 +324,29 @@ public static class ScopedConfigurationRepair
     private static string Hash(byte[] value) => Convert.ToHexString(SHA256.HashData(value));
     private static void RequireBytes(string path, byte[] expected)
     {
-        if (!File.Exists(path) || !File.ReadAllBytes(path).SequenceEqual(expected))
+        if (!File.Exists(path) || !ReadBounded(path, expected.Length).SequenceEqual(expected))
             throw new IOException("Configuration changed while the repair was being prepared. Nothing else will be changed.");
     }
 
     private static string CheckPath(string root, string name)
     {
-        if (string.IsNullOrWhiteSpace(root) || !Path.IsPathFullyQualified(root) || name != Path.GetFileName(name))
-            throw new InvalidDataException("A configuration path is invalid.");
-        var fullRoot = Path.GetFullPath(root);
-        var target = Path.Combine(fullRoot, name);
+        if (string.IsNullOrWhiteSpace(root) || !Path.IsPathFullyQualified(root) || Path.IsPathRooted(name))
+            throw new InvalidDataException("A repair path is invalid.");
+        var fullRoot = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
+        var target = Path.GetFullPath(Path.Combine(fullRoot, name));
+        var prefix = Path.EndsInDirectorySeparator(fullRoot) ? fullRoot : fullRoot + Path.DirectorySeparatorChar;
+        if (!target.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) || target == fullRoot)
+            throw new InvalidDataException("A repair path is outside the expected folder.");
         for (var current = target; !string.IsNullOrWhiteSpace(current); current = Path.GetDirectoryName(current))
-            if ((File.Exists(current) || Directory.Exists(current)) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0)
-                throw new UnauthorizedAccessException("Configuration repair cannot follow a symbolic link or junction.");
+        {
+            try
+            {
+                if ((File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0)
+                    throw new UnauthorizedAccessException("Repair cannot follow a symbolic link or junction.");
+            }
+            catch (FileNotFoundException) { }
+            catch (DirectoryNotFoundException) { }
+        }
         return target;
     }
 
