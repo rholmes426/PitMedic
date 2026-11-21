@@ -7,6 +7,172 @@
   ],
   "entries": [
     {
+      "id": "rfactor2-shader-cache",
+      "displayKind": "Simulator repair",
+      "product": "rFactor 2",
+      "issue": "rFactor 2 black track surfaces or rendering glitches",
+      "detection": "Choose Rebuild shader and track caches in Repair Tools for repeatable graphical artifacts, such as black track surfaces, that may be related to the generated cache.",
+      "repair": "With rFactor 2 and its tools closed, preserve and clear only recognized .rrshd and .cbash files in the corresponding cache directories. Relaunch to rebuild and retest the same track. Restore last backup is available.",
+      "safety": "Ask first / backed up / first track load may take longer",
+      "signatures": [],
+      "references": [
+        {
+          "title": "rFactor 2 rendering troubleshooting",
+          "source": "Studio 397",
+          "url": "https://www.studio-397.com/category/news/release/page/6/",
+          "note": "Studio 397 documented clearing the Shaders and CBash cache directories for specific graphical artifacts in its DX11 release notes.",
+          "official": true
+        },
+        {
+          "title": "rFactor 2 shader and track cache formats",
+          "source": "Studio 397",
+          "url": "https://www.studio-397.com/2021/12/rfactor-2-new-build-available-now/",
+          "note": "The build notes identify the RRSHD and CBASH cache formats and describe pre-built caches.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-repair",
+      "status": "active",
+      "lastVerified": "2026-11-21",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "rfactor2-steam-content",
+      "displayKind": "Simulator repair",
+      "product": "rFactor 2",
+      "issue": "rFactor 2 missing or damaged Steam game files",
+      "detection": "Use Repair Tools → Verify Steam files on the rFactor 2 page when the game reports missing or unreadable installed content, or to check the base installation after a failed update.",
+      "repair": "After approval and with rFactor 2 closed, hand a verification request to Steam for the rFactor 2 client. Steam checks its managed files and may download replacements. Wait for Steam Downloads to settle and retest.",
+      "safety": "Ask first / Steam may replace modified managed files",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Verify integrity of game files",
+          "source": "Steam Support",
+          "url": "https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB",
+          "note": "Valve documents file verification for missing game content and crashes.",
+          "official": true
+        },
+        {
+          "title": "rFactor 2 on Steam",
+          "source": "Studio 397",
+          "url": "https://store.steampowered.com/app/365960/",
+          "note": "Identifies the Steam client targeted by the verification request.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-repair",
+      "status": "active",
+      "lastVerified": "2026-11-17",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "rfactor2-trace-log",
+      "displayKind": "Diagnostic guidance",
+      "product": "rFactor 2",
+      "issue": "rFactor 2 crashes or exits unexpectedly",
+      "detection": "Use this guide for an unexpected rFactor 2 exit, especially one that repeats while loading the same car or track.",
+      "repair": "Use Studio 397's trace logging options when more evidence is needed. Compare the saved trace with the exit time, Windows events and any crash dump. Test with known-good content to help isolate the failure.",
+      "safety": "Guidance only / logging options are user-controlled",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Diagnosing issues using logging",
+          "source": "Studio 397",
+          "url": "https://docs.studio-397.com/pages/viewpage.action?pageId=86638877",
+          "note": "Documents the trace launch arguments, log location and crash reporting.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-guidance",
+      "status": "guidance",
+      "lastVerified": "2026-11-17",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "ac-video-config",
+      "displayKind": "Simulator repair",
+      "product": "Assetto Corsa",
+      "issue": "Original Assetto Corsa display configuration recovery",
+      "detection": "An exact current-session video.ini failure, or an explicit display-symptom selection in Repair Tools. Normal INI dumps and generic crashes do not select this repair.",
+      "repair": "After consent and with the simulator, launcher and Content Manager closed, preserve only Documents/Assetto Corsa/cfg/video.ini and remove its active copy. Let AC rebuild display settings. Retest a stock car and track; Restore last backup preserves the new configuration before restoring the original.",
+      "safety": "Ask first / display settings reset / retained backup and Restore",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Assetto Corsa graphics settings recovery",
+          "source": "OverTake community",
+          "url": "https://www.overtake.gg/threads/assetto-corsa-gfx-pp-settings.121820/",
+          "note": "A first-hand outcome confirms regeneration of the user video.ini. Community evidence, not a vendor or local gameplay-success claim.",
+          "official": false
+        },
+        {
+          "title": "Original AC video settings location",
+          "source": "Assetto Corsa Steam Community",
+          "url": "https://steamcommunity.com/app/244210/discussions/0/4853280859653327951/",
+          "note": "Documents/Assetto Corsa/cfg/video.ini is the user display file, separate from installation defaults.",
+          "official": false
+        }
+      ],
+      "kind": "simulator-repair",
+      "status": "active",
+      "lastVerified": "2026-11-17",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "ac-controls-config",
+      "displayKind": "Simulator repair",
+      "product": "Assetto Corsa",
+      "issue": "Original Assetto Corsa wheel or pedals do not respond in a race",
+      "detection": "An exact current-session controls.ini failure, or an explicit controls-symptom selection in Repair Tools. Missing inputs alone do not establish damaged settings.",
+      "repair": "After consent and with the simulator, launcher and Content Manager closed, preserve only Documents/Assetto Corsa/cfg/controls.ini and remove its active copy. Remap and recalibrate in AC or Content Manager, retest, and use Restore last backup if ineffective. Saved controller presets, car setups, mods and other configuration files are preserved.",
+      "safety": "Ask first / active bindings and calibration reset / retained backup and Restore",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Inputs work in settings but not in race",
+          "source": "Assetto Corsa Steam Community",
+          "url": "https://steamcommunity.com/app/244210/discussions/0/2263564102386178208/",
+          "note": "The original reporter confirms controls.ini regeneration followed by manual reassignment restored input. Community evidence; device-specific behavior still needs an in-game retest.",
+          "official": false
+        },
+        {
+          "title": "Wheel detected but not working while driving",
+          "source": "Assetto Corsa Steam Community",
+          "url": "https://steamcommunity.com/app/244210/discussions/0/523897277919045091/",
+          "note": "Independent users discuss controls.ini recovery and explicit manual reassignment, with broader mixed steps kept outside PitMedic's action.",
+          "official": false
+        }
+      ],
+      "kind": "simulator-repair",
+      "status": "active",
+      "lastVerified": "2026-11-17",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "ac-steam-content",
+      "displayKind": "Simulator repair",
+      "product": "Assetto Corsa",
+      "issue": "Original Assetto Corsa installed game-file verification",
+      "detection": "The user selects original Assetto Corsa game-file verification in Repair Tools. A generic mod error or clean launcher exit does not automatically start it.",
+      "repair": "With approval, start Steam validation for app 244210 after closing AC, its launcher and Content Manager. Steam checks packaged stock files. Wait for downloads and test a stock car and track. Steam may replace modified stock files; preserve those separately first. Third-party mods, CSP and Content Manager are not reinstalled or repaired.",
+      "safety": "Ask first / Steam may replace modified stock files / wait for downloads and retest",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Verify integrity of game files",
+          "source": "Steam Support",
+          "url": "https://help.steampowered.com/en/faqs/view/0C48-FCBD-DA71-93EB",
+          "note": "Valve documents checking installed game files; starting verification is not proof that the game is fixed.",
+          "official": true
+        }
+      ],
+      "kind": "simulator-repair",
+      "status": "active",
+      "lastVerified": "2026-11-17",
+      "reviewCadenceDays": 180
+    },
+    {
       "id": "lmu-controller-config",
       "displayKind": "Simulator repair",
       "product": "Le Mans Ultimate",
