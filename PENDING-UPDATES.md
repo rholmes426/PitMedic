@@ -46,6 +46,21 @@ retest with iRacing, rFactor 2, or the original Assetto Corsa installed.
 - Fixture regression and generation validation cover this work; live original-AC
   gameplay and wheel retests remain user/hardware validation, not claimed success.
 
+## Manual Scout review - November 24, 2026
+
+[Evidence, coverage, validation and rollback plans](Research/KnowledgeScoutReview-2026-11-24.md).
+
+| Priority / ID | Work and next validation | Diagnostic Library deliverable / status |
+| --- | --- | --- |
+| Repair - KS-MAN-LMU-RACELAB-TELEMETRY | Offer an explicit missing-data check for a confirmed Racelab installation. Back up LMU's plugin configuration and enable only the existing, disabled Racelab entry when the matching installed DLL is present. Test current on-track data and Restore. | Proposed `lmu-racelab-telemetry-config`, linked from `lmu-plugin-conflict` |
+| Access - KS-MAN-IR-UI-REQUEST | Expose existing UI-cache recovery and the exact Welcome-screen UISafe workaround separately. Verify updater guards, current-user targeting, consent, Restore and UI relaunch. | Proposed updates to `iracing-ui-cache` and `iracing-ui-safe` |
+| Validation - KS-MAN-RF2-CONTROLLER-JSON | Capture a current launch error naming malformed active `Controller.JSON`. Validate single-file regeneration, remapping and Restore before adding a repair option. | Proposed `rfactor2-controller-config` and a link from `rfactor2-trace-log` after validation |
+| Guidance - KS-MAN-RR-09931 | Add RaceRoom 0.9.9.31 VR/shader exit crashes and multiplayer return-to-menu checks. | Queued update to `raceroom-loading-ffb-update-guidance` |
+| Guidance - KS-MAN-FANATEC-1723 | Document the 1.7.2.3 preview fix for quick-release connection loss with the GT DD Extreme wheel in the Tuning Menu. | Queued update to `companion-fanatec-process-recovery` |
+
+The Asetek RaceHub profile proposal and existing iRacing/SimHub memory
+setting work retain their November 17 queue entries.
+
 ## Manual Scout review - November 17, 2026
 
 [Evidence, coverage, exact mutation/rollback plans and paired library work](Research/KnowledgeScoutReview-2026-11-17.md).
