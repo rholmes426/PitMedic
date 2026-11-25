@@ -373,6 +373,32 @@
       "access": "indexed-discussion-leads",
       "checkedOn": "2026-11-17",
       "notes": "Original Assetto Corsa integration discovery. Open the body and outcome before treating a proposed remedy as verified."
+    },
+    {
+      "id": "steam-rfactor2",
+      "products": [
+        "rFactor 2"
+      ],
+      "authority": "community",
+      "category": "steam-discussions",
+      "url": "https://steamcommunity.com/app/365960/discussions/",
+      "searchTemplate": "site:steamcommunity.com/app/365960/discussions/ {product} {symptom} {config_file_or_setting}",
+      "access": "discussion-and-outcome-opened",
+      "checkedOn": "2026-11-24",
+      "notes": "Check current retail build and distinguish an exact active configuration error from settings, device, or Workshop issues. Older outcomes require current reproduction."
+    },
+    {
+      "id": "racelab-lmu-developer-setup",
+      "products": [
+        "Le Mans Ultimate"
+      ],
+      "authority": "developer",
+      "category": "integration-support",
+      "url": "https://garage.racelab.app/docs/first-steps/lmu/",
+      "searchTemplate": "site:garage.racelab.app/docs/first-steps/lmu/ {product} {symptom} {config_file_or_setting}",
+      "access": "article-body-opened",
+      "checkedOn": "2026-11-24",
+      "notes": "Racelab's own LMU setup and no-data checks. Identify the exact installed plugin and current settings before proposing a reversible change."
     }
   ],
   "queryFamilies": [
