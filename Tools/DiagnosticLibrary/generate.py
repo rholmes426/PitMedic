@@ -28,6 +28,7 @@ LOGO_URL = "https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png"
 INDEX_MODIFIED = "2026-11-06"
 
 GAME_SLUGS = {
+    "Windows": "windows",
     "Le Mans Ultimate": "le-mans-ultimate",
     "iRacing": "iracing",
     "Assetto Corsa EVO": "assetto-corsa-evo",
@@ -407,6 +408,13 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
 
 # Stable section anchors preserve guide URLs and avoid duplicate filter landing pages.
 LIBRARY_GROUPS = [
+    {
+        "slug": "windows",
+        "name": "Windows 10 and 11",
+        "products": ["Windows"],
+        "description": "Windows integrity, DNS, audio service, time synchronization and thermal report guidance.",
+        "coverage": "windows"
+    },
     {
         "slug": "assetto-corsa",
         "name": "Assetto Corsa (original)",

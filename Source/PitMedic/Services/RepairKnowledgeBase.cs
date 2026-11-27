@@ -17,6 +17,96 @@ public static class RepairKnowledgeBase
     {
         new KnowledgeEntry
         {
+            Id = "windows-integrity-check",
+            Game = "Windows",
+            IsGuidanceOnly = true,
+            Issue = "Check Windows system file integrity",
+            Detection = "Use Home, Windows repair tools to request system integrity verification when Windows components or multiple apps exhibit repeatable failures.",
+            RepairStrategy = "With approval, run DISM ScanHealth and SFC verifyonly. Review the saved output before selecting a repair. A completed command alone does not diagnose corruption.",
+            Safety = "Guidance only / administrator approval / verification",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Repair a Windows image", "Microsoft Learn", "https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/repair-a-windows-image", "Documents component store health checks."),
+                Ref("System File Checker", "Microsoft Support", "https://support.microsoft.com/en-us/windows/experience/backup-recovery/using-system-file-checker-in-windows", "Documents Windows system file integrity checking.")
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "windows-system-file-integrity",
+            Game = "Windows",
+            Issue = "Repair confirmed Windows component or system file corruption",
+            Detection = "Request Windows system repair after reviewing a Windows integrity check or other corroborated evidence of component or protected-file corruption.",
+            RepairStrategy = "After approval, execute DISM RestoreHealth followed by SFC scannow using the built-in Windows tools. Preserve their output and exit status, then restart if required and retest the original symptom.",
+            Safety = "Ask first / system-wide Windows servicing / restart may be required",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("System File Checker", "Microsoft Support", "https://support.microsoft.com/en-us/windows/experience/backup-recovery/using-system-file-checker-in-windows", "Microsoft documents DISM followed by System File Checker for damaged Windows files.")
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "windows-dns-cache-recovery",
+            Game = "Windows",
+            Issue = "Windows name resolution fails or uses a stale DNS cache",
+            Detection = "Explicitly select DNS cache refresh in Windows repair tools if a service hostname fails to resolve and stale client-cache evidence is suspected.",
+            RepairStrategy = "Request the built-in ipconfig DNS resolver-cache refresh with approval. Record result, then retry the same hostname or service. DNS servers, adapters and security configuration stay intact.",
+            Safety = "Ask first / transient Windows resolver cache",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("ipconfig", "Microsoft Learn", "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig", "Documents flushing the Windows client resolver cache."),
+                Ref("Troubleshooting DNS clients", "Microsoft Learn", "https://learn.microsoft.com/en-us/windows-server/networking/dns/troubleshoot/troubleshoot-dns-client", "Distinguishes DNS cache from DNS server and network connectivity failures.")
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "windows-audio-service-recovery",
+            Game = "Windows",
+            Issue = "Windows audio services are stopped",
+            Detection = "Choose the audio service check when Windows or an app has no sound. Windows Audio or Windows Audio Endpoint Builder may have stopped.",
+            RepairStrategy = "Check both service states and start only stopped, enabled services after approval. Verify both return to Running. If both were running, check the playback device and volume mixer.",
+            Safety = "Ask first / fixed service names / startup configuration unchanged",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Fix audio after a Windows update", "Microsoft Support", "https://support.microsoft.com/en-us/windows/hardware/audio/fix-audio-stops-working-after-a-windows-update-in-windows", "Documents the role of Windows audio services and other causes of missing sound."),
+                Ref("Fix app audio", "Microsoft Support", "https://support.microsoft.com/en-us/windows/hardware/audio/fix-app-audio-not-working-while-system-sounds-work-in-windows", "Explains app mixer, output selection and service checks.")
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "windows-time-sync",
+            Game = "Windows",
+            Issue = "Incorrect Windows clock or time synchronization",
+            Detection = "Request clock synchronization if the displayed clock is inaccurate or an affected app reports a time-related error.",
+            RepairStrategy = "With approval request Windows time synchronization using its configured source, query the time-service status and review the actual clock. No time zone or time-server changes.",
+            Safety = "Ask first / Windows system clock",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Windows Time Service tools", "Microsoft Learn", "https://learn.microsoft.com/en-us/windows-server/networking/windows-time-service/windows-time-service-tools-and-settings", "Documents w32tm synchronization and status queries.")
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "windows-thermal-limiting",
+            Game = "Windows",
+            IsGuidanceOnly = true,
+            Issue = "CPU thermal headroom exhausted or GPU thermal slowdown",
+            Detection = "Review the Thermal Report in the last completed simulator session. Valid Intel CPU distance-to-TjMax readings at zero or supported NVIDIA driver thermal-slowdown reason flags are recorded with sampling intervals.",
+            RepairStrategy = "Review the result after the session. A thermal indication can correspond to reduced performance. Check the cooling system and hardware-specific guidance before repeating the workload.",
+            Safety = "Guidance only / local read-only hardware sampling",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Intel processor temperature information", "Intel", "https://www.intel.com/content/www/us/en/support/articles/000005597/processors.html", "Explains the model-specific thermal junction limit and thermal control."),
+                Ref("NVIDIA clock event reasons", "NVIDIA", "https://docs.nvidia.com/deploy/nvml-api/latest/api/group__nvmlClocksEventReasons.html", "Documents hardware and software thermal slowdown flags.")
+            }
+        },
+        new KnowledgeEntry
+        {
             Id = "rfactor2-shader-cache",
             Game = "rFactor 2",
             Issue = "rFactor 2 black track surfaces or rendering glitches",

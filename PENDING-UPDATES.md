@@ -46,6 +46,15 @@ retest with iRacing, rFactor 2, or the original Assetto Corsa installed.
 - Fixture regression and generation validation cover this work; live original-AC
   gameplay and wheel retests remain user/hardware validation, not claimed success.
 
+## Pending implementation - Windows repair tools and silent thermal reports (November 26, 2026)
+
+- Home → Windows repair tools supports an explicit request without a simulator: DISM/SFC verification, system file repair, resolver-cache refresh, starting stopped Windows audio services, and Windows clock synchronization.
+- Every action requires approval and the protected helper revalidates the fixed plan. Verification results are distinct from a repair. The shared OS repair actions preserve their logs; users retest the actual symptom. No service is stopped for the new audio action.
+- Simulator Last Session now includes a silent thermal report from valid Intel DTS thermal-headroom observations and supported NVIDIA NVML thermal-slowdown flags. Retains the per-session result across app restarts and reports unavailable signals. No thermal popup, tray notification, focus change or crash incident. AMD CPU/GPU and Intel GPU thermal-limit providers need further hardware-specific validation.
+- Six new Diagnostic Library guides prepared and gated to a supporting 1.0.0.14 or newer release: `windows-integrity-check`, `windows-system-file-integrity`, `windows-dns-cache-recovery`, `windows-audio-service-recovery`, `windows-time-sync`, `windows-thermal-limiting`.
+- Remaining Windows research includes VC14 and legacy DirectX runtime recovery, app-scoped audio mute, full audio-service restart, evidence-qualified DNS, automatic shared OS failure detection, memory commit, driver/device and storage diagnosis, and current KB/build matching. Existing queued items retain their validation requirements.
+- Added PatchManagement.org, r/sysadmin and additional patch reporting to the manual source inventory. Current Google Group and AskWoody access limits are documented in the Windows review.
+
 ## Windows 10/11 Scout review - November 26, 2026
 
 [Windows evidence, executable coverage, repair proposals and validation](Research/WindowsRepairReview-2026-11-26.md). Shared Windows troubleshooting for supported simulators and companion apps is planned, including explicit symptom selection when the app never launches.
@@ -64,7 +73,7 @@ retest with iRacing, rFactor 2, or the original Assetto Corsa installed.
 | Diagnostic - KS-WIN-SAVE-STORAGE | Distinguish folder redirection, exact blocked writes, inadequate space and disk I/O events. | Proposed `windows-save-and-storage-errors`; update `iracing-could-not-find-sim` |
 
 Planned shared platform guides are gated to the corresponding implementation.
-All runtime repairs and real-hardware validation remain pending.
+The implementation entry above records the first manual Windows tools. Real-hardware execution and broader diagnostic validation remain pending.
 
 ## Manual Scout review - November 24, 2026
 

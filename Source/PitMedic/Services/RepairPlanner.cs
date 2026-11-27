@@ -116,6 +116,8 @@ public static class RepairPlanner
 
     public static RepairPlan? TryCreateFromIncident(IncidentRecord record)
     {
+        if (record.Game.Equals(WindowsRepairPolicy.Product, StringComparison.OrdinalIgnoreCase))
+            return WindowsRepairPolicy.FromRequest(record);
         if (record.Classification.Category == ScopedConfigurationRepair.RequestCategory)
             return UserRequestedRepairPolicy.FromRequest(record);
         // Reassess old findings before accepting even a serialized repair plan.

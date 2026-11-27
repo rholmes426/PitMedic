@@ -7,12 +7,15 @@ public sealed record TelemetrySample
     public float? CpuLoadPct { get; init; }
     public float? CpuClockMhz { get; init; }
     public float? CpuPowerW { get; init; }
+    public float? CpuThermalHeadroomC { get; init; }
+    public DateTimeOffset? CpuThermalReadingAt { get; init; }
     public float? GpuTempC { get; init; }
     public float? GpuHotspotC { get; init; }
     public float? GpuMemoryTempC { get; init; }
     public float? GpuLoadPct { get; init; }
     public float? GpuClockMhz { get; init; }
     public float? GpuPowerW { get; init; }
+    public bool? NvidiaGpuThermalLimited { get; init; }
     public float? GpuFanRpm { get; init; }
     public float? GpuMemoryUsedMb { get; init; }
     public float? GpuMemoryTotalMb { get; init; }

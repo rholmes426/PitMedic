@@ -67,10 +67,11 @@ public sealed class MonitoringCoordinator : IDisposable
             while (!_cts.IsCancellationRequested)
             {
                 var settings = _settings.Current;
-                var sample = _hardware.Read(settings);
+                var sample = _hardware.Read(settings, settings.MonitorThermalLimits && _games.HasTrackedSession);
                 _buffer.Add(sample);
                 TelemetryUpdated?.Invoke(sample);
                 _games.Scan();
+                _games.RecordThermalSample(sample, settings.MonitorThermalLimits);
                 _companions.Scan();
                 await Task.Delay(TimeSpan.FromSeconds(settings.SamplingSeconds), _cts.Token);
             }
@@ -94,6 +95,7 @@ public sealed class MonitoringCoordinator : IDisposable
         return incident is null ? null : IncidentDetailsService.Build(incident);
     }
     public IncidentSummary CreateConfigurationRepairRequest(GameKind game, string id) => _incidents.CreateConfigurationRepairRequest(game, id);
+    public IncidentSummary CreateWindowsRepairRequest(string id) => _incidents.CreateWindowsRepairRequest(id);
 
     public bool AcknowledgeIncident(string folder) => _incidents.Acknowledge(folder);
 

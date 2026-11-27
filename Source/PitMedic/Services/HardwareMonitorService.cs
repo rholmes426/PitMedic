@@ -10,6 +10,7 @@ public sealed class HardwareMonitorService : IDisposable
     private readonly Computer _computer;
     private readonly UpdateVisitor _visitor = new();
     private readonly ProtectedSensorClient _protectedSensors = new();
+    private readonly NvidiaThermalMonitor _nvidiaThermals = new();
     private readonly object _gate = new();
     private readonly bool _opened;
     private IReadOnlyList<IHardware> _allHardware = Array.Empty<IHardware>();
@@ -42,14 +43,15 @@ public sealed class HardwareMonitorService : IDisposable
         }
     }
 
-    public TelemetrySample Read(AppSettings settings)
+    public TelemetrySample Read(AppSettings settings, bool collectThermalLimits = false)
     {
         lock (_gate)
         {
+            var gpuThermalLimited = collectThermalLimits ? _nvidiaThermals.Read() : null;
             if (!_opened)
             {
-                if (settings.MonitorCpuTemperature) _protectedSensors.EnsureStarted();
-                return MergeProtectedCpu(new TelemetrySample { Timestamp = DateTimeOffset.Now });
+                if (settings.MonitorCpuTemperature || collectThermalLimits) _protectedSensors.EnsureStarted();
+                return MergeProtectedCpu(new TelemetrySample { Timestamp = DateTimeOffset.Now, NvidiaGpuThermalLimited = gpuThermalLimited }, collectThermalLimits);
             }
 
             try
@@ -64,6 +66,7 @@ public sealed class HardwareMonitorService : IDisposable
                 {
                     Timestamp = DateTimeOffset.Now,
                     CpuTempC = settings.MonitorCpuTemperature ? BestCpuTemp(cpu, all) : null,
+                    CpuThermalHeadroomC = collectThermalLimits ? CpuSensorPolicy.ThermalHeadroom(Sensors(cpu, SensorType.Temperature).Select(s => (s.Name, s.Value))) : null,
                     CpuLoadPct = settings.MonitorCpuLoad ? (Named(cpu, SensorType.Load, "CPU Total") ?? Max(cpu, SensorType.Load)) : null,
                     CpuClockMhz = settings.MonitorCpuClock ? CpuSensorPolicy.PositiveReading(Max(cpu, SensorType.Clock)) : null,
                     CpuPowerW = settings.MonitorCpuPower ? (Named(cpu, SensorType.Power, "CPU Package") ?? Max(cpu, SensorType.Power)) : null,
@@ -73,22 +76,26 @@ public sealed class HardwareMonitorService : IDisposable
                     GpuLoadPct = settings.MonitorGpuLoad ? (Named(gpu, SensorType.Load, "GPU Core") ?? Max(gpu, SensorType.Load)) : null,
                     GpuClockMhz = settings.MonitorGpuClock ? (Named(gpu, SensorType.Clock, "GPU Core") ?? Max(gpu, SensorType.Clock)) : null,
                     GpuPowerW = settings.MonitorGpuPower ? (NameContains(gpu, SensorType.Power, "gpu package", "gpu power", "total board") ?? Max(gpu, SensorType.Power)) : null,
+                    NvidiaGpuThermalLimited = gpuThermalLimited,
                     GpuFanRpm = settings.MonitorGpuFan ? Max(gpu, SensorType.Fan) : null,
                     GpuMemoryUsedMb = settings.MonitorGpuMemory ? ReadGpuMemory(gpu, true) : null,
                     GpuMemoryTotalMb = settings.MonitorGpuMemory ? ReadGpuMemory(gpu, false) : null,
                     MemoryLoadPct = settings.MonitorSystemMemory ? (Named(memory, SensorType.Load, "Memory") ?? Max(memory, SensorType.Load)) : null
                 };
 
-                if (settings.MonitorCpuTemperature && !sample.CpuTempC.HasValue)
+                if ((settings.MonitorCpuTemperature && !sample.CpuTempC.HasValue)
+                    || (collectThermalLimits && !sample.CpuThermalHeadroomC.HasValue))
                     _protectedSensors.EnsureStarted();
 
-                return MergeProtectedCpu(sample);
+                if (sample.CpuThermalHeadroomC.HasValue)
+                    sample = sample with { CpuThermalReadingAt = sample.Timestamp };
+                return MergeProtectedCpu(sample, collectThermalLimits);
             }
             catch (Exception ex)
             {
                 AppLog.Write($"Hardware read failed: {ex.GetType().Name}: {ex.Message}");
-                if (settings.MonitorCpuTemperature) _protectedSensors.EnsureStarted();
-                return MergeProtectedCpu(new TelemetrySample { Timestamp = DateTimeOffset.Now });
+                if (settings.MonitorCpuTemperature || collectThermalLimits) _protectedSensors.EnsureStarted();
+                return MergeProtectedCpu(new TelemetrySample { Timestamp = DateTimeOffset.Now, NvidiaGpuThermalLimited = gpuThermalLimited }, collectThermalLimits);
             }
         }
     }
@@ -175,6 +182,7 @@ public sealed class HardwareMonitorService : IDisposable
     private static float? BestCpuTemp(IEnumerable<IHardware> cpu, IEnumerable<IHardware> all)
     {
         var cpuTemps = Sensors(cpu, SensorType.Temperature)
+            .Where(s => !CpuSensorPolicy.IsThermalHeadroomName(s.Name))
             .Where(s => CpuSensorPolicy.PositiveReading(s.Value).HasValue).ToList();
         var preferredNames = new[] { "CPU Package", "Package", "Tctl/Tdie", "Tctl", "Tdie", "Core Max", "Core Average" };
         foreach (var preferred in preferredNames)
@@ -221,9 +229,15 @@ public sealed class HardwareMonitorService : IDisposable
         return null;
     }
 
-    private TelemetrySample MergeProtectedCpu(TelemetrySample sample)
+    private TelemetrySample MergeProtectedCpu(TelemetrySample sample, bool collectThermalLimits)
     {
         if (!_protectedSensors.TryGetRecent(out var protectedSample)) return sample;
+        if (collectThermalLimits && !sample.CpuThermalHeadroomC.HasValue && protectedSample.CpuThermalHeadroomC.HasValue)
+            sample = sample with
+            {
+                CpuThermalHeadroomC = protectedSample.CpuThermalHeadroomC,
+                CpuThermalReadingAt = protectedSample.Timestamp
+            };
         return sample with
         {
             CpuTempC = CpuSensorPolicy.PreferValid(sample.CpuTempC, protectedSample.CpuTempC),
@@ -256,6 +270,7 @@ public sealed class HardwareMonitorService : IDisposable
             if (_opened) _computer.Close();
         }
         _protectedSensors.Dispose();
+        _nvidiaThermals.Dispose();
     }
 
     private sealed class UpdateVisitor : IVisitor

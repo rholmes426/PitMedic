@@ -28,16 +28,28 @@ public sealed class IncidentRecorder
         if (plan.Id == UserRequestedRepairPolicy.RFactor2VerificationId && !SteamLibraryLocator.HasRFactor2Install())
             throw new FileNotFoundException("PitMedic could not find rFactor 2 in the configured Steam libraries.");
         var game = GameDefinition.Supported.Single(x => x.Kind == kind);
+        return CreateRequestedRepairRecord(plan, game.DisplayName, game.ExecutableName);
+    }
+
+    public IncidentSummary CreateWindowsRepairRequest(string repairId)
+    {
+        var plan = WindowsRepairPolicy.CreatePlan(repairId)
+            ?? throw new InvalidOperationException("This Windows troubleshooting action is not supported.");
+        return CreateRequestedRepairRecord(plan, WindowsRepairPolicy.Product, string.Empty);
+    }
+
+    private static IncidentSummary CreateRequestedRepairRecord(RepairPlan plan, string product, string executable)
+    {
         var now = DateTimeOffset.Now;
         var folder = Path.Combine(AppPaths.Incidents, now.ToString("yyyyMMdd_HHmmss") + "_requested_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(folder);
         var record = new IncidentRecord
         {
-            Game = game.DisplayName, Executable = game.ExecutableName,
+            Game = product, Executable = executable,
             IncidentTime = now, SessionStarted = now, IncidentFolder = folder,
             Classification = new CrashClassification(ScopedConfigurationRepair.RequestCategory, 100,
                 "You requested a repair for a specific symptom. This record is not evidence of a crash. " + plan.Summary,
-                new[] { ScopedConfigurationRepair.RequestPrefix + repairId }),
+                new[] { ScopedConfigurationRepair.RequestPrefix + plan.Id }),
             RecommendedRepair = plan
         };
         File.WriteAllText(Path.Combine(folder, "incident.json"), JsonSerializer.Serialize(record, JsonOptions));
@@ -435,6 +447,10 @@ public sealed class IncidentRecorder
                 : "";
             var retest = ScopedConfigurationRepair.IsSupported(planId)
                 || planId.StartsWith("iracing-error77-", StringComparison.Ordinal) || planId == "ac-steam-verify";
+              if (complete && success && planId == WindowsRepairPolicy.IntegrityCheckId)
+                  return (true, "Checks completed - review results");
+              if (complete && success && WindowsRepairPolicy.IsSupported(planId))
+                  return (true, "Action completed - retest");
             if (complete && success && planId == UserRequestedRepairPolicy.RFactor2VerificationId)
                 return (true, "Verification requested · retest");
             return complete && success ? (true, retest ? "Applied · retest" : "Resolved") : (false, string.Empty);
@@ -444,14 +460,16 @@ public sealed class IncidentRecorder
 
     private static string ToCsv(IReadOnlyList<TelemetrySample> rows)
     {
-        var sb = new StringBuilder("Timestamp,CpuTempC,CpuLoadPct,CpuClockMhz,CpuPowerW,GpuTempC,GpuHotspotC,GpuMemoryTempC,GpuLoadPct,GpuClockMhz,GpuPowerW,GpuFanRpm,GpuMemoryUsedMb,GpuMemoryTotalMb,MemoryLoadPct\r\n");
+        var sb = new StringBuilder("Timestamp,CpuTempC,CpuLoadPct,CpuClockMhz,CpuPowerW,GpuTempC,GpuHotspotC,GpuMemoryTempC,GpuLoadPct,GpuClockMhz,GpuPowerW,GpuFanRpm,GpuMemoryUsedMb,GpuMemoryTotalMb,MemoryLoadPct,CpuThermalHeadroomC,CpuThermalReadingAt,NvidiaGpuThermalLimited\r\n");
         foreach (var x in rows)
         {
             sb.Append(x.Timestamp.ToString("O", CultureInfo.InvariantCulture)).Append(',')
               .Append(F(x.CpuTempC)).Append(',').Append(F(x.CpuLoadPct)).Append(',').Append(F(x.CpuClockMhz)).Append(',').Append(F(x.CpuPowerW)).Append(',')
               .Append(F(x.GpuTempC)).Append(',').Append(F(x.GpuHotspotC)).Append(',').Append(F(x.GpuMemoryTempC)).Append(',').Append(F(x.GpuLoadPct)).Append(',')
               .Append(F(x.GpuClockMhz)).Append(',').Append(F(x.GpuPowerW)).Append(',').Append(F(x.GpuFanRpm)).Append(',')
-              .Append(F(x.GpuMemoryUsedMb)).Append(',').Append(F(x.GpuMemoryTotalMb)).Append(',').Append(F(x.MemoryLoadPct)).Append("\r\n");
+              .Append(F(x.GpuMemoryUsedMb)).Append(',').Append(F(x.GpuMemoryTotalMb)).Append(',').Append(F(x.MemoryLoadPct)).Append(',')
+              .Append(F(x.CpuThermalHeadroomC)).Append(',').Append(x.CpuThermalReadingAt?.ToString("O", CultureInfo.InvariantCulture)).Append(',')
+              .Append(x.NvidiaGpuThermalLimited?.ToString()).Append("\r\n");
         }
         return sb.ToString();
         static string F(float? v) => v?.ToString("0.###", CultureInfo.InvariantCulture) ?? string.Empty;

@@ -145,6 +145,7 @@ public static class IncidentDetailsService
             IsResolved = resolved,
             NeedsRetest = resolved && plan is not null && (ScopedConfigurationRepair.IsSupported(plan.Id)
                 || plan.Id.StartsWith("iracing-error77-", StringComparison.Ordinal)
+                || (WindowsRepairPolicy.IsSupported(plan.Id) && plan.Id != WindowsRepairPolicy.IntegrityCheckId)
                 || plan.Id is "ac-steam-verify" or UserRequestedRepairPolicy.RFactor2VerificationId),
             RepairAttempted = repairAttempted,
             RepairInProgress = repairInProgress,
@@ -179,6 +180,10 @@ public static class IncidentDetailsService
         if (resolved && plan?.Id == UserRequestedRepairPolicy.RFactor2VerificationId)
             return ("Steam verification requested", statusMessage,
                 "Check Steam Downloads and wait for any verification and downloads to finish. Relaunch rFactor 2 and retry the same activity.");
+        if (resolved && plan is not null && WindowsRepairPolicy.IsSupported(plan.Id))
+            return plan.Id == WindowsRepairPolicy.IntegrityCheckId
+                ? ("Windows checks completed", statusMessage, "Review the saved command output before choosing a repair. Completed verification does not establish that Windows was corrupt.")
+                : ("Windows action completed; retest needed", statusMessage, "Review the recorded results and repeat the original Windows or application symptom.");
         if (resolved && plan is not null && (ScopedConfigurationRepair.IsSupported(plan.Id) || plan.Id.StartsWith("iracing-error77-", StringComparison.Ordinal) || plan.Id == "ac-steam-verify"))
             return (plan.Id == "ac-steam-verify" ? "Verification started; retest needed" : "Repair applied; retest needed", statusMessage,
                 ScopedConfigurationRepair.IsSupported(plan.Id)
@@ -240,6 +245,7 @@ public static class IncidentDetailsService
 
     private static string ExplainInPlainLanguage(IncidentRecord incident)
     {
+        if (WindowsRepairPolicy.FromRequest(incident) is not null) return incident.Classification.Summary;
         var category = incident.Classification.Category.ToLowerInvariant();
         var isCompanionSoftware = CompanionSoftwareDefinition.Supported.Any(software =>
             software.DisplayName.Equals(incident.Game, StringComparison.OrdinalIgnoreCase));

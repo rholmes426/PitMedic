@@ -6,6 +6,8 @@ public static class RepairCapabilityCatalog
 {
     public static IReadOnlyList<RepairCapability> Capabilities { get; } = new[]
     {
+        new RepairCapability("windows-dns-cache-recovery", "Windows DNS cache refresh", "Windows", "Services & System"),
+        new RepairCapability("windows-audio-service-recovery", "Start stopped Windows audio services", "Windows", "Services & System"),
         new RepairCapability("ac-video-config", "Original AC display configuration with Restore", "Assetto Corsa", "Configuration"),
         new RepairCapability("ac-controls-config", "Original AC active controls with Restore", "Assetto Corsa", "Configuration"),
         new RepairCapability("ac-steam-content", "Original AC Steam game-file verification", "Assetto Corsa", "Game & Content"),

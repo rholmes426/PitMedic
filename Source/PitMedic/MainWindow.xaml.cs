@@ -619,6 +619,7 @@ public partial class MainWindow : Window
 
     private void RefreshLastSession(SimulatorSessionSummary? session)
     {
+        RefreshLastSessionThermals(session);
         if (session is null)
         {
             LastSessionDateTime.Text = "—";
@@ -645,6 +646,47 @@ public partial class MainWindow : Window
             session.Outcome == SimulatorSessionOutcome.NoErrorObserved ? "GoodBrush"
                 : session.Outcome is SimulatorSessionOutcome.ErrorObserved or SimulatorSessionOutcome.ReviewNeeded ? "AccentBrush"
                 : "MutedBrush");
+    }
+
+    private void RefreshLastSessionThermals(SimulatorSessionSummary? session)
+    {
+        var report = session?.ThermalReport;
+        LastSessionCpuThermal.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
+        LastSessionGpuThermal.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
+        LastSessionGpuThermal.Text = string.Empty;
+        LastSessionThermalContext.Text = string.Empty;
+        if (report is null)
+        {
+            LastSessionCpuThermal.Text = session is null ? "No completed session yet" : "Thermal evidence was not recorded for this session.";
+            return;
+        }
+        if (!report.MonitoringEnabled)
+        {
+            LastSessionCpuThermal.Text = "Thermal limit monitoring was disabled for this session.";
+            return;
+        }
+
+        LastSessionCpuThermal.Text = FormatThermalReport(report.Cpu, "CPU", "Thermal limit reached");
+        LastSessionGpuThermal.Text = FormatThermalReport(report.NvidiaGpu, "NVIDIA GPU", "Thermal slowdown reported");
+        if (report.Cpu.LimitedObservations > 0)
+            LastSessionCpuThermal.SetResourceReference(TextBlock.ForegroundProperty, "WarnTextBrush");
+        if (report.NvidiaGpu.LimitedObservations > 0)
+            LastSessionGpuThermal.SetResourceReference(TextBlock.ForegroundProperty, "WarnTextBrush");
+
+        var headroom = report.MinimumCpuHeadroomC is float minimum
+            ? $"Minimum Intel CPU thermal headroom: {(_settings.UseFahrenheit ? minimum * 1.8f : minimum):0.#} {(_settings.UseFahrenheit ? "°F" : "°C")}. "
+            : string.Empty;
+        LastSessionThermalContext.Text = headroom + "Based on sampled Intel CPU headroom and supported NVIDIA driver flags. Missing readings indicate unavailable evidence; sampled intervals are estimates.";
+    }
+
+    private static string FormatThermalReport(ThermalComponentReport report, string component, string limitingLabel)
+    {
+        if (report.Observations == 0) return $"{component}: thermal-limit evidence unavailable";
+        if (report.LimitedObservations == 0) return $"{component}: no thermal limit observed in {report.Observations:N0} readings";
+        var duration = report.ObservedSeconds < 1
+            ? "duration unmeasured"
+            : $"{TimeSpan.FromSeconds(Math.Round(report.ObservedSeconds)):c} sampled span";
+        return $"{component}: {limitingLabel} — {report.LimitedObservations:N0}/{report.Observations:N0} readings, {report.Episodes:N0} episode(s), {duration}";
     }
 
     internal static string FormatSessionDuration(TimeSpan duration)
@@ -1030,6 +1072,12 @@ public partial class MainWindow : Window
     private void OpenConfigurationRepairs_Click(object sender, RoutedEventArgs e)
     {
         var window = new ConfigurationRepairWindow(_monitoring, _selectedGame, AddIncident) { Owner = this };
+        window.ShowDialog();
+    }
+
+    private void OpenWindowsRepairs_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new ConfigurationRepairWindow(_monitoring, null, AddIncident) { Owner = this };
         window.ShowDialog();
     }
 
