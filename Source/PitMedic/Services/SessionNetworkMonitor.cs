@@ -8,13 +8,13 @@ internal sealed class SessionNetworkMonitor
     private NetworkStackSample? _previous;
     private NetworkSessionReport _report = new();
     private NetworkRecommendation _previousConfigurationIssues;
-    private bool _previousCounterIncrease;
+    private HashSet<string>? _previousPacketErrorInterfaces;
 
     public void Pause()
     {
         _previous = null;
         _previousConfigurationIssues = NetworkRecommendation.None;
-        _previousCounterIncrease = false;
+        _previousPacketErrorInterfaces = null;
     }
 
     public void Observe(NetworkStackSample sample, DateTimeOffset sessionStarted)
@@ -36,6 +36,8 @@ internal sealed class SessionNetworkMonitor
         var drops = 0;
         var comparable = false;
         long errors = 0, discards = 0;
+        HashSet<string>? packetErrorInterfaces = null;
+        var repeatedPacketErrors = false;
         var nearby = _previous is not null && sample.Timestamp - _previous.Timestamp <= MaximumComparisonGap;
         if (nearby && _previous?.Interfaces is { } previous)
         {
@@ -54,6 +56,11 @@ internal sealed class SessionNetworkMonitor
                     comparable = true;
                     errors = PacketCounters.Add(errors, errorDelta);
                     discards = PacketCounters.Add(discards, discardDelta);
+                    if (errorDelta > 0)
+                    {
+                        (packetErrorInterfaces ??= new(StringComparer.OrdinalIgnoreCase)).Add(old.Id);
+                        repeatedPacketErrors |= _previousPacketErrorInterfaces?.Contains(old.Id) == true;
+                    }
                 }
             }
         }
@@ -63,11 +70,11 @@ internal sealed class SessionNetworkMonitor
         if (dnsMissing) configIssues |= NetworkRecommendation.NoDns;
         var recommendations = nearby ? configIssues & _previousConfigurationIssues : NetworkRecommendation.None;
         if (drops > 0) recommendations |= NetworkRecommendation.LinkChange;
-        var counterIncrease = errors > 0 || discards > 0;
-        if (counterIncrease && nearby && _previousCounterIncrease) recommendations |= NetworkRecommendation.LocalCounterIncrease;
+        // Discards are context only: Windows counts them separately from actual packet errors.
+        if (repeatedPacketErrors) recommendations |= NetworkRecommendation.RepeatedPacketErrors;
         _previous = sample;
         _previousConfigurationIssues = configIssues;
-        _previousCounterIncrease = counterIncrease;
+        _previousPacketErrorInterfaces = packetErrorInterfaces;
         _report = _report with
         {
             Observations = _report.Observations + 1,
@@ -81,7 +88,7 @@ internal sealed class SessionNetworkMonitor
             LocalPacketErrors = PacketCounters.Add(_report.LocalPacketErrors, errors),
             LocalPacketDiscards = PacketCounters.Add(_report.LocalPacketDiscards, discards),
             FirstSignAt = _report.FirstSignAt ?? (configIssues != NetworkRecommendation.None
-                || drops > 0 || counterIncrease ? sample.Timestamp : null),
+                || drops > 0 || errors > 0 ? sample.Timestamp : null),
             Recommendations = _report.Recommendations | recommendations
         };
     }

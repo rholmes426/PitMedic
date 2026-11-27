@@ -7,6 +7,7 @@ ProcessExitTests.Run();
 ThermalSessionTests.Run();
 WindowsRepairPolicyTests.Run();
 PassiveHealthTests.Run();
+SessionPresentationTests.Run();
 
 var rfactor2 = GameDefinition.Supported.Single(game => game.Kind == GameKind.RFactor2);
 var rfactor2Root = Path.Combine(Path.GetTempPath(), "PitMedic-rFactor2-" + Guid.NewGuid().ToString("N"));

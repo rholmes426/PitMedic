@@ -1,5 +1,12 @@
 # PitMedic pending updates
 
+## Pending — quieter Last Session reports and temperature statistics
+
+- Show the Thermal Report only after a detected thermal limit and the Network Report only after actionable evidence; collapse them independently without changing clean session outcomes.
+- Keep adapter discards as context instead of diagnosing a network problem from them alone. Packet-error guidance requires consecutive increases on the same adapter. Legacy counter-only findings are not treated as confirmed.
+- Show CPU/GPU min, max, and sample average below the current graph, honoring Celsius/Fahrenheit and using valid samples inside its visible time range before downsampling. No new popups or uploads.
+- Refresh the matching Windows thermal and network guide wording when a supporting app update is published.
+
 ## Signed 1.0.0.14 — November 27, 2026
 
 [Signed release](https://github.com/rholmes426/PitMedic/releases/tag/v1.0.0.14)

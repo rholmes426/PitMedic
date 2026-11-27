@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using PitMedic.Models;
@@ -693,45 +694,35 @@ public partial class MainWindow : Window
     private void RefreshLastSessionNetwork(SimulatorSessionSummary? session)
     {
         var report = session?.NetworkReport;
-        LastSessionNetwork.Text = report is not null ? NetworkReportText.SessionSummary(report)
-            : session is null ? "No completed session yet" : "Network evidence was not recorded for this session.";
-        var guidance = report is null ? "" : string.Join("\n", NetworkReportText.Recommendations(report.Recommendations));
-        if (report?.FirstSignAt is DateTimeOffset first)
-            guidance += $"{(guidance.Length > 0 ? "\n" : "")}First local sign: {first.ToLocalTime():h:mm:ss tt}.";
-        LastSessionNetworkGuidance.Text = report is { Observations: > 0 }
-            ? $"{(guidance.Length > 0 ? guidance + "\n" : "")}Local Windows samples only. Short drops can be missed; adapter counters do not measure race-server latency or packet loss."
-            : guidance;
+        var evidence = SessionReportPolicy.NetworkFindings(report);
+        LastSessionNetworkPanel.Visibility = evidence != NetworkRecommendation.None ? Visibility.Visible : Visibility.Collapsed;
+        if (report is null || evidence == NetworkRecommendation.None) return;
+
+        LastSessionNetwork.Text = NetworkReportText.SessionSummary(report);
+        var guidance = string.Join("\n", NetworkReportText.Recommendations(evidence));
+        if (report.FirstSignAt is DateTimeOffset first)
+            guidance += $"\nFirst local sign: {first.ToLocalTime():h:mm:ss tt}.";
+        LastSessionNetworkGuidance.Text = guidance
+            + "\nLocal Windows samples only. Short drops can be missed; adapter counters do not measure race-server latency or packet loss.";
     }
 
     private void RefreshLastSessionThermals(SimulatorSessionSummary? session)
     {
         var report = session?.ThermalReport;
-        LastSessionCpuThermal.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
-        LastSessionGpuThermal.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
-        LastSessionGpuThermal.Text = string.Empty;
-        LastSessionThermalContext.Text = string.Empty;
-        if (report is null)
-        {
-            LastSessionCpuThermal.Text = session is null ? "No completed session yet" : "Thermal evidence was not recorded for this session.";
-            return;
-        }
-        if (!report.MonitoringEnabled)
-        {
-            LastSessionCpuThermal.Text = "Thermal limit monitoring was disabled for this session.";
-            return;
-        }
+        LastSessionThermalPanel.Visibility = SessionReportPolicy.HasThermalFinding(report) ? Visibility.Visible : Visibility.Collapsed;
+        if (report is null || LastSessionThermalPanel.Visibility != Visibility.Visible) return;
 
-        LastSessionCpuThermal.Text = FormatThermalReport(report.Cpu, "CPU", "Thermal limit reached");
-        LastSessionGpuThermal.Text = FormatThermalReport(report.NvidiaGpu, "NVIDIA GPU", "Thermal slowdown reported");
-        if (report.Cpu.LimitedObservations > 0)
-            LastSessionCpuThermal.SetResourceReference(TextBlock.ForegroundProperty, "WarnTextBrush");
-        if (report.NvidiaGpu.LimitedObservations > 0)
-            LastSessionGpuThermal.SetResourceReference(TextBlock.ForegroundProperty, "WarnTextBrush");
+        var cpuLimited = report.Cpu.LimitedObservations > 0;
+        var gpuLimited = report.NvidiaGpu.LimitedObservations > 0;
+        LastSessionCpuThermal.Visibility = cpuLimited ? Visibility.Visible : Visibility.Collapsed;
+        LastSessionGpuThermal.Visibility = gpuLimited ? Visibility.Visible : Visibility.Collapsed;
+        if (cpuLimited) LastSessionCpuThermal.Text = FormatThermalReport(report.Cpu, "CPU", "Thermal limit reached");
+        if (gpuLimited) LastSessionGpuThermal.Text = FormatThermalReport(report.NvidiaGpu, "NVIDIA GPU", "Thermal slowdown reported");
 
-        var headroom = report.MinimumCpuHeadroomC is float minimum
+        var headroom = cpuLimited && report.MinimumCpuHeadroomC is float minimum
             ? $"Minimum Intel CPU thermal headroom: {(_settings.UseFahrenheit ? minimum * 1.8f : minimum):0.#} {(_settings.UseFahrenheit ? "°F" : "°C")}. "
             : string.Empty;
-        LastSessionThermalContext.Text = headroom + "Based on sampled Intel CPU headroom and supported NVIDIA driver flags. Missing readings indicate unavailable evidence; sampled intervals are estimates.";
+        LastSessionThermalContext.Text = headroom + "Sampled observations; durations are estimates.";
     }
 
     private static string FormatThermalReport(ThermalComponentReport report, string component, string limitingLabel)
@@ -993,8 +984,11 @@ public partial class MainWindow : Window
         var width = Math.Max(1, ThermalCanvas.ActualWidth);
         var height = Math.Max(1, ThermalCanvas.ActualHeight);
         var (windowStart, windowEnd, windowMinutes) = GetThermalWindow();
-        var data = _chart.Where(s => s.Timestamp >= windowStart && s.Timestamp <= windowEnd).ToArray();
-        data = Downsample(data, Math.Max(2, (int)Math.Ceiling(width)));
+        var samples = _chart.Where(s => s.Timestamp >= windowStart && s.Timestamp <= windowEnd).ToArray();
+        var (cpuStatistics, gpuStatistics) = ThermalTraceStatistics.Calculate(samples);
+        UpdateGraphStatistics(GraphCpuStatistics, GraphCpuStatisticsValues, cpuStatistics);
+        UpdateGraphStatistics(GraphGpuStatistics, GraphGpuStatisticsValues, gpuStatistics);
+        var data = Downsample(samples, Math.Max(2, (int)Math.Ceiling(width)));
 
         ThermalWindowLabel.Text = $"{Math.Ceiling(windowMinutes):0} MIN";
         CpuLine.Points.Clear();
@@ -1010,6 +1004,14 @@ public partial class MainWindow : Window
             if (sample.GpuTempC is float gpu) GpuLine.Points.Add(new System.Windows.Point(x, ToY(gpu, height)));
             if (sample.GpuPowerW is float power) GpuPowerLine.Points.Add(new System.Windows.Point(x, ToPowerY(power, height, powerScaleMax)));
         }
+    }
+
+    private void UpdateGraphStatistics(TextBlock? label, Run? values, TemperatureStatistics? statistics)
+    {
+        if (label is null || values is null) return;
+        label.Visibility = statistics.HasValue ? Visibility.Visible : Visibility.Collapsed;
+        if (statistics is { } stats)
+            values.Text = $"  Min {Temp(stats.Minimum)} · Max {Temp(stats.Maximum)} · Avg {Temp(stats.Average)}";
     }
 
     private static TelemetrySample[] Downsample(TelemetrySample[] data, int maximumPoints)
