@@ -221,7 +221,8 @@ public sealed class RepairService : IDisposable
                     AcceptExternalStatus(status);
                 },
                 token);
-            if (final.Success) _usage?.RecordRepairCompleted(plan, automatic);
+            if (final.Success && plan.Id != WindowsRepairPolicy.IntegrityCheckId)
+                _usage?.RecordRepairCompleted(plan, automatic);
         }
         catch (OperationCanceledException ex)
         {
@@ -292,10 +293,13 @@ public sealed class RepairService : IDisposable
                 {
                     try { Directory.Delete(backupRoot, true); backupRoot = null; } catch { }
                 }
-                _usage?.RecordRepairCompleted(plan, automatic);
+                if (plan.Id != WindowsRepairPolicy.IntegrityCheckId)
+                    _usage?.RecordRepairCompleted(plan, automatic);
                 var steamHandOff = plan.Id == UserRequestedRepairPolicy.RFactor2VerificationId;
-                Update(incident, plan, 100, steamHandOff ? "Verification requested" : "Repair complete", completion,
-                    steamHandOff ? "Check Steam Downloads for progress before retesting."
+                var integrityCheck = plan.Id == WindowsRepairPolicy.IntegrityCheckId;
+                Update(incident, plan, 100, integrityCheck ? "Windows checks completed" : steamHandOff ? "Verification requested" : "Repair complete", completion,
+                    integrityCheck ? "Review the saved DISM and SFC output before choosing a repair."
+                        : steamHandOff ? "Check Steam Downloads for progress before retesting."
                         : "The repair actions completed successfully. PitMedic retained the issue evidence and repair history for review.",
                     Math.Max(1, plan.Steps.Count), Math.Max(1, plan.Steps.Count), false, true, true, backupRoot);
                 return;

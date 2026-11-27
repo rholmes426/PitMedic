@@ -447,10 +447,10 @@ public sealed class IncidentRecorder
                 : "";
             var retest = ScopedConfigurationRepair.IsSupported(planId)
                 || planId.StartsWith("iracing-error77-", StringComparison.Ordinal) || planId == "ac-steam-verify";
-              if (complete && success && planId == WindowsRepairPolicy.IntegrityCheckId)
-                  return (true, "Checks completed - review results");
-              if (complete && success && WindowsRepairPolicy.IsSupported(planId))
-                  return (true, "Action completed - retest");
+            if (complete && success && planId == WindowsRepairPolicy.IntegrityCheckId)
+                return (true, "Checks completed - review results");
+            if (complete && success && WindowsRepairPolicy.IsSupported(planId))
+                return (true, "Action completed - retest");
             if (complete && success && planId == UserRequestedRepairPolicy.RFactor2VerificationId)
                 return (true, "Verification requested · retest");
             return complete && success ? (true, retest ? "Applied · retest" : "Resolved") : (false, string.Empty);

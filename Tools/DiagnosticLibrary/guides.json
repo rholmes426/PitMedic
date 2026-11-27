@@ -2,6 +2,7 @@
   "windows-integrity-check": {
     "modified": "2026-11-26",
     "available_from": "1.0.0.14",
+    "user_requested": true,
     "intro": "If several applications or Windows itself fail repeatedly, Windows integrity verification can provide the next evidence.",
     "meaning": "PitMedic can request the Windows component-store scan and protected-file verification without asking Windows to restore files.",
     "checks": [
@@ -14,6 +15,7 @@
   "windows-system-file-integrity": {
     "modified": "2026-11-26",
     "available_from": "1.0.0.14",
+    "user_requested": true,
     "intro": "If checks identify damaged Windows components or protected files, the Windows servicing tools can attempt recovery.",
     "meaning": "PitMedic requests DISM RestoreHealth and SFC scannow with approval, capturing their exit status and output.",
     "checks": [
@@ -30,6 +32,7 @@
   "windows-dns-cache-recovery": {
     "modified": "2026-11-26",
     "available_from": "1.0.0.14",
+    "user_requested": true,
     "intro": "A failed service hostname lookup can involve stale or negative local Windows DNS data.",
     "meaning": "PitMedic offers an explicit Windows resolver-cache refresh. The Windows DNS cache fills again from normal lookups.",
     "checks": [
@@ -42,6 +45,7 @@
   "windows-audio-service-recovery": {
     "modified": "2026-11-26",
     "available_from": "1.0.0.14",
+    "user_requested": true,
     "intro": "Stopped Windows audio services can prevent sound in games, companion apps and Windows generally.",
     "meaning": "PitMedic checks Windows Audio Endpoint Builder and Windows Audio, and can start stopped, enabled services after approval.",
     "checks": [
@@ -54,6 +58,7 @@
   "windows-time-sync": {
     "modified": "2026-11-26",
     "available_from": "1.0.0.14",
+    "user_requested": true,
     "intro": "If the Windows clock is inaccurate, applications can encounter time-sensitive connection errors.",
     "meaning": "PitMedic requests synchronization with Windows' configured source and queries the time-service status.",
     "checks": [
