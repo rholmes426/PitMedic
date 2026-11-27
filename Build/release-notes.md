@@ -1,17 +1,16 @@
-## rFactor 2
+## Windows & Network Health
 
-- Adds a dedicated simulator page, session and exit monitoring, and capture of recent trace logs when available.
-- **Repair Tools → Rebuild shader and track caches** backs up and clears recognized generated files for recurring rendering issues. Use **Restore last backup** if the change does not help. Allow extra time for the first track load.
-- **Repair Tools → Verify Steam files** asks Steam to check the base game installation after approval. Wait for Steam to finish before retesting.
+- PitMedic automatically checks local adapter state, address, gateway and DNS configuration, and adapter error counters. Home shows evidence-specific next steps without a manual check or a popup.
+- Windows checks recommend next steps for stopped automatic audio services, repeated DNS timeouts, selected storage and hardware errors, display-driver resets, and Windows Update installation failures.
+- After closing a simulator, open its **Last Session → Network Report** to review locally observed connection signs. These readings do not measure race-server latency or packet loss.
 
-## iRacing
+## Windows repair tools
 
-- Surfaces Loading Error 63 from current logs or supported Windows dialogs without waiting for a simulator exit. The exact error selects the backed-up spotter settings recovery. PitMedic asks before restarting the Helper Service when its process state is the only evidence.
+- Home offers approval-gated Windows system-file verification and repair, DNS-cache refresh, stopped audio-service recovery, and clock synchronization. These tools can be used without launching a simulator.
+- Background checks never reset adapters, change security or DNS settings, or launch a repair on their own.
 
-## Original Assetto Corsa
+## Post-session thermal report
 
-- Adds monitoring for the original 32-bit and 64-bit race processes.
-- Adds backed-up display and active control resets to **Repair Tools**, with **Restore last backup**. Display settings and controls may need to be set up again after the reset.
-- Adds Steam file verification from **Repair Tools**.
+- **Last Session → Thermal Report** records supported Intel CPU thermal-boundary readings and NVIDIA GPU thermal-slowdown signals without notifications or focus changes. Unavailable hardware evidence is identified separately.
 
-The Diagnostic Library includes matching guides for both simulators. Repairs require approval and report when to retest the original symptom.
+Eight matching Windows guides are available in the [Diagnostic Library](https://pitmedic.com/diagnostic-library/#windows). Physical in-race disconnects and hardware-specific thermal behavior are not covered by the automated validation.
