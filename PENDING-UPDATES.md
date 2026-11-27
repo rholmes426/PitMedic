@@ -1,5 +1,28 @@
 # PitMedic pending updates
 
+## Signed 1.0.0.14 — November 27, 2026
+
+[Signed release](https://github.com/rholmes426/PitMedic/releases/tag/v1.0.0.14)
+and [protected signing run](https://github.com/rholmes426/PitMedic/actions/runs/46070172478).
+The release publication synchronizes the download, updater, README and eight
+Windows Diagnostic Library guides.
+
+### Windows repair tools and silent thermal reports
+
+- Home → Windows repair tools supports an explicit request without a simulator: DISM/SFC verification, system file repair, resolver-cache refresh, starting stopped Windows audio services, and Windows clock synchronization.
+- Every action requires approval and the protected helper revalidates the fixed plan. Verification results are distinct from a repair. The shared OS repair actions preserve their logs; users retest the actual symptom. No service is stopped for the new audio action.
+- Simulator Last Session now includes a silent thermal report from valid Intel DTS thermal-headroom observations and supported NVIDIA NVML thermal-slowdown flags. Retains the per-session result across app restarts and reports unavailable signals. No thermal popup, tray notification, focus change or crash incident. AMD CPU/GPU and Intel GPU thermal-limit providers need further hardware-specific validation.
+- Six matching Diagnostic Library guides ship with 1.0.0.14: `windows-integrity-check`, `windows-system-file-integrity`, `windows-dns-cache-recovery`, `windows-audio-service-recovery`, `windows-time-sync`, `windows-thermal-limiting`.
+- Remaining Windows research includes VC14 and legacy DirectX runtime recovery, app-scoped audio mute, full audio-service restart, evidence-qualified DNS, additional shared OS failure detection, memory commit, and driver/device and storage diagnosis, and current KB/build matching. Existing queued items retain their validation requirements.
+- Added PatchManagement.org, r/sysadmin and additional patch reporting to the manual source inventory. Current Google Group and AskWoody access limits are documented in the Windows review.
+
+### Automatic Windows and network health
+
+- Home shows automatic, local-only Windows health and network recommendations, including when no simulator is running. No manual check button, notification or focus change. A Settings option turns the checks off.
+- Sim Last Session saves aggregated adapter drop, IP, gateway, DNS and local packet-counter evidence. Require repeated configuration or counter anomalies before recommending changes; no active probes, packet content, adapter identifiers, addresses or DNS names in the report.
+- Idle Windows checks recommend next steps for repeatedly stopped automatic audio services, repeated DNS timeouts, NTFS corruption, repeated storage retries, WHEA errors, display resets and Windows Update installation failures. The existing audio service recovery is recommended where appropriate and remains approval-gated. No network resets, Windows servicing, clock changes or update actions are automatically triggered.
+- Ships Diagnostic Library guides `windows-network-health` and `windows-background-health` and the updated audio service guide. Live-cable/Wi-Fi disconnect, real Windows service recovery and multiplayer retests remain to be verified.
+
 ## Signed 1.0.0.13 — November 21, 2026
 
 [Signed release](https://github.com/rholmes426/PitMedic/releases/tag/v1.0.0.13)
@@ -45,22 +68,6 @@ retest with iRacing, rFactor 2, or the original Assetto Corsa installed.
 - RaceRoom Racing Experience already has app/library coverage; no duplicate added.
 - Fixture regression and generation validation cover this work; live original-AC
   gameplay and wheel retests remain user/hardware validation, not claimed success.
-
-## Pending implementation - Windows repair tools and silent thermal reports (November 26, 2026)
-
-- Home → Windows repair tools supports an explicit request without a simulator: DISM/SFC verification, system file repair, resolver-cache refresh, starting stopped Windows audio services, and Windows clock synchronization.
-- Every action requires approval and the protected helper revalidates the fixed plan. Verification results are distinct from a repair. The shared OS repair actions preserve their logs; users retest the actual symptom. No service is stopped for the new audio action.
-- Simulator Last Session now includes a silent thermal report from valid Intel DTS thermal-headroom observations and supported NVIDIA NVML thermal-slowdown flags. Retains the per-session result across app restarts and reports unavailable signals. No thermal popup, tray notification, focus change or crash incident. AMD CPU/GPU and Intel GPU thermal-limit providers need further hardware-specific validation.
-- Six new Diagnostic Library guides prepared and gated to a supporting 1.0.0.14 or newer release: `windows-integrity-check`, `windows-system-file-integrity`, `windows-dns-cache-recovery`, `windows-audio-service-recovery`, `windows-time-sync`, `windows-thermal-limiting`.
-- Remaining Windows research includes VC14 and legacy DirectX runtime recovery, app-scoped audio mute, full audio-service restart, evidence-qualified DNS, automatic shared OS failure detection, memory commit, driver/device and storage diagnosis, and current KB/build matching. Existing queued items retain their validation requirements.
-- Added PatchManagement.org, r/sysadmin and additional patch reporting to the manual source inventory. Current Google Group and AskWoody access limits are documented in the Windows review.
-
-## Pending implementation - Passive Windows and network health (November 27, 2026)
-
-- Home shows automatic, local-only Windows health and network recommendations, including when no simulator is running. No manual check button, notification or focus change. A Settings option turns the checks off.
-- Sim Last Session saves aggregated adapter drop, IP, gateway, DNS and local packet-counter evidence. Require repeated configuration or counter anomalies before recommending changes; no active probes, packet content, adapter identifiers, addresses or DNS names in the report.
-- Idle Windows checks recommend next steps for repeatedly stopped automatic audio services, repeated DNS timeouts, NTFS corruption, repeated storage retries, WHEA errors, display resets and Windows Update installation failures. The existing audio service recovery is recommended where appropriate and remains approval-gated. No network resets, Windows servicing, clock changes or update actions are automatically triggered.
-- Prepared Diagnostic Library guides `windows-network-health` and `windows-background-health` and updated the audio service guide, gated to 1.0.0.14 or newer. Live-cable/Wi-Fi disconnect, real Windows service recovery and multiplayer retests remain to be verified.
 
 ## Windows 10/11 Scout review - November 26, 2026
 
