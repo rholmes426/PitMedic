@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Local Windows connection drops or IP and DNS configuration problems — Windows | PitMedic</title>
+  <meta name="description" content="How PitMedic detects and safely responds to local windows connection drops or ip and dns configuration problems in Windows." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://pitmedic.com/diagnostic-library/windows-network-health/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="PitMedic" />
+  <meta property="og:title" content="Local Windows connection drops or IP and DNS configuration problems — Windows | PitMedic" />
+  <meta property="og:description" content="How PitMedic detects and safely responds to local windows connection drops or ip and dns configuration problems in Windows." />
+  <meta property="og:url" content="https://pitmedic.com/diagnostic-library/windows-network-health/" />
+  <meta property="og:image" content="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" />
+  <link rel="icon" href="/assets/brand/pitmedic-carbon-lime.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-carbon-lime.png" />
+  <link rel="stylesheet" href="/styles.css?v=20261115-design" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Windows"}]},{"@type":"TechArticle","headline":"Windows: Local Windows connection drops or IP and DNS configuration problems","description":"How PitMedic detects and safely responds to local windows connection drops or ip and dns configuration problems in Windows.","url":"https://pitmedic.com/diagnostic-library/windows-network-health/","dateModified":"2026-11-27","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Windows"}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#pitmedic-content">Skip to content</a>
+<main>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="PitMedic home"><img src="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" alt="" /><span>Pit<em>Medic</em></span></a>
+    <nav aria-label="Primary navigation"><a href="/#how-it-works">How it works</a><a href="/#simulators">Simulators</a><a class="active" href="/diagnostic-library/">Diagnostic Library</a><a href="/#about">About</a></nav>
+    <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-download" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.14/PitMedic-Setup-x64.exe" aria-label="Download PitMedic version 1.0.0.14">Download v1.0.0.14<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg></a></div>
+  </header>
+  <article class="library-page issue-page" id="pitmedic-content" tabindex="-1">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><a href="/diagnostic-library/">Diagnostic Library</a><span>›</span><span>Windows</span></nav>
+    <header class="library-hero">
+      <span class="section-kicker">Diagnostic guidance</span>
+      <p class="library-product">Windows</p>
+      <h1>Local Windows connection drops or IP and DNS configuration problems</h1>
+      <p>When a race or another app disconnects, local Windows network evidence can help narrow down the next check.</p>
+      <div class="issue-status"><span>Guided diagnosis</span><span>Guidance</span><span>Evidence reviewed 2026-11-27</span><span>Guide updated 2026-11-27</span></div>
+    </header>
+    <div class="diagnostic-layout">
+      <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2><p>PitMedic passively samples adapter state, usable addresses, configured gateways and DNS resolvers, and local packet counters. Recommendations are matched to the evidence.</p>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Review Home, under Windows &amp; Network Health. There is no manual diagnostic button.</li><li>After the simulator closes, open its Last Session Network Report. Compare the first local sign and report counts with when the connection problem happened.</li></ul>
+          <h3>How to confirm the result</h3><p>A link drop points toward checking Wi-Fi, Ethernet or VPN reconnects. Repeated address, gateway or DNS gaps point toward checking the corresponding configuration. Repeated local counter increases justify comparing cables, adapters or another device.</p>
+          <h3>Repair limits and when to stop</h3><p>Passive local samples can miss short drops, and intentional offline, LAN-only and VPN configurations may explain a finding. Interface counters are not a measurement of race-server latency or packet loss. PitMedic does not send probes, capture packets, change settings or reset adapters.</p>
+        </section>
+        <section class="diagnostic-card"><h2>When to consider this guidance</h2><p>Silently sample Windows adapter link state, address, gateway, DNS configuration and local packet counters. Distinguish repeated configuration gaps from isolated readings, and save aggregate evidence with the last simulator session.</p></section>
+        <section class="diagnostic-card"><h2>Suggested manual checks</h2><p>Review the evidence in Home or Last Session. Verify the intended adapter, router or DHCP, and DNS or VPN configuration according to the specific finding. No automatic reset or active probe.</p><div class="safety-note"><strong>Repair safety</strong><span>Guidance only / local read-only Windows network evidence</span></div></section>
+        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Troubleshoot wireless connectivity</strong><span>Microsoft Learn · Official source</span><p>Collect local baseline evidence before resetting adapters.</p></div><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/wireless-network-connectivity-issues-troubleshooting" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>Troubleshooting DNS clients</strong><span>Microsoft Learn · Official source</span><p>Distinguishes IP configuration, gateway and resolver problems.</p></div><a href="https://learn.microsoft.com/windows-server/networking/dns/troubleshoot/troubleshoot-dns-client" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+      </div>
+      <aside class="library-aside"><h2>Review your network report</h2><p>Open Home to see current checks or review Last Session after your simulator closes.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.14/PitMedic-Setup-x64.exe">Download v1.0.0.14</a><a class="button button-secondary" href="/simulators/windows/">View Windows coverage</a><small>Free and open source · Windows 10/11</small></aside>
+    </div>
+    <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>More for Windows</h2><div><a href="/diagnostic-library/windows-background-health/"><strong>Recent Windows system events or stopped audio services</strong><span>Guided diagnosis</span></a><a href="/diagnostic-library/windows-dns-cache-recovery/"><strong>Windows name resolution fails or uses a stale DNS cache</strong><span>Approval required</span></a></div></nav>
+  </article>
+  <footer>
+    <a class="brand" href="/"><img src="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" alt="" /><span>Pit<em>Medic</em></span></a>
+    <p>A free open-source project for the sim-racing community.</p>
+    <div><a href="/diagnostic-library/">Diagnostic Library</a><a href="/#simulators">Simulators</a><a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a><a href="https://github.com/rholmes426/PitMedic">GitHub</a><a href="https://paypal.me/PitMedicApp">Support</a></div>
+  </footer>
+</main>
+<script defer src="/analytics.js"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5a4e361a3e0d4f838478d54e24d8f925"}'></script>
+</body>
+</html>

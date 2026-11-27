@@ -7,6 +7,232 @@
   ],
   "entries": [
     {
+      "id": "windows-integrity-check",
+      "displayKind": "Diagnostic guidance",
+      "product": "Windows",
+      "issue": "Check Windows system file integrity",
+      "detection": "Use Home, Windows repair tools to request system integrity verification when Windows components or multiple apps exhibit repeatable failures.",
+      "repair": "With approval, run DISM ScanHealth and SFC verifyonly. Review the saved output before selecting a repair. A completed command alone does not diagnose corruption.",
+      "safety": "Guidance only / administrator approval / verification",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Repair a Windows image",
+          "source": "Microsoft Learn",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/repair-a-windows-image",
+          "note": "Documents component store health checks.",
+          "official": true
+        },
+        {
+          "title": "System File Checker",
+          "source": "Microsoft Support",
+          "url": "https://support.microsoft.com/en-us/windows/experience/backup-recovery/using-system-file-checker-in-windows",
+          "note": "Documents Windows system file integrity checking.",
+          "official": true
+        }
+      ],
+      "kind": "windows-guidance",
+      "status": "guidance",
+      "lastVerified": "2026-11-26",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "windows-system-file-integrity",
+      "displayKind": "Windows repair",
+      "product": "Windows",
+      "issue": "Repair confirmed Windows component or system file corruption",
+      "detection": "Request Windows system repair after reviewing a Windows integrity check or other corroborated evidence of component or protected-file corruption.",
+      "repair": "After approval, execute DISM RestoreHealth followed by SFC scannow using the built-in Windows tools. Preserve their output and exit status, then restart if required and retest the original symptom.",
+      "safety": "Ask first / system-wide Windows servicing / restart may be required",
+      "signatures": [],
+      "references": [
+        {
+          "title": "System File Checker",
+          "source": "Microsoft Support",
+          "url": "https://support.microsoft.com/en-us/windows/experience/backup-recovery/using-system-file-checker-in-windows",
+          "note": "Microsoft documents DISM followed by System File Checker for damaged Windows files.",
+          "official": true
+        }
+      ],
+      "kind": "windows-repair",
+      "status": "active",
+      "lastVerified": "2026-11-26",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "windows-dns-cache-recovery",
+      "displayKind": "Windows repair",
+      "product": "Windows",
+      "issue": "Windows name resolution fails or uses a stale DNS cache",
+      "detection": "Explicitly select DNS cache refresh in Windows repair tools if a service hostname fails to resolve and stale client-cache evidence is suspected.",
+      "repair": "Request the built-in ipconfig DNS resolver-cache refresh with approval. Record result, then retry the same hostname or service. DNS servers, adapters and security configuration stay intact.",
+      "safety": "Ask first / transient Windows resolver cache",
+      "signatures": [],
+      "references": [
+        {
+          "title": "ipconfig",
+          "source": "Microsoft Learn",
+          "url": "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig",
+          "note": "Documents flushing the Windows client resolver cache.",
+          "official": true
+        },
+        {
+          "title": "Troubleshooting DNS clients",
+          "source": "Microsoft Learn",
+          "url": "https://learn.microsoft.com/en-us/windows-server/networking/dns/troubleshoot/troubleshoot-dns-client",
+          "note": "Distinguishes DNS cache from DNS server and network connectivity failures.",
+          "official": true
+        }
+      ],
+      "kind": "windows-repair",
+      "status": "active",
+      "lastVerified": "2026-11-26",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "windows-audio-service-recovery",
+      "displayKind": "Windows repair",
+      "product": "Windows",
+      "issue": "Windows audio services are stopped",
+      "detection": "Windows & Network Health can confirm that an automatic Windows Audio or Windows Audio Endpoint Builder service stays stopped across background checks. If audio is missing, review the recommended recovery.",
+      "repair": "Check both service states and start only stopped, enabled services after approval. Verify both return to Running. If both were running, check the playback device and volume mixer.",
+      "safety": "Ask first / fixed service names / startup configuration unchanged",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Fix audio after a Windows update",
+          "source": "Microsoft Support",
+          "url": "https://support.microsoft.com/en-us/windows/hardware/audio/fix-audio-stops-working-after-a-windows-update-in-windows",
+          "note": "Documents the role of Windows audio services and other causes of missing sound.",
+          "official": true
+        },
+        {
+          "title": "Fix app audio",
+          "source": "Microsoft Support",
+          "url": "https://support.microsoft.com/en-us/windows/hardware/audio/fix-app-audio-not-working-while-system-sounds-work-in-windows",
+          "note": "Explains app mixer, output selection and service checks.",
+          "official": true
+        }
+      ],
+      "kind": "windows-repair",
+      "status": "active",
+      "lastVerified": "2026-11-26",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "windows-time-sync",
+      "displayKind": "Windows repair",
+      "product": "Windows",
+      "issue": "Incorrect Windows clock or time synchronization",
+      "detection": "Request clock synchronization if the displayed clock is inaccurate or an affected app reports a time-related error.",
+      "repair": "With approval request Windows time synchronization using its configured source, query the time-service status and review the actual clock. No time zone or time-server changes.",
+      "safety": "Ask first / Windows system clock",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Windows Time Service tools",
+          "source": "Microsoft Learn",
+          "url": "https://learn.microsoft.com/en-us/windows-server/networking/windows-time-service/windows-time-service-tools-and-settings",
+          "note": "Documents w32tm synchronization and status queries.",
+          "official": true
+        }
+      ],
+      "kind": "windows-repair",
+      "status": "active",
+      "lastVerified": "2026-11-26",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "windows-network-health",
+      "displayKind": "Diagnostic guidance",
+      "product": "Windows",
+      "issue": "Local Windows connection drops or IP and DNS configuration problems",
+      "detection": "Silently sample Windows adapter link state, address, gateway, DNS configuration and local packet counters. Distinguish repeated configuration gaps from isolated readings, and save aggregate evidence with the last simulator session.",
+      "repair": "Review the evidence in Home or Last Session. Verify the intended adapter, router or DHCP, and DNS or VPN configuration according to the specific finding. No automatic reset or active probe.",
+      "safety": "Guidance only / local read-only Windows network evidence",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Troubleshoot wireless connectivity",
+          "source": "Microsoft Learn",
+          "url": "https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/wireless-network-connectivity-issues-troubleshooting",
+          "note": "Collect local baseline evidence before resetting adapters.",
+          "official": true
+        },
+        {
+          "title": "Troubleshooting DNS clients",
+          "source": "Microsoft Learn",
+          "url": "https://learn.microsoft.com/windows-server/networking/dns/troubleshoot/troubleshoot-dns-client",
+          "note": "Distinguishes IP configuration, gateway and resolver problems.",
+          "official": true
+        }
+      ],
+      "kind": "windows-guidance",
+      "status": "guidance",
+      "lastVerified": "2026-11-27",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "windows-background-health",
+      "displayKind": "Diagnostic guidance",
+      "product": "Windows",
+      "issue": "Recent Windows system events or stopped audio services",
+      "detection": "Review selected provider and event IDs for filesystem corruption, storage retries, Windows hardware errors, display resets, Windows Update failure and repeated DNS timeouts. Confirm stopped automatic audio services across idle observations.",
+      "repair": "Compare detected evidence with the current symptom and use the specific next step. The existing stopped-audio recovery can be approved when applicable; background monitoring does not launch repairs.",
+      "safety": "Guidance only / Windows service state and event metadata read locally",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Troubleshoot storage errors",
+          "source": "Microsoft Learn",
+          "url": "https://learn.microsoft.com/en-us/troubleshoot/windows-server/backup-and-storage/troubleshoot-data-corruption-and-disk-errors",
+          "note": "Describes NTFS and storage I/O event evidence.",
+          "official": true
+        },
+        {
+          "title": "Query WHEA hardware error events",
+          "source": "Microsoft Learn",
+          "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/whea/querying-the-system-event-log-for-hardware-error-events",
+          "note": "Identifies the Windows hardware error provider.",
+          "official": true
+        }
+      ],
+      "kind": "windows-guidance",
+      "status": "guidance",
+      "lastVerified": "2026-11-27",
+      "reviewCadenceDays": 180
+    },
+    {
+      "id": "windows-thermal-limiting",
+      "displayKind": "Diagnostic guidance",
+      "product": "Windows",
+      "issue": "CPU thermal headroom exhausted or GPU thermal slowdown",
+      "detection": "Review the Thermal Report in the last completed simulator session. Valid Intel CPU distance-to-TjMax readings at zero or supported NVIDIA driver thermal-slowdown reason flags are recorded with sampling intervals.",
+      "repair": "Review the result after the session. A thermal indication can correspond to reduced performance. Check the cooling system and hardware-specific guidance before repeating the workload.",
+      "safety": "Guidance only / local read-only hardware sampling",
+      "signatures": [],
+      "references": [
+        {
+          "title": "Intel processor temperature information",
+          "source": "Intel",
+          "url": "https://www.intel.com/content/www/us/en/support/articles/000005597/processors.html",
+          "note": "Explains the model-specific thermal junction limit and thermal control.",
+          "official": true
+        },
+        {
+          "title": "NVIDIA clock event reasons",
+          "source": "NVIDIA",
+          "url": "https://docs.nvidia.com/deploy/nvml-api/latest/api/group__nvmlClocksEventReasons.html",
+          "note": "Documents hardware and software thermal slowdown flags.",
+          "official": true
+        }
+      ],
+      "kind": "windows-guidance",
+      "status": "guidance",
+      "lastVerified": "2026-11-26",
+      "reviewCadenceDays": 180
+    },
+    {
       "id": "rfactor2-shader-cache",
       "displayKind": "Simulator repair",
       "product": "rFactor 2",

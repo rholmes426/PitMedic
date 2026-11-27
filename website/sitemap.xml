@@ -7,7 +7,15 @@
   <url><loc>https://pitmedic.com/simulators/automobilista-2/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://pitmedic.com/simulators/raceroom/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://pitmedic.com/simulators/assetto-corsa-evo/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://pitmedic.com/diagnostic-library/</loc><lastmod>2026-11-21</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/</loc><lastmod>2026-11-27</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/windows-integrity-check/</loc><lastmod>2026-11-26</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/windows-system-file-integrity/</loc><lastmod>2026-11-26</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/windows-dns-cache-recovery/</loc><lastmod>2026-11-26</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/windows-audio-service-recovery/</loc><lastmod>2026-11-26</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/windows-time-sync/</loc><lastmod>2026-11-26</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/windows-network-health/</loc><lastmod>2026-11-27</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/windows-background-health/</loc><lastmod>2026-11-27</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pitmedic.com/diagnostic-library/windows-thermal-limiting/</loc><lastmod>2026-11-26</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/rfactor2-shader-cache/</loc><lastmod>2026-11-21</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/rfactor2-steam-content/</loc><lastmod>2026-11-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pitmedic.com/diagnostic-library/rfactor2-trace-log/</loc><lastmod>2026-11-17</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>

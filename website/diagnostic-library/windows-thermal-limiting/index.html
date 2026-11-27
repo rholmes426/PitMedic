@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CPU thermal headroom exhausted or GPU thermal slowdown — Windows | PitMedic</title>
+  <meta name="description" content="How PitMedic detects and safely responds to cpu thermal headroom exhausted or gpu thermal slowdown in Windows." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://pitmedic.com/diagnostic-library/windows-thermal-limiting/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="PitMedic" />
+  <meta property="og:title" content="CPU thermal headroom exhausted or GPU thermal slowdown — Windows | PitMedic" />
+  <meta property="og:description" content="How PitMedic detects and safely responds to cpu thermal headroom exhausted or gpu thermal slowdown in Windows." />
+  <meta property="og:url" content="https://pitmedic.com/diagnostic-library/windows-thermal-limiting/" />
+  <meta property="og:image" content="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" />
+  <link rel="icon" href="/assets/brand/pitmedic-carbon-lime.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-carbon-lime.png" />
+  <link rel="stylesheet" href="/styles.css?v=20261115-design" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Windows"}]},{"@type":"TechArticle","headline":"Windows: CPU thermal headroom exhausted or GPU thermal slowdown","description":"How PitMedic detects and safely responds to cpu thermal headroom exhausted or gpu thermal slowdown in Windows.","url":"https://pitmedic.com/diagnostic-library/windows-thermal-limiting/","dateModified":"2026-11-26","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Windows"}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#pitmedic-content">Skip to content</a>
+<main>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="PitMedic home"><img src="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" alt="" /><span>Pit<em>Medic</em></span></a>
+    <nav aria-label="Primary navigation"><a href="/#how-it-works">How it works</a><a href="/#simulators">Simulators</a><a class="active" href="/diagnostic-library/">Diagnostic Library</a><a href="/#about">About</a></nav>
+    <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-download" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.14/PitMedic-Setup-x64.exe" aria-label="Download PitMedic version 1.0.0.14">Download v1.0.0.14<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg></a></div>
+  </header>
+  <article class="library-page issue-page" id="pitmedic-content" tabindex="-1">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><a href="/diagnostic-library/">Diagnostic Library</a><span>›</span><span>Windows</span></nav>
+    <header class="library-hero">
+      <span class="section-kicker">Diagnostic guidance</span>
+      <p class="library-product">Windows</p>
+      <h1>CPU thermal headroom exhausted or GPU thermal slowdown</h1>
+      <p>A processor or graphics card may reduce performance when reaching its hardware thermal limit.</p>
+      <div class="issue-status"><span>Guided diagnosis</span><span>Guidance</span><span>Evidence reviewed 2026-11-26</span><span>Guide updated 2026-11-26</span></div>
+    </header>
+    <div class="diagnostic-layout">
+      <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2><p>PitMedic silently records valid Intel CPU thermal headroom and supported NVIDIA thermal-slowdown flags during tracked simulator sessions.</p>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Enable Record thermal limits in session reports in Settings.</li><li>After the simulator closes, open its Last Session Thermal Report and review CPU/GPU observations, sampled spans, and minimum CPU headroom.</li></ul>
+          <h3>How to confirm the result</h3><p>A CPU zero-headroom reading indicates the reported thermal boundary was reached. NVIDIA thermal-slowdown flags indicate a driver-reported thermal constraint. Review cooling and vendor guidance before repeating the workload.</p>
+          <h3>Repair limits and when to stop</h3><p>The report uses available sampled evidence, not a universal temperature threshold. Unsupported CPU/GPU models, missing drivers and interrupted sampling may leave evidence unavailable. Sampled spans are estimates across consecutive limiting observations. No alerts interrupt the race and no hardware settings are changed.</p>
+        </section>
+        <section class="diagnostic-card"><h2>When to consider this guidance</h2><p>Review the Thermal Report in the last completed simulator session. Valid Intel CPU distance-to-TjMax readings at zero or supported NVIDIA driver thermal-slowdown reason flags are recorded with sampling intervals.</p></section>
+        <section class="diagnostic-card"><h2>Suggested manual checks</h2><p>Review the result after the session. A thermal indication can correspond to reduced performance. Check the cooling system and hardware-specific guidance before repeating the workload.</p><div class="safety-note"><strong>Repair safety</strong><span>Guidance only / local read-only hardware sampling</span></div></section>
+        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Intel processor temperature information</strong><span>Intel · Official source</span><p>Explains the model-specific thermal junction limit and thermal control.</p></div><a href="https://www.intel.com/content/www/us/en/support/articles/000005597/processors.html" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>NVIDIA clock event reasons</strong><span>NVIDIA · Official source</span><p>Documents hardware and software thermal slowdown flags.</p></div><a href="https://docs.nvidia.com/deploy/nvml-api/latest/api/group__nvmlClocksEventReasons.html" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+      </div>
+      <aside class="library-aside"><h2>Review your thermal report</h2><p>After the simulator closes, open its page and review Last Session. Thermal monitoring is silent during the race.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.14/PitMedic-Setup-x64.exe">Download v1.0.0.14</a><a class="button button-secondary" href="/simulators/windows/">View Windows coverage</a><small>Free and open source · Windows 10/11</small></aside>
+    </div>
+    <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>More for Windows</h2><div><a href="/diagnostic-library/windows-integrity-check/"><strong>Check Windows system file integrity</strong><span>Guided diagnosis</span></a><a href="/diagnostic-library/windows-system-file-integrity/"><strong>Repair confirmed Windows component or system file corruption</strong><span>Approval required</span></a><a href="/diagnostic-library/windows-dns-cache-recovery/"><strong>Windows name resolution fails or uses a stale DNS cache</strong><span>Approval required</span></a><a href="/diagnostic-library/windows-audio-service-recovery/"><strong>Windows audio services are stopped</strong><span>Approval required</span></a></div></nav>
+  </article>
+  <footer>
+    <a class="brand" href="/"><img src="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" alt="" /><span>Pit<em>Medic</em></span></a>
+    <p>A free open-source project for the sim-racing community.</p>
+    <div><a href="/diagnostic-library/">Diagnostic Library</a><a href="/#simulators">Simulators</a><a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a><a href="https://github.com/rholmes426/PitMedic">GitHub</a><a href="https://paypal.me/PitMedicApp">Support</a></div>
+  </footer>
+</main>
+<script defer src="/analytics.js"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5a4e361a3e0d4f838478d54e24d8f925"}'></script>
+</body>
+</html>

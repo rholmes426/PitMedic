@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Windows audio services are stopped — Windows | PitMedic</title>
+  <meta name="description" content="How PitMedic detects and safely responds to windows audio services are stopped in Windows." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://pitmedic.com/diagnostic-library/windows-audio-service-recovery/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="PitMedic" />
+  <meta property="og:title" content="Windows audio services are stopped — Windows | PitMedic" />
+  <meta property="og:description" content="How PitMedic detects and safely responds to windows audio services are stopped in Windows." />
+  <meta property="og:url" content="https://pitmedic.com/diagnostic-library/windows-audio-service-recovery/" />
+  <meta property="og:image" content="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" />
+  <link rel="icon" href="/assets/brand/pitmedic-carbon-lime.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon-carbon-lime.png" />
+  <link rel="stylesheet" href="/styles.css?v=20261115-design" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://pitmedic.com/"},{"@type":"ListItem","position":2,"name":"Diagnostic Library","item":"https://pitmedic.com/diagnostic-library/"},{"@type":"ListItem","position":3,"name":"Windows"}]},{"@type":"TechArticle","headline":"Windows: Windows audio services are stopped","description":"How PitMedic detects and safely responds to windows audio services are stopped in Windows.","url":"https://pitmedic.com/diagnostic-library/windows-audio-service-recovery/","dateModified":"2026-11-26","author":{"@type":"Organization","name":"PitMedic Project"},"about":"Windows"}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#pitmedic-content">Skip to content</a>
+<main>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="PitMedic home"><img src="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" alt="" /><span>Pit<em>Medic</em></span></a>
+    <nav aria-label="Primary navigation"><a href="/#how-it-works">How it works</a><a href="/#simulators">Simulators</a><a class="active" href="/diagnostic-library/">Diagnostic Library</a><a href="/#about">About</a></nav>
+    <div class="header-actions"><a class="header-support" href="https://paypal.me/PitMedicApp" target="_blank" rel="noreferrer">Support PitMedic</a><a class="header-download" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.14/PitMedic-Setup-x64.exe" aria-label="Download PitMedic version 1.0.0.14">Download v1.0.0.14<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg></a></div>
+  </header>
+  <article class="library-page issue-page" id="pitmedic-content" tabindex="-1">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>›</span><a href="/diagnostic-library/">Diagnostic Library</a><span>›</span><span>Windows</span></nav>
+    <header class="library-hero">
+      <span class="section-kicker">Windows repair</span>
+      <p class="library-product">Windows</p>
+      <h1>Windows audio services are stopped</h1>
+      <p>Stopped Windows audio services can prevent sound in games, companion apps and Windows generally.</p>
+      <div class="issue-status"><span>Approval required</span><span>Active</span><span>Evidence reviewed 2026-11-26</span><span>Guide updated 2026-11-26</span></div>
+    </header>
+    <div class="diagnostic-layout">
+      <div class="diagnostic-main">
+        <section class="diagnostic-card diagnostic-guide"><h2>Checks and expected results</h2><p>PitMedic checks Windows Audio Endpoint Builder and Windows Audio automatically, and can start stopped, enabled services after approval. The Home page recommends this when an automatic service is repeatedly found stopped.</p>
+          <h3>Before you repair it</h3><ul class="guide-checks"><li>Check whether system sounds and the affected application have audio and confirm the intended output device.</li><li>Close simulators and choose Start stopped Windows audio services. Running services are left running; disabled or transitioning services need review.</li></ul>
+          <h3>How to confirm the result</h3><p>Verify both service states and retest playback. If both services were running, check the volume mixer, endpoint and drivers.</p>
+          <h3>Repair limits and when to stop</h3><p>This action starts only the two fixed services. It does not restart services that are already running, change service startup settings, replace drivers or alter audio devices.</p>
+        </section>
+        <section class="diagnostic-card"><h2>When to use this check</h2><p>Windows &amp; Network Health can confirm that an automatic Windows Audio or Windows Audio Endpoint Builder service stays stopped across background checks. If audio is missing, review the recommended recovery.</p></section>
+        <section class="diagnostic-card"><h2>Built-in response</h2><p>Check both service states and start only stopped, enabled services after approval. Verify both return to Running. If both were running, check the playback device and volume mixer.</p><div class="safety-note"><strong>Repair safety</strong><span>Ask first / fixed service names / startup configuration unchanged</span></div></section>
+        <section class="diagnostic-card"><h2>Verification sources</h2><p>PitMedic prioritizes vendor documentation and labels community findings separately.</p><ul class="source-list"><li><div><strong>Fix audio after a Windows update</strong><span>Microsoft Support · Official source</span><p>Documents the role of Windows audio services and other causes of missing sound.</p></div><a href="https://support.microsoft.com/en-us/windows/hardware/audio/fix-audio-stops-working-after-a-windows-update-in-windows" target="_blank" rel="noreferrer">Open source</a></li><li><div><strong>Fix app audio</strong><span>Microsoft Support · Official source</span><p>Explains app mixer, output selection and service checks.</p></div><a href="https://support.microsoft.com/en-us/windows/hardware/audio/fix-app-audio-not-working-while-system-sounds-work-in-windows" target="_blank" rel="noreferrer">Open source</a></li></ul></section>
+      </div>
+      <aside class="library-aside"><h2>Start this check in PitMedic</h2><p>Open Home, choose Windows repair tools and select the matching action. PitMedic asks for approval and records the result.</p><a class="button button-primary" href="https://github.com/rholmes426/PitMedic/releases/download/v1.0.0.14/PitMedic-Setup-x64.exe">Download v1.0.0.14</a><a class="button button-secondary" href="/simulators/windows/">View Windows coverage</a><small>Free and open source · Windows 10/11</small></aside>
+    </div>
+    <nav class="related-diagnostics" aria-label="Related diagnostics"><h2>More for Windows</h2><div><a href="/diagnostic-library/windows-integrity-check/"><strong>Check Windows system file integrity</strong><span>Guided diagnosis</span></a><a href="/diagnostic-library/windows-system-file-integrity/"><strong>Repair confirmed Windows component or system file corruption</strong><span>Approval required</span></a><a href="/diagnostic-library/windows-dns-cache-recovery/"><strong>Windows name resolution fails or uses a stale DNS cache</strong><span>Approval required</span></a><a href="/diagnostic-library/windows-time-sync/"><strong>Incorrect Windows clock or time synchronization</strong><span>Approval required</span></a></div></nav>
+  </article>
+  <footer>
+    <a class="brand" href="/"><img src="https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png" alt="" /><span>Pit<em>Medic</em></span></a>
+    <p>A free open-source project for the sim-racing community.</p>
+    <div><a href="/diagnostic-library/">Diagnostic Library</a><a href="/#simulators">Simulators</a><a href="https://github.com/rholmes426/PitMedic/blob/main/Source/PRIVACY.md">Privacy</a><a href="https://github.com/rholmes426/PitMedic">GitHub</a><a href="https://paypal.me/PitMedicApp">Support</a></div>
+  </footer>
+</main>
+<script defer src="/analytics.js"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5a4e361a3e0d4f838478d54e24d8f925"}'></script>
+</body>
+</html>
