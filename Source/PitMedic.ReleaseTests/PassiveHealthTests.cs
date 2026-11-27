@@ -27,12 +27,27 @@ static class PassiveHealthTests
         var report = monitor.Complete();
         Check(report is { Observations: 8, IncompleteObservations: 1, LocalPacketErrors: 2, LocalPacketDiscards: 5,
             CounterIntervals: 2, RoutedInterfaceDrops: 1, Ipv4LinkLocalOnlySamples: 2 }, "Session counters and availability.");
-        var expected = NetworkRecommendation.LinkChange | NetworkRecommendation.Ipv4LinkLocalOnly | NetworkRecommendation.LocalCounterIncrease;
+        var expected = NetworkRecommendation.LinkChange | NetworkRecommendation.Ipv4LinkLocalOnly | NetworkRecommendation.RepeatedPacketErrors;
         Check(report.Recommendations == expected && report.FirstSignAt == start.AddSeconds(6), "Exact session findings and first sign.");
         var sessionJson = JsonSerializer.Serialize(new SimulatorSessionSummary { NetworkReport = report });
         Check(!sessionJson.Contains("do-not-persist") && JsonSerializer.Deserialize<SimulatorSessionSummary>(sessionJson)?.NetworkReport == report,
             "Only aggregate network evidence is persisted; summaries round trip.");
         Check(JsonSerializer.Deserialize<SimulatorSessionSummary>("{}")?.NetworkReport is null, "Old session JSON is compatible.");
+
+        var discardsOnly = new SessionNetworkMonitor();
+        discardsOnly.Observe(Sample(1, Online()), start);
+        discardsOnly.Observe(Sample(6, Online(discards: 3400)), start);
+        discardsOnly.Observe(Sample(11, Online(discards: 6454)), start);
+        Check(discardsOnly.Complete() is { Recommendations: NetworkRecommendation.None, FirstSignAt: null, LocalPacketDiscards: 6454 },
+            "Keep even large discard counts as context, not a network issue on their own.");
+
+        var differentAdapters = new SessionNetworkMonitor();
+        NetworkInterfaceReading Other(long errors = 0) => Online(errors) with { Id = "other-route" };
+        differentAdapters.Observe(Sample(1, Online(), Other()), start);
+        differentAdapters.Observe(Sample(6, Online(1), Other()), start);
+        differentAdapters.Observe(Sample(11, Online(1), Other(1)), start);
+        Check(differentAdapters.Complete().Recommendations == NetworkRecommendation.None,
+            "Isolated errors on two different adapters are not repeated errors on one adapter.");
 
         var uncertain = new SessionNetworkMonitor();
         uncertain.Observe(Sample(1, Online()), start);

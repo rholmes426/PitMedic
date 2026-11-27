@@ -16,8 +16,8 @@ internal static class NetworkReportText
             yield return "Windows repeatedly saw no configured gateway on an addressed adapter. Verify the intended router, DHCP, or VPN settings if this network is supposed to reach the internet.";
         if (evidence.HasFlag(NetworkRecommendation.NoDns))
             yield return "Windows repeatedly saw no configured DNS resolver. Check the active connection's DNS configuration and any VPN or managed network policy before changing it.";
-        if (evidence.HasFlag(NetworkRecommendation.LocalCounterIncrease))
-            yield return "Local adapter error or discard counters rose repeatedly. Check for Wi-Fi interference or a bad cable, and compare with another adapter or device.";
+        if (evidence.HasFlag(NetworkRecommendation.RepeatedPacketErrors))
+            yield return "Windows counted packet errors on the same adapter in consecutive intervals. If this matches a connection problem, check the cable or Wi-Fi signal and compare with another device.";
     }
 
     public static string SessionSummary(NetworkSessionReport report)

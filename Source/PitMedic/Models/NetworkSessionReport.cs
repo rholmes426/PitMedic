@@ -31,5 +31,7 @@ public sealed record NetworkSessionReport
 public enum NetworkRecommendation
 {
     None = 0, LinkChange = 1, NoAddress = 2, Ipv4LinkLocalOnly = 4,
-    NoGateway = 8, NoDns = 16, LocalCounterIncrease = 32
+    NoGateway = 8, NoDns = 16,
+    LocalCounterIncrease = 32, // Legacy saved reports may have set this for discards alone.
+    RepeatedPacketErrors = 64
 }

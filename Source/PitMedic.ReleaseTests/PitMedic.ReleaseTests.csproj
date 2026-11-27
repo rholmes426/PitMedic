@@ -24,6 +24,8 @@
     <Compile Include="../PitMedic/Services/SessionThermalMonitor.cs" Link="SessionThermalMonitor.cs" />
     <Compile Include="../PitMedic/Services/NetworkStackReader.cs" Link="NetworkStackReader.cs" />
     <Compile Include="../PitMedic/Services/SessionNetworkMonitor.cs" Link="SessionNetworkMonitor.cs" />
+    <Compile Include="../PitMedic/Services/SessionReportPolicy.cs" Link="SessionReportPolicy.cs" />
+    <Compile Include="../PitMedic/Services/ThermalTraceStatistics.cs" Link="ThermalTraceStatistics.cs" />
     <Compile Include="../PitMedic/Services/WindowsHealthPolicy.cs" Link="WindowsHealthPolicy.cs" />
     <Compile Include="../PitMedic/Services/WindowsRepairPolicy.cs" Link="WindowsRepairPolicy.cs" />
     <Compile Include="../PitMedic/Services/AnonymousUsageThrottlePolicy.cs" Link="AnonymousUsageThrottlePolicy.cs" />
