@@ -49,6 +49,7 @@ public partial class SettingsWindow : Window
         GpuMemory.IsChecked = s.MonitorGpuMemory;
         SystemMemory.IsChecked = s.MonitorSystemMemory;
         MonitorThermalLimits.IsChecked = s.MonitorThermalLimits;
+        MonitorWindowsHealth.IsChecked = s.MonitorWindowsHealth;
         CaptureEveryExit.IsChecked = s.CaptureEveryGameExit;
         StartWithWindows.IsChecked = s.StartWithWindows;
         MeasurementUnits.SelectedIndex = s.UseFahrenheit ? 1 : 0;
@@ -87,6 +88,7 @@ public partial class SettingsWindow : Window
             MonitorGpuMemory = GpuMemory.IsChecked == true,
             MonitorSystemMemory = SystemMemory.IsChecked == true,
             MonitorThermalLimits = MonitorThermalLimits.IsChecked == true,
+            MonitorWindowsHealth = MonitorWindowsHealth.IsChecked == true,
             SamplingSeconds = _settings.Current.SamplingSeconds,
             BufferMinutes = _settings.Current.BufferMinutes,
             ThermalTraceMinutes = _settings.Current.ThermalTraceMinutes,

@@ -114,6 +114,8 @@
                             <CheckBox x:Name="CaptureEveryExit" Content="Preserve ambiguous exits (diagnostic)" ToolTip="Normally off. Preserves exits whose status cannot be determined, but clean exit-code-0 sessions are never treated as issues."/>
                             <CheckBox x:Name="MonitorThermalLimits" Content="Record thermal limits in session reports"
                                       ToolTip="Silently records supported Intel CPU thermal headroom and NVIDIA GPU thermal-slowdown signals during simulator sessions."/>
+                            <CheckBox x:Name="MonitorWindowsHealth" Content="Monitor Windows and network health"
+                                      ToolTip="Silently reads network adapter state, Windows service status and selected system event metadata. Does not send data or make repairs."/>
                         </WrapPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                             <TextBlock Text="Measurement units" VerticalAlignment="Center" Margin="0,0,12,0"/>

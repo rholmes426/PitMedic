@@ -55,6 +55,13 @@ retest with iRacing, rFactor 2, or the original Assetto Corsa installed.
 - Remaining Windows research includes VC14 and legacy DirectX runtime recovery, app-scoped audio mute, full audio-service restart, evidence-qualified DNS, automatic shared OS failure detection, memory commit, driver/device and storage diagnosis, and current KB/build matching. Existing queued items retain their validation requirements.
 - Added PatchManagement.org, r/sysadmin and additional patch reporting to the manual source inventory. Current Google Group and AskWoody access limits are documented in the Windows review.
 
+## Pending implementation - Passive Windows and network health (November 27, 2026)
+
+- Home shows automatic, local-only Windows health and network recommendations, including when no simulator is running. No manual check button, notification or focus change. A Settings option turns the checks off.
+- Sim Last Session saves aggregated adapter drop, IP, gateway, DNS and local packet-counter evidence. Require repeated configuration or counter anomalies before recommending changes; no active probes, packet content, adapter identifiers, addresses or DNS names in the report.
+- Idle Windows checks recommend next steps for repeatedly stopped automatic audio services, repeated DNS timeouts, NTFS corruption, repeated storage retries, WHEA errors, display resets and Windows Update installation failures. The existing audio service recovery is recommended where appropriate and remains approval-gated. No network resets, Windows servicing, clock changes or update actions are automatically triggered.
+- Prepared Diagnostic Library guides `windows-network-health` and `windows-background-health` and updated the audio service guide, gated to 1.0.0.14 or newer. Live-cable/Wi-Fi disconnect, real Windows service recovery and multiplayer retests remain to be verified.
+
 ## Windows 10/11 Scout review - November 26, 2026
 
 [Windows evidence, executable coverage, repair proposals and validation](Research/WindowsRepairReview-2026-11-26.md). Shared Windows troubleshooting for supported simulators and companion apps is planned, including explicit symptom selection when the app never launches.
