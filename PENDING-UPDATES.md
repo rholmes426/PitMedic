@@ -46,6 +46,26 @@ retest with iRacing, rFactor 2, or the original Assetto Corsa installed.
 - Fixture regression and generation validation cover this work; live original-AC
   gameplay and wheel retests remain user/hardware validation, not claimed success.
 
+## Windows 10/11 Scout review - November 26, 2026
+
+[Windows evidence, executable coverage, repair proposals and validation](Research/WindowsRepairReview-2026-11-26.md). Shared Windows troubleshooting for supported simulators and companion apps is planned, including explicit symptom selection when the app never launches.
+
+| Priority / ID | Work and next validation | Diagnostic Library deliverable / status |
+| --- | --- | --- |
+| Repair - KS-WIN-VC14 | Match exact named runtime failure and executable architecture; use supported, signed Microsoft v14 install/repair after approval; verify package and relaunch. | Proposed `windows-visual-cpp-runtime` |
+| Repair - KS-WIN-AUDIO-MUTE | Identify one active, owned, muted Windows audio session; approve unmute, preserve other audio and support undo for that session. | Proposed `windows-app-audio-mute` |
+| Reuse - KS-WIN-INTEGRITY | Offer the current DISM/SFC executor across supported apps after evidence-led integrity verification and consent. | Proposed `windows-system-file-integrity`; update `iracing-windows-integrity` |
+| Repair - KS-WIN-DIRECTX-LEGACY | Validate applicable, signed vendor/Microsoft legacy runtime setup for exact missing libraries or prerequisite message on Windows 10/11. | Proposed `windows-legacy-directx-runtime` |
+| Repair - KS-WIN-AUDIO-SERVICE | Recover only the two applicable Windows audio services after approval and dependency/usage checks. | Proposed `windows-audio-service-recovery` |
+| Repair - KS-WIN-DNS-CACHE | Diagnose a stale resolver-cache result for a verified service hostname; refresh the cache and repeat resolution. | Proposed `windows-dns-cache-recovery` |
+| Diagnostic - KS-WIN-COMMIT | Capture actual commit/limit, event 2004 and page-file/drive state; validate before proposing persistent page-file changes. | Proposed `windows-commit-exhaustion`; update `lmu-memory-allocation` |
+| Validation - KS-WIN-DEVICE | Identify exact current device instance and Windows problem code; validate controlled device restart on hardware. | Proposed `windows-wheel-device-problem` |
+| Diagnostic - KS-WIN-GPU-OS-BUILDS | Correlate GPU/TDR, hardware and Windows build evidence. Match documented OS update issues to installed build and device. | Proposed `windows-graphics-driver-timeout`, `windows-known-update-issues` |
+| Diagnostic - KS-WIN-SAVE-STORAGE | Distinguish folder redirection, exact blocked writes, inadequate space and disk I/O events. | Proposed `windows-save-and-storage-errors`; update `iracing-could-not-find-sim` |
+
+Planned shared platform guides are gated to the corresponding implementation.
+All runtime repairs and real-hardware validation remain pending.
+
 ## Manual Scout review - November 24, 2026
 
 [Evidence, coverage, validation and rollback plans](Research/KnowledgeScoutReview-2026-11-24.md).
