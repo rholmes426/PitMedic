@@ -240,8 +240,8 @@
       "category": "platform-support",
       "url": "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist/",
       "searchTemplate": "site:learn.microsoft.com {error} {runtime}",
-      "access": "article-search-result",
-      "checkedOn": "2026-11-13",
+      "access": "article-body-opened",
+      "checkedOn": "2026-11-26",
       "notes": "Match architecture/runtime generation and the simulator vendor's prerequisite, not generic DLL downloads."
     },
     {
@@ -399,6 +399,84 @@
       "access": "article-body-opened",
       "checkedOn": "2026-11-24",
       "notes": "Racelab's own LMU setup and no-data checks. Identify the exact installed plugin and current settings before proposing a reversible change."
+    },
+    {
+      "id": "microsoft-windows-release-health",
+      "products": [
+        "all"
+      ],
+      "authority": "official",
+      "category": "platform-support",
+      "url": "https://learn.microsoft.com/en-us/windows/release-health/",
+      "searchTemplate": "site:learn.microsoft.com/en-us/windows/release-health/ {symptom} {os_build}",
+      "access": "release-notes-opened",
+      "checkedOn": "2026-11-26",
+      "notes": "Match affected OS build, device and exact symptom to supported servicing guidance."
+    },
+    {
+      "id": "microsoft-windows-audio",
+      "products": [
+        "all"
+      ],
+      "authority": "official",
+      "category": "platform-support",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/audio/fix-app-audio-not-working-while-system-sounds-work-in-windows",
+      "searchTemplate": "site:support.microsoft.com/en-us/windows/hardware/audio/ {symptom}",
+      "access": "article-body-opened",
+      "checkedOn": "2026-11-26",
+      "notes": "Separate app mixer/routing and service failures. Use documented narrow APIs."
+    },
+    {
+      "id": "microsoft-windows-memory",
+      "products": [
+        "all"
+      ],
+      "authority": "official",
+      "category": "platform-support",
+      "url": "https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/how-to-determine-the-appropriate-page-file-size-for-64-bit-versions-of-windows",
+      "searchTemplate": "site:learn.microsoft.com/en-us/troubleshoot/windows-client/performance/ {symptom}",
+      "access": "article-body-opened",
+      "checkedOn": "2026-11-26",
+      "notes": "Check commit, page-file and disk evidence before suggesting any change."
+    },
+    {
+      "id": "microsoft-windows-device-codes",
+      "products": [
+        "all"
+      ],
+      "authority": "official",
+      "category": "platform-support",
+      "url": "https://support.microsoft.com/en-us/windows/hardware/drivers/error-codes-in-device-manager-in-windows",
+      "searchTemplate": "site:support.microsoft.com/en-us/windows/hardware/drivers/ {error} {symptom}",
+      "access": "article-body-opened",
+      "checkedOn": "2026-11-26",
+      "notes": "Verify instance identity and device problem code; hardware failure is not automatically repairable."
+    },
+    {
+      "id": "microsoft-legacy-directx",
+      "products": [
+        "all"
+      ],
+      "authority": "official",
+      "category": "platform-support",
+      "url": "https://www.microsoft.com/en-us/download/details.aspx?id=8109",
+      "searchTemplate": "site:microsoft.com {dependency} {symptom} DirectX",
+      "access": "article-body-opened",
+      "checkedOn": "2026-11-26",
+      "notes": "Confirm exact optional legacy library and supported package on current Windows versions."
+    },
+    {
+      "id": "microsoft-dns-client",
+      "products": [
+        "all"
+      ],
+      "authority": "official",
+      "category": "platform-support",
+      "url": "https://learn.microsoft.com/en-us/windows-server/networking/dns/troubleshoot/troubleshoot-dns-client",
+      "searchTemplate": "site:learn.microsoft.com {error} DNS client resolution cache",
+      "access": "article-body-opened",
+      "checkedOn": "2026-11-26",
+      "notes": "Investigate cached name resolution versus configured resolver results before proposing a refresh."
     }
   ],
   "queryFamilies": [

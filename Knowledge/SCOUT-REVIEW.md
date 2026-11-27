@@ -72,6 +72,25 @@ documentation, official Steam news or another accessible primary account when
 a forum fails or returns an index. Record blocked content and a concrete next
 retrieval route. Do not bypass login, CAPTCHA, membership or private Discord.
 
+## Windows 10/11 cross-product troubleshooting
+
+Include Windows-originating launch, dependency, service, audio, memory,
+graphics, device, connection and write/storage failures when they affect
+supported sim software. Review current Microsoft release-health and relevant
+vendor prerequisite/driver guidance against exact OS build, application
+identity, provider, error code and conditions. A Windows event near a sim
+failure may be contextual. A launcher that never starts or a non-crashing
+symptom should be reachable by an explicit Windows troubleshooting request.
+
+Look for a reproducible, targeted operating-system recovery or a safer
+diagnostic/access improvement. Trace the shared action through the planner,
+executor, helper and verification. Keep driver/firmware and security-policy
+changes outside automatic recovery. Record Windows 10 versus Windows 11
+applicability, elevated/shared-package effects, approvals, realistic rollback
+and any reboot. Pair new Windows proposals with planned Diagnostic Library
+guides and related simulator pages. Use the [Windows repair review](../Research/WindowsRepairReview-2026-11-26.md)
+as a starting backlog.
+
 ## Qualify the actual remedy
 
 For each serious lead, read the actual first-party/developer instructions or
