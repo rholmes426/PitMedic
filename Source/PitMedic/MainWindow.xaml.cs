@@ -49,6 +49,7 @@ public partial class MainWindow : Window
         _monitoring.TelemetryUpdated += sample => Dispatcher.BeginInvoke(() => UpdateTelemetry(sample));
         _monitoring.GameStatusChanged += (game, running) => Dispatcher.BeginInvoke(() => UpdateGame(game, running));
         _monitoring.SessionCompleted += session => Dispatcher.BeginInvoke(() => CompleteSession(session));
+        _monitoring.PassiveHealthChanged += () => Dispatcher.BeginInvoke((Action)RefreshPassiveHealth);
         _monitoring.CompanionSoftwareStatusChanged += _ => Dispatcher.BeginInvoke(() => RefreshHomePage());
         _monitoring.LiveFaultDetected += fault => Dispatcher.BeginInvoke(() => UpdateLiveFault(fault));
         _monitoring.IncidentCreated += incident => Dispatcher.BeginInvoke(() => AddIncident(incident));
@@ -434,6 +435,7 @@ public partial class MainWindow : Window
     private void RefreshHomePage()
     {
         if (HomeStatusText is null) return;
+        RefreshPassiveHealth();
 
         var supported = GameDefinition.Supported.Select(x => x.Kind).ToArray();
         var monitored = supported.Count(IsMonitored);
@@ -620,6 +622,7 @@ public partial class MainWindow : Window
     private void RefreshLastSession(SimulatorSessionSummary? session)
     {
         RefreshLastSessionThermals(session);
+        RefreshLastSessionNetwork(session);
         if (session is null)
         {
             LastSessionDateTime.Text = "—";
@@ -646,6 +649,58 @@ public partial class MainWindow : Window
             session.Outcome == SimulatorSessionOutcome.NoErrorObserved ? "GoodBrush"
                 : session.Outcome is SimulatorSessionOutcome.ErrorObserved or SimulatorSessionOutcome.ReviewNeeded ? "AccentBrush"
                 : "MutedBrush");
+    }
+
+    private void RefreshPassiveHealth()
+    {
+        var status = _monitoring.PassiveHealth;
+        HomeNetworkHealth.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
+        HomeWindowsHealth.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
+        if (!status.Enabled)
+        {
+            HomeNetworkHealth.Text = _settings.MonitorWindowsHealth
+                ? "Waiting for Windows network readings." : "Windows and network monitoring is disabled in Settings.";
+            HomeWindowsHealth.Text = string.Empty;
+            return;
+        }
+
+        var network = status.Network;
+        HomeNetworkHealth.Text = network switch
+        {
+            { Recommendations: not NetworkRecommendation.None } =>
+                string.Join("\n", NetworkReportText.Recommendations(network.Recommendations)),
+            { Observations: > 0, IncompleteObservations: 0 } => "No persistent local network issue observed in the latest samples.",
+            _ => "Windows network evidence is incomplete or unavailable."
+        };
+        if (network is { Recommendations: not NetworkRecommendation.None })
+            HomeNetworkHealth.SetResourceReference(TextBlock.ForegroundProperty, "WarnTextBrush");
+
+        var windows = status.Windows;
+        if (windows is null)
+            HomeWindowsHealth.Text = "Windows event and service checks run when no simulator is active.";
+        else if (windows.Findings.Count == 0)
+            HomeWindowsHealth.Text = windows.LogAvailable && windows.AudioStatusAvailable
+                ? "No matching recent Windows events or stopped automatic audio services confirmed."
+                : "Some Windows event or service data was unavailable.";
+        else
+        {
+            HomeWindowsHealth.SetResourceReference(TextBlock.ForegroundProperty, "WarnTextBrush");
+            HomeWindowsHealth.Text = string.Join("\n", windows.Findings.Select(finding =>
+                $"{finding.At.ToLocalTime():t} — {finding.Guidance}"));
+        }
+    }
+
+    private void RefreshLastSessionNetwork(SimulatorSessionSummary? session)
+    {
+        var report = session?.NetworkReport;
+        LastSessionNetwork.Text = report is not null ? NetworkReportText.SessionSummary(report)
+            : session is null ? "No completed session yet" : "Network evidence was not recorded for this session.";
+        var guidance = report is null ? "" : string.Join("\n", NetworkReportText.Recommendations(report.Recommendations));
+        if (report?.FirstSignAt is DateTimeOffset first)
+            guidance += $"{(guidance.Length > 0 ? "\n" : "")}First local sign: {first.ToLocalTime():h:mm:ss tt}.";
+        LastSessionNetworkGuidance.Text = report is { Observations: > 0 }
+            ? $"{(guidance.Length > 0 ? guidance + "\n" : "")}Local Windows samples only. Short drops can be missed; adapter counters do not measure race-server latency or packet loss."
+            : guidance;
     }
 
     private void RefreshLastSessionThermals(SimulatorSessionSummary? session)

@@ -15,6 +15,7 @@ public sealed record SimulatorSessionSummary
     public DateTimeOffset Ended { get; init; }
     public SimulatorSessionOutcome Outcome { get; init; }
     public SessionThermalReport? ThermalReport { get; init; }
+    public NetworkSessionReport? NetworkReport { get; init; }
 
     public TimeSpan Duration => Ended > Started ? Ended - Started : TimeSpan.Zero;
 }

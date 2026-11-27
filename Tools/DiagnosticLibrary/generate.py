@@ -302,6 +302,12 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
     if entry["id"] == "windows-thermal-limiting":
         aside_heading = "Review your thermal report"
         aside_summary = "After the simulator closes, open its page and review Last Session. Thermal monitoring is silent during the race."
+    if entry["id"] == "windows-network-health":
+        aside_heading = "Review your network report"
+        aside_summary = "Open Home to see current checks or review Last Session after your simulator closes."
+    if entry["id"] == "windows-background-health":
+        aside_heading = "Review Windows health findings"
+        aside_summary = "Open Home and review Windows & Network Health. Findings appear automatically without interrupting the race."
     display_issue = str(editorial.get("heading") or display_issue)
     description = str(editorial.get("description") or (
         f"How PitMedic detects and performs a controlled recovery after a {product} crash or stale process."
@@ -783,4 +789,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

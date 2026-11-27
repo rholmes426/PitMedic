@@ -106,6 +106,20 @@ public sealed class GameWatchService : IDisposable
         }
     }
 
+    internal void RecordNetworkSample(NetworkStackSample? sample)
+    {
+        lock (_gate)
+        {
+            foreach (var tracked in _tracked.Values)
+            {
+                if (sample is not null && ShouldMonitor(tracked.Game.Kind))
+                    tracked.Network.Observe(sample, tracked.Started);
+                else
+                    tracked.Network.Pause();
+            }
+        }
+    }
+
     internal int? ClosedGameProcessId(GameKind kind)
     {
         lock (_gate)
@@ -372,7 +386,8 @@ public sealed class GameWatchService : IDisposable
                 Started = tracked.Started,
                 Ended = ended,
                 Outcome = outcome,
-                ThermalReport = tracked.Thermals.Complete()
+                ThermalReport = tracked.Thermals.Complete(),
+                NetworkReport = tracked.Network.Complete()
             });
             tracked.Lifetime.Dispose();
             tracked.Process.Dispose();
@@ -409,6 +424,7 @@ public sealed class GameWatchService : IDisposable
         public object FaultGate { get; } = new();
         public List<LiveFaultEvidence> LiveFaults { get; } = new();
         public SessionThermalMonitor Thermals { get; } = new();
+        public SessionNetworkMonitor Network { get; } = new();
         public Task<IncidentRecord?>? SpotterIncident { get; set; }
         public int ExitHandled;
         public nint LastMainWindow;

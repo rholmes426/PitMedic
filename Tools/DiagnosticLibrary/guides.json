@@ -47,7 +47,7 @@
     "available_from": "1.0.0.14",
     "user_requested": true,
     "intro": "Stopped Windows audio services can prevent sound in games, companion apps and Windows generally.",
-    "meaning": "PitMedic checks Windows Audio Endpoint Builder and Windows Audio, and can start stopped, enabled services after approval.",
+    "meaning": "PitMedic checks Windows Audio Endpoint Builder and Windows Audio automatically, and can start stopped, enabled services after approval. The Home page recommends this when an automatic service is repeatedly found stopped.",
     "checks": [
       "Check whether system sounds and the affected application have audio and confirm the intended output device.",
       "Close simulators and choose Start stopped Windows audio services. Running services are left running; disabled or transitioning services need review."
@@ -67,6 +67,32 @@
     ],
     "result": "Review the synchronization result and reported time status, then retest the original symptom.",
     "limits": "The operation uses the existing Windows time source and preserves time zone and server configuration. If the time service is disabled or unreachable, review Windows settings or administrator guidance."
+  },
+  "windows-network-health": {
+    "modified": "2026-11-27",
+    "available_from": "1.0.0.14",
+    "intro": "When a race or another app disconnects, local Windows network evidence can help narrow down the next check.",
+    "meaning": "PitMedic passively samples adapter state, usable addresses, configured gateways and DNS resolvers, and local packet counters. Recommendations are matched to the evidence.",
+    "checks": [
+      "Review Home, under Windows & Network Health. There is no manual diagnostic button.",
+      "After the simulator closes, open its Last Session Network Report. Compare the first local sign and report counts with when the connection problem happened."
+    ],
+    "result": "A link drop points toward checking Wi-Fi, Ethernet or VPN reconnects. Repeated address, gateway or DNS gaps point toward checking the corresponding configuration. Repeated local counter increases justify comparing cables, adapters or another device.",
+    "limits": "Passive local samples can miss short drops, and intentional offline, LAN-only and VPN configurations may explain a finding. Interface counters are not a measurement of race-server latency or packet loss. PitMedic does not send probes, capture packets, change settings or reset adapters.",
+    "related": ["windows-background-health", "windows-dns-cache-recovery"]
+  },
+  "windows-background-health": {
+    "modified": "2026-11-27",
+    "available_from": "1.0.0.14",
+    "intro": "Windows can log system problems even if no simulator crashes. PitMedic checks selected evidence automatically.",
+    "meaning": "While no simulator is running, PitMedic checks selected recent System log metadata and the state of automatic Windows audio services. It reports targeted recommendations, including for events that took place during the race.",
+    "checks": [
+      "Review Home, under Windows & Network Health. Match the timestamp to the symptom before following a recommendation.",
+      "For a stopped automatic audio service and missing sound, use the existing approval-gated audio recovery. For disk, hardware, display, DNS or update evidence, use the corresponding next step in the finding."
+    ],
+    "result": "A recommendation identifies what Windows observed and what to verify next. Retest the original symptom after any approved repair.",
+    "limits": "This checks selected Windows events, not all errors. Historical events can be resolved already; unavailable evidence is not a clean bill of health. PitMedic does not automatically execute repairs, read event message bodies, or upload findings.",
+    "related": ["windows-network-health", "windows-audio-service-recovery", "windows-integrity-check"]
   },
   "windows-thermal-limiting": {
     "modified": "2026-11-26",

@@ -65,7 +65,7 @@ public static class RepairKnowledgeBase
             Id = "windows-audio-service-recovery",
             Game = "Windows",
             Issue = "Windows audio services are stopped",
-            Detection = "Choose the audio service check when Windows or an app has no sound. Windows Audio or Windows Audio Endpoint Builder may have stopped.",
+            Detection = "Windows & Network Health can confirm that an automatic Windows Audio or Windows Audio Endpoint Builder service stays stopped across background checks. If audio is missing, review the recommended recovery.",
             RepairStrategy = "Check both service states and start only stopped, enabled services after approval. Verify both return to Running. If both were running, check the playback device and volume mixer.",
             Safety = "Ask first / fixed service names / startup configuration unchanged",
             Signatures = Array.Empty<string>(),
@@ -87,6 +87,38 @@ public static class RepairKnowledgeBase
             References = new[]
             {
                 Ref("Windows Time Service tools", "Microsoft Learn", "https://learn.microsoft.com/en-us/windows-server/networking/windows-time-service/windows-time-service-tools-and-settings", "Documents w32tm synchronization and status queries.")
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "windows-network-health",
+            Game = "Windows",
+            IsGuidanceOnly = true,
+            Issue = "Local Windows connection drops or IP and DNS configuration problems",
+            Detection = "Silently sample Windows adapter link state, address, gateway, DNS configuration and local packet counters. Distinguish repeated configuration gaps from isolated readings, and save aggregate evidence with the last simulator session.",
+            RepairStrategy = "Review the evidence in Home or Last Session. Verify the intended adapter, router or DHCP, and DNS or VPN configuration according to the specific finding. No automatic reset or active probe.",
+            Safety = "Guidance only / local read-only Windows network evidence",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Troubleshoot wireless connectivity", "Microsoft Learn", "https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/wireless-network-connectivity-issues-troubleshooting", "Collect local baseline evidence before resetting adapters."),
+                Ref("Troubleshooting DNS clients", "Microsoft Learn", "https://learn.microsoft.com/windows-server/networking/dns/troubleshoot/troubleshoot-dns-client", "Distinguishes IP configuration, gateway and resolver problems.")
+            }
+        },
+        new KnowledgeEntry
+        {
+            Id = "windows-background-health",
+            Game = "Windows",
+            IsGuidanceOnly = true,
+            Issue = "Recent Windows system events or stopped audio services",
+            Detection = "Review selected provider and event IDs for filesystem corruption, storage retries, Windows hardware errors, display resets, Windows Update failure and repeated DNS timeouts. Confirm stopped automatic audio services across idle observations.",
+            RepairStrategy = "Compare detected evidence with the current symptom and use the specific next step. The existing stopped-audio recovery can be approved when applicable; background monitoring does not launch repairs.",
+            Safety = "Guidance only / Windows service state and event metadata read locally",
+            Signatures = Array.Empty<string>(),
+            References = new[]
+            {
+                Ref("Troubleshoot storage errors", "Microsoft Learn", "https://learn.microsoft.com/en-us/troubleshoot/windows-server/backup-and-storage/troubleshoot-data-corruption-and-disk-errors", "Describes NTFS and storage I/O event evidence."),
+                Ref("Query WHEA hardware error events", "Microsoft Learn", "https://learn.microsoft.com/en-us/windows-hardware/drivers/whea/querying-the-system-event-log-for-hardware-error-events", "Identifies the Windows hardware error provider.")
             }
         },
         new KnowledgeEntry

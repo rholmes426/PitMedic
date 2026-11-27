@@ -11,7 +11,8 @@ SPEC.loader.exec_module(generator)
 NEW_IDS = {"lmu-controller-config", "iracing-socket-connection", "iracing-spotter-loading-error-63"}
 AC_IDS = {"ac-video-config", "ac-controls-config", "ac-steam-content"}
 WINDOWS_IDS = {"windows-integrity-check", "windows-system-file-integrity", "windows-dns-cache-recovery",
-               "windows-audio-service-recovery", "windows-time-sync", "windows-thermal-limiting"}
+               "windows-audio-service-recovery", "windows-time-sync", "windows-thermal-limiting",
+               "windows-network-health", "windows-background-health"}
 
 
 class LibraryAvailabilityTests(unittest.TestCase):
@@ -38,6 +39,10 @@ class LibraryAvailabilityTests(unittest.TestCase):
                         page = path.read_text(encoding="utf-8")
                         if guide == "windows-thermal-limiting":
                             self.assertIn("Review your thermal report", page)
+                        elif guide == "windows-network-health":
+                            self.assertIn("Review your network report", page)
+                        elif guide == "windows-background-health":
+                            self.assertIn("Review Windows health findings", page)
                         else:
                             self.assertIn("Open Home, choose Windows repair tools", page)
 

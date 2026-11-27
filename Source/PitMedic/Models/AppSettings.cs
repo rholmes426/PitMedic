@@ -26,6 +26,7 @@ public sealed class AppSettings
     public bool MonitorGpuMemory { get; set; } = true;
     public bool MonitorSystemMemory { get; set; } = true;
     public bool MonitorThermalLimits { get; set; } = true;
+    public bool MonitorWindowsHealth { get; set; } = true;
 
     public int SamplingSeconds { get; set; } = 2;
     public int BufferMinutes { get; set; } = 10;

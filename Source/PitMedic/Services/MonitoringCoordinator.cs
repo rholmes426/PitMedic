@@ -14,6 +14,7 @@ public sealed class MonitoringCoordinator : IDisposable
     private readonly SettingsService _settings;
     private readonly UsageStatsService _usage = new();
     private readonly SimulatorSessionStore _lastSessions = new();
+    private readonly PassiveHealthMonitor _health = new();
     private Task? _loop;
 
     public event Action<TelemetrySample>? TelemetryUpdated;
@@ -24,6 +25,8 @@ public sealed class MonitoringCoordinator : IDisposable
     public event Action<RepairStatus>? RepairStatusChanged;
     public event Action<AppSettings>? SettingsChanged;
     public event Action<SimulatorSessionSummary>? SessionCompleted;
+    internal event Action? PassiveHealthChanged;
+    internal PassiveHealthStatus PassiveHealth => _health.Status;
 
     public MonitoringCoordinator(SettingsService settings)
     {
@@ -72,6 +75,8 @@ public sealed class MonitoringCoordinator : IDisposable
                 TelemetryUpdated?.Invoke(sample);
                 _games.Scan();
                 _games.RecordThermalSample(sample, settings.MonitorThermalLimits);
+                if (_health.Update(settings.MonitorWindowsHealth, _games.HasTrackedSession, _games))
+                    PassiveHealthChanged?.Invoke();
                 _companions.Scan();
                 await Task.Delay(TimeSpan.FromSeconds(settings.SamplingSeconds), _cts.Token);
             }
