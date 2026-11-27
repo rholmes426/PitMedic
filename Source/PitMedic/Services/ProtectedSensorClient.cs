@@ -107,6 +107,7 @@ internal sealed class ProtectedSensorClient : IDisposable
     {
         public DateTimeOffset Timestamp { get; init; }
         public float? CpuTempC { get; init; }
+        public float? CpuThermalHeadroomC { get; init; }
         public float? CpuLoadPct { get; init; }
         public float? CpuClockMhz { get; init; }
         public float? CpuPowerW { get; init; }

@@ -18,6 +18,11 @@ public static class ElevatedRepairPolicy
 
         // Windows system operation.
         "lmu-sync-windows-time",
+        WindowsRepairPolicy.IntegrityCheckId,
+        WindowsRepairPolicy.IntegrityRepairId,
+        WindowsRepairPolicy.DnsCacheId,
+        WindowsRepairPolicy.AudioServiceId,
+        WindowsRepairPolicy.ClockSyncId,
 
         // iRacing installation files, service helpers, and Windows repair tools.
         "iracing-helper-service",

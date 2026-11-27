@@ -92,6 +92,20 @@ public sealed class GameWatchService : IDisposable
             return _tracked.TryGetValue(kind, out var item) && !item.Lifetime.TryGetExitCode(out _);
     }
 
+    public bool HasTrackedSession
+    {
+        get { lock (_gate) return _tracked.Count > 0; }
+    }
+
+    public void RecordThermalSample(TelemetrySample sample, bool enabled)
+    {
+        lock (_gate)
+        {
+            foreach (var tracked in _tracked.Values)
+                tracked.Thermals.Observe(sample, tracked.Started, enabled && ShouldMonitor(tracked.Game.Kind));
+        }
+    }
+
     internal int? ClosedGameProcessId(GameKind kind)
     {
         lock (_gate)
@@ -357,7 +371,8 @@ public sealed class GameWatchService : IDisposable
                 Game = tracked.Game.Kind,
                 Started = tracked.Started,
                 Ended = ended,
-                Outcome = outcome
+                Outcome = outcome,
+                ThermalReport = tracked.Thermals.Complete()
             });
             tracked.Lifetime.Dispose();
             tracked.Process.Dispose();
@@ -393,6 +408,7 @@ public sealed class GameWatchService : IDisposable
         public ILiveLogMonitor? LiveLogMonitor { get; set; }
         public object FaultGate { get; } = new();
         public List<LiveFaultEvidence> LiveFaults { get; } = new();
+        public SessionThermalMonitor Thermals { get; } = new();
         public Task<IncidentRecord?>? SpotterIncident { get; set; }
         public int ExitHandled;
         public nint LastMainWindow;

@@ -46,6 +46,8 @@ public sealed class RepairService : IDisposable
 
     public bool Begin(IncidentRecord incident, RepairPlan plan, AppSettings settings, bool automatic = false)
     {
+        if (WindowsRepairPolicy.IsSupported(plan.Id)
+            && (automatic || WindowsRepairPolicy.FromRequest(incident)?.Id != plan.Id)) return false;
         if (automatic && (ScopedConfigurationRepair.IsSupported(plan.Id) || plan.Id == UserRequestedRepairPolicy.RFactor2VerificationId)) return false;
         if (IRacingDiagnosticPolicy.IsStatusOnlyFinding(incident)
             || LegacyProcessExitPolicy.IsUnverifiedRunningStatus(incident)) return false;
@@ -219,7 +221,8 @@ public sealed class RepairService : IDisposable
                     AcceptExternalStatus(status);
                 },
                 token);
-            if (final.Success) _usage?.RecordRepairCompleted(plan, automatic);
+            if (final.Success && plan.Id != WindowsRepairPolicy.IntegrityCheckId)
+                _usage?.RecordRepairCompleted(plan, automatic);
         }
         catch (OperationCanceledException ex)
         {
@@ -285,14 +288,18 @@ public sealed class RepairService : IDisposable
                 Directory.CreateDirectory(backupRoot);
                 var completion = await RunStandardRepairAsync(incident, plan, backupRoot, token);
                 if (!settings.KeepRepairBackups && !ScopedConfigurationRepair.IsSupported(plan.Id)
+                    && !WindowsRepairPolicy.IsSupported(plan.Id)
                     && plan.Id != "iracing-error77-content-reacquire")
                 {
                     try { Directory.Delete(backupRoot, true); backupRoot = null; } catch { }
                 }
-                _usage?.RecordRepairCompleted(plan, automatic);
+                if (plan.Id != WindowsRepairPolicy.IntegrityCheckId)
+                    _usage?.RecordRepairCompleted(plan, automatic);
                 var steamHandOff = plan.Id == UserRequestedRepairPolicy.RFactor2VerificationId;
-                Update(incident, plan, 100, steamHandOff ? "Verification requested" : "Repair complete", completion,
-                    steamHandOff ? "Check Steam Downloads for progress before retesting."
+                var integrityCheck = plan.Id == WindowsRepairPolicy.IntegrityCheckId;
+                Update(incident, plan, 100, integrityCheck ? "Windows checks completed" : steamHandOff ? "Verification requested" : "Repair complete", completion,
+                    integrityCheck ? "Review the saved DISM and SFC output before choosing a repair."
+                        : steamHandOff ? "Check Steam Downloads for progress before retesting."
                         : "The repair actions completed successfully. PitMedic retained the issue evidence and repair history for review.",
                     Math.Max(1, plan.Steps.Count), Math.Max(1, plan.Steps.Count), false, true, true, backupRoot);
                 return;
@@ -457,6 +464,11 @@ public sealed class RepairService : IDisposable
             "iracing-clear-compatibility" => await RepairIRacingCompatibilityAsync(incident, plan, backupRoot, token),
             "iracing-run-updater" => await RepairIRacingUpdaterAsync(incident, plan, backupRoot, token, string.Empty),
             "iracing-windows-integrity" => await RepairWindowsIntegrityAsync(incident, plan, backupRoot, token),
+            WindowsRepairPolicy.IntegrityCheckId => await CheckWindowsIntegrityAsync(incident, plan, backupRoot, token),
+            WindowsRepairPolicy.IntegrityRepairId => await RepairWindowsIntegrityAsync(incident, plan, backupRoot, token),
+            WindowsRepairPolicy.DnsCacheId => await RepairWindowsDnsCacheAsync(incident, plan, backupRoot, token),
+            WindowsRepairPolicy.AudioServiceId => await StartWindowsAudioServicesAsync(incident, plan, backupRoot, token),
+            WindowsRepairPolicy.ClockSyncId => await SynchronizeWindowsClockAsync(incident, plan, backupRoot, token),
 
             "ace-video-settings-reset" => await RepairAceVideoSettingsAsync(incident, plan, backupRoot, token),
             "ace-profile-reset" => await RepairAceProfileAsync(incident, plan, backupRoot, token),
@@ -993,7 +1005,8 @@ public sealed class RepairService : IDisposable
 
     private async Task<string> RepairWindowsIntegrityAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
     {
-        EnsureGameNotRunning(GameKind.IRacing, "iRacing Simulator");
+        if (plan.Id == WindowsRepairPolicy.IntegrityRepairId) EnsureWindowsToolsIdle();
+        else EnsureGameNotRunning(GameKind.IRacing, "iRacing Simulator");
         var resultsPath = Path.Combine(backupRoot, "windows-integrity-results.txt");
 
         UpdateSimple(incident, plan, 12, "Checking Windows component store", "Running DISM RestoreHealth. This can take several minutes...", 1, 4, backupRoot);
@@ -1030,7 +1043,74 @@ public sealed class RepairService : IDisposable
             throw new InvalidOperationException($"System File Checker returned {FormatExitCode(sfcResult.ExitCode)}. DISM completed successfully, and the full SFC output was saved to the repair log.");
 
         UpdateSimple(incident, plan, 98, "Windows integrity checks complete", "DISM and System File Checker completed successfully.", 4, 4, backupRoot);
-        return "Windows component-store and system-file repair checks completed successfully. If Windows repaired files, reboot before retesting iRacing.";
+        return plan.Id == WindowsRepairPolicy.IntegrityRepairId
+            ? "Windows component-store and system-file repair commands completed. Review the recorded output, restart if required and retest the original symptom."
+            : "Windows component-store and system-file repair checks completed successfully. If Windows repaired files, reboot before retesting iRacing.";
+    }
+
+    private static void EnsureWindowsToolsIdle()
+    {
+        foreach (var game in GameDefinition.Supported)
+            EnsureGameNotRunning(game.Kind, game.DisplayName);
+        IRacingUpdateGuard.EnsureIdle();
+    }
+
+    private async Task<string> CheckWindowsIntegrityAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
+    {
+        EnsureWindowsToolsIdle();
+        var results = Path.Combine(backupRoot, "windows-integrity-results.txt");
+        UpdateSimple(incident, plan, 15, "Checking the component store", "DISM is scanning Windows without requesting repairs.", 1, 3, backupRoot);
+        var dism = await RunProcessCaptureAsync(Path.Combine(Environment.SystemDirectory, "dism.exe"),
+            "/Online /Cleanup-Image /ScanHealth", Environment.SystemDirectory, token, 1800);
+        await File.WriteAllTextAsync(results, BuildProcessLog("DISM /ScanHealth", dism), token);
+        UpdateSimple(incident, plan, 65, "Verifying system files", "SFC is verifying protected files without repairing them.", 2, 3, backupRoot);
+        var sfc = await RunProcessCaptureAsync(Path.Combine(Environment.SystemDirectory, "sfc.exe"),
+            "/verifyonly", Environment.SystemDirectory, token, 1800);
+        await File.AppendAllTextAsync(results, Environment.NewLine + BuildProcessLog("SFC /verifyonly", sfc), token);
+        if (dism.ExitCode != 0 || sfc.ExitCode != 0)
+            throw new InvalidOperationException($"Windows checks returned DISM {FormatExitCode(dism.ExitCode)}, SFC {FormatExitCode(sfc.ExitCode)}. Review the saved check output.");
+        return "Both verification commands completed. Review windows-integrity-results.txt for the actual findings before choosing a repair.";
+    }
+
+    private async Task<string> RepairWindowsDnsCacheAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
+    {
+        EnsureWindowsToolsIdle();
+        UpdateSimple(incident, plan, 40, "Refreshing the DNS cache", "Asking Windows to clear its local resolver cache.", 1, 3, backupRoot);
+        var result = await RunProcessCaptureAsync(Path.Combine(Environment.SystemDirectory, "ipconfig.exe"),
+            "/flushdns", Environment.SystemDirectory, token, 30);
+        await File.WriteAllTextAsync(Path.Combine(backupRoot, "windows-dns-results.txt"), BuildProcessLog("ipconfig /flushdns", result), token);
+        if (result.ExitCode != 0) throw new InvalidOperationException($"Windows could not refresh the DNS cache: {FormatExitCode(result.ExitCode)}.");
+        return "Windows reported that the DNS cache refresh completed. Retry the original connection to determine whether it helped.";
+    }
+
+    private async Task<string> StartWindowsAudioServicesAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
+    {
+        EnsureWindowsToolsIdle();
+        UpdateSimple(incident, plan, 30, "Checking audio services", "Checking both services before starting any stopped service.", 1, 3, backupRoot);
+        // Fixed names and fixed operations. No service or command arguments come from a finding.
+        const string script = "$ErrorActionPreference='Stop'; $services=@(Get-Service -Name 'AudioEndpointBuilder','Audiosrv' | Sort-Object Name); "
+            + "if($services.Count -ne 2){throw 'Both Windows audio services are required.'}; "
+            + "foreach($s in $services){Write-Output ($s.Name+' before: '+$s.Status); if($s.Status -ne 'Running' -and ($s.Status -ne 'Stopped' -or $s.StartType -eq 'Disabled')){throw 'An audio service is disabled or changing state.'}}; "
+            + "foreach($s in $services){$s.Refresh(); if($s.Status -eq 'Stopped'){Start-Service -InputObject $s; $s.WaitForStatus('Running',[TimeSpan]::FromSeconds(15))}; $s.Refresh(); if($s.Status -ne 'Running'){throw 'Audio service did not reach Running.'}; Write-Output ($s.Name+' after: '+$s.Status)}";
+        var powerShell = Path.Combine(Environment.SystemDirectory, "WindowsPowerShell", "v1.0", "powershell.exe");
+        var result = await RunProcessCaptureAsync(powerShell, "-NoProfile -NonInteractive -Command \"" + script + "\"", Environment.SystemDirectory, token, 60);
+        await File.WriteAllTextAsync(Path.Combine(backupRoot, "windows-audio-results.txt"), BuildProcessLog("Windows audio services", result), token);
+        if (result.ExitCode != 0) throw new InvalidOperationException("Windows audio service recovery could not finish. Review the recorded service state and error.");
+        return "Both Windows audio services are running. If sound remains unavailable, check the output device and volume mixer.";
+    }
+
+    private async Task<string> SynchronizeWindowsClockAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)
+    {
+        EnsureWindowsToolsIdle();
+        var executable = Path.Combine(Environment.SystemDirectory, "w32tm.exe");
+        UpdateSimple(incident, plan, 40, "Synchronizing Windows time", "Requesting synchronization with the configured Windows time source.", 1, 3, backupRoot);
+        var result = await RunProcessCaptureAsync(executable, "/resync", Environment.SystemDirectory, token, 30);
+        var status = await RunProcessCaptureAsync(executable, "/query /status", Environment.SystemDirectory, token, 30);
+        await File.WriteAllTextAsync(Path.Combine(backupRoot, "windows-time-results.txt"), BuildProcessLog("w32tm /resync", result)
+            + Environment.NewLine + BuildProcessLog("w32tm /query /status", status), token);
+        if (result.ExitCode != 0 || status.ExitCode != 0)
+            throw new InvalidOperationException("Windows time synchronization or its status query failed. Review the recorded output.");
+        return "Windows accepted the synchronization and status requests. Check the reported clock and retry the original symptom.";
     }
 
     private async Task<string> RepairAceVideoSettingsAsync(IncidentRecord incident, RepairPlan plan, string backupRoot, CancellationToken token)

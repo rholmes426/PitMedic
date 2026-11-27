@@ -477,6 +477,97 @@
       "access": "article-body-opened",
       "checkedOn": "2026-11-26",
       "notes": "Investigate cached name resolution versus configured resolver results before proposing a refresh."
+    },
+    {
+      "id": "patchmanagement-org",
+      "products": [
+        "all"
+      ],
+      "authority": "community",
+      "category": "patch-management",
+      "url": "https://patchmanagement.org/",
+      "searchTemplate": "site:patchmanagement.org {symptom} {kb}",
+      "access": "homepage-opened-current-group-restricted",
+      "checkedOn": "2026-11-26",
+      "notes": "User-selected sysadmin patch discussion. The linked Google Group requires access; do not treat archive or search snippets as current resolution evidence."
+    },
+    {
+      "id": "patchmanagement-marc-archive",
+      "products": [
+        "all"
+      ],
+      "authority": "community",
+      "category": "patch-management",
+      "url": "https://marc.info/?l=patchmanagement",
+      "searchTemplate": "site:marc.info patchmanagement {kb} {symptom}",
+      "access": "historical-archive-opened",
+      "checkedOn": "2026-11-26",
+      "notes": "Public archive index ends in April 2019; use only for historical context."
+    },
+    {
+      "id": "patchmanagement-google-group",
+      "products": [
+        "all"
+      ],
+      "authority": "community",
+      "category": "patch-management",
+      "url": "https://groups.google.com/g/patchmanagement",
+      "searchTemplate": "site:groups.google.com/g/patchmanagement {kb} {symptom}",
+      "access": "permission-denied",
+      "checkedOn": "2026-11-26",
+      "notes": "Current group content was inaccessible on November 26. Revisit public access if available; no membership, sign-in or access bypass."
+    },
+    {
+      "id": "reddit-sysadmin",
+      "products": [
+        "all"
+      ],
+      "authority": "community",
+      "category": "patch-management",
+      "url": "https://www.reddit.com/r/sysadmin/",
+      "searchTemplate": "site:reddit.com/r/sysadmin {kb} {symptom} (fixed OR resolved OR workaround)",
+      "access": "discussion-and-outcome-opened",
+      "checkedOn": "2026-11-26",
+      "notes": "Read current monthly Patch Tuesday megathread, exact KB/edition/build and independent follow-up. Community reports may be enterprise-specific."
+    },
+    {
+      "id": "askwoody-windows",
+      "products": [
+        "all"
+      ],
+      "authority": "community",
+      "category": "patch-management",
+      "url": "https://www.askwoody.com/",
+      "searchTemplate": "site:askwoody.com Windows {kb} {symptom}",
+      "access": "http-403",
+      "checkedOn": "2026-11-26",
+      "notes": "Recommended in r/sysadmin; site returned Forbidden. Treat as a lead source until a readable article is available."
+    },
+    {
+      "id": "bleepingcomputer-microsoft",
+      "products": [
+        "all"
+      ],
+      "authority": "community",
+      "category": "technology-news",
+      "url": "https://www.bleepingcomputer.com/news/microsoft/",
+      "searchTemplate": "site:bleepingcomputer.com/news/microsoft/ Windows {kb} {symptom}",
+      "access": "article-body-opened",
+      "checkedOn": "2026-11-26",
+      "notes": "Read Windows regression reporting; corroborate status, release channel and affected builds in Microsoft documentation."
+    },
+    {
+      "id": "ivanti-patch-tuesday",
+      "products": [
+        "all"
+      ],
+      "authority": "vendor-community",
+      "category": "patch-management",
+      "url": "https://www.ivanti.com/blog",
+      "searchTemplate": "site:ivanti.com/blog {month} {year} Patch Tuesday Windows {kb}",
+      "access": "article-body-opened",
+      "checkedOn": "2026-11-26",
+      "notes": "Successor search route for older Shavlik patch notes references. Useful release context; distinguish Ivanti-specific and Windows desktop issues."
     }
   ],
   "queryFamilies": [

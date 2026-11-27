@@ -8,6 +8,12 @@
     "retainHistoricalEntries": true
   },
   "entries": [
+    { "id": "windows-integrity-check", "kind": "windows-guidance", "status": "guidance", "lastVerified": "2026-11-26", "reviewCadenceDays": 180 },
+    { "id": "windows-system-file-integrity", "kind": "windows-repair", "status": "active", "lastVerified": "2026-11-26", "reviewCadenceDays": 180 },
+    { "id": "windows-dns-cache-recovery", "kind": "windows-repair", "status": "active", "lastVerified": "2026-11-26", "reviewCadenceDays": 180 },
+    { "id": "windows-audio-service-recovery", "kind": "windows-repair", "status": "active", "lastVerified": "2026-11-26", "reviewCadenceDays": 180 },
+    { "id": "windows-time-sync", "kind": "windows-repair", "status": "active", "lastVerified": "2026-11-26", "reviewCadenceDays": 180 },
+    { "id": "windows-thermal-limiting", "kind": "windows-guidance", "status": "guidance", "lastVerified": "2026-11-26", "reviewCadenceDays": 180 },
     { "id": "rfactor2-shader-cache", "kind": "simulator-repair", "status": "active", "lastVerified": "2026-11-21", "reviewCadenceDays": 180 },
     { "id": "rfactor2-steam-content", "kind": "simulator-repair", "status": "active", "lastVerified": "2026-11-17", "reviewCadenceDays": 180 },
     { "id": "rfactor2-trace-log", "kind": "simulator-guidance", "status": "guidance", "lastVerified": "2026-11-17", "reviewCadenceDays": 180 },

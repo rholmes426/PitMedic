@@ -75,11 +75,16 @@ retrieval route. Do not bypass login, CAPTCHA, membership or private Discord.
 ## Windows 10/11 cross-product troubleshooting
 
 Include Windows-originating launch, dependency, service, audio, memory,
-graphics, device, connection and write/storage failures when they affect
-supported sim software. Review current Microsoft release-health and relevant
+graphics, device, connection, update and write/storage failures. Include
+standalone Windows 10/11 problems where a targeted repair or useful diagnosis
+is feasible, even with no simulator involved. Review current Microsoft release-health and relevant
 vendor prerequisite/driver guidance against exact OS build, application
 identity, provider, error code and conditions. A Windows event near a sim
-failure may be contextual. A launcher that never starts or a non-crashing
+failure may be contextual. Check r/sysadmin's latest Patch Tuesday megathread,
+PatchManagement.org and the independently discovered patch sources in the
+manual inventory. Record inaccessible groups and distinguish client, server,
+Hotpatch and Insider preview applicability. Corroborate current fixes and
+servicing status against Microsoft release notes before proposing automation. A launcher that never starts or a non-crashing
 symptom should be reachable by an explicit Windows troubleshooting request.
 
 Look for a reproducible, targeted operating-system recovery or a safer

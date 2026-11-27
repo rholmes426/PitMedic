@@ -28,6 +28,7 @@ LOGO_URL = "https://pitmedic.com/assets/brand/pitmedic-icon-carbon-lime.png"
 INDEX_MODIFIED = "2026-11-06"
 
 GAME_SLUGS = {
+    "Windows": "windows",
     "Le Mans Ultimate": "le-mans-ultimate",
     "iRacing": "iracing",
     "Assetto Corsa EVO": "assetto-corsa-evo",
@@ -90,10 +91,11 @@ def parse_simulator_entries() -> list[dict[str, object]]:
     for block in blocks:
         signatures_match = re.search(r"Signatures\s*=\s*new\[\]\s*\{(.*?)\}", block, re.S)
         signatures = re.findall(r'"((?:[^"\\]|\\.)*)"', signatures_match.group(1)) if signatures_match else []
+        product = field(block, "Game")
         entries.append({
             "id": field(block, "Id"),
-            "displayKind": "Diagnostic guidance" if "IsGuidanceOnly = true" in block else "Simulator repair",
-            "product": field(block, "Game"),
+            "displayKind": "Diagnostic guidance" if "IsGuidanceOnly = true" in block else "Windows repair" if product == "Windows" else "Simulator repair",
+            "product": product,
             "issue": field(block, "Issue"),
             "detection": field(block, "Detection"),
             "repair": field(block, "RepairStrategy"),
@@ -295,7 +297,11 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
                      if is_guidance else "PitMedic compares the evidence on your PC with this record. It only offers a repair when the relevant conditions are present.")
     if user_requested:
         aside_heading = "Start this check in PitMedic"
-        aside_summary = "Open the simulator page and choose Repair Tools, then Verify Steam files. PitMedic asks for approval before it hands the request to Steam."
+        aside_summary = ("Open Home, choose Windows repair tools and select the matching action. PitMedic asks for approval and records the result."
+                         if product == "Windows" else "Open the simulator page and choose Repair Tools, then Verify Steam files. PitMedic asks for approval before it hands the request to Steam.")
+    if entry["id"] == "windows-thermal-limiting":
+        aside_heading = "Review your thermal report"
+        aside_summary = "After the simulator closes, open its page and review Last Session. Thermal monitoring is silent during the race."
     display_issue = str(editorial.get("heading") or display_issue)
     description = str(editorial.get("description") or (
         f"How PitMedic detects and performs a controlled recovery after a {product} crash or stale process."
@@ -407,6 +413,13 @@ def write_issue_page(entry: dict[str, object], all_entries: list[dict[str, objec
 
 # Stable section anchors preserve guide URLs and avoid duplicate filter landing pages.
 LIBRARY_GROUPS = [
+    {
+        "slug": "windows",
+        "name": "Windows 10 and 11",
+        "products": ["Windows"],
+        "description": "Windows integrity, DNS, audio service, time synchronization and thermal report guidance.",
+        "coverage": "windows"
+    },
     {
         "slug": "assetto-corsa",
         "name": "Assetto Corsa (original)",

@@ -4,6 +4,8 @@ using System.Text.Json;
 
 ConfigurationRepairTests.Run();
 ProcessExitTests.Run();
+ThermalSessionTests.Run();
+WindowsRepairPolicyTests.Run();
 
 var rfactor2 = GameDefinition.Supported.Single(game => game.Kind == GameKind.RFactor2);
 var rfactor2Root = Path.Combine(Path.GetTempPath(), "PitMedic-rFactor2-" + Guid.NewGuid().ToString("N"));
@@ -330,7 +332,7 @@ finally
 }
 
 AssertTrue(
-    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly) == 61,
+    RepairKnowledgeBase.Entries.Count(entry => !entry.IsGuidanceOnly && entry.Game != WindowsRepairPolicy.Product) == 61,
     "Every simulator repair implemented for this release must have a formal knowledge record.");
 AssertTrue(
     RepairKnowledgeBase.DiagnosticLibraryUrlForPlan("ams2-controller-reset")

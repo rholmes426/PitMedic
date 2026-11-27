@@ -245,3 +245,46 @@ new Windows library group and related guides only when the corresponding
 behavior ships; all listed guides are planned. Research source coverage is
 targeted to common Windows conditions, not a prevalence estimate or a
 reproduction on every sim/hardware combination.
+
+## Additional sysadmin source review (November 26)
+
+The Windows scope also includes standalone OS problems. User-selected
+[PatchManagement.org](https://patchmanagement.org/) and
+[r/sysadmin source recommendations](https://www.reddit.com/r/sysadmin/comments/572cmu/is_there_a_site_that_lists_windows_server_updates/)
+were examined. PatchManagement's public [MARC archive](https://marc.info/?l=patchmanagement)
+ends in April 2019, and its [Google Group](https://groups.google.com/g/patchmanagement)
+returned permission denied. Both are retained with that access status.
+The source thread also recommends AskWoody, old Shavlik patch notes and
+technology coverage. AskWoody returned HTTP 403. Ivanti's
+[November Patch Tuesday article](https://www.ivanti.com/blog/november-2026-patch-tuesday)
+was readable, and BleepingComputer's Windows news provided current OS
+regression reporting. Use these for leads, with Microsoft as the servicing
+authority.
+
+The [November 10 r/sysadmin megathread](https://www.reddit.com/r/sysadmin/comments/1xsp3bk/patch_tuesday_megathread_november_10_2026/)
+and [Hotpatch printer outcome](https://www.reddit.com/r/sysadmin/comments/1xyoihd/windows_nov_hot_patch_breaking_print_spooler/)
+were readable. The latter reports stalled/crashing Print Spooler with
+KB5132043 builds ending .9911, with recovery after the standard cumulative update
+KB5132061 ending .9974. That is a community outcome on managed machines,
+not a generic spooler restart or permission to remove security updates.
+Microsoft's standard update has other documented printing fixes, and
+the [Hotpatch release note](https://support.microsoft.com/en-us/servicing/os/hotpatch/windows-11/2026/november-kb5132043-windows-11-24h2-25h2-26h2-security-update)
+adds a November 25 known issue involving msi.dll and certain 32-bit Windows
+Installer consumers. Distinguish that exact Hotpatch/build and symptom from
+generic application faults. Record the installed build and affected app,
+then refer to supported vendor servicing. No registry mitigation or patch
+uninstallation is implemented.
+
+BleepingComputer's [November installation issue report](https://www.bleepingcomputer.com/news/microsoft/microsoft-confirms-kb5132061-installation-issues-0x80070306-0x800f0989-0x800f0993-errors/)
+matches the [Microsoft standard-update notes](https://support.microsoft.com/en-gb/servicing/os/windows-11/2026/11/kb5132061-windows-11-24h2-25h2-26h2-security-update)
+for October preview KB5127936 followed by the November update retry/error
+0x80070306, 0x800f0989 or 0x800f0993. Microsoft delivered automatic servicing
+mitigation. A repeated error needs current servicing status, not a blanket
+Windows Update reset. Its [Bluetooth audio article](https://www.bleepingcomputer.com/news/microsoft/microsoft-testing-fix-for-windows-11-bluetooth-audio-quality-drops/)
+describes Insider Beta/Experimental work; it is a preview lead and not a
+stable Windows 11 fix.
+
+Extend KS-WIN-GPU-OS-BUILDS to include standalone applicable update/installer
+and service regressions. Planned windows-known-update-issues guide should
+explain exact KB/build/channel conditions and pending versus released remedies.
+Further source monitoring remains manual.

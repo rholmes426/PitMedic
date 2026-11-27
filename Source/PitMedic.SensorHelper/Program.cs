@@ -124,6 +124,7 @@ internal static class Program
                         {
                             Timestamp = DateTimeOffset.UtcNow,
                             CpuTempC = BestCpuTemp(cpu, all),
+                            CpuThermalHeadroomC = CpuSensorPolicy.ThermalHeadroom(Sensors(cpu, SensorType.Temperature).Select(s => (s.Name, s.Value))),
                             CpuLoadPct = Named(cpu, SensorType.Load, "CPU Total") ?? Max(cpu, SensorType.Load),
                             CpuClockMhz = CpuSensorPolicy.PositiveReading(Max(cpu, SensorType.Clock)),
                             CpuPowerW = Named(cpu, SensorType.Power, "CPU Package") ?? Max(cpu, SensorType.Power)
@@ -240,6 +241,7 @@ internal static class Program
     private static float? BestCpuTemp(IEnumerable<IHardware> cpu, IEnumerable<IHardware> all)
     {
         var cpuTemps = Sensors(cpu, SensorType.Temperature)
+            .Where(s => !CpuSensorPolicy.IsThermalHeadroomName(s.Name))
             .Where(s => CpuSensorPolicy.PositiveReading(s.Value).HasValue).ToList();
         var preferredNames = new[] { "CPU Package", "Package", "Tctl/Tdie", "Tctl", "Tdie", "Core Max", "Core Average" };
         foreach (var preferred in preferredNames)
@@ -285,6 +287,7 @@ internal static class Program
     {
         public DateTimeOffset Timestamp { get; init; }
         public float? CpuTempC { get; init; }
+        public float? CpuThermalHeadroomC { get; init; }
         public float? CpuLoadPct { get; init; }
         public float? CpuClockMhz { get; init; }
         public float? CpuPowerW { get; init; }

@@ -25,6 +25,7 @@ public sealed class SimulatorSessionStore
     {
         lock (_gate)
         {
+            if (_sessions.TryGetValue(session.Game, out var previous) && previous.Ended > session.Ended) return;
             _sessions[session.Game] = session;
             try
             {

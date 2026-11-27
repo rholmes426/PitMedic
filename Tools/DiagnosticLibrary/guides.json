@@ -1,4 +1,85 @@
 {
+  "windows-integrity-check": {
+    "modified": "2026-11-26",
+    "available_from": "1.0.0.14",
+    "user_requested": true,
+    "intro": "If several applications or Windows itself fail repeatedly, Windows integrity verification can provide the next evidence.",
+    "meaning": "PitMedic can request the Windows component-store scan and protected-file verification without asking Windows to restore files.",
+    "checks": [
+      "Close running simulators and let active updates finish.",
+      "Choose Check Windows system files under Home → Windows repair tools, review the estimate and approve the diagnostic."
+    ],
+    "result": "Review the saved windows-integrity-results.txt output after both commands finish. Choose the repair only if the findings support it.",
+    "limits": "An ordinary app crash or access violation alone does not establish corruption. A completed scan is a diagnostic result."
+  },
+  "windows-system-file-integrity": {
+    "modified": "2026-11-26",
+    "available_from": "1.0.0.14",
+    "user_requested": true,
+    "intro": "If checks identify damaged Windows components or protected files, the Windows servicing tools can attempt recovery.",
+    "meaning": "PitMedic requests DISM RestoreHealth and SFC scannow with approval, capturing their exit status and output.",
+    "checks": [
+      "Review the Windows integrity check output or other corroborated evidence first.",
+      "Close running simulators, allow servicing and updates to finish, and approve the time estimate."
+    ],
+    "result": "Review Windows results and restart if required. Repeat the same original symptom. If the component store lacks repair source files, use supported Windows repair guidance.",
+    "limits": "Windows servicing is system-wide and can require repair downloads or a reboot. The records do not constitute a restorable copy of Windows. A successful command is distinct from a resolved application fault.",
+    "related": [
+      "windows-integrity-check",
+      "iracing-windows-integrity"
+    ]
+  },
+  "windows-dns-cache-recovery": {
+    "modified": "2026-11-26",
+    "available_from": "1.0.0.14",
+    "user_requested": true,
+    "intro": "A failed service hostname lookup can involve stale or negative local Windows DNS data.",
+    "meaning": "PitMedic offers an explicit Windows resolver-cache refresh. The Windows DNS cache fills again from normal lookups.",
+    "checks": [
+      "Check whether the problem is limited to a hostname and whether other services connect.",
+      "Close running simulators, let updates finish, select Refresh Windows DNS cache and approve."
+    ],
+    "result": "Review the command result and try the original hostname or service again.",
+    "limits": "This clears only the local resolver cache. It preserves DNS servers, adapters and firewall configuration. An outage, VPN issue or general packet loss requires separate diagnosis."
+  },
+  "windows-audio-service-recovery": {
+    "modified": "2026-11-26",
+    "available_from": "1.0.0.14",
+    "user_requested": true,
+    "intro": "Stopped Windows audio services can prevent sound in games, companion apps and Windows generally.",
+    "meaning": "PitMedic checks Windows Audio Endpoint Builder and Windows Audio, and can start stopped, enabled services after approval.",
+    "checks": [
+      "Check whether system sounds and the affected application have audio and confirm the intended output device.",
+      "Close simulators and choose Start stopped Windows audio services. Running services are left running; disabled or transitioning services need review."
+    ],
+    "result": "Verify both service states and retest playback. If both services were running, check the volume mixer, endpoint and drivers.",
+    "limits": "This action starts only the two fixed services. It does not restart services that are already running, change service startup settings, replace drivers or alter audio devices."
+  },
+  "windows-time-sync": {
+    "modified": "2026-11-26",
+    "available_from": "1.0.0.14",
+    "user_requested": true,
+    "intro": "If the Windows clock is inaccurate, applications can encounter time-sensitive connection errors.",
+    "meaning": "PitMedic requests synchronization with Windows' configured source and queries the time-service status.",
+    "checks": [
+      "Confirm the displayed date/time is incorrect or the application reports a time-specific symptom.",
+      "Close simulators, select Synchronize Windows clock and approve."
+    ],
+    "result": "Review the synchronization result and reported time status, then retest the original symptom.",
+    "limits": "The operation uses the existing Windows time source and preserves time zone and server configuration. If the time service is disabled or unreachable, review Windows settings or administrator guidance."
+  },
+  "windows-thermal-limiting": {
+    "modified": "2026-11-26",
+    "available_from": "1.0.0.14",
+    "intro": "A processor or graphics card may reduce performance when reaching its hardware thermal limit.",
+    "meaning": "PitMedic silently records valid Intel CPU thermal headroom and supported NVIDIA thermal-slowdown flags during tracked simulator sessions.",
+    "checks": [
+      "Enable Record thermal limits in session reports in Settings.",
+      "After the simulator closes, open its Last Session Thermal Report and review CPU/GPU observations, sampled spans, and minimum CPU headroom."
+    ],
+    "result": "A CPU zero-headroom reading indicates the reported thermal boundary was reached. NVIDIA thermal-slowdown flags indicate a driver-reported thermal constraint. Review cooling and vendor guidance before repeating the workload.",
+    "limits": "The report uses available sampled evidence, not a universal temperature threshold. Unsupported CPU/GPU models, missing drivers and interrupted sampling may leave evidence unavailable. Sampled spans are estimates across consecutive limiting observations. No alerts interrupt the race and no hardware settings are changed."
+  },
   "rfactor2-shader-cache": {
     "heading": "rFactor 2 black track surfaces or rendering glitches",
     "intro": "If a track repeatedly loads with black surfaces, dark boxes or other rendering artifacts, a rebuild of the generated shader and track caches is worth trying.",

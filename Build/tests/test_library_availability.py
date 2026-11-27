@@ -10,6 +10,8 @@ SPEC.loader.exec_module(generator)
 
 NEW_IDS = {"lmu-controller-config", "iracing-socket-connection", "iracing-spotter-loading-error-63"}
 AC_IDS = {"ac-video-config", "ac-controls-config", "ac-steam-content"}
+WINDOWS_IDS = {"windows-integrity-check", "windows-system-file-integrity", "windows-dns-cache-recovery",
+               "windows-audio-service-recovery", "windows-time-sync", "windows-thermal-limiting"}
 
 
 class LibraryAvailabilityTests(unittest.TestCase):
@@ -18,6 +20,26 @@ class LibraryAvailabilityTests(unittest.TestCase):
 
     def tearDown(self):
         generator.RELEASE_VERSION = self.version
+
+    def test_windows_section_is_gated_and_routes_users_to_the_correct_tools(self):
+        for version, available in (("1.0.0.13", False), ("1.0.0.14", True)):
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as directory:
+                generator.RELEASE_VERSION = version
+                root = Path(directory)
+                generator.generate(root / "library", root / "sitemap.xml")
+                index = (root / "library/index.html").read_text(encoding="utf-8")
+                sitemap = (root / "sitemap.xml").read_text(encoding="utf-8")
+                self.assertEqual(available, 'id="windows"' in index)
+                for guide in WINDOWS_IDS:
+                    path = root / "library" / guide / "index.html"
+                    self.assertEqual(available, path.exists())
+                    self.assertEqual(available, f"/diagnostic-library/{guide}/" in sitemap)
+                    if available:
+                        page = path.read_text(encoding="utf-8")
+                        if guide == "windows-thermal-limiting":
+                            self.assertIn("Review your thermal report", page)
+                        else:
+                            self.assertIn("Open Home, choose Windows repair tools", page)
 
     def test_unreleased_repairs_are_not_advertised_with_the_previous_download(self):
         generator.RELEASE_VERSION = "1.0.0.11"
